@@ -1,0 +1,2 @@
+PASS: 79 recovered formulas, native grid order/count, scene pools, defaults and linear morph verified
+PASS: 395 comparisons, all 79 reconstructed Swift formulas match original native ARM64 instructions at 5 samples, including origin and negative coordinates (Unicorn emulation, relative tolerance 1e-13, NaN/Inf classified)

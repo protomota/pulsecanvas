@@ -1,0 +1,28 @@
+PASS: Project settings opens canvas, resolution (including 4K), and frame-rate controls; only one toolbar Export MP4 action remains
+PASS: Entire soundtrack, start/end controls, and Framing guide absent
+PASS: Studio Bars 3 yields 39 sections; Bars 12 yields 10; Bars 4 yields 29 on the loaded soundtrack
+PASS: Section 3 edge click opens Section 3 chooser and selects Silk Current instead of the preceding section
+PASS: Independent Play section 3 starts audio and visualizer without opening the chooser and stops inside the section
+PASS: Single-section shuffle changes only that section; timeline shuffle changes all 29 visualizers and retains boundaries
+PASS: Native project save persists seven-bar cadence, 4K resolution and Chaos; omits obsolete trim fields
+PASS: Equal-width 44-point Visualizers and Studio tabs retain the 100-point mode column; selected styling and accessibility state switch correctly
+PASS: All 27 styles appear in one row; revised Bead Surge/Aurora Fold/Pearl Terrain and five additions select and render in the native app
+PASS: Studio chooser exposes all five additions; saved soundtrack and timeline choices remain available after update
+PASS: All 30 styles appear in the native row; Monolith Rush, Halo Engine, and Tidal Glass select their correct previews and appear in the Studio chooser
+PASS: Octagon Vault renders repeated twisting octagons across the complete native preview canvas
+PASS: Mercury Fold exposes Liquid detail and Surface thickness controls; dragging detail to 0.8158591 changes the value and retains it after switching away and back
+PASS: Native project save persists shared Liquid detail while retaining the existing soundtrack and all 29 timeline sections
+PASS: Octagon Vault renders a continuous glowing octagonal line mesh across the native canvas; its saved appearance and Line width control remain available
+PASS: Grid Vortex renders the square-cell mesh, exposes Line width, appears in the Studio chooser, and increases the native collection to 31
+PASS: Ink Cyclone renders broad travelling currents with separate off-center eddies in the native preview; the existing soundtrack was restored and playback resumed near its previous position with Loop off
+PASS: Delivered app exposes Zoom speed on Prism Wake, Octagon Vault, Ink Cyclone, and Pearl Terrain. Octagon slider reaches exactly 0 and retains that setting across scene switches; Ink independently retains 1.5. Native canvas renders the connected octagonal mesh and expanding curved Ink tunnel during soundtrack playback.
+PASS: Reloading the latest saved user project restores original appearance settings with default 1.5 zoom speed, SaaSpocalypse audio, Pearl Terrain selection, Loop off, paused preview, and the previous 3:32 playhead.
+PASS: Updated application signature verifies strictly; delivered shader resources match source; ZIP integrity checks pass.
+PASS: Updated app launched with zero-Chaos help text; saved soundtrack, appearance presets and 1920x1080 60fps settings restored
+PASS: Octagon Vault renders its connected honeycomb vortex with Chaos 0 and Zoom speed 1.093457 while the restored soundtrack plays
+PASS: Reviewed live Octagon Vault, Ink Cyclone and Grid Vortex with zero Chaos during soundtrack playback; forward zoom/twist remain visible. Restored complete project matches the pre-review snapshot exactly; playback position, playing state and Loop retained.
+PASS: Delivered app reviewed during actual soundtrack playback: Mercury Fold shows local liquid folds and Octagon Vault shows connected cells bending across the canvas. Loaded soundtrack, per-style presets, playing state and Loop remain available; live review does not reset settings.
+PASS: Studio Apply to all opens with current Chaos, Zoom speed and Motion speed; full-row switches independently include each control and disable excluded sliders. Empty selection disables Apply. Cancel retains current settings. Native selective Chaos application updates all 31 saved presets without changing other controls, soundtrack, output settings or timeline. Restored project matches the pre-update snapshot exactly, including all presets and Studio choices; paused playhead and Loop restored.
+PASS: Studio Apply to all shares the 44-point row with Bars, Randomize timeline and Auto-detect; the extra action row is absent and the preview gains its vertical space. The moved button opens the common-controls sheet and Cancel closes it. Saved soundtrack, every appearance preset, timeline and output settings match the pre-update snapshot; playback and Loop resumed.
+PASS: Apply to all contains Keep individual, Apply all and Remove all hi-hat strobe choices. Apply all enables editable sensitivity and strength sliders; both were adjusted in the native pop-up. Saved Apply all project enables all 31 presets with chosen values while preserving every non-strobe control, timeline and output setting. Saved Remove all project disables all presets while retaining sensitivity/strength. Original saved project was reloaded after verification; subsequent user edits were left intact.
+PASS: Final Apply settings to all pop-up is 500 points wide with a 12-point gutter beside scrollable controls; strobe choices and sliders remain clear of the scroll bar, and footer actions remain visible. Native inspector has no Reset style button and shows a larger 20-point randomizer dice in the existing tap target. Latest saved user project matches the restored project exactly.

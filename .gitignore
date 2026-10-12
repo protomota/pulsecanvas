@@ -1,0 +1,13 @@
+.DS_Store
+.build/
+build/
+work/
+.swiftpm/
+*.metallib
+*.air
+*.caf
+*.mov
+*.mp4
+
+__pycache__/
+*.py[cod]

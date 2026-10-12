@@ -1,0 +1,1 @@
+PASS: all 31 visualizers produce byte-identical encoder-surface frames, including content blur, music response and strobe over consecutive frames

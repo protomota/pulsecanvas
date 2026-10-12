@@ -1,0 +1,68 @@
+2026-10-10 10:05:03.147 verify-renderer[39847:29969821] Metal API Validation Enabled
+PASS scene 0 Stargate, blur 0.0, wire false: 76999 lit pixels, max 255
+PASS scene 1 Alien Lights, blur 0.0, wire false: 106647 lit pixels, max 255
+PASS scene 2 Singularity, blur 0.0, wire false: 107522 lit pixels, max 255
+PASS scene 3 Tunnel To Mental Plane, blur 0.0, wire false: 49964 lit pixels, max 228
+PASS scene 4 Cosmic Voyage, blur 0.0, wire false: 25902 lit pixels, max 255
+PASS scene 5 Crystal Morph, blur 0.0, wire false: 101561 lit pixels, max 212
+PASS scene 6 Crystal Tunnels, blur 0.0, wire false: 1780 lit pixels, max 228
+PASS scene 7 Cyborg Morph, blur 0.0, wire false: 112735 lit pixels, max 215
+PASS scene 8 Fractal Tunnels, blur 0.0, wire false: 23872 lit pixels, max 231
+PASS scene 9 Galaxy Journey, blur 0.0, wire false: 18505 lit pixels, max 255
+PASS scene 10 Interstellar Flight, blur 0.0, wire false: 29346 lit pixels, max 255
+PASS scene 11 Lotus Tunnels, blur 0.0, wire false: 23811 lit pixels, max 234
+PASS scene 12 Magic Constellations, blur 0.0, wire false: 26073 lit pixels, max 255
+PASS scene 13 Nebula Tunnels, blur 0.0, wire false: 53383 lit pixels, max 238
+PASS scene 14 3D Stars Journey, blur 0.0, wire false: 31338 lit pixels, max 255
+PASS scene 15 Audio Mandala, blur 0.0, wire false: 3316 lit pixels, max 143
+PASS scene 16 Orbital Rings, blur 0.0, wire false: 2871 lit pixels, max 133
+PASS scene 17 Ribbon Wave, blur 0.0, wire false: 2645 lit pixels, max 147
+PASS scene 18 Spectral Helix, blur 0.0, wire false: 9166 lit pixels, max 242
+PASS scene 19 Particle Fountain, blur 0.0, wire false: 9277 lit pixels, max 245
+PASS scene 20 Pulse Grid, blur 0.0, wire false: 10448 lit pixels, max 148
+PASS scene 21 Harmonic Bloom, blur 0.0, wire false: 8449 lit pixels, max 139
+PASS scene 0 Stargate, blur 0.75, wire false: 73708 lit pixels, max 255
+PASS scene 1 Alien Lights, blur 0.75, wire false: 103353 lit pixels, max 255
+PASS scene 2 Singularity, blur 0.75, wire false: 119484 lit pixels, max 255
+PASS scene 3 Tunnel To Mental Plane, blur 0.75, wire false: 35876 lit pixels, max 165
+PASS scene 4 Cosmic Voyage, blur 0.75, wire false: 36687 lit pixels, max 229
+PASS scene 5 Crystal Morph, blur 0.75, wire false: 117192 lit pixels, max 124
+PASS scene 6 Crystal Tunnels, blur 0.75, wire false: 1711 lit pixels, max 153
+PASS scene 7 Cyborg Morph, blur 0.75, wire false: 118953 lit pixels, max 130
+PASS scene 8 Fractal Tunnels, blur 0.75, wire false: 22201 lit pixels, max 138
+PASS scene 9 Galaxy Journey, blur 0.75, wire false: 22362 lit pixels, max 255
+PASS scene 10 Interstellar Flight, blur 0.75, wire false: 30512 lit pixels, max 255
+PASS scene 11 Lotus Tunnels, blur 0.75, wire false: 21909 lit pixels, max 137
+PASS scene 12 Magic Constellations, blur 0.75, wire false: 35889 lit pixels, max 227
+PASS scene 13 Nebula Tunnels, blur 0.75, wire false: 25645 lit pixels, max 142
+PASS scene 14 3D Stars Journey, blur 0.75, wire false: 30813 lit pixels, max 255
+PASS scene 15 Audio Mandala, blur 0.75, wire false: 1721 lit pixels, max 58
+PASS scene 16 Orbital Rings, blur 0.75, wire false: 2266 lit pixels, max 82
+PASS scene 17 Ribbon Wave, blur 0.75, wire false: 2334 lit pixels, max 61
+PASS scene 18 Spectral Helix, blur 0.75, wire false: 11697 lit pixels, max 219
+PASS scene 19 Particle Fountain, blur 0.75, wire false: 12670 lit pixels, max 222
+PASS scene 20 Pulse Grid, blur 0.75, wire false: 9733 lit pixels, max 100
+PASS scene 21 Harmonic Bloom, blur 0.75, wire false: 8751 lit pixels, max 85
+PASS scene 0 Stargate, blur 0.0, wire true: 82982 lit pixels, max 255
+PASS scene 1 Alien Lights, blur 0.0, wire true: 71306 lit pixels, max 255
+PASS scene 2 Singularity, blur 0.0, wire true: 96752 lit pixels, max 255
+PASS scene 3 Tunnel To Mental Plane, blur 0.0, wire true: 26980 lit pixels, max 255
+PASS scene 4 Cosmic Voyage, blur 0.0, wire true: 25463 lit pixels, max 254
+PASS scene 5 Crystal Morph, blur 0.0, wire true: 13664 lit pixels, max 187
+PASS scene 6 Crystal Tunnels, blur 0.0, wire true: 1648 lit pixels, max 231
+PASS scene 7 Cyborg Morph, blur 0.0, wire true: 33139 lit pixels, max 181
+PASS scene 8 Fractal Tunnels, blur 0.0, wire true: 21895 lit pixels, max 255
+PASS scene 9 Galaxy Journey, blur 0.0, wire true: 17596 lit pixels, max 255
+PASS scene 10 Interstellar Flight, blur 0.0, wire true: 29534 lit pixels, max 255
+PASS scene 11 Lotus Tunnels, blur 0.0, wire true: 21455 lit pixels, max 255
+PASS scene 12 Magic Constellations, blur 0.0, wire true: 25327 lit pixels, max 254
+PASS scene 13 Nebula Tunnels, blur 0.0, wire true: 35203 lit pixels, max 255
+PASS scene 14 3D Stars Journey, blur 0.0, wire true: 32460 lit pixels, max 255
+PASS scene 15 Audio Mandala, blur 0.0, wire true: 6225 lit pixels, max 111
+PASS scene 16 Orbital Rings, blur 0.0, wire true: 5127 lit pixels, max 139
+PASS scene 17 Ribbon Wave, blur 0.0, wire true: 3538 lit pixels, max 136
+PASS scene 18 Spectral Helix, blur 0.0, wire true: 9101 lit pixels, max 239
+PASS scene 19 Particle Fountain, blur 0.0, wire true: 9279 lit pixels, max 242
+PASS scene 20 Pulse Grid, blur 0.0, wire true: 13753 lit pixels, max 118
+PASS scene 21 Harmonic Bloom, blur 0.0, wire true: 7924 lit pixels, max 124
+Completed 66 recovered GPU rendering checks, failures=0

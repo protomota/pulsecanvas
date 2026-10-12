@@ -1,0 +1,80 @@
+PulseCanvas Source-Available Noncommercial License 1.0
+
+Copyright (c) 2026 Protomota, LLC
+
+1. Scope
+
+This license applies to PulseCanvas's first-party source code, native shaders,
+build scripts, and associated documentation owned by Protomota, LLC and
+distributed with this license (the "Software"). A file or component with a
+separate license remains governed by that license instead. Third-party libraries,
+vendor code, presets, textures, music, and other separately licensed assets are
+not relicensed by this document.
+
+2. Noncommercial source permissions
+
+You may inspect, copy, modify, build, and redistribute the Software, including
+modified source and compiled versions, solely for noncommercial purposes,
+subject to sections 4 and 5. Noncommercial purposes are purposes not primarily
+directed toward commercial advantage or monetary compensation.
+
+Except for the permissions expressly provided below or required by an applicable
+third-party license, you may not sell or commercially license the Software,
+incorporate it into a commercial product or service, offer it as a paid or
+monetized hosted service, distribute a commercial fork, or otherwise commercially
+exploit its source code or a derivative of that code without separate written
+permission from Protomota, LLC. Contact support@pulsecanvas.si for permission.
+
+3. Using the official application and its output
+
+You may run the unmodified official PulseCanvas application distributed by
+Protomota, LLC for any purpose, including commercial video production. This
+permission does not authorize commercial reuse, resale, or redistribution of
+the application's source code or compiled application.
+
+This license imposes no noncommercial restriction on videos or other output you
+create using the application. It grants no rights to imported music, presets,
+textures, or other assets beyond their own licenses and permissions. You remain
+responsible for obtaining the rights needed for those materials.
+
+4. Notices and redistribution
+
+Redistributions of the Software must retain this license and applicable
+copyright, attribution, and third-party notices. Identify modifications and
+do not represent a modified version as an official Protomota release.
+Redistributing a derivative does not remove these restrictions from the
+PulseCanvas code it contains. This license grants no trademark rights.
+
+5. Independent third-party rights and required exceptions
+
+Third-party licenses apply to their respective components independently. Where
+those licenses permit commercial use, recipients retain those permissions for
+those components. Such permission does not relicense PulseCanvas's first-party
+code or automatically permit commercial distribution of the combined app.
+
+Nothing in this license limits rights required by applicable third-party
+licenses. In particular, to the extent required by GNU LGPL 2.1 or later, you may
+modify the combined work for your own use, rebuild or relink it with a modified
+LGPL library, and reverse engineer it to debug such modifications, including
+where your own use is commercial. No restriction here limits copying,
+modification, use, or redistribution of an LGPL-covered component under its
+license. Any conflicting restriction in this document yields to those required
+rights to the extent of the conflict. Rights arising under applicable law are
+also unaffected.
+
+6. Earlier releases
+
+This license applies to copies first distributed with these terms. It does not
+purport to revoke permissions already granted for earlier copies under the MIT
+License or another license. Earlier releases retain the licenses distributed
+with them.
+
+7. Disclaimer
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.

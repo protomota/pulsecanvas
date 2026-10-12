@@ -1,0 +1,2 @@
+2026-10-10 10:05:04.264 verify-offline-renderer[39863:29970026] Metal API Validation Enabled
+PASS: 132 offline checks: all modes, landscape/portrait exact pixels, deterministic timestamps, post-blur white flash and bass rejection

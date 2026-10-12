@@ -1,0 +1,42 @@
+PASS: Prism Wake zero retains animation, low/high speed changes GPU pixels, zero restores exact frame
+PASS: Lumen Veil zero retains animation, low/high speed changes GPU pixels, zero restores exact frame
+PASS: Pulse Well zero retains animation, low/high speed changes GPU pixels, zero restores exact frame
+PASS: Velvet Passage zero retains animation, low/high speed changes GPU pixels, zero restores exact frame
+PASS: Bead Surge zero retains animation, low/high speed changes GPU pixels, zero restores exact frame
+PASS: Facet Flow zero retains animation, low/high speed changes GPU pixels, zero restores exact frame
+PASS: Glass Current zero retains animation, low/high speed changes GPU pixels, zero restores exact frame
+PASS: Contour Flux zero retains animation, low/high speed changes GPU pixels, zero restores exact frame
+PASS: Recursive Corridor zero retains animation, low/high speed changes GPU pixels, zero restores exact frame
+PASS: Spiral Tide zero retains animation, low/high speed changes GPU pixels, zero restores exact frame
+PASS: Aurora Fold zero retains animation, low/high speed changes GPU pixels, zero restores exact frame
+PASS: Petal Passage zero retains animation, low/high speed changes GPU pixels, zero restores exact frame
+PASS: Pearl Terrain zero retains animation, low/high speed changes GPU pixels, zero restores exact frame
+PASS: Vapor Run zero retains animation, low/high speed changes GPU pixels, zero restores exact frame
+PASS: Scatter Flight zero retains animation, low/high speed changes GPU pixels, zero restores exact frame
+PASS: Petal Echo zero retains animation, low/high speed changes GPU pixels, zero restores exact frame
+PASS: Orbit Loom zero retains animation, low/high speed changes GPU pixels, zero restores exact frame
+PASS: Silk Current zero retains animation, low/high speed changes GPU pixels, zero restores exact frame
+PASS: Double Twist zero retains animation, low/high speed changes GPU pixels, zero restores exact frame
+PASS: Arc Spray zero retains animation, low/high speed changes GPU pixels, zero restores exact frame
+PASS: Signal Tiles zero retains animation, low/high speed changes GPU pixels, zero restores exact frame
+PASS: Resonant Shell zero retains animation, low/high speed changes GPU pixels, zero restores exact frame
+PASS: Octagon Vault zero retains animation, low/high speed changes GPU pixels, zero restores exact frame
+PASS: Mercury Fold zero retains animation, low/high speed changes GPU pixels, zero restores exact frame
+PASS: Voltage Weave zero retains animation, low/high speed changes GPU pixels, zero restores exact frame
+PASS: Ink Cyclone zero retains animation, low/high speed changes GPU pixels, zero restores exact frame
+PASS: Prism Rain zero retains animation, low/high speed changes GPU pixels, zero restores exact frame
+PASS: Monolith Rush zero retains animation, low/high speed changes GPU pixels, zero restores exact frame
+PASS: Halo Engine zero retains animation, low/high speed changes GPU pixels, zero restores exact frame
+PASS: Tidal Glass zero retains animation, low/high speed changes GPU pixels, zero restores exact frame
+PASS: Grid Vortex zero retains animation, low/high speed changes GPU pixels, zero restores exact frame
+PASS: Octagon Vault zero-Chaos tunnel continuity, zoom 0.0, max adjacent-time pixel change 0.059544270833333336
+PASS: Octagon Vault zero-Chaos tunnel continuity, zoom 1.5, max adjacent-time pixel change 0.1811328125
+PASS: Octagon Vault zero-Chaos tunnel continuity, zoom 3.0, max adjacent-time pixel change 0.3458029513888889
+PASS: Ink Cyclone zero-Chaos tunnel continuity, zoom 0.0, max adjacent-time pixel change 0.0007378472222222222
+PASS: Ink Cyclone zero-Chaos tunnel continuity, zoom 1.5, max adjacent-time pixel change 0.03371961805555555
+PASS: Ink Cyclone zero-Chaos tunnel continuity, zoom 3.0, max adjacent-time pixel change 0.07172309027777778
+PASS: Grid Vortex zero-Chaos tunnel continuity, zoom 0.0, max adjacent-time pixel change 0.05011284722222222
+PASS: Grid Vortex zero-Chaos tunnel continuity, zoom 1.5, max adjacent-time pixel change 0.17480034722222224
+PASS: Grid Vortex zero-Chaos tunnel continuity, zoom 3.0, max adjacent-time pixel change 0.3027126736111111
+PASS: 3240 actual 30/60fps tunnel frame transitions without isolated jumps at early/late timestamps and three zoom speeds
+PASS: seamless forward zoom cycle boundaries, smooth tunnels at zero Chaos, and all 31 styles

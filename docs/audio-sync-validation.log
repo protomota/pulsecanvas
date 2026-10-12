@@ -1,0 +1,12 @@
+beat 0.3, gain 1.0: peak 0.8841956, released 0.02202924
+beat 0.8, gain 1.0: peak 0.8841956, released 0.02202924
+beat 1.3, gain 1.0: peak 0.8841956, released 0.02202924
+beat 1.8, gain 1.0: peak 0.8841956, released 0.02202924
+beat 0.3, gain 0.2: peak 0.8841956, released 0.02202924
+beat 0.8, gain 0.2: peak 0.8841956, released 0.02202924
+beat 1.3, gain 0.2: peak 0.8841956, released 0.02202924
+beat 1.8, gain 0.2: peak 0.8841956, released 0.02202924
+sustained max 0.0
+PASS: real PCM attacks, quiet/right-only stereo, sustained-bass rejection, deterministic seeking and clip boundaries
+PASS: live preview publishes PCM pulse and matches export independently of monitor volume
+PASS: 31 scenes visibly pulse without strobe; 155 actual GPU palette outputs with blue/warm/green constraints
