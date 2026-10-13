@@ -4,17 +4,22 @@ struct CanvasInput {
     float3 position [[attribute(0)]];
     float4 color [[attribute(1)]];
     float2 uv [[attribute(2)]];
+    float3 normal [[attribute(3)]];
 };
-struct CanvasOutput { float4 position [[position]]; float4 color; float3 surface; };
+struct CanvasOutput { float4 position [[position]]; float4 color; float3 surface; float3 normal; };
 vertex CanvasOutput canvasVertex(CanvasInput input [[stage_in]], constant float4x4 &mvp [[buffer(1)]], constant uint &scene [[buffer(2)]]) {
     CanvasOutput output;
     output.position = mvp * float4(input.position, 1);
     output.surface = input.position;
     output.color = input.color;
+    output.normal = input.normal;
     return output;
 }
 fragment float4 canvasFragment(CanvasOutput input [[stage_in]]) {
-    float3 normal = normalize(cross(dfdx(input.surface), dfdy(input.surface)) + float3(0,0,0.00001));
+    // Meshes with supplied normals use them; others keep faceted screen-derivative lighting.
+    float3 normal = length_squared(input.normal) > 0.25
+        ? normalize(input.normal)
+        : normalize(cross(dfdx(input.surface), dfdy(input.surface)) + float3(0,0,0.00001));
     float diffuse = abs(dot(normal, normalize(float3(-0.35,0.45,0.82))));
     float specular = pow(abs(dot(normal, normalize(float3(-0.15,0.25,0.96)))), 18);
     float depth = clamp(1.2 - length(input.surface) / 100, 0.4, 1.0);

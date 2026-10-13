@@ -77,6 +77,8 @@ private struct VisualVertex {
     var position: SIMD3<Float>
     var color: SIMD4<Float>
     var uv: SIMD2<Float>
+    /// Zero selects screen-derivative (faceted) lighting in Canvas.metal.
+    var normal = SIMD3<Float>(repeating: 0)
 }
 private struct CanvasPointUniforms {
     var mvp: simd_float4x4
@@ -219,6 +221,7 @@ final class VisualizerRenderer: NSObject, MTKViewDelegate {
             descriptor.attributes[0].format = .float3; descriptor.attributes[0].offset = 0; descriptor.attributes[0].bufferIndex = 0
             descriptor.attributes[1].format = .float4; descriptor.attributes[1].offset = 16; descriptor.attributes[1].bufferIndex = 0
             descriptor.attributes[2].format = .float2; descriptor.attributes[2].offset = 32; descriptor.attributes[2].bufferIndex = 0
+            descriptor.attributes[3].format = .float3; descriptor.attributes[3].offset = MemoryLayout<VisualVertex>.offset(of: \.normal)!; descriptor.attributes[3].bufferIndex = 0
             descriptor.layouts[0].stride = MemoryLayout<VisualVertex>.stride
             canvas.vertexDescriptor = descriptor
             canvas.depthAttachmentPixelFormat = .depth32Float
@@ -659,7 +662,25 @@ final class VisualizerRenderer: NSObject, MTKViewDelegate {
         return device.makeTexture(descriptor: t)
     }
 
+    /// Thin-strip mesh designs shade with averaged mesh normals: screen-derivative normals
+    /// occasionally shaded their strips differently between identical frames on the GPU.
+    /// Resonant Shell keeps its faceted derivative lighting, which smooth normals would change.
+    private static let smoothShadedScenes: Set<Int> = [15, 16, 17, 20]
+
+    private func meshNormals(_ mesh: OriginalGeometry.Mesh) -> [SIMD3<Float>] {
+        var normals = [SIMD3<Float>](repeating: .zero, count: mesh.vertices.count)
+        var index = 0
+        while index + 2 < mesh.indices.count {
+            let a = Int(mesh.indices[index]), b = Int(mesh.indices[index + 1]), c = Int(mesh.indices[index + 2])
+            let face = simd_cross(mesh.vertices[b].position - mesh.vertices[a].position, mesh.vertices[c].position - mesh.vertices[a].position)
+            normals[a] += face; normals[b] += face; normals[c] += face
+            index += 3
+        }
+        return normals.map { simd_length($0) > 1e-12 ? simd_normalize($0) : SIMD3<Float>(0, 0, 1) }
+    }
+
     private func immersive(mesh: OriginalGeometry.Mesh, aspect: Float) -> ([VisualVertex], [UInt32]) {
+        let normals = Self.smoothShadedScenes.contains(state.scene) ? meshNormals(mesh) : nil
         let scale: Float
         let step: SIMD2<Float>
         switch state.scene {
@@ -690,6 +711,7 @@ final class VisualizerRenderer: NSObject, MTKViewDelegate {
                 // retaining a full surrounding tile for camera motion and beats.
                 if abs(center.x) > halfX + step.x * 0.7 || abs(center.y) > halfY + step.y * 0.7 { continue }
                 let offset = UInt32(vertices.count)
+                var vertexIndex = 0
                 let depthOffset = sin(time * 0.45 + Float(column) * 1.7 + Float(row) * 2.1) * (twist ? 6 : 3)
                 for v in mesh.vertices {
                     var position = v.position * scale
@@ -698,7 +720,8 @@ final class VisualizerRenderer: NSObject, MTKViewDelegate {
                     position.z += depthOffset
                     var color = v.color * SIMD4<Float>(repeating: brightness)
                     color.w = 1
-                    vertices.append(VisualVertex(position: position, color: color, uv: v.uv))
+                    vertices.append(VisualVertex(position: position, color: color, uv: v.uv, normal: normals?[vertexIndex] ?? .zero))
+                    vertexIndex += 1
                 }
                 indices.append(contentsOf: mesh.indices.map { $0 + offset })
             }

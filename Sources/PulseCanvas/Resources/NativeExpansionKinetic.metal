@@ -238,15 +238,24 @@ float3 kin_ladderLayer(float2 uv, float scale, float squeeze, float period, floa
         float halfSpan = gap + spread * ya, xs = lx / halfSpan;
         float bow = (.1 + 1.5 * phase * phase) * halfSpan;
         float sway = .22 * sin(c.t * 3.1 + fj * 2 + seed * 9) * phase * halfSpan;
-        float crackle = (.012 + .03 * c.b.w) * (sin(xs * 7 + c.t * 17 + fj * 5) + .55 * sin(xs * 19 - c.t * 29 + seed * 30) + .3 * sin(xs * 43 + c.t * 53 + fj * 3));
-        float curve = ya + (bow + sway * xs + crackle * (.4 + phase)) * (1 - xs * xs);
-        float d = abs(y - curve) / (1 + abs(2 * bow * xs / halfSpan) * .7);
+        // a jagged arc: a smooth bow plus crackle; distances use the local slope so the
+        // zigzag stays a thin line, and the halo follows the smooth bow only
+        float3 w1 = float3(lx * 22 + c.t * 17 + fj * 5, lx * 53 - c.t * 29 + seed * 30, lx * 97 + c.t * 53 + fj * 3);
+        float amp = (.008 + .016 * c.b.w) * (.4 + phase);
+        float crackle = amp * (sin(w1.x) + .55 * sin(w1.y) + .3 * sin(w1.z));
+        float crackleSlope = amp * (22 * cos(w1.x) + 29.2 * cos(w1.y) + 29.1 * cos(w1.z));
+        float lift = bow + sway * xs, rim = 1 - xs * xs;
+        float curve = ya + (lift + crackle) * rim;
+        float smoothSlope = (sway * rim - 2 * xs * lift) / halfSpan;
+        float fullSlope = smoothSlope + crackleSlope * rim - 2 * xs * crackle / halfSpan;
+        float d = abs(y - curve) * rsqrt(1 + fullSlope * fullSlope);
+        float dh = abs(y - ya - lift * rim) * rsqrt(1 + smoothSlope * smoothSlope);
         float spanMask = 1 - smoothstep(.98f, 1.04f, abs(xs));
-        float width = (.026 + .05 * c.b.x) * (1 - .35 * phase);
+        float width = (.022 + .05 * c.b.x) * (1 - .35 * phase);
         float flicker = .8 + .2 * sin(c.t * 41 + fj * 9 + seed * 40);
-        float energy = life * flicker * (.5 + 1.6 * band) * (1.15 - .4 * phase);
-        col += (paint(.97, f) * exp(-d * d / (width * width * .3)) * 1.8 + paint(.72, f) * exp(-d * d / (width * width * 2.5)) * .9 + paint(.55, f) * glow(d, width * 4) * .5) * spanMask * energy;
-        col += paint(.4, f) * glow(d, .35) * .08 * smoothstep(1.8f, 1.f, abs(xs)) * energy;
+        float energy = life * flicker * (.35 + 1.9 * band) * (1.15 - .4 * phase);
+        col += (paint(.97, f) * exp(-d * d / (width * width * .3)) * 1.8 + paint(.72, f) * exp(-d * d / (width * width * 2.5)) * .9 + paint(.55, f) * exp(-dh / (width * 3)) * .5) * spanMask * energy;
+        col += paint(.4, f) * glow(dh, .16) * .08 * smoothstep(1.4f, .9f, abs(xs)) * energy;
         heat += exp(-kin_sq(y - ya) * 50) * energy;
         // the arc breaks into sparks at the top
         float breakup = smoothstep(.8f, .92f, phase) * life;
@@ -257,8 +266,8 @@ float3 kin_ladderLayer(float2 uv, float scale, float squeeze, float period, floa
     {
         float ya = .05 + age * .45, halfSpan = gap + spread * ya, xs = lx / halfSpan;
         float curve = ya + (.12 + .06 * sin(xs * 11 + c.t * 29)) * halfSpan * (1 - xs * xs);
-        float d = abs(y - curve), width = .025 + .03 * strength;
-        col += (paint(.99, f) * exp(-d * d / (width * width)) * 1.4 + paint(.65, f) * glow(d, width * 4) * .6) * (1 - smoothstep(.98f, 1.04f, abs(xs))) * strength * 4;
+        float d = abs(y - curve), dh = abs(y - ya - .12 * halfSpan * (1 - xs * xs)), width = .025 + .03 * strength;
+        col += (paint(.99, f) * exp(-d * d / (width * width)) * 1.4 + paint(.65, f) * exp(-dh / (width * 3)) * .6) * (1 - smoothstep(.98f, 1.04f, abs(xs))) * strength * 4;
         heat += exp(-kin_sq(y - ya) * 50) * strength * 3;
         for (int k = 0; k < 5; ++k) {
             float3 h = hash33(float3(cell, layer, float(k)));
@@ -271,7 +280,10 @@ float3 kin_ladderLayer(float2 uv, float scale, float squeeze, float period, floa
     float rail = 1 - smoothstep(.016 - px, .016 + px, railD);
     float sheen = 1 - kin_sq(saturate(railD / .016));
     col = mix(col, paint(.45, f) * (.12 + .45 * sheen) + paint(.95, f) * min(heat, 2.f) * .8 * sheen, rail);
-    col += paint(.5, f) * glow(railD, .025) * (.05 + .25 * min(heat, 2.f));
+    col += paint(.5, f) * glow(railD, .025) * (.05 + .25 * min(heat, 2.f) + .3 * band);
+    // ionised air glows softly between the rails of a ladder driven by its band
+    float inner = lx / (gap + spread * yc);
+    col += paint(.42, f) * band * .14 * exp(-inner * inner * 1.5) * smoothstep(-.1f, .4f, y) * (1 - smoothstep(height - .4f, height + .1f, y));
     col += paint(.95, f) * glow(length(float2(abs(lx) - gap - spread * height, y - height)), .03) * .25;
     float post = sdBox2(float2(abs(lx) - gap, y + .12), float2(.03, .12));
     col = mix(col, paint(.2, f) * .3, fill(post, px));
@@ -279,7 +291,7 @@ float3 kin_ladderLayer(float2 uv, float scale, float squeeze, float period, floa
 }
 
 float3 jacobsLadder(Ctx c, constant NativeFrame &f) {
-    c.uv = kin_groove(c, f, .30, .45);
+    c.uv = kin_groove(c, f, .12, .2);
     float attack = kin_attack(c, f), age = kin_age(attack), strength = kin_strength(attack, f);
     float2 uv = c.uv / c.size;
     float ey = c.extent.y / c.size, squeeze = min(1.f, 1.45f * c.extent.x / c.extent.y);
@@ -317,7 +329,7 @@ float3 kin_mobileArm(float3 pivot, float angle, float tilt, float left, float ri
 }
 
 float3 hangingMobile(Ctx c, constant NativeFrame &f) {
-    c.uv = kin_groove(c, f, .2, .15);
+    c.uv = kin_groove(c, f, .08, .15);
     float attack = kin_attack(c, f), age = kin_age(attack), strength = kin_strength(attack, f);
     float2 uv = c.uv;
     float w = min(c.extent.x * .68, c.extent.y * .95) * c.size, h = c.extent.y * c.size, unit = min(c.extent.x, c.extent.y) * c.size;
@@ -414,9 +426,9 @@ NATIVE_EFFECT(hangingMobile)
 // in the glossy floor. Each prism follows its own band (its streak widens, lengthens and
 // brightens), highs run sparkles along the streaks and through the glass, and every attack
 // flicks the front prisms so their streaks whip across the wall.
-struct kin_Prism { float2 origin; float spin, near, band; };
+struct kin_Prism { float2 origin; float spin, near, band, flare; };
 
-kin_Prism kin_prismAt(int k, float flick, Ctx c, float yC, float rx, float ry) {
+kin_Prism kin_prismAt(int k, float flick, float strength, Ctx c, float yC, float rx, float ry) {
     kin_Prism prism;
     float fk = float(k);
     float around = fk * TAU / 6 + c.t * .09 + c.travel * .06;
@@ -424,6 +436,7 @@ kin_Prism kin_prismAt(int k, float flick, Ctx c, float yC, float rx, float ry) {
     prism.origin = float2(rx * cos(around), yC + ry * sin(around));
     prism.band = c.b[k & 3];
     prism.spin = c.t * (.2 + .045 * fk) + fk * 1.7 + prism.band * .35 + flick * prism.near * prism.near;
+    prism.flare = strength * prism.near * prism.near;
     return prism;
 }
 
@@ -431,27 +444,28 @@ kin_Prism kin_prismAt(int k, float flick, Ctx c, float yC, float rx, float ry) {
 float3 kin_prismStreak(float2 p, float2 ext, kin_Prism prism, int k, Ctx c, constant NativeFrame &f) {
     float fk = float(k);
     float heading = 1.15 * sin(prism.spin);
-    float2 centre = float2(prism.origin.x * .4 + ext.x * .75 * sin(heading), ext.y * (-.05 + .16 * fk) + .18 * sin(prism.spin * .7 + fk));
+    float slot = fract(fk * .382 + .05), lane = 2 * fract(fk * .618 + .2) - 1;
+    float2 centre = float2(ext.x * (.6 * sin(heading) + .4 * lane), ext.y * (-.1 + .95 * slot) + .15 * sin(prism.spin * .7 + fk));
     float angle = .45 * sin(prism.spin * .8 + fk * 1.3) + ((k & 1) == 1 ? .25f : -.25f);
     float2 axis = float2(cos(angle), sin(angle));
     float2 d = p - centre;
     float u = dot(d, axis), v = axis.x * d.y - axis.y * d.x;
-    float reach = ext.x * (.4 + .25 * prism.near + .3 * prism.band);
-    float width = .07 + .07 * prism.band + .03 * prism.near;
-    float s = (v - .2 * u * u / reach) / width;
+    float reach = ext.x * (.5 + .3 * prism.near + .35 * prism.band);
+    float width = .05 + .06 * prism.band + .02 * prism.near;
+    float s = (v - .08 * u * u / reach) / width;
     float across = abs(s);
     float ends = smoothstep(1.f, .45f, abs(u) / reach);
-    float streak = smoothstep(1.f, .8f, across) * ends;
-    float spill = exp(-max(across - 1, 0.f) * 1.4) * ends * .12;
-    float striation = .7 + .3 * noise2(float2(u * 2.2 + fk * 7, s * 3));
+    float streak = smoothstep(1.f, .88f, across) * ends;
+    float spill = exp(-max(across - 1, 0.f) * 1.1) * ends * .12;
+    float striation = .78 + .22 * noise2(float2(u * 2.2 + fk * 7, s * 3));
     float sparkle = c.b.w * 2.5 * pow(.5f + .5f * sin(u * 9 - c.t * 4 + fk * 3), 24.f);
-    float level = (.28 + 1.1 * prism.band) * (.65 + .35 * prism.near);
+    float level = (.28 + 1.1 * prism.band) * (.65 + .35 * prism.near) + prism.flare;
     return (paint(.5 + .48 * clamp(s, -1.f, 1.f), f) * (streak * striation + spill) + paint(.97, f) * sparkle * streak * .5) * level;
 }
 
 // A vertical glass prism with a triangular section, spinning on its axis.
 float3 kin_prismGlass(float2 q, float radius, float px, kin_Prism prism, float flare, Ctx c, constant NativeFrame &f, thread float &cover) {
-    float tall = radius * 4.2;
+    float tall = radius * 5.5;
     cover = 0;
     if (abs(q.x) > radius * 1.6 || q.y < -radius || q.y > tall + radius) return 0.f;
     float lx = q.x / radius, pxr = px / radius;
@@ -463,10 +477,10 @@ float3 kin_prismGlass(float2 q, float radius, float px, kin_Prism prism, float f
         float face = smoothstep(min(xa, xb) - pxr, min(xa, xb) + pxr, lx) * (1 - smoothstep(max(xa, xb) - pxr, max(xa, xb) + pxr, lx));
         float along = saturate((lx - xa) / (xb - xa));
         float facing = cos(normal);
-        float3 glass = paint(.5 + .4 * facing + .25 * along, f) * (.25 + .7 * prism.band) + paint(.97, f) * pow(saturate(-facing * .9 + .1f), 6.f) * .7;
+        float3 glass = paint(.5 + .4 * facing + .25 * along, f) * (.12 + .5 * prism.band) + paint(.97, f) * pow(saturate(-facing * .9 + .1f), 6.f) * .7;
         col += glass * face;
         cover = max(cover, face);
-        col += paint(.95, f) * (glow(abs(lx - xa) * radius, px * 1.5) + glow(abs(lx - xb) * radius, px * 1.5)) * .35 * face;
+        col += paint(.95, f) * (glow(abs(lx - xa) * radius, px * 1.5) + glow(abs(lx - xb) * radius, px * 1.5)) * .6 * face;
     }
     float column = smoothstep(-px, px, q.y) * (1 - smoothstep(tall - px, tall + px, q.y));
     float glint = c.b.w * 2.5 * pow(.5f + .5f * sin(c.t * 3 + prism.spin * 2), 12.f) * exp(-kin_sq(q.y / tall - .6) * 8);
@@ -477,13 +491,13 @@ float3 kin_prismGlass(float2 q, float radius, float px, kin_Prism prism, float f
 }
 
 float3 prismCarousel(Ctx c, constant NativeFrame &f) {
-    c.uv = kin_groove(c, f, .25, .3);
+    c.uv = kin_groove(c, f, .08, .3);
     float attack = kin_attack(c, f), age = kin_age(attack), strength = kin_strength(attack, f);
     float2 p = c.uv / c.size, ext = c.extent / c.size;
     float yC = -ext.y * .6, rx = min(ext.x * .62, 1.3f), ry = .16;
-    float flick = 2.6 * strength * sin(age * PI) + .5 * strength;
+    float flick = 3 * strength * sin(age * PI);
     kin_Prism prisms[6];
-    for (int k = 0; k < 6; ++k) prisms[k] = kin_prismAt(k, flick, c, yC, rx, ry);
+    for (int k = 0; k < 6; ++k) prisms[k] = kin_prismAt(k, flick, strength, c, yC, rx, ry);
     // the dark wall, faintly textured, with the streaks thrown across it; the floor mirrors them
     float floorY = yC - ry - .05;
     bool onFloor = p.y < floorY;
@@ -496,7 +510,7 @@ float3 prismCarousel(Ctx c, constant NativeFrame &f) {
     float rim = abs(length(e) - 1) * ry;
     float deck = 1 - smoothstep(.97f, 1.03f, length(e));
     col = mix(col, col * .5 + paint(.9, f) * .03 * (1 - e.y), deck * .6);
-    col += paint(.85, f) * glow(rim, .005) * .5 + paint(.3, f) * glow(rim, .04) * .1;
+    col += paint(.85, f) * glow(rim, .004) * .3 + paint(.3, f) * glow(rim, .04) * .08;
     // prisms, back to front
     int order[6] = {0, 1, 2, 3, 4, 5};
     for (int a = 0; a < 5; ++a)
@@ -504,10 +518,10 @@ float3 prismCarousel(Ctx c, constant NativeFrame &f) {
             if (prisms[order[b]].near > prisms[order[b + 1]].near) { int swap = order[b]; order[b] = order[b + 1]; order[b + 1] = swap; }
     for (int k = 0; k < 6; ++k) {
         kin_Prism prism = prisms[order[k]];
-        float radius = .06 * (.7 + .45 * prism.near);
+        float radius = .045 * (.7 + .45 * prism.near);
         float cover;
-        float3 glass = kin_prismGlass(p - prism.origin, radius, c.px / c.size, prism, strength * 2 * prism.near * prism.near, c, f, cover);
-        col = col * (1 - .7 * cover) + glass;
+        float3 glass = kin_prismGlass(p - prism.origin, radius, c.px / c.size, prism, prism.flare * 2, c, f, cover);
+        col = col * (1 - .5 * cover) + glass;
     }
     return col;
 }
@@ -536,6 +550,7 @@ float2 kin_splashTaper(float2 p, float2 a, float2 b, float ra, float rb) {
 // Glossy paint: a lit body with a hot core and a tight glow around it.
 void kin_splashPaint(thread float3 &col, float sd, float radius, float hue, float alpha, float px, constant NativeFrame &f) {
     radius = max(radius, 1e-5f);
+    if (sd > radius * 6 || alpha <= 0) return;
     float core = saturate(-sd / radius);
     float3 body = paint(hue, f) * (.28 + .75 * core) + paint(hue + .12, f) * .3 * (1 - core) + paint(.97, f) * pow(core, 8.f) * .3;
     col = mix(col, body, fill(sd, px) * alpha);
@@ -548,7 +563,7 @@ void kin_splashCrown(thread float3 &col, float2 uv, float horizon, float focal, 
     float rc = scale * (.12 + .32 * sqrt(age));
     // skip pixels far from this splash
     float reach = rc + scale * .9, zn = max(site.y - reach, .5f), zf = site.y + reach;
-    float margin = scale * .5 * focal / zn, top = scale * 2.4 - kin_splashEye;
+    float margin = scale * .25 * focal / zn, top = scale * 2.4 - kin_splashEye;
     float xMin = min((site.x - reach) / zn, (site.x - reach) / zf) * focal, xMax = max((site.x + reach) / zn, (site.x + reach) / zf) * focal;
     float yMin = horizon - kin_splashEye * focal / zn, yMax = horizon + max(top / zn, top / zf) * focal;
     if (uv.x < xMin - margin || uv.x > xMax + margin || uv.y < yMin - margin || uv.y > yMax + margin) return;
@@ -725,7 +740,7 @@ float3 windTunnel(Ctx c, constant NativeFrame &f) {
     }
     psi += kin_windVortex(q, centres[2] + float2(-.03, 0), .05 + .1 * c.b.z, .14);
     float2 kickAt = centres[0] + float2(radii[0] * (1.3 + age * 4), radii[0] * .4);
-    psi += kin_windVortex(q, kickAt, strength * 1.4 * radii[0], radii[0] * .4);
+    psi += kin_windVortex(q, kickAt, strength * smoothstep(0.f, .15f, age) * 1.4 * radii[0], radii[0] * .4);
     float spacing = .075;
     float lines = psi / spacing, index = floor(lines + .5);
     float aa = max(fwidth(lines), 1e-4f);
@@ -781,7 +796,7 @@ float3 tensegrityPulse(Ctx c, constant NativeFrame &f) {
     float2 screen[12]; float depth[12];
     for (int i = 0; i < 12; ++i) {
         float3 v = kin_tensVertex[i];
-        v *= 1 + strength * .12 * sin(age * 9 - float(i) * 1.3);
+        v *= 1 + strength * .12 * smoothstep(0.f, .12f, age) * sin(age * 9 - float(i) * 1.3);
         v = float3(v.x * cy + v.z * sy, v.y, -v.x * sy + v.z * cy);
         v = float3(v.x, v.y * cp - v.z * sp, v.y * sp + v.z * cp);
         float s = 6 / (6 + v.z);
@@ -791,6 +806,8 @@ float3 tensegrityPulse(Ctx c, constant NativeFrame &f) {
     float3 col = deep(.3, f) * .12 + paint(.25, f) * .08 * exp(-dot(uv, uv) / (unit * unit) * .6);
     int plucked = int(floor(c.t * .37)) % 24;
     float lineWidth = max(.0035 * unit, c.px * .7);
+    // cables and guys light in four band groups; colours are applied once per group
+    float cableLight[4] = {0, 0, 0, 0}, guyLight[4] = {0, 0, 0, 0};
     for (int m = 0; m < 24; ++m) {
         float2 a = screen[kin_tensCable[2 * m]], b = screen[kin_tensCable[2 * m + 1]];
         float band = c.b[m & 3];
@@ -804,7 +821,7 @@ float3 tensegrityPulse(Ctx c, constant NativeFrame &f) {
         float amp = len * (.004 + .035 * band + .05 * pluck) * sin(PI * along * (1 + float(m % 3))) * cos(c.t * (7 + float(m % 5)) + float(m));
         float d = length(float2(max(abs(dot(rel, dir) - len * .5) - len * .5, 0.f), side - amp));
         float shade = .6 + .4 * (depth[kin_tensCable[2 * m]] + depth[kin_tensCable[2 * m + 1]] - 1.6);
-        col += paint(.55 + .35 * band + .1 * float(m & 3) * .5, f) * ((1 - smoothstep(lineWidth * .5, lineWidth * 1.5, d)) * (.5 + 1.1 * band + pluck) + glow(d, lineWidth * 4) * (.12 + .5 * band + pluck)) * shade;
+        cableLight[m & 3] += ((1 - smoothstep(lineWidth * .5, lineWidth * 1.5, d)) * (.5 + 1.1 * band + pluck) + glow(d, lineWidth * 4) * (.12 + .5 * band + pluck)) * shade;
     }
     // guy cables out to the room
     for (int g = 0; g < 6; ++g) {
@@ -812,8 +829,9 @@ float3 tensegrityPulse(Ctx c, constant NativeFrame &f) {
         float2 anchor = float2(g == 4 ? 1.1 : g == 5 ? -1.1 : (g % 2 == 0 ? .6 : -.6), g < 2 ? 1.1 : g < 4 ? -1.1 : .1) * c.extent * 1.05;
         float d = sdSegment(uv, screen[v], anchor);
         float band = c.b[g & 3];
-        col += paint(.3 + .15 * float(g & 3), f) * ((1 - smoothstep(lineWidth * .4, lineWidth * 1.2, d)) * (.25 + .6 * band) + glow(d, lineWidth * 5) * (.05 + .2 * band));
+        guyLight[g & 3] += (1 - smoothstep(lineWidth * .4, lineWidth * 1.2, d)) * (.25 + .6 * band) + glow(d, lineWidth * 5) * (.05 + .2 * band);
     }
+    for (int i = 0; i < 4; ++i) col += paint(.55 + .35 * c.b[i] + .05 * float(i), f) * cableLight[i] + paint(.3 + .15 * float(i), f) * guyLight[i];
     for (int s = 0; s < 6; ++s) {
         int i0 = 2 * s, i1 = 2 * s + 1;
         float2 a = screen[i0], b = screen[i1];
@@ -846,7 +864,7 @@ float kin_modulatorPattern(float2 l, int kind, float t) {
 }
 
 float3 shadowModulator(Ctx c, constant NativeFrame &f) {
-    c.uv = kin_groove(c, f, .35, .5);
+    c.uv = kin_groove(c, f, .2, .3);
     float attack = kin_attack(c, f), age = kin_age(attack), strength = kin_strength(attack, f);
     float focal = 1.25 * c.size;
     float3 dir = float3(c.uv, focal);
@@ -867,11 +885,12 @@ float3 shadowModulator(Ctx c, constant NativeFrame &f) {
     // light leaking from the lamp's shroud through a slowly turning band of slots
     float slots = atan2(outward.z, outward.x) * 9 / TAU + outward.y * .8 + t * .6;
     float opening = .5f - .2f * c.b.x;
-    float leak = (.08 + .2 * smoothstep(opening - .12f, opening, abs(fract(slots) - .5f))) * (.4 + .6 * smoothstep(.8f, .1f, abs(outward.y)));
-    float3 light = paint(.75, f) * leak;
+    float leak = (.07 + .26 * smoothstep(opening - .12f, opening, abs(fract(slots) - .5f))) * (.4 + .6 * smoothstep(.8f, .1f, abs(outward.y)));
+    float3 light = float3(0);
+    float shade = 1;
     float3 seen = float3(0);
     float seenAlpha = 0;
-    float kick = strength * 2.2 * (.4 + sin(age * PI));
+    float kick = strength * 2.6 * sin(age * PI);
     for (int k = 0; k < 5; ++k) {
         float fk = float(k);
         float band = k < 4 ? c.b[k] : 0.f;
@@ -886,7 +905,7 @@ float3 shadowModulator(Ctx c, constant NativeFrame &f) {
         int kind = k < 4 ? k : 0;
         float3 tint = paint(k < 4 ? .1 + .27 * fk : .9, f);
         float gain = k < 4 ? .7 + 1.4 * band : 1 + 3 * strength;
-        // the screen's projection on the room: tinted glass with clear perforations
+        // the screen's projection on the room: a dark shadow pierced by spots of tinted light
         float3 ray = hit - lamp;
         float denom = dot(ray, n);
         float s = dot(centre - lamp, n) / (abs(denom) > 1e-4 ? denom : 1e-4);
@@ -896,7 +915,8 @@ float3 shadowModulator(Ctx c, constant NativeFrame &f) {
             float blur = .015 + .04 * (1 - s);
             float inside = smoothstep(1 + blur, 1 - blur, length(l));
             float open = kin_modulatorPattern(l, kind, c.t);
-            light += (tint * .5 + mix(tint, paint(.97, f), .2) * open * 1.5) * inside * gain;
+            shade *= 1 - inside * (1 - open) * .8;
+            light += (tint * .05 + mix(tint, paint(.97, f), .2) * open * 1.7) * inside * gain;
         }
         // the sculpture as seen by the camera: backlit tinted glass with a bright rim
         float sv = dot(centre, n) / dot(dir, n);
@@ -906,10 +926,11 @@ float3 shadowModulator(Ctx c, constant NativeFrame &f) {
             float inside = smoothstep(1.02f, .98f, length(l));
             float open = kin_modulatorPattern(l, kind, c.t);
             float cover = inside * .6 * (1 - seenAlpha);
-            seen += tint * (.25 + .4 * open) * gain * cover + paint(.95, f) * glow(abs(length(l) - 1) * size, .003) * .4 * (1 - seenAlpha);
+            seen += tint * (.35 + .55 * open) * gain * cover + paint(.95, f) * glow(abs(length(l) - 1) * size, .003) * .4 * (1 - seenAlpha);
             seenAlpha += cover;
         }
     }
+    light += paint(.75, f) * leak * shade;
     // rods sweeping around the lamp
     float shadowRods = 1;
     for (int k = 0; k < 3; ++k) {
@@ -924,10 +945,11 @@ float3 shadowModulator(Ctx c, constant NativeFrame &f) {
         float d = length(w0 + u * sc - v * tcl);
         shadowRods *= mix(1.f, smoothstep(.007f, .018f, d), step(.02f, sc));
     }
-    float3 col = light * (2.2 * lambert / (.35 + dist2 * .45)) * shadowRods + deep(.35, f) * .03;
+    float3 col = light * (1.6 * lambert / (.35 + dist2 * .45)) * shadowRods + deep(.35, f) * .03;
     col = col * (1 - saturate(seenAlpha)) + seen;
     float2 lampScreen = lamp.xy * focal / lamp.z;
-    col += paint(.92, f) * glow(length(c.uv - lampScreen), .025) * .7 + paint(.6, f) * glow(length(c.uv - lampScreen), .2) * .1;
+    float lampR = length(c.uv - lampScreen);
+    col += paint(.92, f) * glow(lampR, .025) * .7 + paint(.6, f) * glow(lampR, .3) * .16 + paint(.4, f) * exp(-lampR * 1.2) * .08;
     return col;
 }
 NATIVE_EFFECT(shadowModulator)

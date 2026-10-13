@@ -6,6 +6,8 @@ The worktree catalog keeps IDs 0–199 and appends the main development catalog'
 
 **Owner-curated catalog (2026-10-13):** the owner's keeper review left **181 offered designs and 119 reserved retired IDs** (`docs/metal-keeper-selection.json`). On that catalog the full suite, excluding the long OpenGL preset audit, passes 30/30, including native expansion (181 active), Chaos, zoom, canvas coverage, encoder surface, audio sync, store edition and migration.
 
+**Designs 300–369 (branch `new-claude-visualizers`, 2026-10-13):** seventy designs were appended after the review, for **251 offered designs**. Every new design passes the gallery checks at its default look: zero-Chaos isolation (exactly 0.000), music response (area at least 27%), beat, palette, wrap, zoom, coverage in 320x180 and 180x320, and 4K timing (at most 5.9 ms). All seventy also clear the integration music-response limits (attack alone, edges, music clock alone and each band alone), and none is 0.85 or more similar to an offered design except 352 vs 267, which were reviewed side by side and are distinct. The full suite, excluding the long OpenGL preset audit, passes 30/30 on the 251-design catalog. Thin-strip canvas meshes (15, 16, 17, 20) now shade with mesh normals, which removed an intermittent zero-Chaos and repeated-timestamp mismatch without changing their images.
+
 ## Defaults and music response
 
 The same `VisualPreset.defaults(for:)` supplies the editor, Reset and Studio exports. Existing saved appearances take precedence. GPU checks confirm palette fidelity rather than relying only on palette indices.

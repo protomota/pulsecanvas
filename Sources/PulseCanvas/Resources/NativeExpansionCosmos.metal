@@ -192,8 +192,9 @@ float3 supernovaShell(Ctx c, constant NativeFrame &f) {
 
     // Rayleigh-Taylor fingers: ridges of a noise field stretched along the radius. They drift
     // outward in log radius, so the forward-zoom echo lines up with the fingers themselves.
+    // The music clock drives the expansion, so energetic passages push the fingers out faster.
     float lr = log(max(r, .03f));
-    float3 fq = float3(dirv * 6.5, lr * 1.25 - c.t * .05);
+    float3 fq = float3(dirv * 6.5, lr * 1.25 - c.t * .05 - c.m * .45);
     float ridgeA = 1 - abs(2 * noise3(cosmTilt(fq)) - 1);
     float ridgeB = 1 - abs(2 * noise3(cosmTilt(fq * float3(1.8, 1.8, 1.5) + 7.3).zxy) - 1);
     float fingerA = cosmCrest(ridgeA, 16), fingerB = cosmCrest(ridgeB, 22);
@@ -216,8 +217,8 @@ float3 supernovaShell(Ctx c, constant NativeFrame &f) {
     float3 col = deep(.9 + haze * .2, f) * (.05 + .12 * haze * haze);
     col += paint(.95 + .1 * haze, f) * smoothstep(.5f, .85f, haze) * .06 * outside;
     col += paint(.92, f) * shell * shell * .1;
-    col += paint(mix(.8f, .58f, tip), f) * band * fingerA * (.38 + 2.4 * c.b.x) * shockBoost;
-    col += paint(.22 + .1 * tip, f) * band * fingerB * (.24 + 2.4 * c.b.y) * shockBoost;
+    col += paint(mix(.8f, .6f, tip), f) * band * fingerA * (.38 + 2 * c.b.x) * shockBoost;
+    col += paint(.06 + .12 * tip, f) * band * fingerB * (.24 + 2 * c.b.y) * shockBoost;
     col += paint(.5, f) * band * fingerA * bead * (.3 + 3 * c.b.w) * shockBoost;
     col += paint(1 - .1 * wisp, f) * inner * pow(wisp, 3.f) * (.4 + 1.8 * c.b.z);
     col += paint(.02, f) * forward;
@@ -234,7 +235,7 @@ float4 cosmSpiral(float2 q, float spin, float wind, thread float &r) {
     r = max(length(q), 1e-3f);
     float c1 = cos(atan2(q.y, q.x) - wind * log(r) - spin);
     float a = max(c1, 0.f), b = max(-c1, 0.f);
-    return float4(pow(a, 6.f), pow(b, 6.f), pow(a, 70.f), pow(b, 70.f));
+    return float4(pow(a, 6.f), pow(b, 6.f), pow(a, 110.f), pow(b, 110.f));
 }
 
 float3 galaxyCollision(Ctx c, constant NativeFrame &f) {
@@ -263,24 +264,24 @@ float3 galaxyCollision(Ctx c, constant NativeFrame &f) {
     float bridgeDist = abs(v - .16 * len * sin(PI * clamp(u, 0.f, 1.f)));
     float bridge = (glow(bridgeDist, .025) + glow(bridgeDist, .005)) * smoothstep(-.05f, .2f, u) * smoothstep(1.05f, .8f, u);
 
-    float armA = (g1.x * .5 + g1.z * 1.7) * disc1, armB = (g1.y * .5 + g1.w * 1.7) * disc1;
-    float armC = ((g2.x + g2.y) * .5 + (g2.z + g2.w) * 1.7) * disc2;
+    float armA = (g1.x * .35 + g1.z * 2.1) * disc1, armB = (g1.y * .35 + g1.w * 2.1) * disc1;
+    float armC = ((g2.x + g2.y) * .35 + (g2.z + g2.w) * 2.1) * disc2;
     float tails = tail1 + tail2 + bridge * .5;
 
     // Starburst knots sit on the arms; attacks blossom them with an expanding ring.
     float2 kq = p * 7, kid = floor(kq), kl = (fract(kq) - .5 - (hash22(kid + 2.7) - .5) * .6) / 7;
     float kd = length(kl);
-    float knotOn = step(.5, hash21(kid + 6.1));
+    float knotOn = step(.6, hash21(kid + 6.1));
     float host = min(1.f, (armA + armB + armC) * 2 + tails * 2);
     float knot = knotOn * host * (glow(kd, .006 + .014 * c.hit) * (.6 + 5 * c.hit)
-                                + glow(kd - (.02 + .08 * (1 - c.hit)), .005) * c.hit * 3);
+                                + glow(kd - (.02 + .08 * (1 - c.hit)), .005) * c.hit * 3 * smoothstep(.5f, .9f, host));
 
     float3 col = paint(0, f) * .05 + paint(.2, f) * exp(-min(length(p - c1), length(p - c2)) * 1.3) * .08;
     col += paint(.75, f) * armA * clumps * (.5 + 2.4 * c.b.x);
     col += paint(.55, f) * armB * clumps * (.5 + 2.4 * c.b.y);
     col += paint(.3, f) * armC * clumps * (.55 + 2.4 * c.b.z);
     col += paint(.45 + .25 * clumps, f) * tails * clumps * (.45 + 2.2 * c.b.w);
-    col += paint(.3, f) * (disc1 + disc2) * .15;
+    col += paint(.3, f) * (disc1 + disc2) * .1;
     col += paint(.8, f) * (exp(-r1 * r1 * 90) * 1.8 + exp(-r2 * r2 * 110) * 1.6);
     col += paint(.78, f) * knot;
     col += paint(.7, f) * cosmStars(p * 10, .25, c.t) * .5;
@@ -572,7 +573,7 @@ float3 magnetosphere(Ctx c, constant NativeFrame &f) {
 }
 NATIVE_EFFECT(magnetosphere)
 
-// ---------------------------------------------------------------- 358 Cosmic Web
+// ---------------------------------------------------------------- 358 Nebular Filaments
 struct CosmCells { float d1; float d3; float edge; float2 a; float2 b; };
 CosmCells cosmCells(float2 p, float phase) {
     float2 cell = floor(p), fp = fract(p);

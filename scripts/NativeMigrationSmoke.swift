@@ -52,8 +52,11 @@ import Foundation
         let retiredNative = NativeEffects.all.indices.filter(NativeEffects.isRetired)
         let receipt = try JSONSerialization.jsonObject(with: Data(contentsOf: URL(fileURLWithPath: "docs/metal-keeper-selection.json"))) as! [String: Any]
         let selected = Set(receipt["keepers"] as! [Int])
-        precondition(Set(NativeEffects.activeIDs) == selected, "Offered effects must match the approved red-label selection")
-        precondition(Set(retiredNative) == Set(0..<nativeCount).subtracting(selected), "All unselected IDs must be reserved and withdrawn")
+        // The review covered the first `reservedIDs` slots; designs appended after it are new and offered.
+        let reviewed = receipt["reservedIDs"] as! Int
+        precondition(Set(NativeEffects.activeIDs.filter { $0 < reviewed }) == selected, "Offered effects must match the approved red-label selection")
+        precondition(Set(retiredNative) == Set(0..<reviewed).subtracting(selected), "All unselected IDs must be reserved and withdrawn")
+        precondition(NativeEffects.activeIDs.filter { $0 >= reviewed } == Array(reviewed..<nativeCount), "Designs added after the review must be offered")
         precondition(retiredNative.allSatisfy { !NativeEffects.isRetired(NativeEffects.resolved($0)) })
         precondition(Set(library.availableScenes).isDisjoint(with: retiredNative) && library.availableScenes.count == library.sceneNames.count - retiredNative.count)
         precondition(Set(NativeEffects.timelineOrder).isDisjoint(with: retiredNative))

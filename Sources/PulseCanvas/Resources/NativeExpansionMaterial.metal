@@ -143,7 +143,7 @@ float3 moltenGlass(Ctx c, constant NativeFrame &f) {
         color += paint(.2 + .3 * min(heat, 1.f), f) * exp(-outside * 10) * .14 * heat * (1 - body);
         color = color * (1 - .6 * body) + glass * body;
     }
-    return color;
+    return color * .9;
 }
 NATIVE_EFFECT(moltenGlass)
 
@@ -170,7 +170,7 @@ float3 liquidCrystal(Ctx c, constant NativeFrame &f) {
         int column = i % columns, row = i / columns;
         float2 seed = hash22(float2(fi, 3.1));
         float2 cell = float2((float(column) + .5) / float(columns), (float(row) + .5) / float(rows)) * 2 - 1;
-        float2 at = cell * ext * .85 + (seed - .5) * .5 + float2(sin(t * (.05 + seed.x * .04) + fi * 2.1), cos(t * (.045 + seed.y * .04) + fi * 1.3)) * .3;
+        float2 at = cell * ext * .85 + (seed - .5) * .5 + float2(sin(t * (.08 + seed.x * .05) + fi * 2.1), cos(t * (.07 + seed.y * .05) + fi * 1.3)) * .34;
         float charge = ((column + row) & 1) == 0 ? .5 : -.5;
         if (i == 1) charge = 1;
         if (i == 6) charge = -1;
@@ -179,7 +179,7 @@ float3 liquidCrystal(Ctx c, constant NativeFrame &f) {
     for (int k = 0; k < 4; ++k) {
         float angle = float(k) * 1.5708 + .7 + t * .03;
         float2 at = float2(cos(angle), sin(angle)) * ext * .55;
-        theta += c.b[k] * 1.5 * exp(-dot(p - at, p - at) * 1.1);
+        theta += c.b[k] * .85 * exp(-dot(p - at, p - at) * 1.4);
     }
     float flare = 0;
     for (int j = 0; j < 3; ++j) {
@@ -191,14 +191,14 @@ float3 liquidCrystal(Ctx c, constant NativeFrame &f) {
         theta += lc_pair(p, at, direction * separation);
         flare += c.hit * (.3 + pick) * exp(-dot(p - at, p - at) * 4);
     }
-    float polarizer = t * .04;
+    float polarizer = t * .065;
     float brush = sin(2 * (theta - polarizer));
     float intensity = brush * brush;
     float retardation = 1 + 5.5 * fbm2(p * .6 + float2(t * .015, 3.7), 3) + .5 * length(p) + .12 * sin(t * .07);
     float3 color = filmColor(retardation, f) * (.02 + .9 * pow(intensity, 1.3f));
     color += paint(.9, f) * pow(intensity, 12.f) * .1;
     color += paint(.85, f) * flare * intensity * .9;
-    return color;
+    return color * .88;
 }
 NATIVE_EFFECT(liquidCrystal)
 
@@ -296,7 +296,7 @@ float3 shiboriBloom(Ctx c, constant NativeFrame &f) {
     color = mix(color, bloom, inside);
     color = mix(color, paint(.5, f) * .5, edgeHalo * (1 - inside * .5));
     float weave = 1 + .06 * sin(cloth.x * 260) * sin(cloth.y * 260) * smoothstep(.01f, .004f, c.px / c.size);
-    return color * weave;
+    return color * weave * .85;
 }
 NATIVE_EFFECT(shiboriBloom)
 
@@ -348,11 +348,11 @@ float3 heatHaze(Ctx c, constant NativeFrame &f) {
     float bubbleY = -ext.y * .72 + (1 - c.hit) * .45;
     T += c.hit * (.6 + pick * 1.4) * exp(-(dx * dx + pow(q.y - bubbleY, 2.f)) / .025);
     T += .05 * (fbm2(q * 3 + float2(0, -t * .2), 3) - .5);
-    float temp = clamp(T, 0.f, 1.4f);
+    float temp = clamp(T, 0.f, 1.5f);
     // False colour: cool is dark red, warm a saturated orange, and only the hottest cores
     // climb through gold to white, so mid temperatures never wash out to khaki.
-    float hue = .02 + .56 * smoothstep(0.f, .8f, temp) + .37 * smoothstep(.8f, 1.3f, temp);
-    float3 color = paint(hue, f) * (.03 + 1.1 * smoothstep(.03f, .45f, temp) + .4 * max(temp - .8f, 0.f));
+    float3 warm = paint(.02 + .44 * smoothstep(0.f, .85f, temp), f);
+    float3 color = mix(warm, paint(.98, f), smoothstep(1.f, 1.4f, temp)) * (.06 + 1.1 * smoothstep(.0f, .45f, temp) + .4 * max(temp - .8f, 0.f));
     // Isotherms: thin, evenly wide contour lines however steep the temperature gradient.
     float contour = T * 10;
     float iso = fract(contour);
@@ -419,7 +419,7 @@ float3 gelOverlap(Ctx c, constant NativeFrame &f) {
     }
     float covered = min(cover, 1.f);
     float3 color = mix(table * .42, filter * (.8 + .25 * min(cover - 1, 1.f)), covered) * glowField * shade;
-    return color + edges;
+    return (color + edges) * .82;
 }
 NATIVE_EFFECT(gelOverlap)
 
@@ -428,38 +428,87 @@ NATIVE_EFFECT(gelOverlap)
 // somewhere in the sheet, split it into flat tilted facets whose diffraction rainbow slides
 // as the sheet flexes and the light moves. Bass deepens the folds, low-mids bend the sheet,
 // high-mids widen the rainbow, highs sparkle glitter flakes; attacks sweep a highlight.
+// Fold table: direction and grid jitter, then span, depth, mountain or valley and wobble phase.
+constant float4 holo_foldShape[24] = {
+    float4(0.4533, 0.8914, -0.0091, 0.1166),
+    float4(0.2087, 0.9780, -0.1367, -0.1458),
+    float4(0.9119, 0.4104, 0.0050, 0.0492),
+    float4(0.2996, 0.9541, 0.0715, 0.0295),
+    float4(0.8019, 0.5974, -0.0777, -0.1257),
+    float4(-0.6798, 0.7334, -0.0917, 0.0197),
+    float4(-0.0593, 0.9982, 0.0406, 0.0902),
+    float4(-0.8872, 0.4614, -0.0146, -0.0004),
+    float4(0.4170, 0.9089, 0.0212, 0.1031),
+    float4(-0.1742, 0.9847, 0.0669, -0.0178),
+    float4(-0.9864, 0.1642, 0.0219, 0.0611),
+    float4(0.8761, 0.4822, 0.0427, 0.0389),
+    float4(0.6464, 0.7630, 0.0395, -0.0383),
+    float4(0.5342, 0.8453, 0.1277, 0.0684),
+    float4(0.5890, 0.8081, -0.0807, 0.0293),
+    float4(0.0414, 0.9991, 0.0256, 0.1012),
+    float4(0.0004, 1.0000, 0.0486, -0.0559),
+    float4(-0.9361, 0.3517, 0.1184, -0.0745),
+    float4(-0.7139, 0.7002, 0.0971, 0.1212),
+    float4(0.7026, 0.7116, 0.0102, 0.0302),
+    float4(-0.6574, 0.7536, -0.1123, -0.0067),
+    float4(0.8592, 0.5117, 0.0133, -0.0957),
+    float4(0.7588, 0.6513, -0.0803, 0.1024),
+    float4(0.4562, 0.8899, 0.0113, 0.0796)};
+constant float4 holo_foldSize[24] = {
+    float4(1.0441, 0.5081, -1, 1.6482),
+    float4(1.4087, 0.5376, 1, 1.4102),
+    float4(1.2331, 0.4800, 1, 3.4016),
+    float4(0.8896, 0.4174, -1, 3.5601),
+    float4(1.2544, 0.5569, 1, 6.1110),
+    float4(0.4967, 0.3116, -1, 2.6663),
+    float4(0.4868, 0.5107, 1, 0.4695),
+    float4(1.5919, 0.3574, -1, 2.0644),
+    float4(1.5637, 0.5998, 1, 5.3051),
+    float4(1.3944, 0.4082, 1, 3.5323),
+    float4(0.5207, 0.3344, -1, 2.8307),
+    float4(0.7279, 0.5184, 1, 2.2901),
+    float4(0.4754, 0.3622, 1, 4.7969),
+    float4(1.3931, 0.3884, 1, 0.1466),
+    float4(0.7807, 0.3595, -1, 3.0191),
+    float4(0.5903, 0.4323, 1, 0.5335),
+    float4(1.1370, 0.3664, 1, 3.5982),
+    float4(0.8365, 0.5818, 1, 0.0843),
+    float4(1.2090, 0.3913, -1, 6.0840),
+    float4(1.4923, 0.4483, 1, 5.4160),
+    float4(1.3985, 0.3428, 1, 5.3823),
+    float4(1.2818, 0.2636, 1, 4.8497),
+    float4(0.9903, 0.3780, 1, 2.6605),
+    float4(1.3489, 0.4933, 1, 0.8857)};
 float3 holoFoil(Ctx c, constant NativeFrame &f) {
     float2 p = c.uv / c.size;
     float2 ext = c.extent / c.size;
     float t = c.t;
     float px = c.px / c.size;
-    float2 sp = p * 1.5 + float2(c.travel * .05 + t * .004, -t * .002);
+    float2 sp = rot(p * 1.5, .08 * sin(t * .031)) + float2(c.travel * .05 + t * .004, -t * .002);
     float reachAll = length(ext) * 1.5;
-    float flex = .6 + .25 * sin(t * .17) + c.b.x * 1.1;
+    float flex = .6 + .25 * sin(t * .17) + c.b.x * .75;
     float2 grad = 0;
     float ridge = 0, valley = 0;
     // Folds are spread over a jittered grid so every part of the canvas is crumpled.
     bool wide = ext.x >= ext.y;
     int columns = wide ? 6 : 4;
+    float2 drift = float2(c.travel * .05 + t * .004, -t * .002);
+    float soft = px * px * 4.5f, lineWidth = px * 2.4 + .003;
     for (int k = 0; k < 24; ++k) {
-        float fk = float(k);
-        float3 seed = hash33(float3(fk, 4.1, 7.3));
+        float4 shape = holo_foldShape[k], size = holo_foldSize[k];
         float2 cell = float2(float(k % columns) + .5, float(k / columns) + .5) / float2(float(columns), float(24 / columns));
-        float2 center = (cell * 2 - 1 + (seed.yz - .5) * .3) * ext * 1.5 + float2(c.travel * .05 + t * .004, -t * .002);
-        float angle = seed.x * PI + .12 * sin(t * (.03 + .02 * seed.y) + fk * 1.7);
-        float2 n = float2(cos(angle), sin(angle));
-        float2 along = float2(-n.y, n.x);
-        float d = dot(sp - center, n);
+        float2 center = (cell * 2 - 1 + shape.zw) * ext * 1.5 + drift;
+        float2 n = normalize(shape.xy + float2(.03 * sin(t * .041 + size.w), 0));
+        float2 rel = sp - center;
         // Each fold runs only part way across the sheet before it relaxes.
-        float a = dot(sp - center, along);
-        float span = .45 + 1.2 * fract(seed.x * 7.3 + seed.z * 3.1);
-        float reach = exp(-a * a / (span * span));
-        float depth = (.25 + .35 * seed.z) * flex * reach;
-        float side = d / sqrt(d * d + px * px * 4.5f);
-        float mountain = fract(seed.y * 5.7) < .5 ? 1. : -1.;
-        grad += depth * side * n * mountain;
-        float creaseLine = exp(-abs(d) / (px * 2.4 + .003)) * reach;
-        if (mountain > 0) ridge += creaseLine; else valley += creaseLine;
+        float a = dot(rel, float2(-n.y, n.x)) / size.x;
+        if (a * a > 6) continue;
+        float d = dot(rel, n);
+        float reach = exp(-a * a);
+        float side = d / sqrt(d * d + soft);
+        grad += size.y * flex * reach * side * size.z * n;
+        float creaseLine = exp(-abs(d) / lineWidth) * reach;
+        if (size.z > 0) ridge += creaseLine; else valley += creaseLine;
     }
     float bend = .1 + c.b.y * .45;
     grad += bend * float2(cos(p.x * 1.3 + t * .11) * sin(p.y * .9 - t * .07), .7 * sin(p.x * 1.3 + t * .11) * cos(p.y * .9 - t * .07));
@@ -470,15 +519,16 @@ float3 holoFoil(Ctx c, constant NativeFrame &f) {
     // Diffraction: the rainbow order depends on the facet's tilt against the light.
     float spread = 3.2 + c.b.z * 2.4;
     float phase = dot(n.xy - light.xy * .4, float2(.85, .55)) * spread + dot(p, float2(.18, .12)) + t * .02;
-    float3 color = filmColor(phase, f) * (.07 + 1.05 * facing * facing * facing);
+    float3 color = filmColor(phase, f) * (.13 + 1.05 * facing * facing);
     color += paint(.9, f) * pow(facing, 24.f) * .45;
     color += paint(.92, f) * min(ridge, 1.f) * (.2 + .35 * facing);
     color *= 1 - .6 * min(valley, 1.f);
     // Glitter flakes in the foil twinkle with the highs.
-    float4 g = voronoi(p * 22, .9, 0);
-    float2 gs = hash22(g.zw);
+    float2 gp = p * 22, gcell = floor(gp);
+    float2 gs = hash22(gcell);
+    float2 gl = fract(gp) - .5 - (gs.yx - .5) * .5;
     float twinkle = pow(max(0.f, sin(t * (1.5 + gs.x * 2) + gs.y * TAU)), 16.f);
-    color += paint(.85 + .1 * gs.x, f) * (1 - smoothstep(.03f, .09f, g.x)) * twinkle * (.08 + c.b.w * 2.2);
+    color += paint(.85 + .1 * gs.x, f) * (1 - smoothstep(.05f, .12f, length(gl))) * twinkle * (.03 + c.b.w * 2.2) * (.25 + facing);
     // Attacks sweep a bright band across the foil, strongest on facets facing the light.
     float sweepAngle = c.m * 1.3 + .6;
     float2 axis = float2(cos(sweepAngle), sin(sweepAngle));

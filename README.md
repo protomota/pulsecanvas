@@ -26,13 +26,13 @@ PulseCanvas Studio is a native macOS visualizer and video creator. Bring a song,
 
 Make a music video, a vertical clip, a release teaser, or a backdrop for your next set. No account. No subscription. Every feature and export is free.
 
-| 181 native visualizers | 7,838 ProjectM effects | 5 canvas shapes | Up to 4K · 60 fps |
+| 251 native visualizers | 7,838 ProjectM effects | 5 canvas shapes | Up to 4K · 60 fps |
 | :---: | :---: | :---: | :---: |
 | Particles, tunnels, liquid forms, and geometry | A searchable library of thousands of looks | Wide, phone, portrait, landscape, and square | MP4 video with your soundtrack |
 
 ## Find your signature look
 
-Start with **Event Horizon**, **Ribbon Foundry**, **Chrome Metaballs**, **Octagon Vault**, or **Mercury Fold**. Explore lensed black holes, forged ribbons, liquid chrome, hyperbolic tilings, gothic naves, ferrofluid crowns, connected honeycomb tunnels, night drives, wind-farm roads, drone light shows and kinetic mirror walls. The full list is in [docs/NATIVE_VISUALIZERS.md](docs/NATIVE_VISUALIZERS.md). The direct-download edition also includes the ProjectM library for thousands more effects. The App Store edition focuses on the 181 native Metal styles.
+Start with **Event Horizon**, **Ribbon Foundry**, **Chrome Metaballs**, **Octagon Vault**, or **Mercury Fold**. Explore lensed black holes, forged ribbons, liquid chrome, hyperbolic tilings, gothic naves, ferrofluid crowns, connected honeycomb tunnels, night drives, wind-farm roads, drone light shows and kinetic mirror walls. The full list is in [docs/NATIVE_VISUALIZERS.md](docs/NATIVE_VISUALIZERS.md). The direct-download edition also includes the ProjectM library for thousands more effects. The App Store edition focuses on the 251 native Metal styles.
 
 - **Find it fast.** Search names and original creator titles, browse categories and folders, and save favorites with a heart.
 - **Make it yours.** Shape motion, zoom, Chaos, brightness, blur, and camera framing. Native designs also offer color palettes and controls for their particular forms; ProjectM effects retain their own colors and structures.
@@ -96,8 +96,8 @@ Visit **[pulsecanvas.si](https://pulsecanvas.si/)** for the project website, or 
 
 | Edition | Visual library | Updates |
 | --- | --- | --- |
-| **Mac App Store** | 181 native Metal visualizers; excludes projectM, OpenGL presets and the external texture pack | Apple distribution |
-| **Direct download** | 181 native visualizers plus 7,838 original presets | Signed Sparkle updates; system profiling disabled |
+| **Mac App Store** | 251 native Metal visualizers; excludes projectM, OpenGL presets and the external texture pack | Apple distribution |
+| **Direct download** | 251 native visualizers plus 7,838 original presets | Signed Sparkle updates; system profiling disabled |
 
 Both editions support Studio, native visual settings and video export. Native projects can move between editions; full-library projects require the direct edition. Preferences for the full preset library remain separate so the Metal edition does not overwrite them.
 
