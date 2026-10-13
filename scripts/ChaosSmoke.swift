@@ -47,7 +47,7 @@ import Foundation
         try renderer.prepareOffscreen(width: 320, height: 180)
         let bands = [Float](repeating: 0.3, count: 32)
         let silence = [Float](repeating: 0, count: 32)
-        for scene in RenderState.nativeSceneNames.indices {
+        for scene in NativeEffects.activeIDs {
             state.scene = scene; state.particleSize = 1.6
             state.chaos = 0
             let calm = pixels(try renderer.renderOffscreen(time: 2.3, audioBands: silence))
@@ -55,23 +55,23 @@ import Foundation
             let noBeats = pixels(try renderer.renderOffscreen(time: 2.3, audioBands: silence))
             try require(calm == noBeats, "Chaos must add no activity without beats, scene \(scene)")
             state.chaos = 0
-            let restrained = pixels(try renderer.renderOffscreen(time: 2.3, audioBands: bands, audioPulse: 0.8, audioMomentum: 0.9, audioBeatMotionTime: hit.beatMotionTime))
+            let restrained = pixels(try renderer.renderOffscreen(time: 2.3, audioBands: bands, audioPulse: 0.8, audioMomentum: 0.9, audioBeatMotionTime: hit.beatMotionTime, audioEnvelopes: SIMD4(repeating: 0.6), audioSwell: 0.8))
             try require(calm == restrained, "Zero Chaos must ignore all music inputs, scene \(scene)")
             state.chaos = 1
-            let active = pixels(try renderer.renderOffscreen(time: 2.3, audioBands: bands, audioPulse: 0.8, audioMomentum: 0.9, audioBeatMotionTime: hit.beatMotionTime))
+            let active = pixels(try renderer.renderOffscreen(time: 2.3, audioBands: bands, audioPulse: 0.8, audioMomentum: 0.9, audioBeatMotionTime: hit.beatMotionTime, audioEnvelopes: SIMD4(repeating: 0.6), audioSwell: 0.8))
             let difference = zip(restrained,active).reduce(0.0) { $0 + Double(abs(Int($1.0)-Int($1.1))) } / Double(active.count)
             try require(difference > 0.05, "Chaos must visibly change beat activity in scene \(scene): \(difference)")
             _ = try renderer.renderOffscreen(time: 0.1, audioBands: bands)
-            let revisit = pixels(try renderer.renderOffscreen(time: 2.3, audioBands: bands, audioPulse: 0.8, audioMomentum: 0.9, audioBeatMotionTime: hit.beatMotionTime))
+            let revisit = pixels(try renderer.renderOffscreen(time: 2.3, audioBands: bands, audioPulse: 0.8, audioMomentum: 0.9, audioBeatMotionTime: hit.beatMotionTime, audioEnvelopes: SIMD4(repeating: 0.6), audioSwell: 0.8))
             try require(active == revisit, "Chaotic visuals must remain deterministic after backwards seeks")
         }
-        print("PASS: all \(RenderState.nativeSceneNames.count) GPU visualizers respond to Chaos on beats, remain unchanged without beats, and reproduce exact pixels after seeking")
+        print("PASS: all \(NativeEffects.activeIDs.count) GPU visualizers respond to Chaos on beats, remain unchanged without beats, and reproduce exact pixels after seeking")
         // Exercise the shared path with zoom/blur/strobe and sharply changing
         // audio features. Zero Chaos must be identical to a silent soundtrack
         // at every source timestamp, without stopping procedural animation.
         for (width, height) in [(320,180),(180,320)] {
             try renderer.prepareOffscreen(width: width, height: height)
-            for scene in RenderState.nativeSceneNames.indices {
+            for scene in NativeEffects.activeIDs {
                 state.scene = scene; state.chaos = 0; state.strobeEnabled = true
                 state.motionBlur = 0.4
                 for zoom in [Float(0),1.5,3] {
@@ -83,7 +83,8 @@ import Foundation
                         let loud = pixels(try renderer.renderOffscreen(time: time,
                             audioBands: (0..<32).map { Float(($0+index)%3)/2 }, audioPulse: 1,
                             audioMomentum: 1, audioBeatMotionTime: Double(index+1),
-                            audioTreblePulse: 1, audioTrebleAttackTime: time))
+                            audioTreblePulse: 1, audioTrebleAttackTime: time,
+                            audioEnvelopes: SIMD4(Float(index % 2), 1, 0.5, 1), audioSwell: 1))
                         try require(clean == loud, "Zero Chaos leaked music at \(time): \(RenderState.sceneNames[scene]), zoom \(zoom), \(width)x\(height)")
                         if first == nil { first = clean }; last = clean
                     }

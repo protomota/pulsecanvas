@@ -1,6 +1,6 @@
-Double Twist: low/high shape change 25.589421296296297/32.29467013888889, residual after best global transform 23.799615792262852
-Octagon Vault: low/high shape change 12.215486111111112/56.19475694444444, residual after best global transform 50.895917150051574
-Mercury Fold: low/high shape change 16.07560763888889/48.45733796296296, residual after best global transform 35.86613047983812
-Ink Cyclone: low/high shape change 7.720416666666667/32.368408564814814, residual after best global transform 16.273242111187034
-Grid Vortex: low/high shape change 13.34328125/56.36603587962963, residual after best global transform 50.978770058181425
+Double Twist: low/high shape change 17.298472222222223/36.370619212962964, residual after best global transform 34.43524203918903
+Octagon Vault: low/high shape change 3.4296469907407405/16.49637152777778, residual after best global transform 17.134203174846608
+Mercury Fold: low/high shape change 5.5791608796296295/20.14784722222222, residual after best global transform 19.91525835359099
+Ink Cyclone: low/high shape change 0.4369733796296296/2.16609375, residual after best global transform 2.234732257597898
+Tidal Glass: low/high shape change 0.49658564814814815/2.2331712962962964, residual after best global transform 2.581140542307108
 PASS: local geometry waves cannot be explained by global zoom/translation/brightness; higher Chaos strengthens deformation, release and zero restore exact procedural frames

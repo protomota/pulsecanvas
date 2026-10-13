@@ -19,7 +19,7 @@ import Foundation
             try FileManager.default.createDirectory(at: destination, withIntermediateDirectories: true)
             for (width,height) in [(960,540),(540,960)] {
                 try renderer.prepareOffscreen(width: width, height: height)
-                for scene in [14,17,18,21] {
+                for scene in [15,17,18,21] {
                     state.scene = scene; state.palette = scene == 18 ? 3 : 0; state.particleSize = 1.6; state.zoom = 1.05
                     let texture = try renderer.renderOffscreen(time: 3.4, audioBands: spectrum, audioPulse: 0.5)
                     let bitmap = NSBitmapImageRep(bitmapDataPlanes: nil, pixelsWide: width, pixelsHigh: height, bitsPerSample: 8, samplesPerPixel: 4, hasAlpha: true, isPlanar: false, colorSpaceName: .deviceRGB, bytesPerRow: width*4, bitsPerPixel: 32)!

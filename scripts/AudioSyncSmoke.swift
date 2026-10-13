@@ -101,10 +101,11 @@ import MetalKit
         let state = RenderState(), renderer = VisualizerRenderer(state: state)
         try renderer.prepareOffscreen(width: 180, height: 320)
         var paletteChecks = 0
-        for scene in 0..<RenderState.nativeSceneNames.count {
+        for scene in NativeEffects.activeIDs {
             state.scene = scene; state.zoom = 1; state.brightness = 1; state.strobeEnabled = false
             let idle = pixels(try renderer.renderOffscreen(time: 1.33, audioBands: frame.bands, audioPulse: 0))
-            let beat = pixels(try renderer.renderOffscreen(time: 1.33, audioBands: frame.bands, audioPulse: 1))
+            // Real analysis always pairs an attack with its smoothed swell.
+            let beat = pixels(try renderer.renderOffscreen(time: 1.33, audioBands: frame.bands, audioPulse: 1, audioSwell: 1))
             let changed = zip(idle, beat).filter { abs(Int($0) - Int($1)) > 8 }.count
             try require(changed > 100, "Beat pulse must visibly change scene \(scene), with white strobe off")
             var results = Set<Data>()
@@ -133,6 +134,6 @@ import MetalKit
             }
             try require(results.count == VisualPalette.allCases.count, "Every palette must differ in scene \(scene)")
         }
-        print("PASS: \(RenderState.nativeSceneNames.count) scenes visibly pulse without strobe; \(paletteChecks) actual GPU palette outputs with blue/warm/green constraints")
+        print("PASS: \(NativeEffects.activeIDs.count) scenes visibly pulse without strobe; \(paletteChecks) actual GPU palette outputs with blue/warm/green constraints")
     }
 }

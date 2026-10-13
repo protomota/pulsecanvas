@@ -1,7 +1,7 @@
-TIMING: 720 16:9 · Wide scene 22: 0.3445177082903683s, 0 estimates
+TIMING: 720 16:9 · Wide scene 22: 1.9635468749911524s, 0 estimates
 PASS: 720 16:9 · Wide exposes actual small frame previews, exact 24-frame progress, finishing/audio stages, saved success and complete video
-TIMING: 2160 9:16 · Phone scene 22: 0.3733866666443646s, 0 estimates
+TIMING: 2160 9:16 · Phone scene 22: 0.8524774166580755s, 0 estimates
 PASS: 2160 9:16 · Phone exposes actual small frame previews, exact 24-frame progress, finishing/audio stages, saved success and complete video
-TIMING: 2160 16:9 · Wide scene 23: 1.2617771250661463s, 14 estimates
+TIMING: 2160 16:9 · Wide scene 23: 2.4366767083411105s, 17 estimates
 PASS: 2160 16:9 · Wide exposes actual small frame previews, exact 24-frame progress, finishing/audio stages, saved success and complete video
 PASS: cancelled/failed exports reset feedback and never signal success; cancellation preserves the destination

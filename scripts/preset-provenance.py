@@ -238,7 +238,7 @@ def verify_source(path, revision=None):
             # Verify the entire committed build input set, not just the manifests.
             inputs = ['Sources', 'scripts', 'macOS', 'PulseCanvas.xcodeproj', 'third_party',
                       'assets', 'Package.swift', 'LICENSE', 'README.md', 'docs/licensing.md',
-                      'docs/app-store', 'docs/shader-provenance.json', 'docs/unused-code-audit.md']
+                      'docs/app-store', 'docs/unused-code-audit.md']
             snapshot = subprocess.check_output(['git', '-C', str(REPO), 'archive', revision, *inputs])
             with tarfile.open(fileobj=io.BytesIO(snapshot)) as committed:
                 expected = set()

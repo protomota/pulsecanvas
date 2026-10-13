@@ -3,7 +3,7 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 mkdir -p .build/validation
 ./scripts/build-projectm.sh > .build/validation/projectm-build.log 2>&1
-xcrun swiftc -suppress-warnings -O -parse-as-library Sources/PulseCanvas/ProjectMEngine.swift scripts/ProjectMPlaybackAudit.swift -o .build/validation/audit-projectm
+xcrun swiftc -suppress-warnings -O -parse-as-library Sources/PulseCanvas/ProjectMEngine.swift scripts/ProjectMErrorStandalone.swift scripts/ProjectMPlaybackAudit.swift -o .build/validation/audit-projectm
 .build/validation/audit-projectm "${1:-.build/validation/preset-playback.json}"
 python3 - "${1:-.build/validation/preset-playback.json}" <<'PY'
 import json,sys

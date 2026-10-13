@@ -1,0 +1,8 @@
+{
+  "sparkleVersion": "2.10.0",
+  "sparkleArchiveSHA256": "c2bf58aa8387266ac179357b1415d6f2635f044da8be41042af32425dae6da0c",
+  "sparklePublicKey": "dt7VIV8wJlob0xc8qDYuOKGOSD4/NUXuEOnh21Vicmw=",
+  "sparkleKeychainAccount": "pulsecanvas-direct",
+  "bundleIdentifier": "com.protomota.pulsecanvas.direct",
+  "feedURL": "https://pulsecanvas.si/appcast.xml"
+}

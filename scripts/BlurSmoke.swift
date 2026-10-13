@@ -67,7 +67,7 @@ import Foundation
             b.withUnsafeMutableBytes { t.getBytes($0.baseAddress!, bytesPerRow: w*4, from: MTLRegionMake2D(0,0,w,h), mipmapLevel: 0) }
             return b
         }
-        for scene in RenderState.nativeSceneNames.indices {
+        for scene in NativeEffects.activeIDs {
             state.scene = scene; state.motionBlur = 0
             let sharp = try frame()
             state.motionBlur = 0.9

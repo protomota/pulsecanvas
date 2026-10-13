@@ -23,7 +23,7 @@ import Foundation
         var checks = 0
         for (width, height) in [(320, 180), (90, 160)] {
             try renderer.prepareOffscreen(width: width, height: height)
-            for scene in 0..<RenderState.nativeSceneNames.count {
+            for scene in NativeEffects.activeIDs {
                 state.scene = scene; state.motionBlur = 0.55; state.strobeEnabled = false
                 let a = pixels(try renderer.renderOffscreen(time: 4.2, audioBands: spectrum))
                 let b = pixels(try renderer.renderOffscreen(time: 4.2, audioBands: spectrum))

@@ -1,5 +1,27 @@
 # Component and asset rights
 
+## Edition split — current decision, 2026-10-12
+
+The owner subsequently authorized two editions. The App Store package now contains
+31 native Metal visualizers and excludes projectM, OpenGL presets, the external
+texture pack and Sparkle. The direct edition retains the full library and separate
+LGPL/source, preset and texture provenance obligations. The Apple-store engine
+warning below applies to packages containing projectM; it is not resolved by
+dynamic linking or a source archive. Asset permissions in the direct edition remain
+unresolved. Historical decisions below are preserved and superseded by this split.
+See [DISTRIBUTION.md](../DISTRIBUTION.md) for actual build/testing status.
+
+## Native catalog update — 2026-10-13
+
+The 13 extracted AIR shader modules, the point/mesh geometry translated from another
+application, and the native designs built on them (IDs 0–3, 5–9, 11, 13 and 14) were
+removed from the source tree, along with ID 30, which duplicated ID 22. Their IDs remain
+reserved so saved projects open a replacement design. The native catalog is now 187
+original PulseCanvas designs compiled from Metal source at runtime; no extracted or
+prebuilt shader modules remain. Rows below that mention AIR modules or geometry
+verification describe the earlier state. Store metadata and the App Store build still
+describe the submitted 31-visualizer version until a new release is prepared.
+
 ## Unresolved Apple-store blocker — upstream guidance reviewed 2026-10-12
 
 The official [projectM licensing wiki](https://github.com/projectM-visualizer/projectm/wiki/projectM-Licensing#apple-store-compatibility)

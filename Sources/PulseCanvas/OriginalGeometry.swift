@@ -29,7 +29,7 @@ enum OriginalGeometry {
 
         var title: String {
             switch self {
-            case .audioMandala: return "Petal Echo"
+            case .audioMandala: return "Lotus Resonance"
             case .orbitalRings: return "Orbit Loom"
             case .ribbonWave: return "Silk Current"
             case .spectralHelix: return "Double Twist"

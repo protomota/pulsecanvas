@@ -424,7 +424,7 @@ private struct StudioFavoritesPicker: View {
     let selected: Int
     let choose: (Int) -> Void
     private var favorites: [Int] {
-        RenderState.sceneNames.indices.filter {library.isFavorite($0)}
+        library.availableScenes.filter {library.isFavorite($0)}
     }
 
     var body: some View {

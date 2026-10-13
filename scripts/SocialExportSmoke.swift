@@ -45,7 +45,7 @@ struct SocialExportSmoke {
         try require(detector.nextFrame(time: 0.09, bands: treble) == 0, "Strobe must remain brief and cannot retrigger sustained treble")
         print("PASS: optional hi-hat strobe responds to treble attacks, ignores bass, and releases")
         let state = RenderState()
-        state.scene = 0
+        state.scene = 10
         let exporter = SocialExportController()
         for (index, aspect) in SocialAspect.allCases.enumerated() {
             exporter.aspect = aspect
@@ -335,7 +335,7 @@ struct SocialExportSmoke {
         }
         let silentTrack = root.appendingPathComponent("zero-chaos-silent.wav")
         do { let writer = try AVAudioFile(forWriting: silentTrack, settings: settings); try writer.write(from: silentPCM) }
-        for scene in [18,22,25,30] {
+        for scene in [18,22,25,29] {
             var calmPreset = VisualPreset(); calmPreset.chaos = 0; calmPreset.zoomSpeed = 1.5
             calmPreset.strobeEnabled = true
             calmPreset.apply(to: state); state.scene = scene

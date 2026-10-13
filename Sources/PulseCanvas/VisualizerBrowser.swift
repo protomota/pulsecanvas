@@ -14,7 +14,7 @@ struct VisualizerBrowser: View {
     private let accent = Color(red: 0.95, green: 0.68, blue: 0.55)
     private var matches: [Int] {
         let text = query.trimmingCharacters(in: .whitespacesAndNewlines)
-        return RenderState.sceneNames.indices.filter { scene in
+        return library.availableScenes.filter { scene in
             (!favoritesOnly || library.isFavorite(scene))
                 && (category.isEmpty || library.category(for: scene) == category)
                 && (folder.isEmpty || library.preset(for: scene)?.category == folder)

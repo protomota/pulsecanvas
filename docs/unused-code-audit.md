@@ -1,5 +1,7 @@
 # App code audit — 1.0.1 (4)
 
+> Historical record. On 2026-10-13 the AIR shader modules, `scripts/reference` and the recovered geometry described here were removed with the designs that used them; see [NATIVE_VISUALIZERS.md](NATIVE_VISUALIZERS.md#retired-designs).
+
 Audited the 24 Swift app files before cleanup, Metal entry points and bindings, resource build inputs, both app targets, and the engineering harnesses. Reference searches were checked against actual callers, dynamic shader names, framework callbacks and saved-project decoding. Third-party engine source and preset equations are separate runtime dependencies; the preset library remains intact.
 
 ## Removed from the app

@@ -7,7 +7,7 @@ import Foundation
         let root = URL(fileURLWithPath: ".build/spatial-validation")
         try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
         let state = RenderState(), renderer = VisualizerRenderer(state: state)
-        let scenes = [4,10,12,22,23,24,25,26,27,28,29,30]
+        let scenes = [10,12,22,23,24,25,26,27,28,29]
         let spectrum = (0..<32).map { Float($0 % 7) / 10 }
         let width=960, height=540
         try renderer.prepareOffscreen(width: width, height: height)

@@ -26,6 +26,9 @@ final class PresetStripView: NSScrollView {
     private var rowWidth: CGFloat = 0
     private var viewportWidth: CGFloat = -1
     private var names: [String] = []
+    /// Scene ID for each laid-out position; the row offers only available scenes.
+    private var scenes: [Int] = []
+    private var positions: [Int: Int] = [:]
     private var library: ProjectMPresets?
     private var selected = -1
     private var revealRequest = 0
@@ -56,12 +59,15 @@ final class PresetStripView: NSScrollView {
     }
     func update(library: ProjectMPresets, selected: Int, accent: NSColor, background: NSColor, isEnabled: Bool = true, revealRequest: Int = 0, choose: @escaping (Int) -> Void) {
         self.library = library; self.choose = choose
-        let changedNames = names != library.sceneNames
+        let available = library.availableScenes
+        let changedNames = scenes != available || names != available.map { library.sceneNames[$0] }
         let changedEnabled = controlsEnabled != isEnabled
         controlsEnabled = isEnabled
         let changedStyle = self.selected != selected || self.accent != accent || buttonBackground != background
         if changedNames {
-            names = library.sceneNames
+            scenes = available
+            names = available.map { library.sceneNames[$0] }
+            positions = Dictionary(uniqueKeysWithValues: available.enumerated().map { ($0.element, $0.offset) })
             var position: CGFloat = 0
             starts = []; widths = []
             let font = NSFont.systemFont(ofSize: 12, weight: .medium)
@@ -74,8 +80,8 @@ final class PresetStripView: NSScrollView {
             buttons.values.forEach { $0.removeFromSuperview() }; buttons.removeAll()
         }
         self.selected = selected; self.accent = accent; buttonBackground = background
-        if self.revealRequest != revealRequest, starts.indices.contains(selected) {
-            let x = min(starts[selected], max(0, canvas.frame.width - contentView.bounds.width))
+        if self.revealRequest != revealRequest, let position = positions[selected] {
+            let x = min(starts[position], max(0, canvas.frame.width - contentView.bounds.width))
             contentView.scroll(to: NSPoint(x: x, y: 0)); reflectScrolledClipView(contentView)
         }
         self.revealRequest = revealRequest
@@ -89,7 +95,7 @@ final class PresetStripView: NSScrollView {
     }
     private func style(_ button: PresetStripButton, index: Int) {
         button.isEnabled = controlsEnabled
-        button.isSelected = index == selected; button.accent = accent; button.fill = buttonBackground
+        button.isSelected = scenes[index] == selected; button.accent = accent; button.fill = buttonBackground
         button.needsDisplay = true
     }
     private func showVisibleButtons() {
@@ -104,11 +110,12 @@ final class PresetStripView: NSScrollView {
         for index in wanted.sorted() {
             let button: PresetStripButton
             if let existing = buttons[index] { button = existing } else {
+                let scene = scenes[index]
                 button = PresetStripButton()
                 button.title = names[index]; button.setAccessibilityLabel(names[index])
-                button.image = NSImage(systemSymbolName: library.icon(for: index), accessibilityDescription: nil)?.withSymbolConfiguration(.init(pointSize: 27, weight: .light))
-                button.toolTip = library.preset(for: index)?.originalTitle ?? names[index]
-                button.tag = index; button.target = self; button.action = #selector(pick(_:))
+                button.image = NSImage(systemSymbolName: library.icon(for: scene), accessibilityDescription: nil)?.withSymbolConfiguration(.init(pointSize: 27, weight: .light))
+                button.toolTip = library.preset(for: scene)?.originalTitle ?? names[index]
+                button.tag = scene; button.target = self; button.action = #selector(pick(_:))
                 buttons[index] = button; canvas.addSubview(button); style(button, index: index)
             }
             button.frame = NSRect(x: starts[index], y: (canvas.frame.height - 62) / 2, width: widths[index], height: 62)

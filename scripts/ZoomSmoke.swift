@@ -18,7 +18,7 @@ import Foundation
         func difference(_ a: [UInt8], _ b: [UInt8]) -> Double {
             zip(a,b).reduce(0.0) { $0 + Double(abs(Int($1.0)-Int($1.1))) } / Double(a.count)
         }
-        for scene in RenderState.nativeSceneNames.indices {
+        for scene in NativeEffects.activeIDs {
             state.scene = scene; state.zoomSpeed = 0
             let flat = try pixels(2.3), movingFlat = try pixels(2.7)
             precondition(difference(flat, movingFlat) > 0.05, "Zero zoom must retain animation: \(RenderState.sceneNames[scene])")
@@ -39,7 +39,7 @@ import Foundation
             let before = try pixels(boundary - 0.0001), after = try pixels(boundary + 0.0001)
             precondition(difference(before,after) < 1, "Forward zoom loop cannot visibly jump at cycle boundaries")
         }
-        for scene in [22,25,30] {
+        for scene in [22,25,29] {
             state.scene = scene
             for speed: Float in [0,1.5,3] {
                 state.zoomSpeed = speed
@@ -56,7 +56,7 @@ import Foundation
         // Real playback cadence also catches an isolated reset that a sparse
         // infinitesimal-time check could miss. Inspect early and late motion.
         var cadenceChecks = 0
-        for scene in [22,25,30] {
+        for scene in [22,25,29] {
             state.scene = scene
             for speed: Float in [0,1.5,3] {
                 state.zoomSpeed = speed
@@ -76,6 +76,6 @@ import Foundation
             }
         }
         print("PASS: \(cadenceChecks) actual 30/60fps tunnel frame transitions without isolated jumps at early/late timestamps and three zoom speeds")
-        print("PASS: seamless forward zoom cycle boundaries, smooth tunnels at zero Chaos, and all \(RenderState.nativeSceneNames.count) styles")
+        print("PASS: seamless forward zoom cycle boundaries, smooth tunnels at zero Chaos, and all \(NativeEffects.activeIDs.count) styles")
     }
 }

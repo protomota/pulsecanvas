@@ -18,7 +18,15 @@ PulseCanvas Studio, Apple ID 6821642700, macOS version 1.0.0, English (U.S.). **
 
 The four original files named `.png` actually contained JPEG data. Apple showed red processing-error placeholders. Filenames were corrected to `.jpg` without changing the image bytes. The failed screenshot records and retries were removed **from this version only**; Apple's dialog expressly says they remain in the Asset Library. No unrelated app/build cleanup took place.
 
-Correct listing order: `01-prism-wake.jpg`, `02-spiral-tide.jpg`, `04-studio.jpg`, `05-export.jpg`. All are opaque RGB, 1440×900. All four processed thumbnails were verified in Apple's media manager: each has a rendered image, no error and no pending indicator. Visual evidence: `work/app-store/listing-screenshots-ready.jpg`.
+Original screenshot order before marketing cards: `01-prism-wake.jpg`, `02-spiral-tide.jpg`, `04-studio.jpg`, `05-export.jpg`. All are opaque RGB, 1440×900. All four processed thumbnails were verified in Apple's media manager: each has a rendered image, no error and no pending indicator. Visual evidence: `work/app-store/listing-screenshots-ready.jpg`.
+
+## Opening feature cards uploaded — 2026-10-11
+
+Owner authorized App Store publication of three adapted feature cards using HTML/CSS with unchanged real app captures. Apple's guideline 2.3.3 requires screenshots to show the app in use and allows text/image overlays. The artwork-only campaign masters remain local; the listing versions include large real app captures and decorative campaign artwork.
+
+Exports in `assets/app-store/feature-cards/` were checked as opaque RGB JPEG, 1440×900. Seven processed thumbnails and the final order were verified after reloading App Store Connect. Current order: `01-your-visual-world.jpg`, `02-signature-look.jpg`, `03-beat-to-video.jpg`, then `01-prism-wake.jpg`, `02-spiral-tide.jpg`, `04-studio.jpg`, `05-export.jpg`. The four existing screenshots remain unchanged. Evidence: `work/app-store/feature-cards-uploaded.jpg`.
+
+These assets are saved in the unreleased macOS 1.0.0 listing; they are not publicly visible on the App Store yet. No App Review submission, public release or website publication was performed.
 
 ## Support update published
 

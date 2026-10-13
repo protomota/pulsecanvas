@@ -17,7 +17,7 @@ import Combine
         resetStore.segments = [StudioSegment(start: 0, end: 8, scene: 18), StudioSegment(start: 8, end: 16, scene: 18)]
         let resetTimeline = try selectionEncoder.encode(resetStore.segments)
         resetRender.playbackTime = 5; resetRender.audioPulse = 0.7; resetRender.paused = false
-        for scene in [0, 18, 19, 22, 31] {
+        for scene in [10, 18, 19, 22, 31, RenderState.nativeSceneNames.count] {
             resetRender.scene = scene; resetStore.apply(to: resetRender)
             let expected = try selectionEncoder.encode(resetStore.preset(resetRender))
             let others = try selectionEncoder.encode(resetStore.presets.filter {$0.key != scene})
@@ -138,7 +138,7 @@ import Combine
         let styleObserver = performanceStore.$presets.dropFirst().sink { _ in styleUpdates += 1 }
         let storedStyles = performanceDefaults.data(forKey: "PulseCanvas.studio.v1")
         let longGrid = SongSegmentation(boundaries: (0...10_000).map {Double($0) * 2}, bpm: 120)
-        performanceStore.segments = (0..<10_000).map {StudioSegment(start: Double($0) * 2, end: Double($0 + 1) * 2, scene: 0, bars: 1)}
+        performanceStore.segments = (0..<10_000).map {StudioSegment(start: Double($0) * 2, end: Double($0 + 1) * 2, scene: 10, bars: 1)}
         performanceStore.isStudio = true; performanceRender.playbackTime = 0
         let editStart = Date()
         for edit in 0..<100 {
@@ -207,7 +207,7 @@ import Combine
         let dicePresetsAfterInvalid = try selectionEncoder.encode(clipDiceStore.presets)
         precondition(dicePresetsBeforeInvalid == dicePresetsAfterInvalid)
         print("PASS Studio clip dice: active/inactive shared styles, persistence, explicit strobe choice, timeline assignments and playback retained")
-        precondition(Set(RenderState.nativeSceneNames).count == 31)
+        precondition(Set(RenderState.nativeSceneNames).count == RenderState.nativeSceneNames.count)
         precondition(!ProjectMPresets.shared.entries.isEmpty)
         precondition(Set(VisualPalette.allCases.map(\.title)).count == 5)
         store.isStudio = true
@@ -294,7 +294,7 @@ import Combine
         var expected = store.presets
         expected[render.scene] = store.preset(render)
         let reference = RenderState()
-        for scene in RenderState.sceneNames.indices where expected[scene] == nil {
+        for scene in ProjectMPresets.shared.availableScenes where expected[scene] == nil {
             reference.scene = scene; store.apply(to: reference); expected[scene] = store.preset(reference)
         }
         func withoutCommonSettings(_ preset: VisualPreset) throws -> Data {
@@ -305,14 +305,14 @@ import Combine
         let timelineBeforeCommon = try encoder.encode(store.segments)
         let selectedBeforeCommon = store.selectedSegment, activeScene = render.scene
         store.applyCommonSettings(chaos: 0.42, zoomSpeed: nil, motionSpeed: nil, render: render)
-        precondition(store.presets.count == RenderState.sceneNames.count)
-        for scene in RenderState.sceneNames.indices {
+        precondition(store.presets.count == ProjectMPresets.shared.availableScenes.count)
+        for scene in ProjectMPresets.shared.availableScenes {
             var original = expected[scene]!; original.chaos = 0.42
             let actual = try encoder.encode(store.presets[scene]!), wanted = try encoder.encode(original)
             precondition(actual == wanted, "Only the chosen common control may change")
         }
         store.applyCommonSettings(chaos: nil, zoomSpeed: 0, motionSpeed: 1.8, render: render)
-        for scene in RenderState.sceneNames.indices {
+        for scene in ProjectMPresets.shared.availableScenes {
             let preset = store.presets[scene]!
             precondition(preset.chaos == 0.42 && preset.zoomSpeed == 0 && preset.speed == 1.8)
             let actual = try withoutCommonSettings(preset), wanted = try withoutCommonSettings(expected[scene]!)
@@ -343,7 +343,7 @@ import Combine
             copy.strobeEnabled = false; copy.strobeSensitivity = 1; copy.strobeStrength = 1
             return try encoder.encode(copy)
         }
-        for scene in RenderState.sceneNames.indices {
+        for scene in ProjectMPresets.shared.availableScenes {
             let appearance = store.presets[scene]!
             precondition(appearance.strobeEnabled && appearance.strobeSensitivity == 1.7 && appearance.strobeStrength == 0.62)
             let original = try withoutStrobe(beforeStrobe[scene]!), updated = try withoutStrobe(appearance)
@@ -359,14 +359,14 @@ import Combine
         precondition(render.strobeEnabled && render.strobeSensitivity == 1.7 && render.strobeStrength == 0.62, "Every Studio section follows its shared strobe controls")
         store.applyCommonSettings(chaos: nil, zoomSpeed: nil, motionSpeed: nil, strobeEnabled: false, render: render)
         precondition(!render.strobeEnabled && store.presets.values.allSatisfy { !$0.strobeEnabled && $0.strobeSensitivity == 1.7 && $0.strobeStrength == 0.62 })
-        for scene in RenderState.sceneNames.indices {
+        for scene in ProjectMPresets.shared.availableScenes {
             let original = try withoutStrobe(beforeStrobe[scene]!), updated = try withoutStrobe(store.presets[scene]!)
             precondition(original == updated)
         }
         let strobeTimeline = try encoder.encode(store.segments)
         precondition(strobeTimeline == timelineBeforeCommon && render.playbackTime == 12.3 && render.paused)
-        print("PASS: strobe Apply all enables all \(RenderState.sceneNames.count) shared presets with chosen sensitivity/strength; Remove all disables flashes and retains those values; other controls, timeline/audio, persistence and project round-trip retained")
-        print("PASS: selective common Chaos/zoom/motion applies to all \(RenderState.sceneNames.count) styles and untouched defaults, retains unsaved edits and unselected settings including strobe; preserves timeline/audio; persists and round-trips shared Studio presets")
+        print("PASS: strobe Apply all enables all \(ProjectMPresets.shared.availableScenes.count) shared presets with chosen sensitivity/strength; Remove all disables flashes and retains those values; other controls, timeline/audio, persistence and project round-trip retained")
+        print("PASS: selective common Chaos/zoom/motion applies to all \(ProjectMPresets.shared.availableScenes.count) styles and untouched defaults, retains unsaved edits and unselected settings including strobe; preserves timeline/audio; persists and round-trips shared Studio presets")
         print("PASS: Visual randomization includes whole-image softness")
         print("PASS: whole-timeline and individual-section randomization change designs, retain fixed boundaries and shared settings")
         print("PASS: fixed section boundaries, exact switches, shared appearance across repeated sections, project round-trip, old project compatibility")

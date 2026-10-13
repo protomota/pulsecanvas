@@ -1,3 +1,4 @@
+#if !STORE_BUILD
 import Foundation
 import Darwin
 import OpenGL
@@ -153,11 +154,6 @@ final class ProjectMEngine {
         return metalTexture!
     }
 }
-struct ProjectMError: LocalizedError {
-    let message: String
-    init(_ message: String) {self.message = message}
-    var errorDescription: String? {message}
-}
 
 /// Milkdrop packs sometimes wrap identifiers or numeric literals between numbered
 /// EEL lines. Retrying a failed preset with joined equation chunks preserves the
@@ -207,3 +203,5 @@ enum ProjectMPreviewSize {
         return (max(1, Int((Double(width) * scale).rounded())), max(1, Int((Double(height) * scale).rounded())))
     }
 }
+
+#endif

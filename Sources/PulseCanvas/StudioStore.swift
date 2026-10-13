@@ -48,6 +48,23 @@ extension VisualPreset {
     }
 }
 
+@MainActor
+extension VisualPreset {
+    /// One default profile serves the editor, reset and Studio export. Existing
+    /// saved appearances take precedence; changing defaults cannot overwrite them.
+    static func defaults(for scene: Int) -> VisualPreset {
+        if scene >= RenderState.nativeSceneNames.count { return VisualPreset(chaos: 1, zoomSpeed: 0) }
+        var result = VisualPreset()
+        if let look = NativeEffects.effect(scene)?.look {
+            result.palette = look.palette; result.particleSize = look.size
+            result.speed = look.speed; result.zoomSpeed = look.zoomSpeed
+            result.brightness = look.brightness; result.fog = look.fog
+            result.liquidDetail = look.detail; result.chaos = look.chaos; result.zoom = look.zoom
+        }
+        return result
+    }
+}
+
 struct CreatorProject: Codable {
     var version = 1
     var soundtrack: URL?
@@ -77,13 +94,45 @@ final class StudioStore: ObservableObject {
     @Published var barsPerSection = 4
     var beatsPerSection: Int { barsPerSection * 4 }
     @Published var presets: [Int: VisualPreset] = [:] { didSet { persist() } }
+    #if STORE_BUILD
+    private let key = "PulseCanvas.metalStudio.v1"
+    #else
     private let key = "PulseCanvas.studio.v1"
+    #endif
     private let defaults: UserDefaults
     private struct Saved: Codable { var presets: [Int: VisualPreset]; var identities: [Int: String]? = nil }
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
-        if let data = defaults.data(forKey: key), let saved = try? JSONDecoder().decode(Saved.self, from: data) {
-            presets = (try? Self.migratedPresets(saved.presets, identities: saved.identities, library: .shared)) ?? saved.presets
+        #if STORE_BUILD
+        let savedData = defaults.data(forKey: key) ?? defaults.data(forKey: "PulseCanvas.studio.v1")
+        #else
+        let savedData = defaults.data(forKey: key)
+        #endif
+        if let data = savedData, let saved = try? JSONDecoder().decode(Saved.self, from: data) {
+            #if STORE_BUILD
+            var nativePresets: [Int: VisualPreset] = [:]
+            for scene in saved.presets.keys.sorted() where !ProjectMPresets.shared.isRetiredScene(scene, identities: saved.identities) {
+                if let native = try? ProjectMPresets.shared.migratedScene(scene, identities: saved.identities), nativePresets[native] == nil {
+                    nativePresets[native] = saved.presets[scene]
+                }
+            }
+            presets = nativePresets
+            #else
+            if let migrated = try? Self.migratedPresets(saved.presets, identities: saved.identities, library: .shared) {
+                presets = migrated
+            } else {
+                // Keep the complete original data when an unavailable import prevents
+                // migration. Never reinterpret an old external index as a new native ID.
+                defaults.set(data, forKey: key + ".unresolved")
+                var restored: [Int: VisualPreset] = [:]
+                for (scene, appearance) in saved.presets where !ProjectMPresets.shared.isRetiredScene(scene, identities: saved.identities) {
+                    if let resolved = try? ProjectMPresets.shared.migratedScene(scene, identities: saved.identities), restored[resolved] == nil {
+                        restored[resolved] = appearance
+                    }
+                }
+                presets = restored
+            }
+            #endif
         }
     }
     static func migratedPresets(_ presets: [Int: VisualPreset], identities: [Int: String]?, library: ProjectMPresets) throws -> [Int: VisualPreset] {
@@ -112,7 +161,7 @@ final class StudioStore: ObservableObject {
         guard chaos != nil || zoomSpeed != nil || motionSpeed != nil || strobeEnabled != nil || strobeSensitivity != nil || strobeStrength != nil else { return }
         var updated = presets
         updated[render.scene] = preset(render)
-        for scene in RenderState.sceneNames.indices {
+        for scene in ProjectMPresets.shared.availableScenes {
             var appearance = updated[scene] ?? defaultPreset(for: scene)
             if let chaos { appearance.chaos = min(1, max(0, chaos)) }
             if let zoomSpeed { appearance.zoomSpeed = min(3, max(0, zoomSpeed)) }
@@ -127,7 +176,7 @@ final class StudioStore: ObservableObject {
     }
     func makeTimeline(_ plan: SongSegmentation, render: RenderState) {
         save(render)
-        let sequence = [18, 9, 17, 0, 21, 14, 16, 3, 19, 1, 15, 6, 20, 2, 10, 11, 4, 5, 7, 8, 12, 13, 22, 23, 24, 25, 26, 27, 28, 29, 30]
+        let sequence = NativeEffects.timelineOrder
         let previous = segments
         segments = zip(plan.boundaries, plan.boundaries.dropFirst()).enumerated().map { index, pair in
             StudioSegment(start: pair.0, end: pair.1,
@@ -282,9 +331,7 @@ final class StudioStore: ObservableObject {
         save(render)
     }
     private func defaultPreset(for scene: Int) -> VisualPreset {
-        var defaults = scene >= 31 ? VisualPreset(chaos: 1, zoomSpeed: 0) : VisualPreset()
-        if scene == 18 || scene == 19 { defaults.particleSize = 1.6; defaults.zoom = 1.05 }
-        return defaults
+        VisualPreset.defaults(for: scene)
     }
     func apply(_ saved: VisualPreset, to render: RenderState) { saved.apply(to: render) }
     private func persist() {
@@ -321,7 +368,7 @@ extension CreatorProject {
             result.visualPresets = try StudioStore.migratedPresets(visualPresets, identities: effectIdentities, library: library)
         }
         if library.isRetiredScene(scene, identities: effectIdentities) {
-            result.appearance = result.visualPresets?[result.scene] ?? VisualPreset()
+            result.appearance = result.visualPresets?[result.scene] ?? VisualPreset.defaults(for: result.scene)
         }
         result.effectIdentities = library.identities(for: Set(result.visualPresets?.keys.map { $0 } ?? []).union(result.timeline?.map(\.scene) ?? []).union([result.scene]))
         return result

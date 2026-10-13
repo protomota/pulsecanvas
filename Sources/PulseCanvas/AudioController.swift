@@ -18,6 +18,8 @@ final class AudioController: ObservableObject {
     private(set) var treblePulse: Float = 0
     private(set) var momentum: Float = 0
     private(set) var beatMotionTime: Double = 0
+    private(set) var envelopes = SIMD4<Float>(repeating: 0)
+    private(set) var swell: Float = 0
     @Published private(set) var previewSectionStart: Double?
     // High-rate audio data bypasses ObservableObject; only playback widgets observe it.
     let visualizationUpdated = PassthroughSubject<Void, Never>()
@@ -114,7 +116,7 @@ final class AudioController: ObservableObject {
     func stop() {
         generation = UUID(); player.stop(); isPlaying = false; segmentStart = 0
         previewSectionStart = nil; previewSectionEnd = nil
-        progress = 0; playbackSeconds = 0; spectrum = [Float](repeating: 0, count: 32); beatPulse = 0; momentum = 0; beatMotionTime = 0; treblePulse = 0; trebleAttackTime = nil
+        progress = 0; playbackSeconds = 0; spectrum = [Float](repeating: 0, count: 32); beatPulse = 0; momentum = 0; beatMotionTime = 0; envelopes = .zero; swell = 0; treblePulse = 0; trebleAttackTime = nil
         visualizationUpdated.send()
     }
 
@@ -175,10 +177,11 @@ final class AudioController: ObservableObject {
             beatPulse = features.pulse
             momentum = features.momentum
             beatMotionTime = features.beatMotionTime
+            envelopes = features.envelopes; swell = features.swell
             trebleAttackTime = features.trebleAttackTime
             treblePulse = features.treblePulse
         } catch {
-            spectrum = [Float](repeating: 0, count: 32); beatPulse = 0; momentum = 0; beatMotionTime = 0; treblePulse = 0; trebleAttackTime = nil
+            spectrum = [Float](repeating: 0, count: 32); beatPulse = 0; momentum = 0; beatMotionTime = 0; envelopes = .zero; swell = 0; treblePulse = 0; trebleAttackTime = nil
             status = "Audio analysis failed: \(error.localizedDescription)"
         }
     }
@@ -209,7 +212,7 @@ final class AudioController: ObservableObject {
                     return
                 }
                 self.isPlaying = false; self.progress = 1; self.playbackSeconds = self.duration
-                self.beatPulse = 0; self.momentum = 0; self.treblePulse = 0; self.trebleAttackTime = nil; self.spectrum = [Float](repeating: 0, count: 32)
+                self.beatPulse = 0; self.momentum = 0; self.envelopes = .zero; self.swell = 0; self.treblePulse = 0; self.trebleAttackTime = nil; self.spectrum = [Float](repeating: 0, count: 32)
                 self.visualizationUpdated.send()
                 self.status = "End of soundtrack"
             }

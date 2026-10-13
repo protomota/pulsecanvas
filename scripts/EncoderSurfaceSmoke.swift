@@ -5,7 +5,7 @@ import CoreVideo
 @main struct EncoderSurfaceSmoke {
     @MainActor static func main() async throws {
         _ = NSApplication.shared
-        for scene in 0..<RenderState.nativeSceneNames.count {
+        for scene in NativeEffects.activeIDs {
             let a = RenderState(), b = RenderState()
             for state in [a,b] {
                 state.scene = scene; state.chaos = 0.8; state.motionBlur = 0.55
@@ -38,6 +38,6 @@ import CoreVideo
                 CVPixelBufferUnlockBaseAddress(buffer!, .readOnly)
             }
         }
-        print("PASS: all 31 visualizers produce byte-identical encoder-surface frames, including content blur, music response and strobe over consecutive frames")
+        print("PASS: all \(NativeEffects.activeIDs.count) visualizers produce byte-identical encoder-surface frames, including content blur, music response and strobe over consecutive frames")
     }
 }

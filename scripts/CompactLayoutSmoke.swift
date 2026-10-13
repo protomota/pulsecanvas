@@ -61,7 +61,7 @@ import SwiftUI
             if let previousAspectPreference { UserDefaults.standard.set(previousAspectPreference, forKey: aspectPreference) }
             else { UserDefaults.standard.removeObject(forKey: aspectPreference) }
         }
-        for scene in [0, 31] {
+        for scene in [10, 31] {
             render.scene = scene
             for mode in [StudioPresentationController.Mode.studio, .visualizer] {
                 for aspect in SocialAspect.allCases {

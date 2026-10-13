@@ -47,22 +47,16 @@
 			"path" = "Sources/PulseCanvas/ExportOverlayView.swift";
 			"sourceTree" = "<group>";
 		};
-		"76237CB3FAAD3C72FC7F9934" = {
+		"4652E379F9220B1BF60E12B9" = {
 			"isa" = "PBXFileReference";
 			"lastKnownFileType" = "sourcecode.swift";
-			"path" = "Sources/PulseCanvas/MeshGeometry.swift";
+			"path" = "Sources/PulseCanvas/NativeEffects.swift";
 			"sourceTree" = "<group>";
 		};
 		"100CD0DC00C64B0B646E69DC" = {
 			"isa" = "PBXFileReference";
 			"lastKnownFileType" = "sourcecode.swift";
 			"path" = "Sources/PulseCanvas/OriginalGeometry.swift";
-			"sourceTree" = "<group>";
-		};
-		"74555C4CA394257E3F2038FE" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "sourcecode.swift";
-			"path" = "Sources/PulseCanvas/ProjectMEngine.swift";
 			"sourceTree" = "<group>";
 		};
 		"2DF77FDA9C8372B7840DB84B" = {
@@ -125,12 +119,6 @@
 			"path" = "Sources/PulseCanvas/StudioTimelineView.swift";
 			"sourceTree" = "<group>";
 		};
-		"8CA76973E2CC7916CCD725FA" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "sourcecode.swift";
-			"path" = "Sources/PulseCanvas/SurfaceGeometry.swift";
-			"sourceTree" = "<group>";
-		};
 		"5209D7B8FE7DB3E851C09177" = {
 			"isa" = "PBXFileReference";
 			"lastKnownFileType" = "sourcecode.swift";
@@ -161,10 +149,10 @@
 			"path" = "macOS/BundleResources.swift";
 			"sourceTree" = "<group>";
 		};
-		"856417BCCD6BCE2244C97185" = {
+		"DABBA78FD2CA1C70524016C7" = {
 			"isa" = "PBXFileReference";
 			"lastKnownFileType" = "folder";
-			"path" = "Sources/PulseCanvas/Resources";
+			"path" = ".build/store-resources/Resources";
 			"sourceTree" = "<group>";
 		};
 		"5CEB2FADE0103A495626491F" = {
@@ -228,9 +216,8 @@
 				"E55D030A48044A68741CD7E3",
 				"29EF22EEC52F689C996D7ECC",
 				"3A4073EA821A833AE027E7E9",
-				"76237CB3FAAD3C72FC7F9934",
+				"4652E379F9220B1BF60E12B9",
 				"100CD0DC00C64B0B646E69DC",
-				"74555C4CA394257E3F2038FE",
 				"2DF77FDA9C8372B7840DB84B",
 				"C21BFB46BEED9116F0743542",
 				"CB8C52BD5C2A06B60EC6768B",
@@ -241,13 +228,12 @@
 				"C2CBF2E084321F2ECA296112",
 				"3810E7AB9E8DF14917E34477",
 				"E8D8D27BF7F9E2754340E1A3",
-				"8CA76973E2CC7916CCD725FA",
 				"5209D7B8FE7DB3E851C09177",
 				"2DC8FA731B0E69EFBE8C5F23",
 				"708BBBB95AD63DC7E6DBA5CE",
 				"7958DCE0804231A319D26CD8",
 				"AEB3E1F4EFCEE89846DDB6F1",
-				"856417BCCD6BCE2244C97185",
+				"DABBA78FD2CA1C70524016C7",
 				"5CEB2FADE0103A495626491F",
 				"9CF1AB3B18887D6A6C066E75",
 				"0A5282C4EC48041B28F6D173",
@@ -270,22 +256,7 @@
 			"runOnlyForDeploymentPostprocessing" = 0;
 			"shellPath" = "/bin/bash";
 			"shellScript" = "\"$SRCROOT/scripts/prepare-store-resources.sh\"\n";
-			"name" = "Prepare shaders, ProjectM, icon and notices";
-			"alwaysOutOfDate" = 1;
-		};
-		"8A1EED22144C3F04485A69EE" = {
-			"isa" = "PBXShellScriptBuildPhase";
-			"buildActionMask" = 2147483647;
-			"files" = (
-			);
-			"inputPaths" = (
-			);
-			"outputPaths" = (
-			);
-			"runOnlyForDeploymentPostprocessing" = 0;
-			"shellPath" = "/bin/bash";
-			"shellScript" = "\"$SRCROOT/scripts/embed-store-runtime.sh\"\n";
-			"name" = "Embed and sign ProjectM";
+			"name" = "Prepare Metal-only resources, icon and notices";
 			"alwaysOutOfDate" = 1;
 		};
 		"D03D42F4A68816AE8C471677" = {
@@ -316,17 +287,13 @@
 			"isa" = "PBXBuildFile";
 			"fileRef" = "3A4073EA821A833AE027E7E9";
 		};
-		"568455989267E60643DA7899" = {
+		"300C1C6C7AC83D517D44ED14" = {
 			"isa" = "PBXBuildFile";
-			"fileRef" = "76237CB3FAAD3C72FC7F9934";
+			"fileRef" = "4652E379F9220B1BF60E12B9";
 		};
 		"F11FE05286D083962ACFFC9E" = {
 			"isa" = "PBXBuildFile";
 			"fileRef" = "100CD0DC00C64B0B646E69DC";
-		};
-		"AF97EFA286FB3D962602AD19" = {
-			"isa" = "PBXBuildFile";
-			"fileRef" = "74555C4CA394257E3F2038FE";
 		};
 		"9AAD59C9AF6056DDF96C21D9" = {
 			"isa" = "PBXBuildFile";
@@ -368,10 +335,6 @@
 			"isa" = "PBXBuildFile";
 			"fileRef" = "E8D8D27BF7F9E2754340E1A3";
 		};
-		"53F5F121C231588158DB0D46" = {
-			"isa" = "PBXBuildFile";
-			"fileRef" = "8CA76973E2CC7916CCD725FA";
-		};
 		"59F9215D16187F2AAD43D7B8" = {
 			"isa" = "PBXBuildFile";
 			"fileRef" = "5209D7B8FE7DB3E851C09177";
@@ -403,9 +366,8 @@
 				"F6FCE060BF290ECA844D9D14",
 				"84238FD7626AFA3EAD0EC2FA",
 				"86834B9344A07951CBBC0BE7",
-				"568455989267E60643DA7899",
+				"300C1C6C7AC83D517D44ED14",
 				"F11FE05286D083962ACFFC9E",
-				"AF97EFA286FB3D962602AD19",
 				"9AAD59C9AF6056DDF96C21D9",
 				"F63D8A506117BA23ABD7FB92",
 				"DE69E89DD3EEAAD604860B0B",
@@ -416,7 +378,6 @@
 				"711C0F30FD1616D636AA2959",
 				"1857C14A0B38C2D8BBE2A813",
 				"E13F13A9C228F2084DE33225",
-				"53F5F121C231588158DB0D46",
 				"59F9215D16187F2AAD43D7B8",
 				"69442A0AA42CCF182DE4D40C",
 				"3B47F2807476B0478D4672B9",
@@ -425,9 +386,9 @@
 			);
 			"runOnlyForDeploymentPostprocessing" = 0;
 		};
-		"3B7A7EC52EF4A96027F435FA" = {
+		"53FDF00ABC9CF794AEAC820F" = {
 			"isa" = "PBXBuildFile";
-			"fileRef" = "856417BCCD6BCE2244C97185";
+			"fileRef" = "DABBA78FD2CA1C70524016C7";
 		};
 		"F324541CC5C84ED6B05C0455" = {
 			"isa" = "PBXBuildFile";
@@ -445,7 +406,7 @@
 			"isa" = "PBXResourcesBuildPhase";
 			"buildActionMask" = 2147483647;
 			"files" = (
-				"3B7A7EC52EF4A96027F435FA",
+				"53FDF00ABC9CF794AEAC820F",
 				"F324541CC5C84ED6B05C0455",
 				"DED41CB9A5DECC1FA0031082",
 				"56C3256106C3A108001EC3FF",
@@ -500,7 +461,6 @@
 				"878A52FC5FF6A57D50B7B870",
 				"E2AA269EB967A8853A258BFA",
 				"41D311A605520FC7B8B9A980",
-				"8A1EED22144C3F04485A69EE",
 			);
 			"buildRules" = (
 			);

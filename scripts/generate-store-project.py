@@ -16,16 +16,15 @@ def ref(path, kind):
 def build(key): return obj('build:'+key, 'PBXBuildFile', fileRef=key)
 def phase(label, isa, files): return obj(label, isa, buildActionMask=2147483647, files=files, runOnlyForDeploymentPostprocessing=0)
 
-sources = sorted(str(p.relative_to(root)) for p in (root/'Sources/PulseCanvas').glob('*.swift')) + ['macOS/BundleResources.swift']
+sources = sorted(str(p.relative_to(root)) for p in (root/'Sources/PulseCanvas').glob('*.swift') if p.name not in ['ProjectMEngine.swift', 'AppUpdater.swift']) + ['macOS/BundleResources.swift']
 source_refs = [ref(p,'sourcecode.swift') for p in sources]
-resources = [ref('Sources/PulseCanvas/Resources','folder'),ref('.build/store-resources/AppIcon.icns','image.icns'),ref('.build/store-resources/Legal','folder'),ref('macOS/PrivacyInfo.xcprivacy','text.xml')]
+resources = [ref('.build/store-resources/Resources','folder'),ref('.build/store-resources/AppIcon.icns','image.icns'),ref('.build/store-resources/Legal','folder'),ref('macOS/PrivacyInfo.xcprivacy','text.xml')]
 config = ref('macOS/Release.xcconfig','text.xcconfig')
 other_refs = [config, ref('macOS/Info.plist','text.plist.xml'),ref('macOS/PulseCanvas.entitlements','text.plist.entitlements')]
 product = obj('product','PBXFileReference',explicitFileType='wrapper.application',path='PulseCanvas Studio.app',sourceTree='BUILT_PRODUCTS_DIR',includeInIndex=0)
 products = obj('products','PBXGroup',children=[product],name='Products',sourceTree='<group>')
 group = obj('main','PBXGroup',children=source_refs+resources+other_refs+[products],sourceTree='<group>')
-prepare = obj('prepare','PBXShellScriptBuildPhase',buildActionMask=2147483647,files=[],inputPaths=[],outputPaths=[],runOnlyForDeploymentPostprocessing=0,shellPath='/bin/bash',shellScript='"$SRCROOT/scripts/prepare-store-resources.sh"\n',name='Prepare shaders, ProjectM, icon and notices',alwaysOutOfDate=1)
-embed = obj('embed','PBXShellScriptBuildPhase',buildActionMask=2147483647,files=[],inputPaths=[],outputPaths=[],runOnlyForDeploymentPostprocessing=0,shellPath='/bin/bash',shellScript='"$SRCROOT/scripts/embed-store-runtime.sh"\n',name='Embed and sign ProjectM',alwaysOutOfDate=1)
+prepare = obj('prepare','PBXShellScriptBuildPhase',buildActionMask=2147483647,files=[],inputPaths=[],outputPaths=[],runOnlyForDeploymentPostprocessing=0,shellPath='/bin/bash',shellScript='"$SRCROOT/scripts/prepare-store-resources.sh"\n',name='Prepare Metal-only resources, icon and notices',alwaysOutOfDate=1)
 srcphase=phase('sources','PBXSourcesBuildPhase',[build(k) for k in source_refs])
 resphase=phase('resources','PBXResourcesBuildPhase',[build(k) for k in resources])
 frameworkphase=phase('frameworks','PBXFrameworksBuildPhase',[])
@@ -37,7 +36,7 @@ def configs(label,target=False):
             settings.update(SWIFT_OPTIMIZATION_LEVEL='-Onone' if name=='Debug' else '-O',DEBUG_INFORMATION_FORMAT='dwarf' if name=='Debug' else 'dwarf-with-dsym',SWIFT_EMIT_LOC_STRINGS='NO')
         keys.append(obj(label+name,'XCBuildConfiguration',buildSettings=settings,name=name,**({'baseConfigurationReference':config} if target else {})))
     return obj(label+'list','XCConfigurationList',buildConfigurations=keys,defaultConfigurationIsVisible=0,defaultConfigurationName='Release')
-target=obj('target','PBXNativeTarget',buildConfigurationList=configs('targetconfig',True),buildPhases=[prepare,srcphase,frameworkphase,resphase,embed],buildRules=[],dependencies=[],name='PulseCanvas',productName='PulseCanvas Studio',productReference=product,productType='com.apple.product-type.application')
+target=obj('target','PBXNativeTarget',buildConfigurationList=configs('targetconfig',True),buildPhases=[prepare,srcphase,frameworkphase,resphase],buildRules=[],dependencies=[],name='PulseCanvas',productName='PulseCanvas Studio',productReference=product,productType='com.apple.product-type.application')
 project=obj('project','PBXProject',attributes={'LastUpgradeCheck':'2700','TargetAttributes':{target:{'CreatedOnToolsVersion':'27.0','ProvisioningStyle':'Automatic','SystemCapabilities':{'com.apple.Sandbox':{'enabled':1}}}}},buildConfigurationList=configs('projectconfig'),compatibilityVersion='Xcode 14.0',developmentRegion='en',hasScannedForEncodings=0,knownRegions=['en','Base'],mainGroup=group,productRefGroup=products,projectDirPath='',projectRoot='',targets=[target])
 def encode(v,level=0):
     if isinstance(v,dict): return '{\n'+''.join('\t'*(level+1)+json.dumps(str(k))+' = '+encode(x,level+1)+';\n' for k,x in v.items())+'\t'*level+'}'

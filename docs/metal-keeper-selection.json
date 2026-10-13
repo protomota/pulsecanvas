@@ -1,0 +1,3310 @@
+{
+  "policy": "A red Finder tag/color label is a keeper; no red label withdraws the effect after an authorized review.",
+  "keeperCount": 181,
+  "keepers": [
+    10,
+    12,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    31,
+    32,
+    33,
+    42,
+    43,
+    46,
+    47,
+    48,
+    50,
+    60,
+    61,
+    64,
+    72,
+    74,
+    79,
+    80,
+    81,
+    83,
+    84,
+    85,
+    86,
+    88,
+    91,
+    92,
+    98,
+    100,
+    101,
+    102,
+    103,
+    104,
+    105,
+    106,
+    107,
+    109,
+    110,
+    111,
+    112,
+    113,
+    114,
+    117,
+    118,
+    119,
+    120,
+    121,
+    122,
+    123,
+    124,
+    125,
+    127,
+    129,
+    130,
+    131,
+    132,
+    133,
+    141,
+    176,
+    178,
+    179,
+    180,
+    182,
+    183,
+    184,
+    185,
+    187,
+    188,
+    189,
+    192,
+    193,
+    197,
+    201,
+    202,
+    203,
+    204,
+    205,
+    206,
+    207,
+    208,
+    209,
+    210,
+    211,
+    212,
+    213,
+    214,
+    215,
+    216,
+    218,
+    220,
+    221,
+    222,
+    223,
+    224,
+    225,
+    226,
+    227,
+    228,
+    229,
+    230,
+    231,
+    232,
+    233,
+    234,
+    235,
+    236,
+    237,
+    238,
+    239,
+    240,
+    241,
+    242,
+    243,
+    244,
+    245,
+    246,
+    247,
+    248,
+    249,
+    250,
+    251,
+    252,
+    253,
+    254,
+    255,
+    256,
+    257,
+    258,
+    259,
+    260,
+    261,
+    263,
+    264,
+    265,
+    266,
+    267,
+    268,
+    269,
+    270,
+    271,
+    272,
+    273,
+    274,
+    275,
+    276,
+    278,
+    279,
+    280,
+    281,
+    282,
+    283,
+    284,
+    285,
+    286,
+    287,
+    288,
+    289,
+    290,
+    291,
+    292,
+    293,
+    294,
+    295,
+    296,
+    297,
+    298,
+    299
+  ],
+  "reservedIDs": 300,
+  "withdrawn": [
+    {
+      "scene": 0,
+      "name": "Prism Wake",
+      "replacement": 20,
+      "wasOffered": false
+    },
+    {
+      "scene": 1,
+      "name": "Lumen Veil",
+      "replacement": 10,
+      "wasOffered": false
+    },
+    {
+      "scene": 2,
+      "name": "Pulse Well",
+      "replacement": 22,
+      "wasOffered": false
+    },
+    {
+      "scene": 3,
+      "name": "Velvet Passage",
+      "replacement": 29,
+      "wasOffered": false
+    },
+    {
+      "scene": 4,
+      "name": "Bead Surge",
+      "replacement": 101,
+      "wasOffered": true
+    },
+    {
+      "scene": 5,
+      "name": "Facet Flow",
+      "replacement": 23,
+      "wasOffered": false
+    },
+    {
+      "scene": 6,
+      "name": "Glass Current",
+      "replacement": 29,
+      "wasOffered": false
+    },
+    {
+      "scene": 7,
+      "name": "Contour Flux",
+      "replacement": 17,
+      "wasOffered": false
+    },
+    {
+      "scene": 8,
+      "name": "Recursive Corridor",
+      "replacement": 22,
+      "wasOffered": false
+    },
+    {
+      "scene": 9,
+      "name": "Spiral Tide",
+      "replacement": 25,
+      "wasOffered": false
+    },
+    {
+      "scene": 11,
+      "name": "Petal Passage",
+      "replacement": 15,
+      "wasOffered": false
+    },
+    {
+      "scene": 13,
+      "name": "Vapor Run",
+      "replacement": 10,
+      "wasOffered": false
+    },
+    {
+      "scene": 14,
+      "name": "Scatter Flight",
+      "replacement": 101,
+      "wasOffered": false
+    },
+    {
+      "scene": 30,
+      "name": "Grid Vortex",
+      "replacement": 22,
+      "wasOffered": false
+    },
+    {
+      "scene": 34,
+      "name": "Electric Orchard",
+      "replacement": 101,
+      "wasOffered": true
+    },
+    {
+      "scene": 35,
+      "name": "Glass Mosaic",
+      "replacement": 101,
+      "wasOffered": true
+    },
+    {
+      "scene": 36,
+      "name": "Graviton Petals",
+      "replacement": 101,
+      "wasOffered": true
+    },
+    {
+      "scene": 37,
+      "name": "Ion Cathedral",
+      "replacement": 101,
+      "wasOffered": true
+    },
+    {
+      "scene": 38,
+      "name": "Velvet Circuit",
+      "replacement": 101,
+      "wasOffered": true
+    },
+    {
+      "scene": 39,
+      "name": "Lunar Loom",
+      "replacement": 101,
+      "wasOffered": true
+    },
+    {
+      "scene": 40,
+      "name": "Lava Estuary",
+      "replacement": 101,
+      "wasOffered": true
+    },
+    {
+      "scene": 41,
+      "name": "Photon Rapids",
+      "replacement": 101,
+      "wasOffered": true
+    },
+    {
+      "scene": 44,
+      "name": "Honeycomb Tide",
+      "replacement": 101,
+      "wasOffered": true
+    },
+    {
+      "scene": 45,
+      "name": "Nebula Nursery",
+      "replacement": 101,
+      "wasOffered": true
+    },
+    {
+      "scene": 49,
+      "name": "Arc Foundry",
+      "replacement": 101,
+      "wasOffered": true
+    },
+    {
+      "scene": 51,
+      "name": "Paper Cascades",
+      "replacement": 101,
+      "wasOffered": true
+    },
+    {
+      "scene": 52,
+      "name": "Diamond Undertow",
+      "replacement": 101,
+      "wasOffered": true
+    },
+    {
+      "scene": 53,
+      "name": "Fractal Canopy",
+      "replacement": 101,
+      "wasOffered": true
+    },
+    {
+      "scene": 54,
+      "name": "Gyroscopic Garden",
+      "replacement": 101,
+      "wasOffered": true
+    },
+    {
+      "scene": 55,
+      "name": "Bubble Choir",
+      "replacement": 101,
+      "wasOffered": true
+    },
+    {
+      "scene": 56,
+      "name": "Laser Origami",
+      "replacement": 101,
+      "wasOffered": true
+    },
+    {
+      "scene": 57,
+      "name": "Echo Lanterns",
+      "replacement": 101,
+      "wasOffered": true
+    },
+    {
+      "scene": 58,
+      "name": "Kelp Cathedral",
+      "replacement": 101,
+      "wasOffered": true
+    },
+    {
+      "scene": 59,
+      "name": "Solar Filigree",
+      "replacement": 101,
+      "wasOffered": true
+    },
+    {
+      "scene": 62,
+      "name": "Apollonian Foam",
+      "replacement": 101,
+      "wasOffered": true
+    },
+    {
+      "scene": 63,
+      "name": "Hyperbolic Rosette",
+      "replacement": 101,
+      "wasOffered": true
+    },
+    {
+      "scene": 65,
+      "name": "Tesseract Garden",
+      "replacement": 101,
+      "wasOffered": true
+    },
+    {
+      "scene": 66,
+      "name": "Harmonograph",
+      "replacement": 101,
+      "wasOffered": true
+    },
+    {
+      "scene": 67,
+      "name": "Moire Engine",
+      "replacement": 101,
+      "wasOffered": true
+    },
+    {
+      "scene": 68,
+      "name": "Riley Undulation",
+      "replacement": 101,
+      "wasOffered": true
+    },
+    {
+      "scene": 69,
+      "name": "Kaleido Chamber",
+      "replacement": 101,
+      "wasOffered": true
+    },
+    {
+      "scene": 70,
+      "name": "Girih Lattice",
+      "replacement": 101,
+      "wasOffered": true
+    },
+    {
+      "scene": 71,
+      "name": "Gear Works",
+      "replacement": 101,
+      "wasOffered": true
+    },
+    {
+      "scene": 73,
+      "name": "Orrery Engine",
+      "replacement": 101,
+      "wasOffered": true
+    },
+    {
+      "scene": 75,
+      "name": "Brutalist Shift",
+      "replacement": 101,
+      "wasOffered": true
+    },
+    {
+      "scene": 76,
+      "name": "Rose Window",
+      "replacement": 101,
+      "wasOffered": true
+    },
+    {
+      "scene": 77,
+      "name": "Zen Rake",
+      "replacement": 101,
+      "wasOffered": true
+    },
+    {
+      "scene": 78,
+      "name": "Ferrofluid Crown",
+      "replacement": 101,
+      "wasOffered": true
+    },
+    {
+      "scene": 82,
+      "name": "Chladni Sand",
+      "replacement": 101,
+      "wasOffered": true
+    },
+    {
+      "scene": 87,
+      "name": "Murmuration",
+      "replacement": 101,
+      "wasOffered": true
+    },
+    {
+      "scene": 89,
+      "name": "Pendulum Wave",
+      "replacement": 101,
+      "wasOffered": true
+    },
+    {
+      "scene": 90,
+      "name": "Firework Garden",
+      "replacement": 101,
+      "wasOffered": true
+    },
+    {
+      "scene": 93,
+      "name": "Mitosis Garden",
+      "replacement": 101,
+      "wasOffered": true
+    },
+    {
+      "scene": 94,
+      "name": "Neural Bloom",
+      "replacement": 101,
+      "wasOffered": true
+    },
+    {
+      "scene": 95,
+      "name": "Jellyfish Abyss",
+      "replacement": 101,
+      "wasOffered": true
+    },
+    {
+      "scene": 96,
+      "name": "Glacier Rift",
+      "replacement": 101,
+      "wasOffered": true
+    },
+    {
+      "scene": 97,
+      "name": "Firefly Meadow",
+      "replacement": 101,
+      "wasOffered": true
+    },
+    {
+      "scene": 99,
+      "name": "Neon Calligraphy",
+      "replacement": 101,
+      "wasOffered": true
+    },
+    {
+      "scene": 108,
+      "name": "Mirror Regress",
+      "replacement": 101,
+      "wasOffered": true
+    },
+    {
+      "scene": 115,
+      "name": "Ribbon Vortex",
+      "replacement": 101,
+      "wasOffered": true
+    },
+    {
+      "scene": 116,
+      "name": "Gate Run",
+      "replacement": 101,
+      "wasOffered": true
+    },
+    {
+      "scene": 126,
+      "name": "Fractal Throat",
+      "replacement": 101,
+      "wasOffered": true
+    },
+    {
+      "scene": 128,
+      "name": "Coral Burrow",
+      "replacement": 101,
+      "wasOffered": true
+    },
+    {
+      "scene": 134,
+      "name": "Night Highway",
+      "replacement": 101,
+      "wasOffered": true
+    },
+    {
+      "scene": 135,
+      "name": "Neon Boulevard",
+      "replacement": 101,
+      "wasOffered": true
+    },
+    {
+      "scene": 136,
+      "name": "Desert Interstate",
+      "replacement": 101,
+      "wasOffered": true
+    },
+    {
+      "scene": 137,
+      "name": "Mountain Switchbacks",
+      "replacement": 101,
+      "wasOffered": true
+    },
+    {
+      "scene": 138,
+      "name": "Sodium Tunnel",
+      "replacement": 101,
+      "wasOffered": true
+    },
+    {
+      "scene": 139,
+      "name": "Coastal Cruise",
+      "replacement": 101,
+      "wasOffered": true
+    },
+    {
+      "scene": 140,
+      "name": "Long Exposure",
+      "replacement": 101,
+      "wasOffered": true
+    },
+    {
+      "scene": 142,
+      "name": "Rally Forest",
+      "replacement": 101,
+      "wasOffered": true
+    },
+    {
+      "scene": 143,
+      "name": "Bridge Run",
+      "replacement": 101,
+      "wasOffered": true
+    },
+    {
+      "scene": 144,
+      "name": "Coaster Loop",
+      "replacement": 101,
+      "wasOffered": true
+    },
+    {
+      "scene": 145,
+      "name": "Hover Lanes",
+      "replacement": 101,
+      "wasOffered": true
+    },
+    {
+      "scene": 146,
+      "name": "Bullet Train",
+      "replacement": 101,
+      "wasOffered": true
+    },
+    {
+      "scene": 147,
+      "name": "Apex Chase",
+      "replacement": 101,
+      "wasOffered": true
+    },
+    {
+      "scene": 148,
+      "name": "Snow Drive",
+      "replacement": 101,
+      "wasOffered": true
+    },
+    {
+      "scene": 149,
+      "name": "Dashboard Glow",
+      "replacement": 101,
+      "wasOffered": true
+    },
+    {
+      "scene": 150,
+      "name": "Midnight Skyline",
+      "replacement": 101,
+      "wasOffered": true
+    },
+    {
+      "scene": 151,
+      "name": "Orbit Freeway",
+      "replacement": 101,
+      "wasOffered": true
+    },
+    {
+      "scene": 152,
+      "name": "Canyon Run",
+      "replacement": 101,
+      "wasOffered": true
+    },
+    {
+      "scene": 153,
+      "name": "Interchange",
+      "replacement": 101,
+      "wasOffered": true
+    },
+    {
+      "scene": 154,
+      "name": "Lean Angle",
+      "replacement": 101,
+      "wasOffered": true
+    },
+    {
+      "scene": 155,
+      "name": "Runway Rush",
+      "replacement": 101,
+      "wasOffered": true
+    },
+    {
+      "scene": 156,
+      "name": "Wake Racer",
+      "replacement": 101,
+      "wasOffered": true
+    },
+    {
+      "scene": 157,
+      "name": "Bobsled Chute",
+      "replacement": 101,
+      "wasOffered": true
+    },
+    {
+      "scene": 158,
+      "name": "Rail Rush",
+      "replacement": 101,
+      "wasOffered": true
+    },
+    {
+      "scene": 159,
+      "name": "Starlane Convoy",
+      "replacement": 101,
+      "wasOffered": true
+    },
+    {
+      "scene": 160,
+      "name": "Marquee Strip",
+      "replacement": 101,
+      "wasOffered": true
+    },
+    {
+      "scene": 161,
+      "name": "Sky Causeway",
+      "replacement": 101,
+      "wasOffered": true
+    },
+    {
+      "scene": 162,
+      "name": "Turbine Road",
+      "replacement": 101,
+      "wasOffered": true
+    },
+    {
+      "scene": 163,
+      "name": "Chevron Rush",
+      "replacement": 101,
+      "wasOffered": true
+    },
+    {
+      "scene": 164,
+      "name": "Street Circuit",
+      "replacement": 101,
+      "wasOffered": true
+    },
+    {
+      "scene": 165,
+      "name": "Glider Valley",
+      "replacement": 101,
+      "wasOffered": true
+    },
+    {
+      "scene": 166,
+      "name": "Rocket Sled",
+      "replacement": 101,
+      "wasOffered": true
+    },
+    {
+      "scene": 167,
+      "name": "Groove Tiles",
+      "replacement": 101,
+      "wasOffered": true
+    },
+    {
+      "scene": 168,
+      "name": "Mirror Ball",
+      "replacement": 101,
+      "wasOffered": true
+    },
+    {
+      "scene": 169,
+      "name": "Drone Ballet",
+      "replacement": 101,
+      "wasOffered": true
+    },
+    {
+      "scene": 170,
+      "name": "Ribbon Gymnast",
+      "replacement": 101,
+      "wasOffered": true
+    },
+    {
+      "scene": 171,
+      "name": "Laser Haze",
+      "replacement": 101,
+      "wasOffered": true
+    },
+    {
+      "scene": 172,
+      "name": "Moving Heads",
+      "replacement": 101,
+      "wasOffered": true
+    },
+    {
+      "scene": 173,
+      "name": "Conga Orbs",
+      "replacement": 101,
+      "wasOffered": true
+    },
+    {
+      "scene": 174,
+      "name": "Headspin",
+      "replacement": 101,
+      "wasOffered": true
+    },
+    {
+      "scene": 175,
+      "name": "Waltz Pairs",
+      "replacement": 101,
+      "wasOffered": true
+    },
+    {
+      "scene": 177,
+      "name": "Pirouette Bloom",
+      "replacement": 101,
+      "wasOffered": true
+    },
+    {
+      "scene": 181,
+      "name": "Chiffon Swirl",
+      "replacement": 101,
+      "wasOffered": true
+    },
+    {
+      "scene": 186,
+      "name": "Faraday Dish",
+      "replacement": 101,
+      "wasOffered": true
+    },
+    {
+      "scene": 190,
+      "name": "Torsion Wave",
+      "replacement": 101,
+      "wasOffered": true
+    },
+    {
+      "scene": 191,
+      "name": "Spin Paint",
+      "replacement": 101,
+      "wasOffered": true
+    },
+    {
+      "scene": 194,
+      "name": "Confetti Storm",
+      "replacement": 101,
+      "wasOffered": true
+    },
+    {
+      "scene": 195,
+      "name": "Bokeh Club",
+      "replacement": 101,
+      "wasOffered": true
+    },
+    {
+      "scene": 196,
+      "name": "Persistence Fans",
+      "replacement": 101,
+      "wasOffered": true
+    },
+    {
+      "scene": 198,
+      "name": "Aerial Silks",
+      "replacement": 101,
+      "wasOffered": true
+    },
+    {
+      "scene": 199,
+      "name": "Hula Hoops",
+      "replacement": 101,
+      "wasOffered": true
+    },
+    {
+      "scene": 200,
+      "name": "Chromatic Speedway",
+      "replacement": 101,
+      "wasOffered": true
+    },
+    {
+      "scene": 217,
+      "name": "Orbit Salsa",
+      "replacement": 101,
+      "wasOffered": true
+    },
+    {
+      "scene": 219,
+      "name": "Vivid Foxtrot",
+      "replacement": 101,
+      "wasOffered": true
+    },
+    {
+      "scene": 262,
+      "name": "Neon Needle",
+      "replacement": 270,
+      "wasOffered": false
+    },
+    {
+      "scene": 277,
+      "name": "Velvet Wormhole",
+      "replacement": 270,
+      "wasOffered": false
+    }
+  ],
+  "functionsRemoved": [
+    {
+      "file": "NativeParticles.metal",
+      "function": "photonRapids"
+    },
+    {
+      "file": "NativeParticles.metal",
+      "function": "diamondUndertow"
+    },
+    {
+      "file": "NativeParticles.metal",
+      "function": "gyroField"
+    },
+    {
+      "file": "NativeParticles.metal",
+      "function": "gyroscopicGarden"
+    },
+    {
+      "file": "NativeParticles.metal",
+      "function": "bubbleChoir"
+    },
+    {
+      "file": "NativeParticles.metal",
+      "function": "lanternSky"
+    },
+    {
+      "file": "NativeParticles.metal",
+      "function": "echoLanterns"
+    },
+    {
+      "file": "NativeParticles.metal",
+      "function": "flockDensity"
+    },
+    {
+      "file": "NativeParticles.metal",
+      "function": "murmuration"
+    },
+    {
+      "file": "NativeParticles.metal",
+      "function": "pendulumWave"
+    },
+    {
+      "file": "NativeParticles.metal",
+      "function": "fireworkSky"
+    },
+    {
+      "file": "NativeParticles.metal",
+      "function": "fireworkGarden"
+    },
+    {
+      "file": "NativeParticles.metal",
+      "function": "neonStrokes"
+    },
+    {
+      "file": "NativeParticles.metal",
+      "function": "neonCalligraphy"
+    },
+    {
+      "file": "NativeFlow.metal",
+      "function": "lavaEstuary"
+    },
+    {
+      "file": "NativeFlow.metal",
+      "function": "ferroSurface"
+    },
+    {
+      "file": "NativeFlow.metal",
+      "function": "ferroEnvironment"
+    },
+    {
+      "file": "NativeFlow.metal",
+      "function": "ferrofluidCrown"
+    },
+    {
+      "file": "NativeFlow.metal",
+      "function": "chladni"
+    },
+    {
+      "file": "NativeFlow.metal",
+      "function": "chladniSandHeight"
+    },
+    {
+      "file": "NativeFlow.metal",
+      "function": "chladniSand"
+    },
+    {
+      "file": "NativeExpansionPassage.metal",
+      "function": "neonNeedle"
+    },
+    {
+      "file": "NativeExpansionPassage.metal",
+      "function": "velvetWormhole"
+    },
+    {
+      "file": "NativeDance.metal",
+      "function": "dnCap"
+    },
+    {
+      "file": "NativeDance.metal",
+      "function": "dnFloor"
+    },
+    {
+      "file": "NativeDance.metal",
+      "function": "dnProject"
+    },
+    {
+      "file": "NativeDance.metal",
+      "function": "dnCone"
+    },
+    {
+      "file": "NativeDance.metal",
+      "function": "grooveField"
+    },
+    {
+      "file": "NativeDance.metal",
+      "function": "grooveTiles"
+    },
+    {
+      "file": "NativeDance.metal",
+      "function": "mirrorRoomSpecks"
+    },
+    {
+      "file": "NativeDance.metal",
+      "function": "mirrorBall"
+    },
+    {
+      "file": "NativeDance.metal",
+      "function": "droneFormation"
+    },
+    {
+      "file": "NativeDance.metal",
+      "function": "dronePatch"
+    },
+    {
+      "file": "NativeDance.metal",
+      "function": "dronePosition"
+    },
+    {
+      "file": "NativeDance.metal",
+      "function": "droneBallet"
+    },
+    {
+      "file": "NativeDance.metal",
+      "function": "ribbonGymnast"
+    },
+    {
+      "file": "NativeDance.metal",
+      "function": "laserHaze"
+    },
+    {
+      "file": "NativeDance.metal",
+      "function": "movingHeads"
+    },
+    {
+      "file": "NativeDance.metal",
+      "function": "congaPath"
+    },
+    {
+      "file": "NativeDance.metal",
+      "function": "congaShade"
+    },
+    {
+      "file": "NativeDance.metal",
+      "function": "congaOrbs"
+    },
+    {
+      "file": "NativeDance.metal",
+      "function": "spinFigure"
+    },
+    {
+      "file": "NativeDance.metal",
+      "function": "spinMix"
+    },
+    {
+      "file": "NativeDance.metal",
+      "function": "spinLimbs"
+    },
+    {
+      "file": "NativeDance.metal",
+      "function": "spinAngle"
+    },
+    {
+      "file": "NativeDance.metal",
+      "function": "headspin"
+    },
+    {
+      "file": "NativeDance.metal",
+      "function": "waltzTurn"
+    },
+    {
+      "file": "NativeDance.metal",
+      "function": "waltzPairs"
+    },
+    {
+      "file": "NativeDance.metal",
+      "function": "pirouetteBloom"
+    },
+    {
+      "file": "NativeDance.metal",
+      "function": "chiffonSurface"
+    },
+    {
+      "file": "NativeDance.metal",
+      "function": "chiffonSwirl"
+    },
+    {
+      "file": "NativeDrive.metal",
+      "function": "drvMusicMaterial"
+    },
+    {
+      "file": "NativeDrive.metal",
+      "function": "drvBend"
+    },
+    {
+      "file": "NativeDrive.metal",
+      "function": "drvBendSlope"
+    },
+    {
+      "file": "NativeDrive.metal",
+      "function": "drvBendCurve"
+    },
+    {
+      "file": "NativeDrive.metal",
+      "function": "drvBendAhead"
+    },
+    {
+      "file": "NativeDrive.metal",
+      "function": "drvRoad"
+    },
+    {
+      "file": "NativeDrive.metal",
+      "function": "drvAhead"
+    },
+    {
+      "file": "NativeDrive.metal",
+      "function": "drvWall"
+    },
+    {
+      "file": "NativeDrive.metal",
+      "function": "drvDash"
+    },
+    {
+      "file": "NativeDrive.metal",
+      "function": "drvSpot"
+    },
+    {
+      "file": "NativeDrive.metal",
+      "function": "drvBandOf"
+    },
+    {
+      "file": "NativeDrive.metal",
+      "function": "drvStars"
+    },
+    {
+      "file": "NativeDrive.metal",
+      "function": "drvCarRear"
+    },
+    {
+      "file": "NativeDrive.metal",
+      "function": "drvSkyline"
+    },
+    {
+      "file": "NativeDrive.metal",
+      "function": "nightHighway"
+    },
+    {
+      "file": "NativeDrive.metal",
+      "function": "drvNeonFacade"
+    },
+    {
+      "file": "NativeDrive.metal",
+      "function": "neonBoulevard"
+    },
+    {
+      "file": "NativeDrive.metal",
+      "function": "drvMesa"
+    },
+    {
+      "file": "NativeDrive.metal",
+      "function": "drvSaguaro"
+    },
+    {
+      "file": "NativeDrive.metal",
+      "function": "desertInterstate"
+    },
+    {
+      "file": "NativeDrive.metal",
+      "function": "drvSerpentine"
+    },
+    {
+      "file": "NativeDrive.metal",
+      "function": "drvSerpentinePoint"
+    },
+    {
+      "file": "NativeDrive.metal",
+      "function": "drvPineCrown"
+    },
+    {
+      "file": "NativeDrive.metal",
+      "function": "mountainSwitchbacks"
+    },
+    {
+      "file": "NativeDrive.metal",
+      "function": "drvTubeGap"
+    },
+    {
+      "file": "NativeDrive.metal",
+      "function": "drvBentTube"
+    },
+    {
+      "file": "NativeDrive.metal",
+      "function": "sodiumTunnel"
+    },
+    {
+      "file": "NativeDrive.metal",
+      "function": "drvPalm"
+    },
+    {
+      "file": "NativeDrive.metal",
+      "function": "coastalCruise"
+    },
+    {
+      "file": "NativeDrive.metal",
+      "function": "longExposure"
+    },
+    {
+      "file": "NativeDrive.metal",
+      "function": "rallyForest"
+    },
+    {
+      "file": "NativeDrive.metal",
+      "function": "bridgeRun"
+    },
+    {
+      "file": "NativeDrive.metal",
+      "function": "drvCoasterAt"
+    },
+    {
+      "file": "NativeDrive.metal",
+      "function": "drvWeaveAt"
+    },
+    {
+      "file": "NativeDrive.metal",
+      "function": "drvCoasterFrame"
+    },
+    {
+      "file": "NativeDrive.metal",
+      "function": "drvRailProject"
+    },
+    {
+      "file": "NativeDrive.metal",
+      "function": "drvRailSpan"
+    },
+    {
+      "file": "NativeDrive.metal",
+      "function": "coasterLoop"
+    },
+    {
+      "file": "NativeDrive.metal",
+      "function": "hoverLanes"
+    },
+    {
+      "file": "NativeDrive.metal",
+      "function": "bulletTrain"
+    },
+    {
+      "file": "NativeDrive.metal",
+      "function": "apexChase"
+    },
+    {
+      "file": "NativeDrive.metal",
+      "function": "snowDrive"
+    },
+    {
+      "file": "NativeDrive.metal",
+      "function": "drvSevenSegment"
+    },
+    {
+      "file": "NativeDrive.metal",
+      "function": "drvGauge"
+    },
+    {
+      "file": "NativeDrive.metal",
+      "function": "drvWindshield"
+    },
+    {
+      "file": "NativeDrive.metal",
+      "function": "dashboardGlow"
+    },
+    {
+      "file": "NativeDrive.metal",
+      "function": "midnightSkyline"
+    },
+    {
+      "file": "NativeNature.metal",
+      "function": "fractalTree"
+    },
+    {
+      "file": "NativeNature.metal",
+      "function": "electricOrchard"
+    },
+    {
+      "file": "NativeNature.metal",
+      "function": "bloomField"
+    },
+    {
+      "file": "NativeNature.metal",
+      "function": "gravitonPetals"
+    },
+    {
+      "file": "NativeNature.metal",
+      "function": "honeycombTide"
+    },
+    {
+      "file": "NativeNature.metal",
+      "function": "nebulaNursery"
+    },
+    {
+      "file": "NativeNature.metal",
+      "function": "arcFoundry"
+    },
+    {
+      "file": "NativeNature.metal",
+      "function": "paperCascades"
+    },
+    {
+      "file": "NativeNature.metal",
+      "function": "fractalCanopy"
+    },
+    {
+      "file": "NativeNature.metal",
+      "function": "kelpBlade"
+    },
+    {
+      "file": "NativeNature.metal",
+      "function": "kelpCathedral"
+    },
+    {
+      "file": "NativeNature.metal",
+      "function": "solarFiligree"
+    },
+    {
+      "file": "NativeNature.metal",
+      "function": "zenRake"
+    },
+    {
+      "file": "NativeNature.metal",
+      "function": "cellLayer"
+    },
+    {
+      "file": "NativeNature.metal",
+      "function": "mitosisGarden"
+    },
+    {
+      "file": "NativeNature.metal",
+      "function": "neuralBloom"
+    },
+    {
+      "file": "NativeNature.metal",
+      "function": "jellyfishAbyss"
+    },
+    {
+      "file": "NativeNature.metal",
+      "function": "riftField"
+    },
+    {
+      "file": "NativeNature.metal",
+      "function": "glacierRift"
+    },
+    {
+      "file": "NativeNature.metal",
+      "function": "fireflyMeadow"
+    },
+    {
+      "file": "NativeTunnels.metal",
+      "function": "tnRoundRect"
+    },
+    {
+      "file": "NativeTunnels.metal",
+      "function": "mirrorRegress"
+    },
+    {
+      "file": "NativeTunnels.metal",
+      "function": "ribbonVortex"
+    },
+    {
+      "file": "NativeTunnels.metal",
+      "function": "tnGatePath"
+    },
+    {
+      "file": "NativeTunnels.metal",
+      "function": "tnGate"
+    },
+    {
+      "file": "NativeTunnels.metal",
+      "function": "gateRun"
+    },
+    {
+      "file": "NativeExpansionDance.metal",
+      "function": "orbitSalsa"
+    },
+    {
+      "file": "NativeExpansionDance.metal",
+      "function": "vividFoxtrot"
+    },
+    {
+      "file": "NativeGeometry.metal",
+      "function": "glassMosaic"
+    },
+    {
+      "file": "NativeGeometry.metal",
+      "function": "miuraHeight"
+    },
+    {
+      "file": "NativeGeometry.metal",
+      "function": "laserOrigami"
+    },
+    {
+      "file": "NativeGeometry.metal",
+      "function": "apollonianField"
+    },
+    {
+      "file": "NativeGeometry.metal",
+      "function": "apollonianFoam"
+    },
+    {
+      "file": "NativeGeometry.metal",
+      "function": "complexMul"
+    },
+    {
+      "file": "NativeGeometry.metal",
+      "function": "complexDiv"
+    },
+    {
+      "file": "NativeGeometry.metal",
+      "function": "hyperbolicRosette"
+    },
+    {
+      "file": "NativeGeometry.metal",
+      "function": "tesseractVertex"
+    },
+    {
+      "file": "NativeGeometry.metal",
+      "function": "projectTesseract"
+    },
+    {
+      "file": "NativeGeometry.metal",
+      "function": "tesseractGarden"
+    },
+    {
+      "file": "NativeGeometry.metal",
+      "function": "harmonograph"
+    },
+    {
+      "file": "NativeGeometry.metal",
+      "function": "grating"
+    },
+    {
+      "file": "NativeGeometry.metal",
+      "function": "moireEngine"
+    },
+    {
+      "file": "NativeGeometry.metal",
+      "function": "rileyUndulation"
+    },
+    {
+      "file": "NativeGeometry.metal",
+      "function": "chamberContents"
+    },
+    {
+      "file": "NativeGeometry.metal",
+      "function": "kaleidoChamber"
+    },
+    {
+      "file": "NativeGeometry.metal",
+      "function": "girihLattice"
+    },
+    {
+      "file": "NativeWormholes.metal",
+      "function": "throatPath"
+    },
+    {
+      "file": "NativeWormholes.metal",
+      "function": "throatField"
+    },
+    {
+      "file": "NativeWormholes.metal",
+      "function": "fractalThroat"
+    },
+    {
+      "file": "NativeWormholes.metal",
+      "function": "coralBurrow"
+    },
+    {
+      "file": "NativeRave.metal",
+      "function": "faradayWaves"
+    },
+    {
+      "file": "NativeRave.metal",
+      "function": "faradayEnv"
+    },
+    {
+      "file": "NativeRave.metal",
+      "function": "faradayDish"
+    },
+    {
+      "file": "NativeRave.metal",
+      "function": "torsionAngle"
+    },
+    {
+      "file": "NativeRave.metal",
+      "function": "torsionWave"
+    },
+    {
+      "file": "NativeRave.metal",
+      "function": "spinStreaks"
+    },
+    {
+      "file": "NativeRave.metal",
+      "function": "spinCanvas"
+    },
+    {
+      "file": "NativeRave.metal",
+      "function": "spinPaint"
+    },
+    {
+      "file": "NativeRave.metal",
+      "function": "confettiBurst"
+    },
+    {
+      "file": "NativeRave.metal",
+      "function": "confettiStorm"
+    },
+    {
+      "file": "NativeRave.metal",
+      "function": "bokehClub"
+    },
+    {
+      "file": "NativeRave.metal",
+      "function": "fanImage"
+    },
+    {
+      "file": "NativeRave.metal",
+      "function": "persistenceFans"
+    },
+    {
+      "file": "NativeRave.metal",
+      "function": "silkCenter"
+    },
+    {
+      "file": "NativeRave.metal",
+      "function": "aerialSilks"
+    },
+    {
+      "file": "NativeRave.metal",
+      "function": "hoopColumn"
+    },
+    {
+      "file": "NativeRave.metal",
+      "function": "hoopRow"
+    },
+    {
+      "file": "NativeRave.metal",
+      "function": "hulaHoops"
+    },
+    {
+      "file": "NativeRoads.metal",
+      "function": "roadMusicMaterial"
+    },
+    {
+      "file": "NativeRoads.metal",
+      "function": "rdWind"
+    },
+    {
+      "file": "NativeRoads.metal",
+      "function": "rdWindSlope"
+    },
+    {
+      "file": "NativeRoads.metal",
+      "function": "rdWindCurve"
+    },
+    {
+      "file": "NativeRoads.metal",
+      "function": "rdBend"
+    },
+    {
+      "file": "NativeRoads.metal",
+      "function": "rdLamp"
+    },
+    {
+      "file": "NativeRoads.metal",
+      "function": "rdStars"
+    },
+    {
+      "file": "NativeRoads.metal",
+      "function": "rdRowZ"
+    },
+    {
+      "file": "NativeRoads.metal",
+      "function": "rdBillboard"
+    },
+    {
+      "file": "NativeRoads.metal",
+      "function": "rdBand"
+    },
+    {
+      "file": "NativeRoads.metal",
+      "function": "rdDash"
+    },
+    {
+      "file": "NativeRoads.metal",
+      "function": "orbitAxis"
+    },
+    {
+      "file": "NativeRoads.metal",
+      "function": "orbitSpace"
+    },
+    {
+      "file": "NativeRoads.metal",
+      "function": "orbitFreeway"
+    },
+    {
+      "file": "NativeRoads.metal",
+      "function": "canyonPath"
+    },
+    {
+      "file": "NativeRoads.metal",
+      "function": "canyonField"
+    },
+    {
+      "file": "NativeRoads.metal",
+      "function": "canyonRun"
+    },
+    {
+      "file": "NativeRoads.metal",
+      "function": "interchangeRoad"
+    },
+    {
+      "file": "NativeRoads.metal",
+      "function": "interchange"
+    },
+    {
+      "file": "NativeRoads.metal",
+      "function": "leanAngle"
+    },
+    {
+      "file": "NativeRoads.metal",
+      "function": "runwayLights"
+    },
+    {
+      "file": "NativeRoads.metal",
+      "function": "runwayRush"
+    },
+    {
+      "file": "NativeRoads.metal",
+      "function": "wakePath"
+    },
+    {
+      "file": "NativeRoads.metal",
+      "function": "wakeWaves"
+    },
+    {
+      "file": "NativeRoads.metal",
+      "function": "wakeRacer"
+    },
+    {
+      "file": "NativeRoads.metal",
+      "function": "chutePath"
+    },
+    {
+      "file": "NativeRoads.metal",
+      "function": "chuteCurve"
+    },
+    {
+      "file": "NativeRoads.metal",
+      "function": "chuteField"
+    },
+    {
+      "file": "NativeRoads.metal",
+      "function": "bobsledChute"
+    },
+    {
+      "file": "NativeRoads.metal",
+      "function": "railTrack"
+    },
+    {
+      "file": "NativeRoads.metal",
+      "function": "railRush"
+    },
+    {
+      "file": "NativeRoads.metal",
+      "function": "convoyShip"
+    },
+    {
+      "file": "NativeRoads.metal",
+      "function": "convoyNormal"
+    },
+    {
+      "file": "NativeRoads.metal",
+      "function": "convoyField"
+    },
+    {
+      "file": "NativeRoads.metal",
+      "function": "convoyNebula"
+    },
+    {
+      "file": "NativeRoads.metal",
+      "function": "starlaneConvoy"
+    },
+    {
+      "file": "NativeRoads.metal",
+      "function": "marqueeBulbs"
+    },
+    {
+      "file": "NativeRoads.metal",
+      "function": "marqueeSign"
+    },
+    {
+      "file": "NativeRoads.metal",
+      "function": "marqueeScene"
+    },
+    {
+      "file": "NativeRoads.metal",
+      "function": "marqueeStrip"
+    },
+    {
+      "file": "NativeRoads.metal",
+      "function": "causewayClouds"
+    },
+    {
+      "file": "NativeRoads.metal",
+      "function": "causewayTriangle"
+    },
+    {
+      "file": "NativeRoads.metal",
+      "function": "causewayPeaks"
+    },
+    {
+      "file": "NativeRoads.metal",
+      "function": "skyCauseway"
+    },
+    {
+      "file": "NativeRoads.metal",
+      "function": "turbineRoadHeight"
+    },
+    {
+      "file": "NativeRoads.metal",
+      "function": "turbineRoadSlope"
+    },
+    {
+      "file": "NativeRoads.metal",
+      "function": "turbineHills"
+    },
+    {
+      "file": "NativeRoads.metal",
+      "function": "turbineRowX"
+    },
+    {
+      "file": "NativeRoads.metal",
+      "function": "turbineShape"
+    },
+    {
+      "file": "NativeRoads.metal",
+      "function": "turbineSky"
+    },
+    {
+      "file": "NativeRoads.metal",
+      "function": "turbineRoad"
+    },
+    {
+      "file": "NativeRoads.metal",
+      "function": "chevronRush"
+    },
+    {
+      "file": "NativeRoads.metal",
+      "function": "streetCircuit"
+    },
+    {
+      "file": "NativeRoads.metal",
+      "function": "gliderPath"
+    },
+    {
+      "file": "NativeRoads.metal",
+      "function": "gliderValley"
+    },
+    {
+      "file": "NativeRoads.metal",
+      "function": "rocketSled"
+    },
+    {
+      "file": "NativeExpansionDrive.metal",
+      "function": "chromaticSpeedway"
+    },
+    {
+      "file": "NativeStructure.metal",
+      "function": "cathedralField"
+    },
+    {
+      "file": "NativeStructure.metal",
+      "function": "cathedralBayBand"
+    },
+    {
+      "file": "NativeStructure.metal",
+      "function": "ionCathedral"
+    },
+    {
+      "file": "NativeStructure.metal",
+      "function": "circuitTrace"
+    },
+    {
+      "file": "NativeStructure.metal",
+      "function": "velvetCircuit"
+    },
+    {
+      "file": "NativeStructure.metal",
+      "function": "lunarLoom"
+    },
+    {
+      "file": "NativeStructure.metal",
+      "function": "gearShape"
+    },
+    {
+      "file": "NativeStructure.metal",
+      "function": "gearWorks"
+    },
+    {
+      "file": "NativeStructure.metal",
+      "function": "orreryEngine"
+    },
+    {
+      "file": "NativeStructure.metal",
+      "function": "brutalHeight"
+    },
+    {
+      "file": "NativeStructure.metal",
+      "function": "brutalField"
+    },
+    {
+      "file": "NativeStructure.metal",
+      "function": "brutalistShift"
+    },
+    {
+      "file": "NativeStructure.metal",
+      "function": "roseWindowMask"
+    },
+    {
+      "file": "NativeStructure.metal",
+      "function": "roseWindow"
+    }
+  ],
+  "reviewFolder": "/Users/brad/Documents/GIT_SOURCE/pulsecanvas-studio/.claude/worktrees/native-visualizers-100/.build/deliverables/Metal-Effects-Review-2026-10-13",
+  "tagEvidence": [
+    {
+      "scene": 10,
+      "file": "010 - Aurora Fold.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 12,
+      "file": "012 - Pearl Terrain.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 15,
+      "file": "015 - Lotus Resonance.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 16,
+      "file": "016 - Orbit Loom.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 17,
+      "file": "017 - Silk Current.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 18,
+      "file": "018 - Double Twist.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 19,
+      "file": "019 - Arc Spray.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 20,
+      "file": "020 - Signal Tiles.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 21,
+      "file": "021 - Resonant Shell.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 22,
+      "file": "022 - Octagon Vault.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 23,
+      "file": "023 - Mercury Fold.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 24,
+      "file": "024 - Voltage Weave.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 25,
+      "file": "025 - Ink Cyclone.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 26,
+      "file": "026 - Prism Rain.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 27,
+      "file": "027 - Monolith Rush.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 28,
+      "file": "028 - Halo Engine.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 29,
+      "file": "029 - Tidal Glass.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 31,
+      "file": "031 - Silk Cascade.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 32,
+      "file": "032 - Chrome Reef.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 33,
+      "file": "033 - Ribbon Foundry.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 42,
+      "file": "042 - Sonic Topography.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 43,
+      "file": "043 - Prismatic Dunes.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 46,
+      "file": "046 - Crystal Orchard.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 47,
+      "file": "047 - Opal Tessera.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 48,
+      "file": "048 - Velvet Nebula.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 50,
+      "file": "050 - Magnetic Ballet.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 60,
+      "file": "060 - Mandel Bloom.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 61,
+      "file": "061 - Menger Nave.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 64,
+      "file": "064 - Quasicrystal Bloom.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 72,
+      "file": "072 - Piston Hall.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 74,
+      "file": "074 - Space Frame.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 79,
+      "file": "079 - Windowpane Drizzle.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 80,
+      "file": "080 - Ink Bloom.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 81,
+      "file": "081 - Oil Marble.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 83,
+      "file": "083 - Ripple Tank.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 84,
+      "file": "084 - Chrome Metaballs.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 85,
+      "file": "085 - Ocean Swell.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 86,
+      "file": "086 - Plexus Constellations.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 88,
+      "file": "088 - Ring Shepherds.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 91,
+      "file": "091 - Event Horizon.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 92,
+      "file": "092 - Atom Lattice.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 98,
+      "file": "098 - Synth Horizon.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 100,
+      "file": "100 - Plasma Bore.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 101,
+      "file": "101 - LED Corridor.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 102,
+      "file": "102 - Prism Shaft.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 103,
+      "file": "103 - Hyperloop.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 104,
+      "file": "104 - Barrel Wave.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 105,
+      "file": "105 - Magma Tube.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 106,
+      "file": "106 - Data Conduit.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 107,
+      "file": "107 - Helix Stair.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 109,
+      "file": "109 - Laser Bore.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 110,
+      "file": "110 - Twist Checker.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 111,
+      "file": "111 - Foam Tube.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 112,
+      "file": "112 - Polygon Stack.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 113,
+      "file": "113 - Gyroid Caverns.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 114,
+      "file": "114 - Spectrum Bore.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 117,
+      "file": "117 - Storm Eye.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 118,
+      "file": "118 - Sonar Pipe.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 119,
+      "file": "119 - Cube Helix.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 120,
+      "file": "120 - Phyllo Tube.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 121,
+      "file": "121 - Tesla Tube.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 122,
+      "file": "122 - Fold Tunnel.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 123,
+      "file": "123 - Vector Tube.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 124,
+      "file": "124 - Orbital Corridor.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 125,
+      "file": "125 - Mirrorball Tunnel.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 127,
+      "file": "127 - Chroma Pipe.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 129,
+      "file": "129 - Rainbow Slide.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 130,
+      "file": "130 - Pulse Arteries.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 131,
+      "file": "131 - Zebra Warp.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 132,
+      "file": "132 - Pixel Tunnel.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 133,
+      "file": "133 - Geode Passage.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 141,
+      "file": "141 - Neon Trails.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 176,
+      "file": "176 - Pigment Burst.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 178,
+      "file": "178 - Stretch Membrane.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 179,
+      "file": "179 - Kinetic Mirrors.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 180,
+      "file": "180 - Fire Dance.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 182,
+      "file": "182 - Fountain Show.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 183,
+      "file": "183 - Glowstick Rave.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 184,
+      "file": "184 - Smoke Rings.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 185,
+      "file": "185 - Wand Orbs.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 187,
+      "file": "187 - String Resonance.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 188,
+      "file": "188 - Light Bars.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 189,
+      "file": "189 - Sequin Curtain.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 192,
+      "file": "192 - Stadium Wave.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 193,
+      "file": "193 - Liquid Floor.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 197,
+      "file": "197 - Domino Run.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 201,
+      "file": "201 - Iridescent Raceway.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 202,
+      "file": "202 - Cobalt Catapult.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 203,
+      "file": "203 - Tangerine Rocket.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 204,
+      "file": "204 - Prismatic Overdrive.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 205,
+      "file": "205 - Scarlet Slipstream.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 206,
+      "file": "206 - Laser Autobahn.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 207,
+      "file": "207 - Rainbow Riptide.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 208,
+      "file": "208 - Electric Switchback.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 209,
+      "file": "209 - Disco Transit.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 210,
+      "file": "210 - Velvet Samba.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 211,
+      "file": "211 - Neon Caper.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 212,
+      "file": "212 - Carnival Pulse.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 213,
+      "file": "213 - Ribbon Rumba.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 214,
+      "file": "214 - Elastic Jive.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 215,
+      "file": "215 - Liquid Tango.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 216,
+      "file": "216 - Prism Pirouette.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 218,
+      "file": "218 - Molten Mambo.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 220,
+      "file": "220 - Fuchsia Flyway.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 221,
+      "file": "221 - Amber Aqueduct.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 222,
+      "file": "222 - Photon Overpass.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 223,
+      "file": "223 - Indigo Escalator.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 224,
+      "file": "224 - Solar Slalom.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 225,
+      "file": "225 - Glacial Sprint.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 226,
+      "file": "226 - Velour Velocity.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 227,
+      "file": "227 - Plasma Rally.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 228,
+      "file": "228 - Crystal Causeway.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 229,
+      "file": "229 - Luminous Lift.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 230,
+      "file": "230 - Arc Jetstream.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 231,
+      "file": "231 - Ruby Rollway.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 232,
+      "file": "232 - Neon Regatta.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 233,
+      "file": "233 - Radiant Runway.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 234,
+      "file": "234 - Electric Viaduct.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 235,
+      "file": "235 - Orbit Express.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 236,
+      "file": "236 - Molten Highway.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 237,
+      "file": "237 - Violet Flight.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 238,
+      "file": "238 - Emerald Launch.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 239,
+      "file": "239 - Coral Driftway.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 240,
+      "file": "240 - Azure Ascent.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 241,
+      "file": "241 - Festival Cruise.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 242,
+      "file": "242 - Quantum Sled.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 243,
+      "file": "243 - Citrus Surge.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 244,
+      "file": "244 - Starlight Pursuit.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 245,
+      "file": "245 - Saffron Spindle.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 246,
+      "file": "246 - Opaline Iris.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 247,
+      "file": "247 - Electric Helicoid.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 248,
+      "file": "248 - Ultramarine Arcade.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 249,
+      "file": "249 - Fuchsia Furnace.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 250,
+      "file": "250 - Amber Aperture.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 251,
+      "file": "251 - Aurora Corkscrew.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 252,
+      "file": "252 - Prism Portals.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 253,
+      "file": "253 - Magenta Conduit.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 254,
+      "file": "254 - Verdant Spiral.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 255,
+      "file": "255 - Sapphire Cascade.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 256,
+      "file": "256 - Garnet Gallery.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 257,
+      "file": "257 - Luminous Nautilus.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 258,
+      "file": "258 - Indigo Infinity.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 259,
+      "file": "259 - Golden Gyre.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 260,
+      "file": "260 - Fluid Odyssey.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 261,
+      "file": "261 - Photon Petals.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 263,
+      "file": "263 - Astral Torque.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 264,
+      "file": "264 - Chrome Comet.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 265,
+      "file": "265 - Candy Cathedral.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 266,
+      "file": "266 - Scarlet Siphon.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 267,
+      "file": "267 - Emerald Echo.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 268,
+      "file": "268 - Arctic Raceway.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 269,
+      "file": "269 - Plasma Passage.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 270,
+      "file": "270 - Violet Velocity.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 271,
+      "file": "271 - Tangerine Turbine.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 272,
+      "file": "272 - Cerulean Shell.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 273,
+      "file": "273 - Disco Helix.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 274,
+      "file": "274 - Iridescent Descent.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 275,
+      "file": "275 - Solar Serpent.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 276,
+      "file": "276 - Rainbow Reactor.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 278,
+      "file": "278 - Crystal Carousel.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 279,
+      "file": "279 - Neon Maelstrom.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 280,
+      "file": "280 - Radiant Rondo.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 281,
+      "file": "281 - Fuchsia Fandango.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 282,
+      "file": "282 - Satin Shuffle.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 283,
+      "file": "283 - Chromatic Charleston.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 284,
+      "file": "284 - Prismatic Polka.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 285,
+      "file": "285 - Neon Bolero.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 286,
+      "file": "286 - Pearlescent Swing.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 287,
+      "file": "287 - Solar Sway.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 288,
+      "file": "288 - Liquid Limbo.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 289,
+      "file": "289 - Violet Vogue.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 290,
+      "file": "290 - Disco Ripple.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 291,
+      "file": "291 - Gilded Groove.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 292,
+      "file": "292 - Aurora Waltz.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 293,
+      "file": "293 - Elastic Anthem.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 294,
+      "file": "294 - Crimson Cadence.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 295,
+      "file": "295 - Sapphire Stomp.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 296,
+      "file": "296 - Coral Crescendo.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 297,
+      "file": "297 - Electric Encore.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 298,
+      "file": "298 - Luminous Lockstep.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    },
+    {
+      "scene": 299,
+      "file": "299 - Festival Finale.mp4",
+      "tags": [
+        "Red\n6"
+      ],
+      "finderLabel": 6
+    }
+  ],
+  "sourceBackup": "/Users/brad/Documents/GIT_SOURCE/pulsecanvas-studio/.claude/worktrees/native-visualizers-100/.build/metal-curation/before-prune",
+  "restoredRedKeepers": [
+    245,
+    259
+  ]
+}

@@ -56,7 +56,7 @@ import MetalKit
             }
             try bitmap.representation(using: .png, properties: [:])!.write(to: root.appendingPathComponent(name+".png"))
         }
-        for scene in [18,22,23,25,30] {
+        for scene in [18,22,23,25,29] {
             state.scene = scene
             let quiet = try image(chaos: 1, hit: false), low = try image(chaos: 0.2, hit: true), high = try image(chaos: 1, hit: true)
             let lowChange = difference(quiet,low), highChange = difference(quiet,high)

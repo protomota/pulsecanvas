@@ -9,14 +9,17 @@ import SwiftUI
 @MainActor
 final class RenderState: ObservableObject {
     // PulseCanvas display names; numeric scene IDs keep saved projects compatible.
-    // The first three modes use scalar grids, formula pools, and point profiles.
-    // Other families use mesh kernels with PulseCanvas camera, UV, and artwork controls.
-    static let nativeSceneNames = ["Prism Wake", "Lumen Veil", "Pulse Well", "Velvet Passage", "Bead Surge", "Facet Flow", "Glass Current", "Contour Flux", "Recursive Corridor", "Spiral Tide", "Aurora Fold", "Petal Passage", "Pearl Terrain", "Vapor Run", "Scatter Flight"] + OriginalGeometry.sceneNames + ["Octagon Vault", "Mercury Fold", "Voltage Weave", "Ink Cyclone", "Prism Rain", "Monolith Rush", "Halo Engine", "Tidal Glass", "Grid Vortex"]
+    // Native designs are fragment shaders (NativeEffects), spatial raymarches
+    // (SpatialVisuals.metal) or OriginalGeometry meshes and bead sprites (Canvas.metal).
+    static let nativeSceneNames = NativeEffects.names
     static var sceneNames: [String] { ProjectMPresets.shared.sceneNames }
     // The draw loop reads telemetry directly; publishing it would invalidate the editor every frame.
     var audioPCM: [Float] = []
     var projectMFramesPerSecond = 60
-    @Published var scene: Int = 0
+    /// Retired native IDs always resolve to their replacement design.
+    @Published var scene: Int = NativeEffects.defaultScene {
+        didSet { if NativeEffects.isRetired(scene) { scene = NativeEffects.resolved(scene) } }
+    }
     @Published var speed: Float = 1
     @Published var chaos: Float = 0.5
     var audioBeatMotionTime: Double = 0
@@ -30,6 +33,9 @@ final class RenderState: ObservableObject {
     var audioMomentum: Float = 0
     var audioPulse: Float = 0
     var audioBands: [Float] = Array(repeating: 0, count: 32)
+    /// Per-song smoothed band levels and attack swell from SoundtrackAnalyzer.
+    var audioEnvelopes = SIMD4<Float>(repeating: 0)
+    var audioSwell: Float = 0
     @Published var palette: Int = 0
     @Published var fog: Float = 0.5
     @Published var rotation: Float = 0
@@ -55,6 +61,7 @@ struct VisualizerView: NSViewRepresentable {
         view.preferredFramesPerSecond = 60
         view.delegate = context.coordinator
         context.coordinator.attach(view)
+        context.coordinator.prewarmNativeEffects()
         return view
     }
     static func dismantleNSView(_ view: MTKView, coordinator: VisualizerRenderer) {
@@ -66,35 +73,16 @@ struct VisualizerView: NSViewRepresentable {
     }
 }
 
-private enum ShaderFamily { case pointGrid, nebula, fractal, crystalMorph, crystalTunnel, galaxy }
 private struct VisualVertex {
     var position: SIMD3<Float>
     var color: SIMD4<Float>
     var uv: SIMD2<Float>
 }
-private struct PointUniforms {
+private struct CanvasPointUniforms {
     var mvp: simd_float4x4
     var pointSize: Float
-    var nearPlaneHeight: Float
+    var viewportScale: Float
     var padding = SIMD2<Float>(repeating: 0)
-    var color: SIMD4<Float>
-}
-private struct NebulaUniforms {
-    var mvp: simd_float4x4
-    var fogDensity: Float
-    var crossfade: Float
-    var alpha: Float
-    var textureRotation: Float
-    var fogColor: SIMD3<Float>
-}
-private struct FractalUniforms {
-    var mvp: simd_float4x4
-    var fogDensity: Float
-    var crossfade: Float
-    var alpha: Float
-    var padding: Float = 0
-    var fogColor: SIMD3<Float>
-    var textureRotation: Float
 }
 private struct SpatialUniforms {
     var resolution: SIMD2<Float>
@@ -108,27 +96,55 @@ private struct SpatialUniforms {
     var color2: SIMD4<Float>
     var color3: SIMD4<Float>
     var color4: SIMD4<Float>
+    // Native designs only; the spatial shader reads the prefix above.
+    var bands = SIMD4<Float>(repeating: 0)
+    var motion = SIMD4<Float>(repeating: 0)
 }
-private struct NativeMorphState {
-    var scene: Int
-    var firstID: Int
-    var secondID: Int
-    var count: Float = 0
-    var direction: Float = 1
-}
+/// Time inputs for native designs. Audio levels arrive already smoothed per song from
+/// SoundtrackAnalyzer, so every frame is a pure function of soundtrack time. Live slider
+/// changes are absorbed into offsets so procedural time, zoom travel and the music clock
+/// stay continuous while dragging; offline frames and seeks use none.
+private struct NativeMotion {
+    var scene = -1
+    var lastSource: Double?
+    var speed: Float = 1, zoomSpeed: Float = 0, clockScale: Float = 0
+    var timeOffset: Double = 0, travelOffset: Double = 0, clockOffset: Double = 0
+    var musicTravelOffset: Double = 0
 
+    /// Returns (procedural time, zoom travel, music clock).
+    mutating func advance(scene: Int, source: Double, live: Bool, speed: Float, zoomSpeed: Float, chaos: Float, beatMotion: Double, musicZoom: Bool) -> (Double, Double, Double) {
+        let elapsed = lastSource.map { source - $0 } ?? -1
+        let continuous = live && scene == self.scene && elapsed >= 0 && elapsed < 0.5
+        let scale = chaos * speed
+        if continuous {
+            timeOffset += source * Double(self.speed - speed)
+            let base = source * Double(speed) + timeOffset
+            travelOffset += base * Double(self.zoomSpeed - zoomSpeed)
+            clockOffset += beatMotion * Double(clockScale - scale)
+            if musicZoom { musicTravelOffset += beatMotion * 1.6 * Double(clockScale * self.zoomSpeed - scale * zoomSpeed) }
+        } else {
+            timeOffset = 0; travelOffset = 0; clockOffset = 0; musicTravelOffset = 0
+        }
+        // Zero Chaos must not retain a phase derived from earlier music.
+        if chaos == 0 { clockOffset = 0; musicTravelOffset = 0 }
+        if zoomSpeed == 0 { musicTravelOffset = 0 }
+        self.scene = scene; lastSource = source
+        self.speed = speed; self.zoomSpeed = zoomSpeed; clockScale = scale
+        let base = source * Double(speed) + timeOffset
+        let musicTravel = musicZoom ? beatMotion * Double(scale * zoomSpeed) * 1.6 + musicTravelOffset : 0
+        return (base, base * Double(zoomSpeed) + travelOffset + musicTravel, beatMotion * Double(scale) + clockOffset)
+    }
+}
 @MainActor
 final class VisualizerRenderer: NSObject, MTKViewDelegate {
     var state: RenderState
+    #if !STORE_BUILD
     private var projectMEngine: ProjectMEngine?
     private var projectMPipeline: MTLRenderPipelineState?
     private var projectMCommand: MTLCommandBuffer?
+    #endif
     private var device: MTLDevice?
     private var queue: MTLCommandQueue?
-    private var library: MTLLibrary?
-    private var sampler: MTLSamplerState?
-    private var pipelines: [String: MTLRenderPipelineState] = [:]
-    private var textures: [MTLTexture] = []
     private var zoomTexture: MTLTexture?
     private var zoomPipeline: MTLRenderPipelineState?
     private var vertexBuffer: MTLBuffer?
@@ -137,20 +153,23 @@ final class VisualizerRenderer: NSObject, MTKViewDelegate {
     private var lastTime: CFTimeInterval = 0
     private var sourceClock: Double = 0
     private var lastError: String?
-    private var nativeShapeCache: [Int: [SIMD3<Float>]] = [:]
-    private var nativeMorph: NativeMorphState?
     private var timelineTime: Double?
     private var offscreenTarget: MTLTexture?
     private var strobeDetector = StrobeDetector()
     private var depthTexture: MTLTexture?
     private var depthState: MTLDepthStencilState?
     private var spatialPipeline: MTLRenderPipelineState?
+    private var nativeLibraries: [String: MTLLibrary] = [:]
+    private var nativeCompileErrors: [String: String] = [:]
+    private var nativePipelines: [String: MTLRenderPipelineState] = [:]
+    private var nativeMotion = NativeMotion()
+    private var offscreenFrame = false
     private var canvasPipeline: MTLRenderPipelineState?
+    private var pointPipeline: MTLRenderPipelineState?
     private var canvasHeight: Float = 24
     private var contentBlurPipeline: MTLRenderPipelineState?
     private var blurTexture: MTLTexture?
     private var strobePipeline: MTLRenderPipelineState?
-    private let nativeDefaults = SurfaceGeometry.PointDefaults()
     private let flightSlots = DispatchSemaphore(value: 3)
 
     init(state: RenderState) { self.state = state; super.init() }
@@ -161,29 +180,6 @@ final class VisualizerRenderer: NSObject, MTKViewDelegate {
                 throw RenderError("Metal is unavailable on this Mac")
             }
             self.device = device; self.queue = queue
-            let candidates = [Bundle.module.url(forResource: "VisualShaders", withExtension: "metallib", subdirectory: "Resources"),
-                              Bundle.module.url(forResource: "VisualShaders", withExtension: "metallib"),
-                              URL(fileURLWithPath: FileManager.default.currentDirectoryPath).appendingPathComponent(".build/visual-shaders/VisualShaders.metallib")]
-            guard let url = candidates.compactMap({ $0 }).first(where: { FileManager.default.fileExists(atPath: $0.path) }) else {
-                throw RenderError("Visual shader library is missing. Run scripts/build-shaders.sh before building the app.")
-            }
-            library = try device.makeLibrary(URL: url)
-            let s = MTLSamplerDescriptor(); s.minFilter = .linear; s.magFilter = .linear
-            s.sAddressMode = .repeat; s.tAddressMode = .repeat
-            sampler = device.makeSamplerState(descriptor: s)
-            textures = [makeTexture(device: device, variant: 0), makeTexture(device: device, variant: 1), makeTexture(device: device, variant: 2)]
-            for (v, f, points) in [
-                ("pointGridVertexBanded", "pointGridFragment", true),
-                ("galaxyJourneyVertex", "galaxyJourneyHaloFragment", true),
-                ("nebulaTunnelsVertex", "nebulaTunnelsFogFragment", false),
-                ("fractalTunnelsVertex", "fractalTunnelsFogFragment", false),
-                ("crystalMorphVertex", "crystalMorphFragmentWithColorTint", false),
-                ("crystalTunnelVertex", "crystalTunnelFragment", false)
-            ] {
-                pipelines[f] = try makePipeline(device: device, vertex: v, fragment: f, points: points)
-            }
-            pipelines["ballGalaxy"] = try makePipeline(device: device, vertex: "galaxyJourneyVertex", fragment: "galaxyJourneyCoreFragment", points: true, additive: false)
-            pipelines["ballPoints"] = try makePipeline(device: device, vertex: "pointGridVertexBanded", fragment: "pointGridFragment", points: true, additive: false)
             let effectCandidates = [Bundle.module.url(forResource: "Strobe", withExtension: "metal", subdirectory: "Resources"), Bundle.module.url(forResource: "Strobe", withExtension: "metal"), URL(fileURLWithPath: FileManager.default.currentDirectoryPath).appendingPathComponent("Sources/PulseCanvas/Resources/Strobe.metal")]
             guard let effectURL = effectCandidates.compactMap({ $0 }).first(where: { FileManager.default.fileExists(atPath: $0.path) }) else { throw RenderError("White flash shader is missing") }
             let effects = try device.makeLibrary(source: String(contentsOf: effectURL, encoding: .utf8), options: nil)
@@ -197,11 +193,13 @@ final class VisualizerRenderer: NSObject, MTKViewDelegate {
             effect.colorAttachments[0].sourceAlphaBlendFactor = .one
             effect.colorAttachments[0].destinationAlphaBlendFactor = .oneMinusSourceAlpha
             strobePipeline = try device.makeRenderPipelineState(descriptor: effect)
+            #if !STORE_BUILD
             let projectMEffect = MTLRenderPipelineDescriptor()
             projectMEffect.vertexFunction = effects.makeFunction(name: "whiteFlashVertex")
             projectMEffect.fragmentFunction = effects.makeFunction(name: "projectMFragment")
             projectMEffect.colorAttachments[0].pixelFormat = .bgra8Unorm
             projectMPipeline = try device.makeRenderPipelineState(descriptor: projectMEffect)
+            #endif
             let zoomEffect = MTLRenderPipelineDescriptor()
             zoomEffect.vertexFunction = effects.makeFunction(name: "whiteFlashVertex")
             zoomEffect.fragmentFunction = effects.makeFunction(name: "forwardZoomFragment")
@@ -226,6 +224,17 @@ final class VisualizerRenderer: NSObject, MTKViewDelegate {
             canvas.depthAttachmentPixelFormat = .depth32Float
             canvas.colorAttachments[0].pixelFormat = .bgra8Unorm
             canvasPipeline = try device.makeRenderPipelineState(descriptor: canvas)
+            let point = MTLRenderPipelineDescriptor()
+            point.vertexFunction = canvasLibrary.makeFunction(name: "canvasPointVertex")
+            point.fragmentFunction = canvasLibrary.makeFunction(name: "canvasPointFragment")
+            point.vertexDescriptor = descriptor
+            point.inputPrimitiveTopology = .point
+            point.colorAttachments[0].pixelFormat = .bgra8Unorm
+            let blend = point.colorAttachments[0]!
+            blend.isBlendingEnabled = true
+            blend.sourceRGBBlendFactor = .sourceAlpha; blend.destinationRGBBlendFactor = .oneMinusSourceAlpha
+            blend.sourceAlphaBlendFactor = .one; blend.destinationAlphaBlendFactor = .oneMinusSourceAlpha
+            pointPipeline = try device.makeRenderPipelineState(descriptor: point)
             let spatialSource = effectURL.deletingLastPathComponent().appendingPathComponent("SpatialVisuals.metal")
             let spatialLibrary = try device.makeLibrary(source: String(contentsOf: spatialSource, encoding: .utf8), options: nil)
             let spatial = MTLRenderPipelineDescriptor()
@@ -233,6 +242,8 @@ final class VisualizerRenderer: NSObject, MTKViewDelegate {
             spatial.fragmentFunction = spatialLibrary.makeFunction(name: "spatialFragment")
             spatial.colorAttachments[0].pixelFormat = .bgra8Unorm
             spatialPipeline = try device.makeRenderPipelineState(descriptor: spatial)
+            try compileNativeLibraries(device: device, folder: effectURL.deletingLastPathComponent())
+            nativePipelines = [:]
             let depth = MTLDepthStencilDescriptor(); depth.depthCompareFunction = .lessEqual; depth.isDepthWriteEnabled = true
             depthState = device.makeDepthStencilState(descriptor: depth)
             lastError = nil; state.errorMessage = nil
@@ -243,55 +254,63 @@ final class VisualizerRenderer: NSObject, MTKViewDelegate {
         if text != lastError { lastError = text; state.errorMessage = text }
     }
 
-    private func makePipeline(device: MTLDevice, vertex: String, fragment: String, points: Bool, additive: Bool = true) throws -> MTLRenderPipelineState {
-        guard let v = library?.makeFunction(name: vertex), let f = library?.makeFunction(name: fragment) else {
-            throw RenderError("Missing visual shader: \(vertex) / \(fragment)")
-        }
-        let p = MTLRenderPipelineDescriptor(); p.label = "Visual \(fragment)"
-        p.vertexFunction = v; p.fragmentFunction = f
-        let vd = MTLVertexDescriptor()
-        vd.attributes[0].format = .float3; vd.attributes[0].offset = 0; vd.attributes[0].bufferIndex = 0
-        vd.attributes[1].format = .float4; vd.attributes[1].offset = 16; vd.attributes[1].bufferIndex = 0
-        vd.attributes[2].format = .float2; vd.attributes[2].offset = 32; vd.attributes[2].bufferIndex = 0
-        vd.layouts[0].stride = MemoryLayout<VisualVertex>.stride
-        if !vertex.contains("BlurVertex") { p.vertexDescriptor = vd }
-        p.colorAttachments[0].pixelFormat = .bgra8Unorm
-        if points { p.inputPrimitiveTopology = .point }
-        let c = p.colorAttachments[0]!
-        c.isBlendingEnabled = !fragment.contains("Blur")
-        c.rgbBlendOperation = .add; c.alphaBlendOperation = .add
-        c.sourceRGBBlendFactor = .sourceAlpha; c.destinationRGBBlendFactor = points && additive ? .one : .oneMinusSourceAlpha
-        c.sourceAlphaBlendFactor = .one; c.destinationAlphaBlendFactor = .oneMinusSourceAlpha
-        return try device.makeRenderPipelineState(descriptor: p)
-    }
-
-    private func family(_ scene: Int) -> ShaderFamily {
-        if scene >= 15 {
-            return scene == 18 || scene == 19 ? .pointGrid : .crystalMorph
-        }
-        switch scene {
-        case 9, 10, 14: return .galaxy
-        case 3, 13: return .nebula
-        case 5, 7: return .crystalMorph
-        case 6: return .crystalTunnel
-        case 8, 11: return .fractal
-        default: return .pointGrid
+    /// Each native file is compiled after the shared prelude, so effects can be added
+    /// by writing one function and registering it in NativeEffects. A file that fails
+    /// to compile disables only its own designs, which report the compiler message.
+    private func compileNativeLibraries(device: MTLDevice, folder: URL) throws {
+        let prelude = try String(contentsOf: folder.appendingPathComponent("NativeCommon.metal"), encoding: .utf8)
+        let options = MTLCompileOptions()
+        nativeLibraries = [:]; nativeCompileErrors = [:]
+        for file in NativeEffects.shaderFiles {
+            do {
+                let source = try String(contentsOf: folder.appendingPathComponent(file), encoding: .utf8)
+                let activePrelude = file.hasPrefix("NativeExpansion") ? try String(contentsOf: folder.appendingPathComponent("NativeExpansionCommon.metal"), encoding: .utf8) : prelude
+                nativeLibraries[file] = try device.makeLibrary(source: activePrelude + "\n#line 1 \"\(file)\"\n" + source, options: options)
+            } catch { nativeCompileErrors[file] = "Native shader \(file) failed to compile: \(error.localizedDescription)" }
         }
     }
 
-    private var nativePointScene: SurfaceGeometry.PointScene? {
-        switch state.scene {
-        case 0: return .prismWake
-        case 1: return .lumenVeil
-        case 2: return .pulseWell
-        default: return nil
+    private func nativeDescriptor(for effect: NativeEffect) -> MTLRenderPipelineDescriptor? {
+        guard let shader = effect.shader, let file = effect.file, let library = nativeLibraries[file],
+              let vertex = library.makeFunction(name: "nativeVertex"),
+              let fragment = library.makeFunction(name: shader + "Fragment") else { return nil }
+        let descriptor = MTLRenderPipelineDescriptor()
+        descriptor.label = effect.name
+        descriptor.vertexFunction = vertex; descriptor.fragmentFunction = fragment
+        descriptor.colorAttachments[0].pixelFormat = .bgra8Unorm
+        return descriptor
+    }
+
+    private func nativePipeline(for effect: NativeEffect) throws -> MTLRenderPipelineState {
+        guard let shader = effect.shader else { throw RenderError("\(effect.name) is not a native Metal design") }
+        if let cached = nativePipelines[shader] { return cached }
+        if let file = effect.file, let error = nativeCompileErrors[file] { throw RenderError(error) }
+        guard let device, let descriptor = nativeDescriptor(for: effect) else { throw RenderError("Native shader \(shader) is missing") }
+        let pipeline = try device.makeRenderPipelineState(descriptor: descriptor)
+        nativePipelines[shader] = pipeline
+        return pipeline
+    }
+
+    /// Builds every native pipeline in the background so the first switch to a design
+    /// never stalls the live view. Offline renderers build on demand instead.
+    func prewarmNativeEffects() {
+        guard let device else { return }
+        for effect in NativeEffects.all {
+            guard let shader = effect.shader, nativePipelines[shader] == nil, let descriptor = nativeDescriptor(for: effect) else { continue }
+            device.makeRenderPipelineState(descriptor: descriptor) { [weak self] pipeline, _ in
+                guard let pipeline else { return }
+                Task { @MainActor in
+                    guard let self, self.nativePipelines[shader] == nil else { return }
+                    self.nativePipelines[shader] = pipeline
+                }
+            }
         }
     }
 
     func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) { blurTexture = nil }
 
     func draw(in view: MTKView) {
-        guard device != nil, let queue, !textures.isEmpty, let drawable = view.currentDrawable else { return }
+        guard device != nil, let queue, canvasPipeline != nil, let drawable = view.currentDrawable else { return }
         guard flightSlots.wait(timeout: .now()) == .success else { return }
         guard let command = queue.makeCommandBuffer() else { flightSlots.signal(); return }
         command.label = "Visual shader frame"
@@ -300,6 +319,7 @@ final class VisualizerRenderer: NSObject, MTKViewDelegate {
         lastTime = now
         if !state.paused { sourceClock += Double(dt) }
         timelineTime = state.playbackTime
+        offscreenFrame = false
         if let absoluteTime = timelineTime {
             time = animationTime(at: absoluteTime)
         } else if !state.paused { time += dt * max(0, state.speed) }
@@ -336,9 +356,9 @@ final class VisualizerRenderer: NSObject, MTKViewDelegate {
 
     /// Returns GPU-complete, shared BGRA8 pixels at absolute soundtrack time.
     /// The target is reused; consumers must read it before requesting the next frame.
-    func renderOffscreen(time absoluteTime: Double, audioBands: [Float], audioPulse: Float = 0, audioMomentum: Float = 0, audioBeatMotionTime: Double = 0, audioTreblePulse: Float? = nil, audioTrebleAttackTime: Double? = nil) throws -> MTLTexture {
+    func renderOffscreen(time absoluteTime: Double, audioBands: [Float], audioPulse: Float = 0, audioMomentum: Float = 0, audioBeatMotionTime: Double = 0, audioTreblePulse: Float? = nil, audioTrebleAttackTime: Double? = nil, audioEnvelopes: SIMD4<Float> = .zero, audioSwell: Float = 0) throws -> MTLTexture {
         guard let target = offscreenTarget else { throw RenderError("Call prepareOffscreen(width:height:) before rendering") }
-        let command = try offscreenCommand(target: target, time: absoluteTime, audioBands: audioBands, audioPulse: audioPulse, audioMomentum: audioMomentum, audioBeatMotionTime: audioBeatMotionTime, audioTreblePulse: audioTreblePulse, audioTrebleAttackTime: audioTrebleAttackTime)
+        let command = try offscreenCommand(target: target, time: absoluteTime, audioBands: audioBands, audioPulse: audioPulse, audioMomentum: audioMomentum, audioBeatMotionTime: audioBeatMotionTime, audioTreblePulse: audioTreblePulse, audioTrebleAttackTime: audioTrebleAttackTime, audioEnvelopes: audioEnvelopes, audioSwell: audioSwell)
         command.commit(); command.waitUntilCompleted()
         if let error = command.error { throw RenderError("Offline GPU render failed: \(error.localizedDescription)") }
         return target
@@ -347,8 +367,8 @@ final class VisualizerRenderer: NSObject, MTKViewDelegate {
     var offscreenDevice: MTLDevice? { device }
 
     /// Render directly into the encoder's IOSurface, yielding the UI while the GPU works.
-    func renderOffscreen(into target: MTLTexture, time absoluteTime: Double, audioBands: [Float], audioPulse: Float = 0, audioMomentum: Float = 0, audioBeatMotionTime: Double = 0, audioTreblePulse: Float? = nil, audioTrebleAttackTime: Double? = nil) async throws {
-        let command = try offscreenCommand(target: target, time: absoluteTime, audioBands: audioBands, audioPulse: audioPulse, audioMomentum: audioMomentum, audioBeatMotionTime: audioBeatMotionTime, audioTreblePulse: audioTreblePulse, audioTrebleAttackTime: audioTrebleAttackTime)
+    func renderOffscreen(into target: MTLTexture, time absoluteTime: Double, audioBands: [Float], audioPulse: Float = 0, audioMomentum: Float = 0, audioBeatMotionTime: Double = 0, audioTreblePulse: Float? = nil, audioTrebleAttackTime: Double? = nil, audioEnvelopes: SIMD4<Float> = .zero, audioSwell: Float = 0) async throws {
+        let command = try offscreenCommand(target: target, time: absoluteTime, audioBands: audioBands, audioPulse: audioPulse, audioMomentum: audioMomentum, audioBeatMotionTime: audioBeatMotionTime, audioTreblePulse: audioTreblePulse, audioTrebleAttackTime: audioTrebleAttackTime, audioEnvelopes: audioEnvelopes, audioSwell: audioSwell)
         await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
             command.addCompletedHandler { _ in continuation.resume() }
             command.commit()
@@ -356,12 +376,13 @@ final class VisualizerRenderer: NSObject, MTKViewDelegate {
         if let error = command.error { throw RenderError("Offline GPU render failed: \(error.localizedDescription)") }
     }
 
-    private func offscreenCommand(target: MTLTexture, time absoluteTime: Double, audioBands: [Float], audioPulse: Float, audioMomentum: Float, audioBeatMotionTime: Double, audioTreblePulse: Float?, audioTrebleAttackTime: Double?) throws -> MTLCommandBuffer {
+    private func offscreenCommand(target: MTLTexture, time absoluteTime: Double, audioBands: [Float], audioPulse: Float, audioMomentum: Float, audioBeatMotionTime: Double, audioTreblePulse: Float?, audioTrebleAttackTime: Double?, audioEnvelopes: SIMD4<Float>, audioSwell: Float) throws -> MTLCommandBuffer {
         guard absoluteTime.isFinite, absoluteTime >= 0 else { throw RenderError("Invalid export timestamp") }
         guard let queue, let command = queue.makeCommandBuffer(), target.pixelFormat == .bgra8Unorm else {
             throw RenderError("Offline renderer is unavailable or the frame format is invalid")
         }
         timelineTime = absoluteTime
+        offscreenFrame = true
         state.audioBeatMotionTime = audioBeatMotionTime.isFinite ? max(0, audioBeatMotionTime) : 0
         time = animationTime(at: absoluteTime)
         state.audioTrebleAttackTime = audioTrebleAttackTime
@@ -369,17 +390,27 @@ final class VisualizerRenderer: NSObject, MTKViewDelegate {
         state.audioMomentum = audioMomentum.isFinite ? min(1, max(0, audioMomentum)) : 0
         state.audioPulse = audioPulse.isFinite ? min(1, max(0, audioPulse)) : 0
         state.audioBands = audioBands.map { $0.isFinite ? max(0, min(1, $0)) : 0 }
+        state.audioEnvelopes = simd_clamp(audioEnvelopes, .zero, SIMD4(repeating: 1))
+        state.audioSwell = audioSwell.isFinite ? min(1, max(0, audioSwell)) : 0
         try encodeFrame(command: command, target: target)
         if lastError != nil {lastError = nil; state.errorMessage = nil}
         return command
     }
 
     private var chaosAmount: Float { state.chaos.isFinite ? min(1, max(0, state.chaos)) : 0.5 }
+    private var visualPulse: Float {
+        (state.audioPulse.isFinite ? min(1, max(0, state.audioPulse)) : 0) * chaosAmount
+    }
     private var chaosDrive: Float { min(1, max(0, state.audioMomentum)) * chaosAmount * 2 }
     // Keep source analysis intact for playback/export. Scale every visual
     // consumer here so zero Chaos is pure procedural motion in every family.
-    private var visualPulse: Float {
-        (state.audioPulse.isFinite ? min(1, max(0, state.audioPulse)) : 0) * chaosAmount
+    // Geometry that moves with the music reads the per-song smoothed levels and
+    // attack swell, so motion swells instead of jumping frame to frame.
+    private var visualLevels: SIMD4<Float> {
+        simd_clamp(state.audioEnvelopes, .zero, SIMD4(repeating: 1)) * chaosAmount
+    }
+    private var visualSwell: Float {
+        (state.audioSwell.isFinite ? min(1, max(0, state.audioSwell)) : 0) * chaosAmount
     }
     private var visualBands: [Float] {
         state.audioBands.map { ($0.isFinite ? min(1, max(0, $0)) : 0) * chaosAmount }
@@ -394,6 +425,7 @@ final class VisualizerRenderer: NSObject, MTKViewDelegate {
 
     private func encodeFrame(command: MTLCommandBuffer, target: MTLTexture, preview: Bool = false) throws {
         guard let d = device else { throw RenderError("Metal device is unavailable") }
+        #if !STORE_BUILD
         if let preset = ProjectMPresets.shared.preset(for: state.scene) {
             // The external engine writes a shared surface. Finish its previous
             // Metal consumer before reusing that surface on the OpenGL queue.
@@ -418,65 +450,58 @@ final class VisualizerRenderer: NSObject, MTKViewDelegate {
             return
         }
         projectMEngine = nil; projectMCommand = nil
-        if [4, 10, 12, 22, 23, 24, 25, 26, 27, 28, 29, 30].contains(state.scene) {
+        #endif
+        if let effect = NativeEffects.effect(state.scene), effect.shader != nil {
+            try encodeNative(effect, command: command, target: target)
+            return
+        }
+        if Self.spatialScenes.contains(state.scene) {
             try encodeSpatial(command: command, target: target)
             return
         }
-        let pass = MTLRenderPassDescriptor()
-        pass.colorAttachments[0].texture = target
-        let family = family(state.scene)
+        try encodeCanvas(d, command: command, target: target)
+    }
+
+    /// Released designs drawn by SpatialVisuals.metal.
+    private static let spatialScenes: Set<Int> = [4, 10, 12, 22, 23, 24, 25, 26, 27, 28, 29]
+
+    /// Released designs 15–21: OriginalGeometry surfaces and bead sprites on a drifting canvas.
+    private func encodeCanvas(_ d: MTLDevice, command: MTLCommandBuffer, target: MTLTexture) throws {
+        guard let canvasPipeline, let pointPipeline else { throw RenderError("Canvas shaders are unavailable") }
         let width = target.width, height = target.height
         let aspect = Float(width) / Float(max(height, 1))
-        var projection = perspective(fov: Float.pi / (2.6 * max(0.55, state.zoom)), aspect: aspect, near: 0.1, far: 120)
-        var mvp = projection * rotateZ(state.rotation + time * 0.08)
-        if let scene = nativePointScene {
-            // Native0x10040bcb4/0x10040c9a0: fixed90° rotation, uniform
-            // cameraZoom*.018 scale, FOV56°, near1, far1500. UI adds rotation/zoom.
-            let fov = nativeDefaults.projectionFov * .pi / 180
-            projection = perspective(fov: fov, aspect: aspect, near: 1, far: 1500)
-            var camera = matrix_identity_float4x4
-            camera.columns.3.z = -nativeDefaults.cameraDistance
-            var model = matrix_identity_float4x4
-            let scale = nativeDefaults.modelScale * scene.cameraZoom * max(0.35, state.zoom)
-            model.columns.0.x = scale
-            model.columns.1.y = scale
-            model.columns.2.z = scale
-            mvp = projection * camera * rotateZ(state.rotation + .pi / 2) * model
-        }
-        if state.scene >= 15 {
-            canvasHeight = (state.scene == 18 ? 20 : 24) / max(0.65, state.zoom)
-            let distance: Float = 44
-            projection = perspective(fov: 2 * atan(canvasHeight / (2 * distance)), aspect: aspect, near: 0.1, far: 180)
-            var camera = matrix_identity_float4x4
-            camera.columns.3 = SIMD4(sin(time * 0.33) * 0.7, cos(time * 0.27) * 0.5, -distance, 1)
-            let pitch = sin(time * 0.28) * 0.22
-            let yaw = sin(time * 0.21) * 0.35
-            mvp = projection * camera * rotateX(pitch) * rotateY(yaw) * rotateZ(state.rotation)
-        }
-        let brightness = max(0, state.brightness)
-        let bass = bandEnergy(0..<9)
-        let (rawVertices, indices) = geometry(family: family, bass: bass, aspect: aspect)
-        let strength = visualPulse * (0.2 + chaosAmount * 0.55) + chaosDrive * 0.08 + bass * 0.12
-        let nativeScale = nativePointScene.map { nativeDefaults.modelScale * $0.cameraZoom * max(0.35, state.zoom) } ?? 1
-        let vertices = rawVertices.map { vertex -> VisualVertex in
-            guard strength > 0 else { return vertex }
+        canvasHeight = (state.scene == 18 ? 20 : 24) / max(0.65, state.zoom)
+        let distance: Float = 44
+        let projection = perspective(fov: 2 * atan(canvasHeight / (2 * distance)), aspect: aspect, near: 0.1, far: 180)
+        var camera = matrix_identity_float4x4
+        camera.columns.3 = SIMD4(sin(time * 0.33) * 0.7, cos(time * 0.27) * 0.5, -distance, 1)
+        let pitch = sin(time * 0.28) * 0.22
+        let yaw = sin(time * 0.21) * 0.35
+        var mvp = projection * camera * rotateX(pitch) * rotateY(yaw) * rotateZ(state.rotation)
+        let mesh = OriginalGeometry.make(scene: state.scene, time: time, spectrum: visualBands, intensity: 1 + chaosDrive * 0.9, palette: state.palette)
+        let (rawVertices, indices) = immersive(mesh: mesh, aspect: aspect)
+        let strength = visualSwell * (0.2 + chaosAmount * 0.55) + chaosDrive * 0.08 + visualLevels.x * 0.12
+        let vertices = strength > 0 ? rawVertices.map { vertex -> VisualVertex in
             var result = vertex
-            let p = vertex.position * nativeScale
+            let p = vertex.position
             let ripple = SIMD3<Float>(sin(p.y * 0.53 + p.z * 0.31 - time * 1.3),
                                       sin(p.x * 0.47 - p.z * 0.39 + time * 1.1),
                                       sin(p.x * 0.41 + p.y * 0.37 - time * 0.9))
             // Waves bend individual points and surface patches, leaving the
             // camera framing steady instead of scaling the whole screen.
-            result.position += ripple * (strength * 0.85 / nativeScale)
+            result.position += ripple * (strength * 0.85)
             return result
-        }
+        } : rawVertices
         guard !vertices.isEmpty else { throw RenderError("Scene geometry is empty") }
         vertexBuffer = vertices.withUnsafeBytes { d.makeBuffer(bytes: $0.baseAddress!, length: $0.count, options: .storageModeShared) }
         if !indices.isEmpty { indexBuffer = indices.withUnsafeBytes { d.makeBuffer(bytes: $0.baseAddress!, length: $0.count, options: .storageModeShared) } }
+        let pass = MTLRenderPassDescriptor()
+        pass.colorAttachments[0].texture = target
         pass.colorAttachments[0].loadAction = .clear; pass.colorAttachments[0].storeAction = .store
         pass.colorAttachments[0].clearColor = MTLClearColor(red: 0.002, green: 0.002, blue: 0.007, alpha: 1)
-        let usesDepth = state.scene >= 15 && family == .crystalMorph
-        if usesDepth {
+        // Bead sprites arrive sorted far to near and blend without a depth buffer.
+        let beads = indices.isEmpty
+        if !beads {
             if depthTexture?.width != width || depthTexture?.height != height {
                 let descriptor = MTLTextureDescriptor.texture2DDescriptor(pixelFormat: .depth32Float, width: width, height: height, mipmapped: false)
                 descriptor.storageMode = .private; descriptor.usage = .renderTarget
@@ -487,84 +512,21 @@ final class VisualizerRenderer: NSObject, MTKViewDelegate {
             pass.depthAttachment.loadAction = .clear; pass.depthAttachment.storeAction = .dontCare
         }
         guard let encoder = command.makeRenderCommandEncoder(descriptor: pass), let vertexBuffer else { throw RenderError("Could not create Metal render encoder") }
-        encoder.label = "Visual frame"
+        encoder.label = "Canvas frame"
         encoder.setVertexBuffer(vertexBuffer, offset: 0, index: 0)
-        encoder.setFragmentSamplerState(sampler, index: 0)
-        encoder.setFragmentTexture(textures[0], index: 0)
-        encoder.setFragmentTexture(textures[1], index: 1)
         encoder.setCullMode(.none)
-        var alpha: Float = 1
-        var blend: Float = (sin(time * 0.13) + 1) * 0.5
-        switch family {
-        case .pointGrid, .galaxy:
-            let nativeScene = nativePointScene
-            let pointSize = (nativeScene == nil ? (state.scene == 18 ? 0.36 : (state.scene == 19 ? 0.30 : 0.40)) : nativeDefaults.coreSize) * max(0.1, state.particleSize)
-            let nearPlaneHeight = state.scene >= 15 ? Float(height) * 44 / canvasHeight : (nativeScene == nil ? Float(height) * 1.2 : (height > 1 ? Float(height) / 0.8284271 : 1448.5282))
-            var u = PointUniforms(mvp: mvp, pointSize: pointSize, nearPlaneHeight: nearPlaneHeight, color: SIMD4<Float>(repeating: brightness))
-            if family == .galaxy { u.color = paletteColor(time * 0.025) * SIMD4<Float>(repeating: brightness) }
-            u.color.w = nativeScene == nil ? 0.82 : nativeDefaults.coreAlpha
-            encoder.setVertexBytes(&u, length: MemoryLayout<PointUniforms>.stride, index: 1)
-            let fragment = family == .galaxy ? "ballGalaxy" : (nativeScene == nil ? "ballPoints" : "pointGridFragment")
-            encoder.setRenderPipelineState(pipelines[fragment]!)
-            encoder.setFragmentTexture(textures[2], index: 0)
-            if family == .pointGrid {
-                let bands = (0..<32).map { paletteColor(Float($0) / 32 + time * 0.015) * SIMD4<Float>(repeating: brightness) }
-                bands.withUnsafeBytes { encoder.setVertexBytes($0.baseAddress!, length: $0.count, index: 2) }
-                var count: UInt32 = 32; var cluster: UInt32 = 64
-                encoder.setVertexBytes(&count, length: 4, index: 3); encoder.setVertexBytes(&cluster, length: 4, index: 4)
-            }
+        if beads {
+            var uniforms = CanvasPointUniforms(mvp: mvp, pointSize: (state.scene == 18 ? 0.36 : 0.30) * max(0.1, state.particleSize),
+                                               viewportScale: Float(height) * distance / canvasHeight)
+            encoder.setRenderPipelineState(pointPipeline)
+            encoder.setVertexBytes(&uniforms, length: MemoryLayout<CanvasPointUniforms>.stride, index: 1)
             encoder.drawPrimitives(type: .point, vertexStart: 0, vertexCount: vertices.count)
-            if let nativeScene {
-                u.pointSize = nativeScene.haloSize * max(0.1, state.particleSize)
-                u.color.w = nativeDefaults.haloAlpha
-                encoder.setVertexBytes(&u, length: MemoryLayout<PointUniforms>.stride, index: 1)
-                encoder.drawPrimitives(type: .point, vertexStart: 0, vertexCount: vertices.count)
-            }
-            if family == .galaxy {
-                encoder.setRenderPipelineState(pipelines["galaxyJourneyHaloFragment"]!)
-                u.pointSize *= 2; u.color.w = 0.025
-                encoder.setVertexBytes(&u, length: MemoryLayout<PointUniforms>.stride, index: 1)
-                encoder.drawPrimitives(type: .point, vertexStart: 0, vertexCount: vertices.count)
-            }
-        case .nebula:
-            var u = NebulaUniforms(mvp: mvp, fogDensity: max(0, state.fog) * 0.018, crossfade: blend, alpha: 1, textureRotation: state.rotation + time * 0.04, fogColor: SIMD3<Float>(0.006, 0.001, 0.02))
-            encoder.setVertexBytes(&u, length: MemoryLayout<NebulaUniforms>.stride, index: 1)
-            encoder.setFragmentBytes(&u, length: MemoryLayout<NebulaUniforms>.stride, index: 0)
-            encoder.setRenderPipelineState(pipelines["nebulaTunnelsFogFragment"]!)
-            drawMesh(encoder, count: indices.count)
-        case .fractal:
-            var u = FractalUniforms(mvp: mvp, fogDensity: max(0, state.fog) * 0.02, crossfade: blend, alpha: 1, fogColor: SIMD3<Float>(0.004, 0.003, 0.01), textureRotation: state.rotation + time * 0.1)
-            encoder.setVertexBytes(&u, length: MemoryLayout<FractalUniforms>.stride, index: 1)
-            encoder.setFragmentBytes(&u, length: MemoryLayout<FractalUniforms>.stride, index: 0)
-            encoder.setRenderPipelineState(pipelines["fractalTunnelsFogFragment"]!)
-            drawMesh(encoder, count: indices.count)
-        case .crystalMorph:
-            if state.scene >= 15, let canvasPipeline {
-                var matrix = mvp
-                encoder.setVertexBytes(&matrix, length: 64, index: 1)
-                encoder.setRenderPipelineState(canvasPipeline)
-                encoder.setDepthStencilState(depthState)
-                var scene = UInt32(state.scene)
-                encoder.setVertexBytes(&scene, length: 4, index: 2)
-                drawMesh(encoder, count: indices.count)
-                break
-            }
-            var matrix = mvp
-            encoder.setVertexBytes(&matrix, length: 64, index: 1)
-            encoder.setFragmentBytes(&alpha, length: 4, index: 2)
-            encoder.setFragmentBytes(&blend, length: 4, index: 3)
-            var tint = paletteColor(time * 0.04) * SIMD4<Float>(repeating: brightness)
-            tint.w = 1
-            encoder.setFragmentBytes(&tint, length: 16, index: 4)
-            encoder.setRenderPipelineState(pipelines["crystalMorphFragmentWithColorTint"]!)
-            drawMesh(encoder, count: indices.count)
-        case .crystalTunnel:
-            var matrix = mvp
-            encoder.setVertexBytes(&matrix, length: 64, index: 1)
-            var textureParams = SIMD2<Int32>(0, 64)
-            encoder.setVertexBytes(&textureParams, length: 8, index: 3)
-            encoder.setFragmentBytes(&alpha, length: 4, index: 2)
-            encoder.setRenderPipelineState(pipelines["crystalTunnelFragment"]!)
+        } else {
+            encoder.setRenderPipelineState(canvasPipeline)
+            encoder.setDepthStencilState(depthState)
+            encoder.setVertexBytes(&mvp, length: 64, index: 1)
+            var scene = UInt32(state.scene)
+            encoder.setVertexBytes(&scene, length: 4, index: 2)
             drawMesh(encoder, count: indices.count)
         }
         encoder.endEncoding()
@@ -572,7 +534,7 @@ final class VisualizerRenderer: NSObject, MTKViewDelegate {
     }
 
     private func encodeSpatial(command: MTLCommandBuffer, target: MTLTexture) throws {
-        guard let spatialPipeline else { throw RenderError("Spatial visual shader is unavailable") }
+        guard let pipeline = spatialPipeline else { throw RenderError("Spatial visual shader is unavailable") }
         let pass = MTLRenderPassDescriptor()
         pass.colorAttachments[0].texture = target
         pass.colorAttachments[0].loadAction = .dontCare; pass.colorAttachments[0].storeAction = .store
@@ -580,11 +542,39 @@ final class VisualizerRenderer: NSObject, MTKViewDelegate {
         let palette = VisualPalette(rawValue: state.palette) ?? .ultraviolet
         let colors = palette.stops.map { SIMD4<Float>($0, 1) }
         var frame = SpatialUniforms(resolution: SIMD2(Float(target.width), Float(target.height)), time: time, scene: Int32(state.scene),
-            rhythm: SIMD4(visualPulse, chaosDrive, bandEnergy(0..<9), bandEnergy(24..<32)),
+            rhythm: SIMD4(visualSwell, chaosDrive, visualLevels.x, visualLevels.w),
             style: SIMD4(state.brightness, state.particleSize, state.fog, state.zoom),
             camera: SIMD4(state.rotation, chaosAmount, state.scene == 28 ? Float(state.haloCount) : state.liquidDetail, state.zoomSpeed),
             color0: colors[0], color1: colors[1], color2: colors[2], color3: colors[3], color4: colors[4])
-        encoder.setRenderPipelineState(spatialPipeline)
+        encoder.setRenderPipelineState(pipeline)
+        encoder.setFragmentBytes(&frame, length: MemoryLayout<SpatialUniforms>.stride, index: 0)
+        encoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: 3)
+        encoder.endEncoding()
+        try encodeEffects(command: command, target: target)
+    }
+
+    private func encodeNative(_ effect: NativeEffect, command: MTLCommandBuffer, target: MTLTexture) throws {
+        let pipeline = try nativePipeline(for: effect)
+        let speed = state.speed.isFinite ? max(0, state.speed) : 1
+        let zoomSpeed = state.zoomSpeed.isFinite ? min(3, max(0, state.zoomSpeed)) : 0
+        let beatMotion = state.audioBeatMotionTime.isFinite ? max(0, state.audioBeatMotionTime) : 0
+        let momentum = state.audioMomentum.isFinite ? min(1, max(0, state.audioMomentum)) : 0
+        let (base, travel, clock) = nativeMotion.advance(scene: state.scene, source: timelineTime ?? sourceClock, live: !offscreenFrame,
+            speed: speed, zoomSpeed: zoomSpeed, chaos: chaosAmount, beatMotion: beatMotion, musicZoom: effect.file?.hasPrefix("NativeExpansion") == true)
+        let swell = state.audioSwell.isFinite ? min(1, max(0, state.audioSwell)) : 0
+        let pass = MTLRenderPassDescriptor()
+        pass.colorAttachments[0].texture = target
+        pass.colorAttachments[0].loadAction = .dontCare; pass.colorAttachments[0].storeAction = .store
+        guard let encoder = command.makeRenderCommandEncoder(descriptor: pass) else { throw RenderError("Could not encode \(effect.name)") }
+        let colors = (VisualPalette(rawValue: state.palette) ?? .ultraviolet).stops.map { SIMD4<Float>($0, 1) }
+        var frame = SpatialUniforms(resolution: SIMD2(Float(target.width), Float(target.height)), time: Float(base), scene: Int32(state.scene),
+            rhythm: SIMD4(effect.file?.hasPrefix("NativeExpansion") == true ? visualPulse : swell * chaosAmount, chaosDrive, visualLevels.x, visualLevels.w),
+            style: SIMD4(state.brightness, state.particleSize, state.fog, state.zoom),
+            camera: SIMD4(state.rotation, chaosAmount, state.liquidDetail, zoomSpeed),
+            color0: colors[0], color1: colors[1], color2: colors[2], color3: colors[3], color4: colors[4],
+            bands: simd_clamp(state.audioEnvelopes, .zero, SIMD4(repeating: 1)) * chaosAmount,
+            motion: SIMD4(Float(travel), Float(clock), Float(base), momentum * chaosAmount))
+        encoder.setRenderPipelineState(pipeline)
         encoder.setFragmentBytes(&frame, length: MemoryLayout<SpatialUniforms>.stride, index: 0)
         encoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: 3)
         encoder.endEncoding()
@@ -594,7 +584,7 @@ final class VisualizerRenderer: NSObject, MTKViewDelegate {
     private func encodeEffects(command: MTLCommandBuffer, target: MTLTexture) throws {
         // Spatial corridors move their camera through the actual scene. Other
         // designs use seamless expanding layers, with no zoom pass at zero.
-        let hasSpatialTravel = [4,10,12,22,24,25,26,27,28,29,30].contains(state.scene)
+        let hasSpatialTravel = NativeEffects.effect(state.scene)?.travels ?? false
         let zoomSpeed = state.zoomSpeed.isFinite ? min(3, max(0, state.zoomSpeed)) : 0
         if !hasSpatialTravel && zoomSpeed > 0, let device, let zoomPipeline {
             if zoomTexture?.width != target.width || zoomTexture?.height != target.height {
@@ -669,163 +659,6 @@ final class VisualizerRenderer: NSObject, MTKViewDelegate {
         return device.makeTexture(descriptor: t)
     }
 
-    private func bandEnergy(_ range: Range<Int>) -> Float {
-        let bands = visualBands
-        let values = range.compactMap { bands.indices.contains($0) ? bands[$0] : nil }
-        return values.isEmpty ? 0 : min(1, max(0, values.reduce(0, +) / Float(values.count)))
-    }
-
-    private func paletteColor(_ position: Float) -> SIMD4<Float> {
-        VisualPalette.color(position, palette: state.palette)
-    }
-
-    private func nativeVertices(_ points: [SIMD3<Float>], scene: SurfaceGeometry.PointScene) -> [VisualVertex] {
-        let scale = nativeDefaults.modelScale * scene.cameraZoom * max(0.35, state.zoom)
-        let depthLimit = nativeDefaults.cameraDistance * 0.45 / scale
-        return points.map { point in
-            var point = point
-            if scene == .lumenVeil {
-                // Some height formulas are unbounded and can carry the whole
-                // field through the camera. Preserve the XY grid and smoothly
-                // compress depth into the visible camera range at any zoom.
-                point.z = point.z.isFinite ? tanh(point.z / depthLimit) * depthLimit : 0
-            }
-            return VisualVertex(position: point, color: SIMD4<Float>(repeating: 1), uv: .zero)
-        }
-    }
-
-    /// The first three modes use scalar point grids and linear formula morphing.
-    /// Textured families use mesh kernels with host camera and UV transforms.
-    private func geometry(family: ShaderFamily, bass: Float, aspect: Float) -> ([VisualVertex], [UInt32]) {
-        var vertices: [VisualVertex] = []; var indices: [UInt32] = []
-        if state.scene >= 15 {
-            let mesh = OriginalGeometry.make(scene: state.scene, time: time, spectrum: visualBands, intensity: 1 + chaosDrive * 0.9, palette: state.palette)
-            return immersive(mesh: mesh, aspect: aspect)
-        }
-        if let scene = nativePointScene {
-            let pool = scene.availableFormulaPool
-            guard !pool.isEmpty else { return ([], []) }
-            if timelineTime != nil {
-                // Soundtrack seeks/export use the same deterministic pool traversal;
-                // original frame morph arithmetic is preserved, random scheduling is replaced.
-                let length = scene.morphLength
-                let frame = max(0, Int(Double(time) * 60))
-                let halfCycle = frame / length
-                let firstID = pool[(halfCycle / 2) % pool.count]
-                let secondID = pool[(halfCycle / 2 + 1) % pool.count]
-                if nativeShapeCache[firstID] == nil { nativeShapeCache[firstID] = SurfaceGeometry.pointGrid(formulaID: firstID) }
-                if nativeShapeCache[secondID] == nil { nativeShapeCache[secondID] = SurfaceGeometry.pointGrid(formulaID: secondID) }
-                let count = halfCycle % 2 == 0 ? frame % length : length - frame % length
-                let points = SurfaceGeometry.morph(nativeShapeCache[firstID]!, nativeShapeCache[secondID]!, count: count, length: length)
-                return (nativeVertices(points, scene: scene), [])
-            }
-            // Native0x100408400 pingpongs one integer per renderedframe, replacing
-            // the invisible endpoint with a nonrepeating random pool member.
-            // Native speedMode4 resolves to110frames (0x100a94128). UI speed scales
-            // advancement while retaining integer weights in the linear morph.
-            let length = 110
-            if nativeMorph?.scene != scene.rawValue {
-                let first = pool.randomElement()!
-                let second = pool.filter { $0 != first }.randomElement() ?? first
-                nativeMorph = NativeMorphState(scene: scene.rawValue, firstID: first, secondID: second)
-            }
-            var morph = nativeMorph!
-            let firstID = morph.firstID, secondID = morph.secondID
-            if nativeShapeCache[firstID] == nil { nativeShapeCache[firstID] = SurfaceGeometry.pointGrid(formulaID: firstID) }
-            if nativeShapeCache[secondID] == nil { nativeShapeCache[secondID] = SurfaceGeometry.pointGrid(formulaID: secondID) }
-            let points = SurfaceGeometry.morph(nativeShapeCache[firstID]!, nativeShapeCache[secondID]!, count: Int(morph.count), length: length)
-            if !state.paused && state.speed > 0 {
-                morph.count += morph.direction * max(0, state.speed)
-                if morph.count >= Float(length) {
-                    morph.count = Float(length); morph.direction = -1
-                    morph.firstID = pool.filter { $0 != morph.secondID }.randomElement() ?? morph.secondID
-                } else if morph.count <= 0 {
-                    morph.count = 0; morph.direction = 1
-                    morph.secondID = pool.filter { $0 != morph.firstID }.randomElement() ?? morph.firstID
-                }
-                nativeMorph = morph
-            }
-            vertices = nativeVertices(points, scene: scene)
-            return (vertices, [])
-        }
-        if state.scene == 14 {
-            let tangent = tan(.pi / (5.2 * max(0.55, state.zoom)))
-            for index in 0..<9000 {
-                let seed = UInt32(index)
-                let depth = 4 + (particleNoise(seed &+ 71) * 72 - time * 8).truncatingRemainder(dividingBy: 72)
-                let z = depth < 4 ? depth + 72 : depth
-                let x = (particleNoise(seed &* 3 &+ 19) * 2 - 1) * 60 * tangent * aspect
-                let y = (particleNoise(seed &* 3 &+ 23) * 2 - 1) * 60 * tangent
-                let sway = sin(time * 0.5 + Float(index % 17)) * (0.7 + bass * 1.2)
-                let position = SIMD3(x + sway, y + cos(time * 0.4 + Float(index % 13)) * 0.8, -z)
-                vertices.append(VisualVertex(position: position, color: paletteColor(particleNoise(seed &+ 101) + time * 0.018), uv: .zero))
-            }
-            vertices.sort { $0.position.z < $1.position.z }
-            return (vertices, [])
-        }
-        if state.scene == 9 {
-            let stars = MeshGeometry.galaxyStars(depthSpan: 10000, specialized: true)
-            let fit = max(1, tan(.pi / (5.2 * max(0.55, state.zoom))) / tan(.pi / 5.2)) * max(1, aspect / (16.0 / 9.0))
-            for arm in 0..<4 {
-                let angle = Float(arm) * .pi / 2 - time * 0.18
-                for (index, p) in stars.enumerated() {
-                    let radius: Float = 0.008 * fit * (1 + bass * 0.18)
-                    let x = p.x * radius, y = p.y * radius
-                    let position = SIMD3(x * cos(angle) - y * sin(angle), x * sin(angle) + y * cos(angle), -12 + p.z * 0.00006 + sin(time * 0.3 + Float(arm)) * 1.2)
-                    vertices.append(VisualVertex(position: position, color: paletteColor(Float(index) / 1050 + Float(arm) * 0.19 + time * 0.03), uv: .zero))
-                }
-            }
-            return (vertices, [])
-        }
-        if family == .nebula || family == .fractal || family == .crystalMorph || family == .crystalTunnel {
-            let rings = 100
-            let segments = family == .crystalMorph ? 40 : 20
-            let offset = Int(time * 4) % 600
-            var tunnel = MeshGeometry.TunnelParameters()
-            tunnel.innerRadius = family == .fractal ? 2 : 3
-            tunnel.wavelength = family == .fractal ? 80 : 14
-            tunnel.pathLength = state.scene == 13 ? 22000 : 80
-            var morph = MeshGeometry.MorphParameters()
-            morph.frequency = 0.0125 + Double(bass) * 0.002
-            var crystal = MeshGeometry.CrystalTunnelParameters()
-            crystal.radiusFactor = 1 + bass * 0.4
-            if state.scene == 11 { tunnel.innerRadius = 3.4; tunnel.wavelength = 32; tunnel.rideRadius = 4.5 }
-            let first = MeshGeometry.tunnel(ring: offset + 100, segment: 0, parameters: tunnel)
-            let opposite = MeshGeometry.tunnel(ring: offset + 100, segment: segments / 2, parameters: tunnel)
-            let nativeCenter = (first + opposite) * 0.5
-            for ring in 0...rings {
-                for segment in 0...segments {
-                    let native: SIMD3<Float>
-                    let position: SIMD3<Float>
-                    if state.scene == 7 {
-                        native = MeshGeometry.cyborg(ring: ring + offset, segment: segment % 20, profile: Int(time / 6) % 8)
-                        // Native axes retain the mesh shape; host camera moves along Y.
-                        position = SIMD3(native.x * 6, native.z * 6, -2 - Float(ring) * 0.6)
-                    } else if family == .crystalMorph {
-                        native = MeshGeometry.crystalMorph(ring: ring + offset, segment: segment % segments, parameters: morph)
-                        position = SIMD3(native.x * 0.12, native.y * 0.12, -2 - Float(ring) * 1.08)
-                    } else if family == .crystalTunnel {
-                        native = MeshGeometry.crystalTunnel(ring: ring + 1, segment: segment % segments, parameters: crystal)
-                        let radial = max(0.001, sqrt(native.x * native.x + native.y * native.y))
-                        let wallRadius = (3.6 + 1.2 * sin(Float(ring) * 0.11 - time * 0.65)) * (1 + bass * 0.25)
-                        position = SIMD3(native.x / radial * wallRadius, native.y / radial * wallRadius, -0.8 - Float(ring) * 0.65)
-                    } else {
-                        native = MeshGeometry.tunnel(ring: ring + offset + 100, segment: segment % segments, parameters: tunnel)
-                        // Camera translation, z handedness, fitted scale and moving window are host reconstruction.
-                        let petal: Float = state.scene == 11 ? 1 + 0.22 * sin(Float(segment) / Float(segments) * .pi * 16 + time * 0.65 + Float(ring) * 0.08) : 1
-                        position = SIMD3((native.x - nativeCenter.x) * 0.20 * petal, (native.y - nativeCenter.y) * 0.20 * petal, -1 - Float(ring) * 0.60)
-                    }
-                    var color = paletteColor(Float(segment) / Float(segments) + Float(ring) * 0.017 + time * 0.02)
-                    color *= SIMD4<Float>(repeating: max(0, state.brightness)); color.w = 1
-                    vertices.append(VisualVertex(position: position, color: color, uv: SIMD2(Float(segment) / Float(segments) * 4, Float(ring) * 0.22 - time * 0.88)))
-                }
-            }
-            appendIndices(rings: rings, segments: segments, into: &indices)
-            return (vertices, indices)
-        }
-        return (vertices, indices)
-    }
-
     private func immersive(mesh: OriginalGeometry.Mesh, aspect: Float) -> ([VisualVertex], [UInt32]) {
         let scale: Float
         let step: SIMD2<Float>
@@ -875,60 +708,9 @@ final class VisualizerRenderer: NSObject, MTKViewDelegate {
         return (vertices, indices)
     }
 
-    private func appendIndices(rings: Int, segments: Int, into indices: inout [UInt32]) {
-        indices.reserveCapacity(rings * segments * 6)
-        for ring in 0..<rings { for segment in 0..<segments {
-            let a = UInt32(ring * (segments + 1) + segment), b = a + UInt32(segments + 1)
-            indices.append(contentsOf: [a, b, a + 1, a + 1, b, b + 1])
-        } }
-    }
-
-    /// Procedural texture assets generated for the host renderer.
-    private func makeTexture(device: MTLDevice, variant: Int) -> MTLTexture {
-        let size = 256
-        let descriptor = MTLTextureDescriptor.texture2DDescriptor(pixelFormat: .rgba8Unorm, width: size, height: size, mipmapped: false)
-        descriptor.storageMode = .shared; descriptor.usage = .shaderRead
-        let texture = device.makeTexture(descriptor: descriptor)!
-        var bytes = [UInt8](repeating: 0, count: size * size * 4)
-        for y in 0..<size { for x in 0..<size {
-            let u = Float(x) / Float(size - 1), v = Float(y) / Float(size - 1)
-            let offset = (y * size + x) * 4
-            if variant == 2 {
-                let distance = simd_length(SIMD2<Float>(u - 0.5, v - 0.5)) * 2
-                let nx = (u - 0.5) * 2 / 0.78, ny = (v - 0.5) * 2 / 0.78
-                let sphereRadius = nx * nx + ny * ny
-                let shade: Float
-                let opacity: Float
-                if sphereRadius <= 1 {
-                    let nz = sqrt(max(0, 1 - sphereRadius))
-                    let diffuse = max(0, -nx * 0.4 - ny * 0.45 + nz * 0.8)
-                    let shine = pow(max(0, -nx * 0.25 - ny * 0.3 + nz * 0.92), 24)
-                    shade = min(1, 0.16 + diffuse * 0.7 + shine * 0.32)
-                    opacity = min(1, (1 - sqrt(sphereRadius)) * 24)
-                } else { shade = 0.35; opacity = max(0, 1 - distance) * 0.12 }
-                let channel = UInt8(min(255, max(0, shade * 255)))
-                bytes[offset] = channel; bytes[offset + 1] = channel; bytes[offset + 2] = channel
-                bytes[offset + 3] = UInt8(min(255, max(0, opacity * 255)))
-            } else {
-                let phase = variant == 0 ? sin(u * 26) * cos(v * 20) + sin((u + v) * 45) * 0.35 : sin(u * 60 + cos(v * 20) * 3) * sin(v * 50)
-                let lines = pow(max(0, 1 - abs(phase)), 8)
-                let value = 0.08 + lines * 0.92
-                bytes[offset] = UInt8(value * 255); bytes[offset + 1] = UInt8(value * 255); bytes[offset + 2] = UInt8(value * 255); bytes[offset + 3] = 255
-            }
-        } }
-        bytes.withUnsafeBytes { texture.replace(region: MTLRegionMake2D(0, 0, size, size), mipmapLevel: 0, withBytes: $0.baseAddress!, bytesPerRow: size * 4) }
-        return texture
-    }
-
     private func perspective(fov: Float, aspect: Float, near: Float, far: Float) -> simd_float4x4 {
         let y = 1 / tan(fov * 0.5), x = y / max(aspect, 0.01), z = far / (near - far)
         return simd_float4x4(columns: (SIMD4<Float>(x, 0, 0, 0), SIMD4<Float>(0, y, 0, 0), SIMD4<Float>(0, 0, z, -1), SIMD4<Float>(0, 0, z * near, 0)))
-    }
-    private func particleNoise(_ seed: UInt32) -> Float {
-        var value = seed &+ 0x9e3779b9
-        value = (value ^ (value >> 16)) &* 0x85ebca6b
-        value = (value ^ (value >> 13)) &* 0xc2b2ae35
-        return Float((value ^ (value >> 16)) >> 8) / 16_777_216
     }
     private func rotateX(_ angle: Float) -> simd_float4x4 {
         let c = cos(angle), s = sin(angle)

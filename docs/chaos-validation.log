@@ -1,3 +1,0 @@
-PASS: percussion-only acceleration, monotonic source clock, quiet release, deterministic seeks/trims/frame rates
-PASS: all 31 GPU visualizers respond to Chaos on beats, remain unchanged without beats, and reproduce exact pixels after seeking
-PASS: every style at zero Chaos ignores pulse, spectrum, momentum, beat clock and strobe in wide/portrait at three zoom speeds, while visualization motion continues

@@ -1,6 +1,7 @@
 import Accelerate
 import AVFoundation
 import Foundation
+import simd
 
 struct SongSegmentation {
     let boundaries: [Double]
@@ -14,6 +15,10 @@ struct AudioFeatures {
     var beatMotionTime: Double = 0
     var treblePulse: Float = 0
     var trebleAttackTime: Double? = nil
+    /// Smoothed low, low-mid, high-mid and high levels, normalized per song (0...1).
+    var envelopes = SIMD4<Float>(repeating: 0)
+    /// Attack envelope with a short rise and ~0.25 s fall, for fluid element motion.
+    var swell: Float = 0
     static let silence = AudioFeatures(bands: [Float](repeating: 0, count: 32), pulse: 0)
 }
 
@@ -126,7 +131,8 @@ final class SoundtrackAnalyzer {
             bands[band] = min(1, pow(max(0, amplitude - 0.0005) * 5, 0.6))
         }
         let reaction = rhythm.at(time, frameInterval: frameInterval)
-        return AudioFeatures(bands: bands, pulse: reaction.pulse, momentum: reaction.momentum, beatMotionTime: reaction.beatMotionTime, treblePulse: reaction.treblePulse, trebleAttackTime: reaction.trebleAttackTime)
+        let (envelopes, swell) = rhythm.envelopes(at: time)
+        return AudioFeatures(bands: bands, pulse: reaction.pulse, momentum: reaction.momentum, beatMotionTime: reaction.beatMotionTime, treblePulse: reaction.treblePulse, trebleAttackTime: reaction.trebleAttackTime, envelopes: envelopes, swell: swell)
     }
 
 }
@@ -146,6 +152,10 @@ private struct RhythmTimeline {
     let hopSeconds: Double
     let momentum: [Float]
     let motionTimes: [Double]
+    /// Per-hop smoothed band levels and attack swell, computed once so every frame is a
+    /// pure function of soundtrack time (identical in preview, Studio and export).
+    let bandEnvelopes: [SIMD4<Float>]
+    let swells: [Float]
 
     init(file: AVAudioFile) throws {
         let rate = file.processingFormat.sampleRate
@@ -157,6 +167,10 @@ private struct RhythmTimeline {
             throw AudioAnalysisError("Cannot allocate rhythm analysis buffer")
         }
         var bass = [Float](), body = [Float](), treble = [Float]()
+        var bandEnergy = [SIMD4<Float>]()
+        // Crossovers match the renderer's 32-band groups: 123, 552 and 2960 Hz.
+        let crossovers = SIMD3<Float>(Float(1 - exp(-2 * Double.pi * 123 / rate)), Float(1 - exp(-2 * Double.pi * 552 / rate)), Float(1 - exp(-2 * Double.pi * 2960 / rate)))
+        var splitA = [SIMD3<Float>](repeating: .zero, count: channelCount), splitB = splitA
         var lower = [Float](repeating: 0, count: channelCount), lower2 = lower, upper = lower
         var high2 = lower, high3 = lower, high4 = lower
         let lowCoefficient = Float(1 - exp(-2 * Double.pi * 180 / rate))
@@ -169,9 +183,15 @@ private struct RhythmTimeline {
             for first in stride(from: 0, to: count, by: hop) {
                 let last = min(count, first + hop)
                 var lo: Float = 0, mid: Float = 0, hi: Float = 0
+                var split = SIMD4<Float>(repeating: 0)
                 for channel in 0..<channelCount {
                     for index in first..<last {
                         let sample = samples[channel][index]
+                        splitA[channel] += crossovers * (SIMD3(repeating: sample) - splitA[channel])
+                        splitB[channel] += crossovers * (splitA[channel] - splitB[channel])
+                        let lows = splitB[channel]
+                        let parts = SIMD4(lows.x, lows.y - lows.x, lows.z - lows.y, sample - lows.z)
+                        split += parts * parts
                         lower[channel] += lowCoefficient * (sample - lower[channel])
                         lower2[channel] += lowCoefficient * (lower[channel] - lower2[channel])
                         upper[channel] += highCoefficient * (sample - upper[channel])
@@ -189,6 +209,7 @@ private struct RhythmTimeline {
                 }
                 let divisor = Float((last - first) * channelCount)
                 bass.append(lo / divisor); body.append(mid / divisor); treble.append(hi / divisor)
+                bandEnergy.append(split / divisor)
             }
         }
         var events = [Attack](), hats = [Attack](), drive = [Float](repeating: 0, count: bass.count)
@@ -222,10 +243,57 @@ private struct RhythmTimeline {
             previous = envelope
         }
         attacks = events; trebleAttacks = hats; momentum = drive
+        (bandEnvelopes, swells) = Self.smoothedLevels(energy: bandEnergy, attacks: events, hop: hopSeconds)
         var accumulated = [0.0]
         accumulated.reserveCapacity(drive.count + 1)
         for value in drive { accumulated.append(accumulated.last! + Double(value) * hopSeconds) }
         motionTimes = accumulated
+    }
+
+    /// Normalizes each band against its own loud passages (95th percentile of non-silent
+    /// hops), so dynamics within a song are kept, then applies a rise/fall follower.
+    private static func smoothedLevels(energy: [SIMD4<Float>], attacks: [Attack], hop: Double) -> ([SIMD4<Float>], [Float]) {
+        guard !energy.isEmpty else { return ([], []) }
+        let amplitudes = energy.map { $0.replacing(with: 0, where: $0 .< 0).squareRoot() }
+        var reference = SIMD4<Float>(repeating: 1)
+        for band in 0..<4 {
+            let audible = amplitudes.map { $0[band] }.filter { $0 > 1e-4 }.sorted()
+            reference[band] = audible.isEmpty ? 1 : max(1e-4, audible[min(audible.count - 1, Int(Double(audible.count) * 0.95))])
+        }
+        // Resolve short subdivisions without holding most of a beat.
+        let rise = Float(1 - exp(-hop / 0.018)), fall = Float(1 - exp(-hop / 0.095))
+        var envelopes = [SIMD4<Float>](), level = SIMD4<Float>(repeating: 0)
+        envelopes.reserveCapacity(amplitudes.count)
+        for amplitude in amplitudes {
+            let target = simd_min(amplitude / reference, SIMD4<Float>(repeating: 1.15)) * 0.87
+            for band in 0..<4 { level[band] += (target[band] - level[band]) * (target[band] > level[band] ? rise : fall) }
+            envelopes.append(level)
+        }
+        var raw = [Float](repeating: 0, count: energy.count)
+        for attack in attacks {
+            let first = max(0, Int(attack.time / hop))
+            for tick in first..<min(raw.count, first + Int(0.35 / hop)) {
+                let age = max(0, Double(tick) * hop - attack.time)
+                raw[tick] = max(raw[tick], attack.strength * Float(exp(-age / 0.065)))
+            }
+        }
+        let attackRise = Float(1 - exp(-hop / 0.02)), attackFall = Float(1 - exp(-hop / 0.25))
+        var swells = [Float](), swell: Float = 0
+        swells.reserveCapacity(raw.count)
+        for value in raw {
+            swell += (value - swell) * (value > swell ? attackRise : attackFall)
+            swells.append(swell)
+        }
+        return (envelopes, swells)
+    }
+
+    func envelopes(at time: Double) -> (SIMD4<Float>, Float) {
+        guard !bandEnvelopes.isEmpty, time.isFinite, time >= 0 else { return (SIMD4<Float>(repeating: 0), 0) }
+        let position = min(Double(bandEnvelopes.count - 1), time / hopSeconds)
+        let tick = Int(position), next = min(bandEnvelopes.count - 1, tick + 1)
+        let fraction = Float(position - Double(tick))
+        let envelope = bandEnvelopes[tick] + (bandEnvelopes[next] - bandEnvelopes[tick]) * fraction
+        return (envelope, swells[tick] + (swells[next] - swells[tick]) * fraction)
     }
 
     func at(_ time: Double, frameInterval: Double) -> (pulse: Float, momentum: Float, beatMotionTime: Double, treblePulse: Float, trebleAttackTime: Double?) {

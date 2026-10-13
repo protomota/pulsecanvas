@@ -4,7 +4,7 @@ Seven new designs generate geometry directly from the soundtrack spectrum and pr
 
 | Scene ID | Design | Geometry | Music response |
 | --- | --- | --- | --- |
-| 15 | Petal Echo | Eleven concentric twelve-petal rosettes | Angle-local bands swell petal radii and widths; bass breathes the full mandala. |
+| 15 | Lotus Resonance | Eleven concentric twelve-petal rosettes | Angle-local bands swell petal radii and widths; bass breathes the full mandala. |
 | 16 | Orbit Loom | Seven tubular rings tilted around different axes | Local frequencies thicken and expand the arcs; bass expands each orbit. |
 | 17 | Silk Current | Eight twisting silk ribbons spanning depth | Frequency position along each strip changes crest height and strip width. |
 | 18 | Double Twist | Four tall corkscrew strands | Bass spreads strands; height-local frequencies add radius and transverse ripple. |

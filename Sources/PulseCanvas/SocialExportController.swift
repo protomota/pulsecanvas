@@ -205,12 +205,11 @@ final class SocialExportController: ObservableObject {
                 if activeStudioScene != scene {
                     activeStudioScene = scene
                     renderer.state.scene = scene
-                    var appearance = appearances[scene] ?? (scene >= 31 ? VisualPreset(chaos: 1, zoomSpeed: 0) : VisualPreset())
-                    if appearances[scene] == nil && (scene == 18 || scene == 19) { appearance.particleSize = 1.6; appearance.zoom = 1.05 }
+                    let appearance = appearances[scene] ?? VisualPreset.defaults(for: scene)
                     appearance.apply(to: renderer.state)
                 }
             }
-            if renderer.state.scene >= 31 { renderer.state.audioPCM = try spectrum?.pcm(at: sourceTime) ?? [] }
+            if renderer.state.scene >= RenderState.nativeSceneNames.count { renderer.state.audioPCM = try spectrum?.pcm(at: sourceTime) ?? [] }
             let features = try spectrum?.frame(at: sourceTime, clipStart: start, clipEnd: start + duration) ?? .silence
             guard let pool = adaptor.pixelBufferPool else { throw ExportError("Encoder pixel buffer pool is unavailable") }
             var pixelBuffer: CVPixelBuffer?
@@ -222,7 +221,7 @@ final class SocialExportController: ObservableObject {
                 let surface, let texture = CVMetalTextureGetTexture(surface) else {
                 throw ExportError("Cannot map an encoder frame to the GPU")
             }
-            try await renderer.renderOffscreen(into: texture, time: sourceTime, audioBands: features.bands, audioPulse: features.pulse, audioMomentum: features.momentum, audioBeatMotionTime: features.beatMotionTime, audioTreblePulse: features.treblePulse, audioTrebleAttackTime: features.trebleAttackTime)
+            try await renderer.renderOffscreen(into: texture, time: sourceTime, audioBands: features.bands, audioPulse: features.pulse, audioMomentum: features.momentum, audioBeatMotionTime: features.beatMotionTime, audioTreblePulse: features.treblePulse, audioTrebleAttackTime: features.trebleAttackTime, audioEnvelopes: features.envelopes, audioSwell: features.swell)
             // Keep the Core Video texture wrapper alive through GPU completion.
             withExtendedLifetime(surface) {}
             try checkCancellation()

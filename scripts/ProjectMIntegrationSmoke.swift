@@ -15,16 +15,21 @@ private struct StoredStylesFixture: Codable { let presets: [Int:VisualPreset]; l
         var library = ProjectMPresets(importedRoot:root.appendingPathComponent("Imported"), defaults:defaults)
         let report = try JSONSerialization.jsonObject(with:Data(contentsOf:library.bundledRoot.appendingPathComponent("compatibility-report.json"))) as! [String:Any]
         let countRetained = report["retained"] as! Int
-        precondition(library.entries.count == countRetained && library.sceneNames.count == countRetained + 31)
-        precondition(library.availableScenes.count == countRetained + 31)
+        let nativeCount = RenderState.nativeSceneNames.count
+        precondition(library.entries.count == countRetained && library.sceneNames.count == countRetained + nativeCount)
+        precondition(library.availableScenes.count == countRetained + NativeEffects.activeIDs.count)
         let fixtureScene = library.scene(for:"projectm:Dancer/Glowsticks/EoS - glowsticks v2 04 music minimal (benjam's tracer mix).milk")!
         let secondScene = library.scene(for:"projectm:Dancer/Comet Mirror/EoS + Phat - chasers 14 sentinel 616_1.milk")!
         precondition(library.sceneNames[fixtureScene] == "Mosaic Nova")
-        precondition(Set(library.sceneNames).count == library.sceneNames.count, "Every preset needs a unique display name")
+        let duplicatedNames = Dictionary(grouping: library.sceneNames, by: { $0 }).filter { $0.value.count > 1 }.keys.sorted()
+        if !duplicatedNames.isEmpty { FileHandle.standardError.write(Data("Duplicate display names: \(duplicatedNames)\n".utf8)) }
+        precondition(duplicatedNames.isEmpty, "Every preset needs a unique display name")
         precondition(library.entries.allSatisfy {$0.title.split(separator:" ").count == 2 && $0.originalTitle != nil && $0.icon != nil})
         let icons = Set(library.sceneNames.indices.map {library.icon(for:$0)})
-        precondition(icons.count == 120 && icons == Set(library.iconNames) && icons.allSatisfy {NSImage(systemSymbolName:$0,accessibilityDescription:nil) != nil})
-        precondition(Set((0..<31).map {library.icon(for:$0)}).count == 31, "Native visualizers need distinctive icons too")
+        let invalidIcons = icons.filter { NSImage(systemSymbolName: $0, accessibilityDescription: nil) == nil }.sorted()
+        if !invalidIcons.isEmpty { FileHandle.standardError.write(Data("Invalid icons: \(invalidIcons)\n".utf8)) }
+        precondition(icons.isSuperset(of: Set(library.iconNames)) && invalidIcons.isEmpty)
+        precondition(NativeEffects.activeIDs.allSatisfy { library.icon(for: $0) == NativeEffects.all[$0].icon }, "Native visualizers must use their registered icons")
         precondition(library.categories.contains("Fractal") && library.categories.contains("Waveform"))
         precondition(!library.categories.contains("Transitions") && !library.categories.contains("! Transition"))
         library.toggleFavorite(fixtureScene); library.toggleFavorite(22)
@@ -44,12 +49,17 @@ private struct StoredStylesFixture: Codable { let presets: [Int:VisualPreset]; l
         library = ProjectMPresets(importedRoot:library.importedRoot,defaults:defaults)
         let scene = library.scene(for:imported.id)!
         precondition(Array(library.sceneNames.prefix(previousNames.count)) == previousNames)
-        precondition(scene == countRetained + 31 && library.url(for:imported).lastPathComponent == "Fixture.milk")
+        precondition(scene == countRetained + nativeCount && library.url(for:imported).lastPathComponent == "Fixture.milk")
         precondition(FileManager.default.fileExists(atPath:library.url(for:imported).deletingLastPathComponent().appendingPathComponent("texture.png").path))
         let restoredImport = ProjectMPresets(importedRoot:library.importedRoot, defaults:defaults)
         precondition(restoredImport.scene(for:imported.id) == scene)
         precondition(restoredImport.isFavorite(22))
-        let ids = library.identities(for:[0,fixtureScene,scene]); precondition(ids.count == 2 && ids[scene] == imported.id)
+        let ids = library.identities(for:[0,fixtureScene,scene]); precondition(ids.count == 3 && ids[scene] == imported.id && ids[0] == "native:0")
+        let firstLegacy = legacyPresetID(library)
+        let movedExternal = try library.migratedScene(31, identities: [31: firstLegacy])
+        precondition(movedExternal == library.scene(for: firstLegacy) && movedExternal >= nativeCount)
+        let newNative = try library.migratedScene(31, identities: [31: "native:31"])
+        precondition(newNative == 31)
         print("PASS Library: all presets indexed, categories, stable identities, persistent favorites and legacy imports with textures")
 
         let legacy = try JSONDecoder().decode([String].self,from:Data(contentsOf:library.bundledRoot.appendingPathComponent("legacy-identities.json")))
@@ -184,5 +194,8 @@ private struct StoredStylesFixture: Codable { let presets: [Int:VisualPreset]; l
             precondition(visible > 128 * 72 / 100, "4K section \(index + 1), \(library.sceneNames[section.scene]), must contain visible graphics")
         }
         print("PASS 4K/60 export: decoded Tangled Weave, Crimson Spark, Temporal Flame and Spiral Helix after consecutive ProjectM switches")
+    }
+    @MainActor private static func legacyPresetID(_ library: ProjectMPresets) -> String {
+        library.entries[0].id
     }
 }

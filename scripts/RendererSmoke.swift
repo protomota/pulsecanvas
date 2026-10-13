@@ -10,7 +10,8 @@ private final class LiveRendererCheck: NSObject {
     let output: VisualizerRenderer
     var completed = 0
     var failures = 0
-    let count = RenderState.nativeSceneNames.count
+    let scenes = NativeEffects.activeIDs
+    var count: Int { scenes.count }
 
     init(app: NSApplication, window: NSWindow, state: RenderState) throws {
         self.app = app; self.window = window; self.state = state
@@ -44,7 +45,7 @@ private final class LiveRendererCheck: NSObject {
             let exitCode: Int32 = failures == 0 ? 0 : 1
             DispatchQueue.main.async { exit(exitCode) }
         } else {
-            state.scene = completed % count
+            state.scene = scenes[completed % count]
             state.motionBlur = completed >= count ? 0.75 : 0
         }
     }

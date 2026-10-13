@@ -8,7 +8,7 @@
 
 **Turn a soundtrack into moving art. Made on your Mac.**
 
-Free app · Thousands of effects · Beat-aligned scenes · Up to 4K at 60 fps
+Free app · Two Mac editions · Beat-aligned scenes · Up to 4K at 60 fps
 
 [Explore the visuals](#find-your-signature-look) · [Meet Studio](#give-your-song-a-visual-story) · [Make a video](#from-beat-to-video) · [Build the app](#build-it-on-your-mac)
 
@@ -26,29 +26,22 @@ PulseCanvas Studio is a native macOS visualizer and video creator. Bring a song,
 
 Make a music video, a vertical clip, a release teaser, or a backdrop for your next set. No account. No subscription. Every feature and export is free.
 
-| 31 native visualizers | 7,838 ProjectM effects | 5 canvas shapes | Up to 4K · 60 fps |
+| 181 native visualizers | 7,838 ProjectM effects | 5 canvas shapes | Up to 4K · 60 fps |
 | :---: | :---: | :---: | :---: |
 | Particles, tunnels, liquid forms, and geometry | A searchable library of thousands of looks | Wide, phone, portrait, landscape, and square | MP4 video with your soundtrack |
 
 ## Find your signature look
 
-Start with **Octagon Vault**, **Mercury Fold**, **Ink Cyclone**, or **Double Twist**. Explore connected honeycomb tunnels, rippling metallic surfaces, swirling ink, and twisting coils. Or dive into the bundled ProjectM library for thousands more effects.
+Start with **Event Horizon**, **Ribbon Foundry**, **Chrome Metaballs**, **Octagon Vault**, or **Mercury Fold**. Explore lensed black holes, forged ribbons, liquid chrome, hyperbolic tilings, gothic naves, ferrofluid crowns, connected honeycomb tunnels, night drives, wind-farm roads, drone light shows and kinetic mirror walls. The full list is in [docs/NATIVE_VISUALIZERS.md](docs/NATIVE_VISUALIZERS.md). The direct-download edition also includes the ProjectM library for thousands more effects. The App Store edition focuses on the 181 native Metal styles.
 
 - **Find it fast.** Search names and original creator titles, browse categories and folders, and save favorites with a heart.
 - **Make it yours.** Shape motion, zoom, Chaos, brightness, blur, and camera framing. Native designs also offer color palettes and controls for their particular forms; ProjectM effects retain their own colors and structures.
 - **Follow the music.** Chaos adjusts how strongly the visuals respond to the soundtrack. Turn it up for more active motion; set it to zero for smooth procedural animation without music-driven pulses.
 - **Discover something unexpected.** Shuffle to another visualizer with its saved look, or roll the dice to randomize the current visual settings.
 
-<table>
-  <tr>
-    <td width="50%"><img src="assets/app-store/screenshots/01-prism-wake.jpg" alt="Prism Wake in the Visualizers tab, with violet particles, palette choices, and motion controls"></td>
-    <td width="50%"><img src="assets/app-store/screenshots/02-spiral-tide.jpg" alt="Spiral Tide displaying a red particle tunnel in the same visualizer workspace"></td>
-  </tr>
-  <tr>
-    <td align="center"><strong>Shape the color and motion.</strong></td>
-    <td align="center"><strong>Change the mood in a click.</strong></td>
-  </tr>
-</table>
+![A selection of native designs with their distinct default blue, green, warm and multicolor palettes](assets/marketing/native-palette-gallery.jpg)
+
+Every visualizer has a deliberate default look. Choose blue, green, warm, violet or multicolor palettes, then let your track drive waves, reflections, cells and particles.
 
 ## Give your song a visual story
 
@@ -99,9 +92,16 @@ Want the details? The [user guide](docs/USER_GUIDE.md) covers every control, sec
 
 ## Get PulseCanvas
 
-Visit **[pulsecanvas.si](https://pulsecanvas.si/)** for the project website, or build from the source below. This repository does not currently provide a downloadable installer in GitHub Releases. The website’s Mac App Store link is still marked as coming soon.
+Visit **[pulsecanvas.si](https://pulsecanvas.si/)** for the project website, or build from the source below. A dedicated [download and installation page](https://pulsecanvas.si/download/) is being prepared for the signed, notarized direct edition. The Mac App Store edition is in testing and is not publicly available yet.
 
-The app is free, and its source is available to inspect and build. The application-code license permits noncommercial source reuse; see [Licensing and credits](#licensing-and-credits) for the separate application, engine, and asset terms. Apple-store distribution has a documented unresolved licensing blocker.
+| Edition | Visual library | Updates |
+| --- | --- | --- |
+| **Mac App Store** | 181 native Metal visualizers; excludes projectM, OpenGL presets and the external texture pack | Apple distribution |
+| **Direct download** | 181 native visualizers plus 7,838 original presets | Signed Sparkle updates; system profiling disabled |
+
+Both editions support Studio, native visual settings and video export. Native projects can move between editions; full-library projects require the direct edition. Preferences for the full preset library remain separate so the Metal edition does not overwrite them.
+
+The app is free, and its source is available to inspect and build. The application-code license permits noncommercial source reuse; see [Licensing and credits](#licensing-and-credits) for the separate application, engine, and asset terms. The projectM licensing warning applies to the full-library edition; the Store package excludes that engine and its presets/textures. This exclusion does not establish rights clearance for assets in the direct edition.
 
 ## Build it on your Mac
 
@@ -121,6 +121,7 @@ If Xcode reports a missing Metal toolchain, install its official component with 
 
 - [User guide and controls](docs/USER_GUIDE.md)
 - [Rendering architecture](docs/RENDERING.md)
+- [Edition builds, updates and release checks](docs/DISTRIBUTION.md)
 - [ProjectM integration and source](third_party/PROJECTM.md)
 - [Preset compatibility inventory](docs/preset-compatibility.json)
 - [Attribution and packaging verification](docs/preset-provenance-verification.md)
@@ -128,6 +129,7 @@ If Xcode reports a missing Metal toolchain, install its official component with 
 Useful checks include:
 
 ```sh
+./scripts/test-store-edition.sh
 ./scripts/test-studio.sh
 ./scripts/test-chaos.sh
 ./scripts/test-projectm-integration.sh
@@ -156,4 +158,4 @@ The **application**, **projectM engine**, **presets**, and **textures** have sep
 
 The exact credit and link also appear in the app’s **Legal & Credits** window. The [preset and texture provenance record](Sources/PulseCanvas/Resources/ProjectM/Provenance.md) retains unchanged upstream README and LICENSE text, pinned commits, original filenames and creator metadata, and SHA-256 manifests for the actual **7,838 presets** and **67 texture images**. Individual preset and texture permissions remain unresolved; attribution alone does not settle them.
 
-[Official projectM licensing guidance](https://github.com/projectM-visualizer/projectm/wiki/projectM-Licensing#apple-store-compatibility) explicitly states incompatibility with Apple’s stores, including macOS, and recommends standalone distribution subject to LGPL terms. This is a separate unresolved release blocker. Dynamic linking, a wrapper license, and a matching source archive do not resolve it. Existing engine-source and rebuild-compliance work is preserved; the full status is in [rights and release blockers](docs/app-store/RIGHTS-RESOLUTION.md).
+[Official projectM licensing guidance](https://github.com/projectM-visualizer/projectm/wiki/projectM-Licensing#apple-store-compatibility) explicitly states incompatibility with Apple’s stores, including macOS, and recommends standalone distribution subject to LGPL terms. This remains an unresolved Apple-store blocker for a package containing that engine. The Metal Store package excludes it entirely. Dynamic linking, a wrapper license, and a matching source archive do not resolve the warning for the full-library package. Existing engine-source and rebuild-compliance work is preserved; the full status is in [rights and release blockers](docs/app-store/RIGHTS-RESOLUTION.md).

@@ -18,6 +18,10 @@ struct LegalCreditsView: View {
                 Text("Legal & Credits").font(.title2).accessibilityAddTraits(.isHeader)
                 Text("Application").font(.headline)
                 Text("PulseCanvas first-party code uses the PulseCanvas Source-Available Noncommercial License. Earlier MIT releases retain their original terms. Third-party components and assets have separate terms.")
+                #if STORE_BUILD
+                Text("Metal edition").font(.headline)
+                Text("This App Store edition includes \(NativeEffects.activeIDs.count) Metal visualizers. The projectM engine, OpenGL presets, and texture pack are not included.")
+                #else
                 Text("projectM engine").font(.headline)
                 Text("projectM 4.2.0 is included under LGPL 2.1 or later. Engine source and rebuild instructions accompany the matching source package.")
                 Text("Preset provenance").font(.headline)
@@ -26,6 +30,11 @@ struct LegalCreditsView: View {
                 Text("7,838 original presets are bundled from the pinned Cream of the Crop snapshot. Display labels are separate from original filenames and creator metadata. Upstream assumes public domain where author licenses are missing; individual permissions remain unresolved. Attribution does not establish licensing clearance.")
                 Text("Texture provenance").font(.headline)
                 Text("67 images come from the Milkdrop texture pack. Its inclusion guidance does not document individual asset grants; those permissions remain unresolved separately from the presets.")
+                #if DIRECT_BUILD && canImport(Sparkle)
+                Text("Automatic updates").font(.headline)
+                Text("Sparkle provides signed updates for the direct-download edition. Update checks send only the information needed to deliver the app; system profiling is disabled.")
+                #endif
+                #endif
                 Button("Open licenses, notices & provenance") {
                     if let legalDirectory { NSWorkspace.shared.open(legalDirectory) }
                 }
@@ -42,6 +51,9 @@ struct PulseCanvasApp: App {
     @StateObject private var studio = StudioStore()
     @StateObject private var exporter = SocialExportController()
     @StateObject private var presentation = StudioPresentationController()
+    #if DIRECT_BUILD && canImport(Sparkle)
+    @StateObject private var updater = AppUpdater()
+    #endif
     var body: some Scene {
         WindowGroup("PulseCanvas Studio") {
             CreatorView(render: render, audio: audio, studio: studio, exporter: exporter, presentation: presentation)
@@ -54,9 +66,11 @@ struct PulseCanvasApp: App {
                     render.audioMomentum = audio.momentum
                     render.audioPulse = audio.beatPulse
                     render.audioBands = audio.spectrum
+                    render.audioEnvelopes = audio.envelopes
+                    render.audioSwell = audio.swell
                     render.playbackTime = audio.selectedURL == nil ? nil : audio.playbackSeconds
                     if !exporter.isExporting && presentation.followsStudioTimeline { studio.follow(time: audio.playbackSeconds, render: render) }
-                    if render.scene >= 31 { render.audioPCM = audio.visualizationPCM(at: audio.playbackSeconds) }
+                    if render.scene >= RenderState.nativeSceneNames.count { render.audioPCM = audio.visualizationPCM(at: audio.playbackSeconds) }
                 }
                 .onAppear {
                     NSApplication.shared.setActivationPolicy(.regular)
@@ -72,6 +86,9 @@ struct PulseCanvasApp: App {
         .commands {
             CommandGroup(after: .appInfo) {
                 Button("Legal & Credits") { openWindow(id: "legal-credits") }
+                #if DIRECT_BUILD && canImport(Sparkle)
+                Button("Check for Updates…") { updater.checkForUpdates() }.disabled(!updater.canCheck)
+                #endif
             }
             CommandMenu("Preview") {
                 if presentation.isPresented {
@@ -84,6 +101,16 @@ struct PulseCanvasApp: App {
                 }
             }
         }
+        #if DIRECT_BUILD && canImport(Sparkle)
+        Settings {
+            VStack(alignment: .leading, spacing: 16) {
+                Text("Updates").font(.title2)
+                Toggle("Automatically check for updates", isOn: $updater.automaticChecks)
+                Text("The direct-download edition checks pulsecanvas.si for signed updates. System profiling is disabled.").font(.callout).foregroundStyle(.secondary)
+                Button("Check for Updates…") { updater.checkForUpdates() }.disabled(!updater.canCheck)
+            }.padding(24).frame(width: 440)
+        }
+        #endif
         Window("Legal & Credits", id: "legal-credits") {
             LegalCreditsView()
         }.defaultSize(width: 560, height: 540)
@@ -359,7 +386,7 @@ struct CreatorView: View {
                         Button { studio.randomize(render) } label: { Image(systemName: "dice.fill").font(.system(size: 20, weight: .medium)).frame(width: 32, height: 32).contentShape(Rectangle()) }
                             .buttonStyle(StudioButtonStyle(compact: true)).help("Randomize visuals").accessibilityLabel("Randomize visuals")
                     }
-                    if render.scene < 31 {
+                    if render.scene < RenderState.nativeSceneNames.count {
                     Text("Color palette").font(.system(size: 12, weight: .medium))
                     VStack(spacing: 4) {
                         ForEach(VisualPalette.allCases, id: \.rawValue) { palette in
@@ -392,9 +419,9 @@ struct CreatorView: View {
                     control("Chaos", key: \.chaos, range: 0...1)
                         .help("Zero turns off music response while smooth visualization motion and zoom continue. Increase for beat-driven waves, local swelling, liquid deformation, and motion.")
                     control("Brightness", key: \.brightness, range: 0.1...3)
-                    if render.scene == 23 {
-                        control("Liquid detail", key: \.liquidDetail, range: 0...1)
-                            .help("Add flowing ripples, finer folds, and sharper liquid reflections.")
+                    if let detail = NativeEffects.effect(render.scene)?.detailLabel {
+                        control(detail, key: \.liquidDetail, range: 0...1)
+                            .help(render.scene == 23 ? "Add flowing ripples, finer folds, and sharper liquid reflections." : "Add finer structure and surface detail.")
                     }
                     if render.scene == 28 {
                         VStack(alignment: .leading, spacing: 4) {
@@ -404,8 +431,8 @@ struct CreatorView: View {
                         }.font(.system(size: 11))
                             .help("Number of rings in each travelling group. Add more for a denser field of halos.")
                     }
-                    if render.scene < 31 {
-                    control(render.scene == 23 ? "Surface thickness" : (render.scene == 28 ? "Ring thickness" : ([22,30].contains(render.scene) ? "Line width" : "Particle size")), key: \.particleSize, range: 0.3...6)
+                    if render.scene < RenderState.nativeSceneNames.count {
+                    control(NativeEffects.effect(render.scene)?.sizeLabel ?? "Particle size", key: \.particleSize, range: 0.3...6)
                     control("Depth / fog", key: \.fog, range: 0...1)
                     }
                     control("Camera zoom", key: \.zoom, range: 0.3...2)
@@ -466,7 +493,7 @@ struct CreatorView: View {
         if presentation.present(audio: audio, mode: .visualizer) { audio.playFullSoundtrack() }
     }
 
-    private func choose(_ index: Int) { studio.selectScene(index, render: render); if index >= 31 { render.audioPCM = audio.visualizationPCM(at: audio.playbackSeconds) } }
+    private func choose(_ index: Int) { studio.selectScene(index, render: render); if index >= RenderState.nativeSceneNames.count { render.audioPCM = audio.visualizationPCM(at: audio.playbackSeconds) } }
     private func useAtPlayhead() {
         if studio.segments.isEmpty { detectSegments() }
         if let index = studio.assignAtPlayhead(audio.playbackSeconds, render: render) {

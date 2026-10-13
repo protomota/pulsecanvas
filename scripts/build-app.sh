@@ -2,7 +2,6 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 ./scripts/build-projectm.sh
-./scripts/build-shaders.sh
 swift build -c release
 APP="build/PulseCanvas Studio.app"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"

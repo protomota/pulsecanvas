@@ -30,17 +30,24 @@ float organicStrength(constant SpatialFrame &f) {
 float field(float3 p, constant SpatialFrame &f) {
     float t=f.time, strength=organicStrength(f), size=clamp(f.style.y, .3f, 3.f);
     float beat=f.rhythm.x*(.55+.45*sin(dot(p,float3(.61,.83,.47))-t*1.6));
-    if(f.scene!=23) p+=sin(p.zxy*.9+float3(-t*.9,t*.7,t*.8))*strength*.20;
-    if (f.scene == 4) {
-        p.xy += float2(sin(p.z*.4+t*.35),cos(p.z*.32-t*.25)) * (0.6+beat*.4);
-        float3 q=p-floor(p/3.2+0.5)*3.2;
-        return length(q)-(.58+size*.13+beat*.15);
-    }
+    float3 world=p;
+    if(f.scene!=23 && f.scene!=12 && f.scene!=26) p+=sin(p.zxy*.9+float3(-t*.9,t*.7,t*.8))*strength*.20;
     if (f.scene == 12) {
-        float2 cell=floor(p.xz/2.8+0.5), q=p.xz-cell*2.8;
-        float h=sin(cell.x*.53+t*.5)*.8+cos(cell.y*.42-t*.36)*.9;
-        float y=min(abs(p.y-h),abs(p.y-(9-h)));
-        return length(float3(q.x,y,q.y))-(.95+size*.10+beat*.18);
+        // Spheres can cross their cell edges while bouncing. Evaluate all adjacent
+        // centers instead of cutting the field at the nearest-cell boundary.
+        float2 base=floor(p.xz/2.8);
+        float distance=100;
+        for(int z=0;z<2;z++) for(int x=0;x<2;x++) {
+            float2 cell=base+float2(x,z), q=p.xz-cell*2.8;
+            float bounce=f.rhythm.z*(.9+.9*sin(cell.x*1.37+cell.y*.91+t*2.3))+f.rhythm.w*.45*sin(cell.x*2.1-cell.y*1.7+t*3.1);
+            // Keep both rows clear of the camera without clipping their bounce.
+            float h=2.3*tanh((sin(cell.x*.53+t*.5)*.8+cos(cell.y*.42-t*.36)*.9+bounce)/2.3);
+            float y=min(abs(p.y-h),abs(p.y-(9-h)));
+            float localAttack=f.rhythm.x*(.55+.45*sin(cell.x*.61+cell.y*.47-t*1.6));
+            float radius=.95+size*.10+localAttack*.18+f.rhythm.w*.14*cellHash(float3(cell,1));
+            distance=min(distance,length(float3(q.x,y,q.y))-radius);
+        }
+        return distance;
     }
     if (f.scene == 23) {
         float detail=clamp(f.camera.z,0.f,1.f), frequency=.9+detail*.9;
@@ -67,7 +74,7 @@ float field(float3 p, constant SpatialFrame &f) {
         // Mirrored skyline: seeded towers rise from the floor and ceiling.
         float2 cell=floor(p.xz/3.2+0.5), q=p.xz-cell*3.2;
         float seed=cellHash(float3(cell.x,0,cell.y));
-        float height=1.2+seed*1.3+(.5+.5*sin(t*.8+seed*6.283))*(.5+beat*.6);
+        float height=1.2+seed*1.3+(.5+.5*sin(t*.8+seed*6.283))*(.5+beat*.6)+f.rhythm.z*.7*(.5+.5*sin(seed*17+t*2.4));
         float y=min(abs(p.y-(height-3.8)),abs(p.y-(9.8-height)));
         float3 d=abs(float3(q.x,y,q.y))-float3(.72+size*.12,height,.85+size*.08);
         return length(max(d,0.f))+min(max(d.x,max(d.y,d.z)),0.f)-.08;
@@ -99,17 +106,100 @@ float field(float3 p, constant SpatialFrame &f) {
     }
     if (f.scene == 29) {
         // A camera inside continuous wave walls; the positive field is the open waterway.
-        float surge=.45+beat*.25;
-        float ceiling=2.3+sin(p.x*.8+p.z*.55+t*.7)*surge+sin(p.z*1.5-t*.4)*.18;
-        float wall=3.4+sin(p.y*.9-p.z*.42+t*.55)*(.6+beat*.25);
+        // Low levels heave the waves; highs add a fast chop along the walls.
+        float surge=.45+beat*.25+f.rhythm.z*.55;
+        float chop=f.rhythm.w*.22*sin(p.z*3.1+p.x*1.7-t*2.4);
+        float ceiling=2.3+sin(p.x*.8+p.z*.55+t*.7)*surge+sin(p.z*1.5-t*.4)*.18+chop;
+        float wall=3.4+sin(p.y*.9-p.z*.42+t*.55)*(.6+beat*.25+f.rhythm.z*.45)+chop;
         return min(ceiling-abs(p.y),wall-abs(p.x))*.45;
     }
-    // A fall through a field of individually tumbling, beveled prisms.
-    float3 cell=floor(p/3.8+0.5), q=p-cell*3.8;
-    float seed=cellHash(cell);
-    q.xy=spin(q.xy,t*(.18+seed*.3)+seed*6.283);
-    q.yz=spin(q.yz,t*.24+seed*4);
-    return (dot(abs(q),float3(1))-(1.1+size*.16+beat*.23))*.57735-.07;
+    // Prisms overlap cell boundaries when rotated: use the neighboring-object union.
+    float3 base=floor(p/3.8);
+    float distance=100;
+    for(int z=0;z<2;z++) for(int y=0;y<2;y++) for(int x=0;x<2;x++) {
+        float3 cell=base+float3(x,y,z), q=p-cell*3.8;
+        float seed=cellHash(cell);
+        q-=(float3(seed,cellHash(cell+5.7),cellHash(cell+9.2))-.5)*1.2;
+        q.xy=spin(q.xy,t*(.18+seed*.3)+seed*6.283);
+        q.yz=spin(q.yz,t*.24+seed*4);
+        float pump=f.rhythm.z*(.2+.25*sin(seed*23+t*2.2));
+        float localAttack=f.rhythm.x*(.55+.45*sin(seed*19-t*1.6));
+        float prism=(dot(abs(q),float3(1))-(1.1+size*.16+localAttack*.23+pump))*.57735-.07;
+        distance=min(distance,prism);
+    }
+    float3 lane=world-float3(1.5,1.8,0);
+    float3 laneDirection=normalize(float3(0,-2,1.9));
+    float corridor=1.25-length(lane-laneDirection*dot(lane,laneDirection));
+    return max(distance,corridor);
+}
+// Exact ray intersections for the joined cell objects. This avoids raymarch
+// iteration limits on flat prism faces and preserves silhouettes at export resolution.
+float pearlRay(float3 ro, float3 rd, float3 center, float radius) {
+    float3 delta=ro-center;
+    float b=dot(delta,rd), discriminant=b*b-dot(delta,delta)+radius*radius;
+    if(discriminant<0) return 1e4;
+    float root=sqrt(discriminant), near=-b-root;
+    return near>=0 ? near : (-b+root>=0 ? -b+root : 1e4);
+}
+float prismRay(float3 ro, float3 rd, float radius, float corridorExit) {
+    float near=max(0.f,corridorExit), far=32;
+    for(int z=0;z<2;z++) for(int y=0;y<2;y++) for(int x=0;x<2;x++) {
+        float3 face=float3(x?1:-1,y?1:-1,z?1:-1);
+        float denominator=dot(face,rd), numerator=radius-dot(face,ro);
+        if(abs(denominator)<1e-6) {if(numerator<0)return 1e4;}
+        else if(denominator>0) far=min(far,numerator/denominator);
+        else near=max(near,numerator/denominator);
+    }
+    return near<=far ? near : 1e4;
+}
+float joinedCellRay(float3 ro,float3 rd,constant SpatialFrame &f) {
+    bool pearls=f.scene==12;
+    float spacing=pearls ? 2.8 : 3.8;
+    float3 cell=floor(ro/spacing);
+    float3 safeDirection=select(-max(abs(rd),float3(1e-6)),max(abs(rd),float3(1e-6)),rd>=0);
+    float3 direction=select(float3(-1),float3(1),rd>=0);
+    float3 boundary=(cell+select(float3(0),float3(1),rd>=0))*spacing;
+    float3 next=(boundary-ro)/safeDirection, interval=spacing/abs(safeDirection);
+    float corridorExit=0;
+    if(pearls){cell.y=0;next.y=1e5;interval.y=1e5;}
+    else {
+        float3 axis=normalize(float3(0,-2,1.9)), delta=ro-float3(1.5,1.8,0);
+        float3 origin=delta-axis*dot(delta,axis), ray=rd-axis*dot(rd,axis);
+        float a=dot(ray,ray), b=dot(origin,ray), c=dot(origin,origin)-1.25*1.25;
+        if(a<1e-8)return -1;
+        corridorExit=max(0.f,(-b+sqrt(max(0.f,b*b-a*c)))/a);
+    }
+    float closest=1e4, size=clamp(f.style.y,.3f,3.f), entry=0;
+    for(int step=0;step<32;step++) {
+        if(entry>min(32.f,closest))break;
+        for(int z=0;z<2;z++) for(int y=0;y<(pearls?1:2);y++) for(int x=0;x<2;x++) {
+            float3 centerCell=cell+float3(x,y,z);
+            if(pearls) {
+                float2 id=centerCell.xz;
+                float bounce=f.rhythm.z*(.9+.9*sin(id.x*1.37+id.y*.91+f.time*2.3))+f.rhythm.w*.45*sin(id.x*2.1-id.y*1.7+f.time*3.1);
+                float height=2.3*tanh((sin(id.x*.53+f.time*.5)*.8+cos(id.y*.42-f.time*.36)*.9+bounce)/2.3);
+                float attack=f.rhythm.x*(.55+.45*sin(id.x*.61+id.y*.47-f.time*1.6));
+                float radius=.95+size*.10+attack*.18+f.rhythm.w*.14*cellHash(float3(id,1));
+                float3 center=float3(id.x*spacing,height,id.y*spacing);
+                closest=min(closest,pearlRay(ro,rd,center,radius)); center.y=9-height;
+                closest=min(closest,pearlRay(ro,rd,center,radius));
+            } else {
+                float seed=cellHash(centerCell);
+                float3 offset=(float3(seed,cellHash(centerCell+5.7),cellHash(centerCell+9.2))-.5)*1.2;
+                float3 origin=ro-centerCell*spacing-offset, ray=rd;
+                origin.xy=spin(origin.xy,f.time*(.18+seed*.3)+seed*6.283);ray.xy=spin(ray.xy,f.time*(.18+seed*.3)+seed*6.283);
+                origin.yz=spin(origin.yz,f.time*.24+seed*4);ray.yz=spin(ray.yz,f.time*.24+seed*4);
+                float pump=f.rhythm.z*(.2+.25*sin(seed*23+f.time*2.2));
+                float attack=f.rhythm.x*(.55+.45*sin(seed*19-f.time*1.6));
+                float radius=1.1+size*.16+attack*.23+pump+.07/.57735;
+                closest=min(closest,prismRay(origin,ray,radius,corridorExit));
+            }
+        }
+        entry=min(next.x,min(next.y,next.z));
+        float3 crossed=float3(next.x<=entry+1e-5?1:0,next.y<=entry+1e-5?1:0,next.z<=entry+1e-5?1:0);
+        cell+=direction*crossed; next+=interval*crossed;
+    }
+    return closest<=32 ? closest : -1;
 }
 float3 volume(float3 ro, float3 rd, constant SpatialFrame &f) {
     float3 result=0; float transmission=1;
@@ -164,19 +254,13 @@ float3 meshVortex(float2 uv, constant SpatialFrame &f) {
     float2 wave=float2(sin(angle*5+depth*.85-t*1.4),sin(angle*3-depth*.67+t*1.1));
     float2 fine=float2(sin(angle*7-depth*1.2+t*.8),cos(angle*4+depth*.93-t*1.3));
     lattice+=strength*(wave*.68+fine*.20);
-    float2 q=abs(lattice-floor(lattice/2+.5)*2);
-    float distance;
-    if(f.scene==22) {
-        // A staggered lattice tiles exclusively with six-sided honeycomb cells.
-        const float2 spacing=float2(2,3.46410162);
-        float2 a=lattice-spacing*round(lattice/spacing);
-        float2 shifted=lattice-spacing*.5;
-        float2 b=shifted-spacing*round(shifted/spacing);
-        float2 cell=abs(dot(a,a)<dot(b,b) ? a : b);
-        distance=abs(1-max(cell.x,dot(cell,float2(.5,.8660254))));
-    } else {
-        distance=min(1-q.x,1-q.y);
-    }
+    // A staggered lattice tiles exclusively with six-sided honeycomb cells.
+    const float2 spacing=float2(2,3.46410162);
+    float2 a=lattice-spacing*round(lattice/spacing);
+    float2 shifted=lattice-spacing*.5;
+    float2 b=shifted-spacing*round(shifted/spacing);
+    float2 cell=abs(dot(a,a)<dot(b,b) ? a : b);
+    float distance=abs(1-max(cell.x,dot(cell,float2(.5,.8660254))));
     float2 dx=dfdx(lattice), dy=dfdy(lattice);
     // Unwrap the circumference before measuring pixel width at the atan2 seam.
     dx.x-=round(dx.x/48)*48; dy.x-=round(dy.x/48)*48;
@@ -197,12 +281,11 @@ fragment float4 spatialFragment(SpatialPixel input [[stage_in]], constant Spatia
     float2 uv=(input.position.xy/f.resolution-.5)*float2(2*f.resolution.x/f.resolution.y,-2);
     uv=spin(uv,f.camera.x);
     float t=f.time, beat=f.rhythm.x;
-    if(f.scene==22 || f.scene==30) return float4(meshVortex(uv,f),1);
+    if(f.scene==22) return float4(meshVortex(uv,f),1);
     float zoomSpeed=clamp(f.camera.w,0.f,3.f);
     float3 ro=float3(sin(t*.23)*.3,cos(t*.19)*.3,t*1.9*zoomSpeed);
     float3 rd=normalize(float3(uv,1.45*clamp(f.style.w,.5f,2.5f)));
     if (f.scene==12) { ro.y=4.2; rd.y-=.24+sin(t*.14)*.12; rd=normalize(rd); }
-    if (f.scene==4) { ro.z=t*3.5*zoomSpeed; ro.xy+=float2(1.4,.9); }
     if (f.scene==23) { ro=float3(.9817477); rd=normalize(float3(uv*1.8,1.05*clamp(f.style.w,.5f,2.5f))); rd.xy=spin(rd.xy,t*.13); rd.yz=spin(rd.yz,sin(t*.17)*.45); }
     if (f.scene==24) { ro.xy+=float2(1.6,1.7); }
     if (f.scene==25) { ro.z=t*3.2*zoomSpeed; ro.xy=inkBend(ro.z); }
@@ -210,6 +293,7 @@ fragment float4 spatialFragment(SpatialPixel input [[stage_in]], constant Spatia
     if (f.scene==27) { ro=float3(1.6,3,t*3.2*zoomSpeed); rd.y-=.12+sin(t*.2)*.12; }
     if (f.scene==28) { ro.xy=float2(sin(t*.17)*.15,cos(t*.13)*.15); rd.xy=spin(rd.xy,sin(t*.19)*.25); }
     if (f.scene==29) { ro=float3(sin(t*.23)*.7,cos(t*.29)*.4,t*2.6*zoomSpeed); rd.xy=spin(rd.xy,sin(t*.24)*.3); }
+    if(f.scene==12 || f.scene==26 || f.scene==27) rd.xz=spin(rd.xz,sin(t*.09)*.22+sin(t*.037)*.12);
     rd=normalize(rd);
     float3 atmospheric=tint(.15+uv.y*.09+t*.01,f)*(.045+.02*(.5+.5*sin(uv.x*2+uv.y*3+t*.3)));
     if(f.scene==23 || f.scene==25) atmospheric*=.16;
@@ -218,20 +302,33 @@ fragment float4 spatialFragment(SpatialPixel input [[stage_in]], constant Spatia
         color+=volume(ro,rd,f);
     } else {
         float travel=0, glow=0; bool hit=false;
-        int steps=f.scene==23 ? 160 : (f.scene>=27 ? 128 : 64);
-        for(int i=0;i<steps;i++) {
+        bool joinedCells=f.scene==12 || f.scene==26;
+        int steps=(f.scene==23 || joinedCells) ? 160 : (f.scene>=27 ? 128 : 64);
+        float previousTravel=0;
+        if(joinedCells){travel=joinedCellRay(ro,rd,f);hit=travel>=0;}
+        for(int i=0;i<steps && !joinedCells;i++) {
             float d=field(ro+rd*travel,f);
             if(f.scene==24) glow+=exp(-abs(d)*16)*.025;
-            if(abs(d)<(f.scene==23 ? .003 : .012)) {hit=true;break;}
+            if(joinedCells && d<0) {
+                float low=previousTravel, high=travel;
+                for(int refine=0;refine<7;refine++) {
+                    float middle=(low+high)*.5;
+                    if(field(ro+rd*middle,f)>0) low=middle; else high=middle;
+                }
+                travel=(low+high)*.5; hit=true; break;
+            }
+            if(abs(d)<(joinedCells ? .004 : (f.scene==23 ? .003 : .012))) {hit=true;break;}
             float advance=abs(d)*.75;
             // Repeated cells have discontinuous nearest-cell choices: cross them in bounded steps.
+            if(joinedCells) advance=min(advance,.35f);
             if(f.scene==27 || f.scene==28) advance=min(advance,.4f);
-            travel+=max(f.scene==23 ? .003 : .015,advance);
+            previousTravel=travel;
+            travel+=max(joinedCells ? .002 : (f.scene==23 ? .003 : .015),advance);
             if(travel>32) break;
         }
         if(hit) {
             float3 p=ro+rd*travel;
-            float e=f.scene==23 ? .006 : .018;
+            float e=joinedCells ? .018 : (f.scene==23 ? .006 : .018);
             float3 n=normalize(float3(field(p+float3(e,0,0),f)-field(p-float3(e,0,0),f),field(p+float3(0,e,0),f)-field(p-float3(0,e,0),f),field(p+float3(0,0,e),f)-field(p-float3(0,0,e),f))+float3(.00001));
             float3 light=normalize(float3(-.4,.7,-.6));
             float diffuse=abs(dot(n,light));
@@ -251,8 +348,22 @@ fragment float4 spatialFragment(SpatialPixel input [[stage_in]], constant Spatia
             if(f.scene==28) { phase=dot(p,float3(.08,.06,.09))+t*.02; shade=.3+diffuse*.65+spec*1.3+fresnel*.7; }
             if(f.scene==29) {
                 float ripple=.5+.5*sin(p.z*2.7+p.x*1.3+sin(p.y*3)-t*.6);
-                phase=.2+ripple*.45+n.y*.12;
-                shade=.3+diffuse*.5+spec*1.6+fresnel*.7+ripple*.16;
+                phase=.2+ripple*.45+n.y*.12+f.rhythm.z*.15;
+                // Crests catch light on the highs: bright bands travel along the walls.
+                float crest=pow(.5+.5*sin(p.z*1.9-p.y*1.2-t*2.2),6.f)*f.rhythm.w;
+                shade=.3+diffuse*.5+spec*1.6+fresnel*.7+ripple*.16+crest*1.4;
+            }
+            if(f.scene==26 || f.scene==27) {
+                float3 cell=f.scene==27 ? float3(floor(p.xz/3.2+0.5),0).xzy : floor(p/(f.scene==4 ? 3.2 : 3.8)+0.5);
+                float lit=.5+.5*sin(cellHash(cell)*19+t*2.3);
+                phase+=f.rhythm.w*.2*lit;
+                shade+=(f.rhythm.z*.55+f.rhythm.w*.4)*lit*lit;
+            }
+            if(f.scene==12) {
+                float2 cell=floor(p.xz/2.8+0.5);
+                float lit=.5+.5*sin(cell.x*1.37+cell.y*.91+t*2.3);
+                phase+=f.rhythm.w*.25*lit;
+                shade+=(f.rhythm.z*.7+f.rhythm.w*.5)*lit*lit;
             }
             float fog=exp(-travel*(.015+clamp(f.style.z,0.f,1.f)*.032));
             color=mix(atmospheric,tint(phase,f)*shade,fog);

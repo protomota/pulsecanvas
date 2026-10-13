@@ -30,7 +30,7 @@ import MetalKit
         let settings: [(Double, Float, Float)] = [(2.3, 1, 0), (0, 0.6, 2.7), (8, 1.55, -2.7), (24, 1, 1.1)]
         for (tag, w, h) in [("wide", 256, 144), ("phone", 144, 256)] {
             try renderer.prepareOffscreen(width: w, height: h)
-            for scene in 0..<RenderState.nativeSceneNames.count {
+            for scene in NativeEffects.activeIDs {
                 state.scene = scene; state.speed = 1; state.brightness = 1; state.particleSize = 1; state.palette = 0
                 state.zoom = 1; state.rotation = 0
                 let first = pixels(try renderer.renderOffscreen(time: 2.3, audioBands: Array(repeating: 0.2, count: 32)))
@@ -53,6 +53,6 @@ import MetalKit
                 }
             }
         }
-        print("PASS: \(checks) GPU canvas coverage checks; \(RenderState.nativeSceneNames.count * 2) motion/determinism checks; minimum spans \(leastWidth), \(leastHeight), lit \(leastLit), cells \(leastCells)/16")
+        print("PASS: \(checks) GPU canvas coverage checks; \(NativeEffects.activeIDs.count * 2) motion/determinism checks; minimum spans \(leastWidth), \(leastHeight), lit \(leastLit), cells \(leastCells)/16")
     }
 }
