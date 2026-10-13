@@ -1,6 +1,6 @@
-# PulseCanvas native visualizers (251)
+# PulseCanvas native visualizers (270)
 
-The native catalog follows Brad’s red Finder labels from the Metal effect review. All 181 red-labeled selections are offered, together with 70 new designs at IDs 300–369; unselected implementation functions have been removed. Permanent IDs remain reserved, and older projects resolve withdrawn styles to retained styles. Review videos and their labels are preserved.
+The native catalog follows Brad’s red Finder labels from the Metal effect review. All 181 red-labeled selections are offered, together with 89 newer designs (IDs 300–369, and second versions at 370–389); unselected implementation functions have been removed. Permanent IDs remain reserved, and older projects resolve withdrawn styles to retained styles. Review videos and their labels are preserved.
 
 The policy and exact selection are recorded in [METAL_REVIEW.md](METAL_REVIEW.md) and [metal-keeper-selection.json](metal-keeper-selection.json). Original implementations use procedural Metal surfaces; the separate direct-download projectM library and its provenance are unchanged.
 
@@ -213,7 +213,6 @@ The policy and exact selection are recorded in [METAL_REVIEW.md](METAL_REVIEW.md
 | 321 | Kinetic Rain |
 | 322 | Plasma Globe |
 | 323 | Jacob's Ladder |
-| 324 | Hanging Mobile |
 | 325 | Prism Carousel |
 | 326 | Cone Splash |
 | 327 | Wind Tunnel |
@@ -259,8 +258,28 @@ The policy and exact selection are recorded in [METAL_REVIEW.md](METAL_REVIEW.md
 | 367 | Fractal Double Helix |
 | 368 | Quaternion Bloom |
 | 369 | Loxodrome Fractal |
+| 370 | Cascade Climb II |
+| 371 | Night Orbit II |
+| 372 | Cloud Sea II |
+| 373 | Acrylic Cells II |
+| 374 | Molten Glass II |
+| 375 | Liquid Crystal II |
+| 376 | Incense Drift II |
+| 377 | Heat Haze II |
+| 378 | Gel Overlap II |
+| 379 | Holo Foil II |
+| 380 | Opal Fire II |
+| 381 | Raku Crackle II |
+| 382 | Twin Suns II |
+| 383 | Supernova Shell II |
+| 384 | Galaxy Collision II |
+| 385 | Solar Prominence II |
+| 386 | Quasar Jet II |
+| 387 | Magnetosphere II |
+| 388 | Nebular Filaments II |
+| 389 | Einstein Ring II |
 
-## New designs (300–369)
+## New designs (300–389)
 
 Written after the keeper review, in the style it favoured: vivid, glowing designs that move with the music, with no literal roads, performers, stage lighting or nature scenes. Each design is checked against every offered design for visual similarity. All of them follow the same rules as the rest of the catalog: Chaos gates every music input, every band drives its own elements, attacks make local events, and the canvas stays filled in every shape. They use the `NativeExpansionCommon.metal` prelude; its tunnel warp applies to 300–319 and 360–369 and its drive warp to 330–339. The non-travelling sets (320–329 and 340–359) open with Zoom speed 0, because the forward-zoom pass doubles compact objects; the slider still adds it.
 
@@ -274,7 +293,7 @@ Chainmail, iridescent feathers, woven tartan, a herringbone corridor, quilted sa
 
 ### Kinetic choreography (320–329, `NativeExpansionKinetic.metal`)
 
-A pin-screen relief, a kinetic rain installation, a plasma globe, Jacob's ladders, a balanced hanging mobile, a prism carousel, paint leaping off a membrane, a wind tunnel with vortex streets, a tensegrity sculpture and a kinetic light sculpture casting patterns across a room.
+A pin-screen relief, a kinetic rain installation, a plasma globe, Jacob's ladders, a prism carousel, paint leaping off a membrane, a wind tunnel with vortex streets, a tensegrity sculpture and a kinetic light sculpture casting patterns across a room.
 
 ### Flights without roads (330–339, `NativeExpansionFlight.metal`)
 
@@ -290,6 +309,10 @@ A pulsar, twin suns exchanging gas, a supernova remnant, colliding galaxies, a s
 ### Fractals twisting into each other (360–369, `NativeExpansionFractal.metal` and `NativeExpansionFractalTunnel.metal`)
 
 Requested by the owner: mathematical fractals twisting into each other and flights through fractal tunnels. Julia Dive, Julia Braid, Newton Vortex, Phoenix Spiral and Droste Fractal twist escape-time fractals into endless spirals; Mandelbrot Wormhole, Burning Ship Abyss, Fractal Double Helix, Quaternion Bloom and Loxodrome Fractal fly through fractal tunnels, braided fractal tubes, a raymarched quaternion Julia set and a double spiral. Zooms use crossfaded octaves or repeating tunnel coordinates, so they never run out of floating-point precision or reset visibly.
+
+### Owner review of 300–369 and second versions (370–389)
+
+The owner red-tagged review clips of these designs; every red-tagged clip is a keeper. 350 Pulsar Beacon was tagged twice, but its two clips show the same code with different zoom settings, so it ships once. Where only the first clip was red the first version ships at its ID with the look it was reviewed in; where only the updated clip was red (300–309, 314) the updated version ships. Where both were red, the first version keeps the ID and the updated version is offered as a second design named "<Name> II" (370–389, sharing its source's beat warp). 324 Hanging Mobile was not tagged and is withdrawn; it opens 320 Pin Art. The mapping is recorded in `docs/metal-keeper-selection.json`.
 
 ## Current visual fixes
 

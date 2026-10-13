@@ -196,13 +196,16 @@ Ctx makeContext(float2 position, constant NativeFrame &f) {
 // Every displacement varies across the pattern. Bass flexes surfaces, midrange
 // bends ribbons and treble adds fine ripples. The existing per-effect band consumers
 // still control individual cells, layers and materials independently.
+// Second versions (370–390) move exactly like the designs they come from.
+constant short secondVersionSources[20] = {336, 337, 339, 340, 341, 342, 343, 345, 346, 347, 348, 349, 351, 352, 353, 354, 355, 357, 358, 359};
 Ctx rhythmicSurface(Ctx c, constant NativeFrame &f) {
-    float variant = float((f.scene - 100) % 7);
+    int scene = f.scene >= 370 && f.scene <= 389 ? int(secondVersionSources[f.scene - 370]) : f.scene;
+    float variant = float((scene - 100) % 7);
     float2 p = c.uv;
     float bass = c.b.x * c.b.x, body = c.b.y * c.b.y;
     float fine = c.b.z * c.b.z + c.b.w * c.b.w;
-    bool tunnel = (f.scene >= 245 && f.scene <= 279) || (f.scene >= 300 && f.scene <= 319) || (f.scene >= 360 && f.scene <= 369);
-    bool drive = (f.scene >= 200 && f.scene <= 209) || (f.scene >= 220 && f.scene <= 244) || (f.scene >= 330 && f.scene <= 339);
+    bool tunnel = (scene >= 245 && scene <= 279) || (scene >= 300 && scene <= 319) || (scene >= 360 && scene <= 369);
+    bool drive = (scene >= 200 && scene <= 209) || (scene >= 220 && scene <= 244) || (scene >= 330 && scene <= 339);
     if (tunnel) {
         float r = length(p), a = atan2(p.y, p.x);
         float2 radial = p / max(r, 1e-5f), tangent = float2(-radial.y, radial.x);

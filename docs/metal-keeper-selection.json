@@ -1,6 +1,6 @@
 {
   "policy": "A red Finder tag/color label is a keeper; no red label withdraws the effect after an authorized review.",
-  "keeperCount": 181,
+  "keeperCount": 270,
   "keepers": [
     10,
     12,
@@ -182,725 +182,99 @@
     296,
     297,
     298,
-    299
+    299,
+    300,
+    301,
+    302,
+    303,
+    304,
+    305,
+    306,
+    307,
+    308,
+    309,
+    310,
+    311,
+    312,
+    313,
+    314,
+    315,
+    316,
+    317,
+    318,
+    319,
+    320,
+    321,
+    322,
+    323,
+    325,
+    326,
+    327,
+    328,
+    329,
+    330,
+    331,
+    332,
+    333,
+    334,
+    335,
+    336,
+    337,
+    338,
+    339,
+    340,
+    341,
+    342,
+    343,
+    344,
+    345,
+    346,
+    347,
+    348,
+    349,
+    350,
+    351,
+    352,
+    353,
+    354,
+    355,
+    356,
+    357,
+    358,
+    359,
+    360,
+    361,
+    362,
+    363,
+    364,
+    365,
+    366,
+    367,
+    368,
+    369,
+    370,
+    371,
+    372,
+    373,
+    374,
+    375,
+    376,
+    377,
+    378,
+    379,
+    380,
+    381,
+    382,
+    383,
+    384,
+    385,
+    386,
+    387,
+    388,
+    389
   ],
-  "reservedIDs": 300,
-  "withdrawn": [
-    {
-      "scene": 0,
-      "name": "Prism Wake",
-      "replacement": 20,
-      "wasOffered": false
-    },
-    {
-      "scene": 1,
-      "name": "Lumen Veil",
-      "replacement": 10,
-      "wasOffered": false
-    },
-    {
-      "scene": 2,
-      "name": "Pulse Well",
-      "replacement": 22,
-      "wasOffered": false
-    },
-    {
-      "scene": 3,
-      "name": "Velvet Passage",
-      "replacement": 29,
-      "wasOffered": false
-    },
-    {
-      "scene": 4,
-      "name": "Bead Surge",
-      "replacement": 101,
-      "wasOffered": true
-    },
-    {
-      "scene": 5,
-      "name": "Facet Flow",
-      "replacement": 23,
-      "wasOffered": false
-    },
-    {
-      "scene": 6,
-      "name": "Glass Current",
-      "replacement": 29,
-      "wasOffered": false
-    },
-    {
-      "scene": 7,
-      "name": "Contour Flux",
-      "replacement": 17,
-      "wasOffered": false
-    },
-    {
-      "scene": 8,
-      "name": "Recursive Corridor",
-      "replacement": 22,
-      "wasOffered": false
-    },
-    {
-      "scene": 9,
-      "name": "Spiral Tide",
-      "replacement": 25,
-      "wasOffered": false
-    },
-    {
-      "scene": 11,
-      "name": "Petal Passage",
-      "replacement": 15,
-      "wasOffered": false
-    },
-    {
-      "scene": 13,
-      "name": "Vapor Run",
-      "replacement": 10,
-      "wasOffered": false
-    },
-    {
-      "scene": 14,
-      "name": "Scatter Flight",
-      "replacement": 101,
-      "wasOffered": false
-    },
-    {
-      "scene": 30,
-      "name": "Grid Vortex",
-      "replacement": 22,
-      "wasOffered": false
-    },
-    {
-      "scene": 34,
-      "name": "Electric Orchard",
-      "replacement": 101,
-      "wasOffered": true
-    },
-    {
-      "scene": 35,
-      "name": "Glass Mosaic",
-      "replacement": 101,
-      "wasOffered": true
-    },
-    {
-      "scene": 36,
-      "name": "Graviton Petals",
-      "replacement": 101,
-      "wasOffered": true
-    },
-    {
-      "scene": 37,
-      "name": "Ion Cathedral",
-      "replacement": 101,
-      "wasOffered": true
-    },
-    {
-      "scene": 38,
-      "name": "Velvet Circuit",
-      "replacement": 101,
-      "wasOffered": true
-    },
-    {
-      "scene": 39,
-      "name": "Lunar Loom",
-      "replacement": 101,
-      "wasOffered": true
-    },
-    {
-      "scene": 40,
-      "name": "Lava Estuary",
-      "replacement": 101,
-      "wasOffered": true
-    },
-    {
-      "scene": 41,
-      "name": "Photon Rapids",
-      "replacement": 101,
-      "wasOffered": true
-    },
-    {
-      "scene": 44,
-      "name": "Honeycomb Tide",
-      "replacement": 101,
-      "wasOffered": true
-    },
-    {
-      "scene": 45,
-      "name": "Nebula Nursery",
-      "replacement": 101,
-      "wasOffered": true
-    },
-    {
-      "scene": 49,
-      "name": "Arc Foundry",
-      "replacement": 101,
-      "wasOffered": true
-    },
-    {
-      "scene": 51,
-      "name": "Paper Cascades",
-      "replacement": 101,
-      "wasOffered": true
-    },
-    {
-      "scene": 52,
-      "name": "Diamond Undertow",
-      "replacement": 101,
-      "wasOffered": true
-    },
-    {
-      "scene": 53,
-      "name": "Fractal Canopy",
-      "replacement": 101,
-      "wasOffered": true
-    },
-    {
-      "scene": 54,
-      "name": "Gyroscopic Garden",
-      "replacement": 101,
-      "wasOffered": true
-    },
-    {
-      "scene": 55,
-      "name": "Bubble Choir",
-      "replacement": 101,
-      "wasOffered": true
-    },
-    {
-      "scene": 56,
-      "name": "Laser Origami",
-      "replacement": 101,
-      "wasOffered": true
-    },
-    {
-      "scene": 57,
-      "name": "Echo Lanterns",
-      "replacement": 101,
-      "wasOffered": true
-    },
-    {
-      "scene": 58,
-      "name": "Kelp Cathedral",
-      "replacement": 101,
-      "wasOffered": true
-    },
-    {
-      "scene": 59,
-      "name": "Solar Filigree",
-      "replacement": 101,
-      "wasOffered": true
-    },
-    {
-      "scene": 62,
-      "name": "Apollonian Foam",
-      "replacement": 101,
-      "wasOffered": true
-    },
-    {
-      "scene": 63,
-      "name": "Hyperbolic Rosette",
-      "replacement": 101,
-      "wasOffered": true
-    },
-    {
-      "scene": 65,
-      "name": "Tesseract Garden",
-      "replacement": 101,
-      "wasOffered": true
-    },
-    {
-      "scene": 66,
-      "name": "Harmonograph",
-      "replacement": 101,
-      "wasOffered": true
-    },
-    {
-      "scene": 67,
-      "name": "Moire Engine",
-      "replacement": 101,
-      "wasOffered": true
-    },
-    {
-      "scene": 68,
-      "name": "Riley Undulation",
-      "replacement": 101,
-      "wasOffered": true
-    },
-    {
-      "scene": 69,
-      "name": "Kaleido Chamber",
-      "replacement": 101,
-      "wasOffered": true
-    },
-    {
-      "scene": 70,
-      "name": "Girih Lattice",
-      "replacement": 101,
-      "wasOffered": true
-    },
-    {
-      "scene": 71,
-      "name": "Gear Works",
-      "replacement": 101,
-      "wasOffered": true
-    },
-    {
-      "scene": 73,
-      "name": "Orrery Engine",
-      "replacement": 101,
-      "wasOffered": true
-    },
-    {
-      "scene": 75,
-      "name": "Brutalist Shift",
-      "replacement": 101,
-      "wasOffered": true
-    },
-    {
-      "scene": 76,
-      "name": "Rose Window",
-      "replacement": 101,
-      "wasOffered": true
-    },
-    {
-      "scene": 77,
-      "name": "Zen Rake",
-      "replacement": 101,
-      "wasOffered": true
-    },
-    {
-      "scene": 78,
-      "name": "Ferrofluid Crown",
-      "replacement": 101,
-      "wasOffered": true
-    },
-    {
-      "scene": 82,
-      "name": "Chladni Sand",
-      "replacement": 101,
-      "wasOffered": true
-    },
-    {
-      "scene": 87,
-      "name": "Murmuration",
-      "replacement": 101,
-      "wasOffered": true
-    },
-    {
-      "scene": 89,
-      "name": "Pendulum Wave",
-      "replacement": 101,
-      "wasOffered": true
-    },
-    {
-      "scene": 90,
-      "name": "Firework Garden",
-      "replacement": 101,
-      "wasOffered": true
-    },
-    {
-      "scene": 93,
-      "name": "Mitosis Garden",
-      "replacement": 101,
-      "wasOffered": true
-    },
-    {
-      "scene": 94,
-      "name": "Neural Bloom",
-      "replacement": 101,
-      "wasOffered": true
-    },
-    {
-      "scene": 95,
-      "name": "Jellyfish Abyss",
-      "replacement": 101,
-      "wasOffered": true
-    },
-    {
-      "scene": 96,
-      "name": "Glacier Rift",
-      "replacement": 101,
-      "wasOffered": true
-    },
-    {
-      "scene": 97,
-      "name": "Firefly Meadow",
-      "replacement": 101,
-      "wasOffered": true
-    },
-    {
-      "scene": 99,
-      "name": "Neon Calligraphy",
-      "replacement": 101,
-      "wasOffered": true
-    },
-    {
-      "scene": 108,
-      "name": "Mirror Regress",
-      "replacement": 101,
-      "wasOffered": true
-    },
-    {
-      "scene": 115,
-      "name": "Ribbon Vortex",
-      "replacement": 101,
-      "wasOffered": true
-    },
-    {
-      "scene": 116,
-      "name": "Gate Run",
-      "replacement": 101,
-      "wasOffered": true
-    },
-    {
-      "scene": 126,
-      "name": "Fractal Throat",
-      "replacement": 101,
-      "wasOffered": true
-    },
-    {
-      "scene": 128,
-      "name": "Coral Burrow",
-      "replacement": 101,
-      "wasOffered": true
-    },
-    {
-      "scene": 134,
-      "name": "Night Highway",
-      "replacement": 101,
-      "wasOffered": true
-    },
-    {
-      "scene": 135,
-      "name": "Neon Boulevard",
-      "replacement": 101,
-      "wasOffered": true
-    },
-    {
-      "scene": 136,
-      "name": "Desert Interstate",
-      "replacement": 101,
-      "wasOffered": true
-    },
-    {
-      "scene": 137,
-      "name": "Mountain Switchbacks",
-      "replacement": 101,
-      "wasOffered": true
-    },
-    {
-      "scene": 138,
-      "name": "Sodium Tunnel",
-      "replacement": 101,
-      "wasOffered": true
-    },
-    {
-      "scene": 139,
-      "name": "Coastal Cruise",
-      "replacement": 101,
-      "wasOffered": true
-    },
-    {
-      "scene": 140,
-      "name": "Long Exposure",
-      "replacement": 101,
-      "wasOffered": true
-    },
-    {
-      "scene": 142,
-      "name": "Rally Forest",
-      "replacement": 101,
-      "wasOffered": true
-    },
-    {
-      "scene": 143,
-      "name": "Bridge Run",
-      "replacement": 101,
-      "wasOffered": true
-    },
-    {
-      "scene": 144,
-      "name": "Coaster Loop",
-      "replacement": 101,
-      "wasOffered": true
-    },
-    {
-      "scene": 145,
-      "name": "Hover Lanes",
-      "replacement": 101,
-      "wasOffered": true
-    },
-    {
-      "scene": 146,
-      "name": "Bullet Train",
-      "replacement": 101,
-      "wasOffered": true
-    },
-    {
-      "scene": 147,
-      "name": "Apex Chase",
-      "replacement": 101,
-      "wasOffered": true
-    },
-    {
-      "scene": 148,
-      "name": "Snow Drive",
-      "replacement": 101,
-      "wasOffered": true
-    },
-    {
-      "scene": 149,
-      "name": "Dashboard Glow",
-      "replacement": 101,
-      "wasOffered": true
-    },
-    {
-      "scene": 150,
-      "name": "Midnight Skyline",
-      "replacement": 101,
-      "wasOffered": true
-    },
-    {
-      "scene": 151,
-      "name": "Orbit Freeway",
-      "replacement": 101,
-      "wasOffered": true
-    },
-    {
-      "scene": 152,
-      "name": "Canyon Run",
-      "replacement": 101,
-      "wasOffered": true
-    },
-    {
-      "scene": 153,
-      "name": "Interchange",
-      "replacement": 101,
-      "wasOffered": true
-    },
-    {
-      "scene": 154,
-      "name": "Lean Angle",
-      "replacement": 101,
-      "wasOffered": true
-    },
-    {
-      "scene": 155,
-      "name": "Runway Rush",
-      "replacement": 101,
-      "wasOffered": true
-    },
-    {
-      "scene": 156,
-      "name": "Wake Racer",
-      "replacement": 101,
-      "wasOffered": true
-    },
-    {
-      "scene": 157,
-      "name": "Bobsled Chute",
-      "replacement": 101,
-      "wasOffered": true
-    },
-    {
-      "scene": 158,
-      "name": "Rail Rush",
-      "replacement": 101,
-      "wasOffered": true
-    },
-    {
-      "scene": 159,
-      "name": "Starlane Convoy",
-      "replacement": 101,
-      "wasOffered": true
-    },
-    {
-      "scene": 160,
-      "name": "Marquee Strip",
-      "replacement": 101,
-      "wasOffered": true
-    },
-    {
-      "scene": 161,
-      "name": "Sky Causeway",
-      "replacement": 101,
-      "wasOffered": true
-    },
-    {
-      "scene": 162,
-      "name": "Turbine Road",
-      "replacement": 101,
-      "wasOffered": true
-    },
-    {
-      "scene": 163,
-      "name": "Chevron Rush",
-      "replacement": 101,
-      "wasOffered": true
-    },
-    {
-      "scene": 164,
-      "name": "Street Circuit",
-      "replacement": 101,
-      "wasOffered": true
-    },
-    {
-      "scene": 165,
-      "name": "Glider Valley",
-      "replacement": 101,
-      "wasOffered": true
-    },
-    {
-      "scene": 166,
-      "name": "Rocket Sled",
-      "replacement": 101,
-      "wasOffered": true
-    },
-    {
-      "scene": 167,
-      "name": "Groove Tiles",
-      "replacement": 101,
-      "wasOffered": true
-    },
-    {
-      "scene": 168,
-      "name": "Mirror Ball",
-      "replacement": 101,
-      "wasOffered": true
-    },
-    {
-      "scene": 169,
-      "name": "Drone Ballet",
-      "replacement": 101,
-      "wasOffered": true
-    },
-    {
-      "scene": 170,
-      "name": "Ribbon Gymnast",
-      "replacement": 101,
-      "wasOffered": true
-    },
-    {
-      "scene": 171,
-      "name": "Laser Haze",
-      "replacement": 101,
-      "wasOffered": true
-    },
-    {
-      "scene": 172,
-      "name": "Moving Heads",
-      "replacement": 101,
-      "wasOffered": true
-    },
-    {
-      "scene": 173,
-      "name": "Conga Orbs",
-      "replacement": 101,
-      "wasOffered": true
-    },
-    {
-      "scene": 174,
-      "name": "Headspin",
-      "replacement": 101,
-      "wasOffered": true
-    },
-    {
-      "scene": 175,
-      "name": "Waltz Pairs",
-      "replacement": 101,
-      "wasOffered": true
-    },
-    {
-      "scene": 177,
-      "name": "Pirouette Bloom",
-      "replacement": 101,
-      "wasOffered": true
-    },
-    {
-      "scene": 181,
-      "name": "Chiffon Swirl",
-      "replacement": 101,
-      "wasOffered": true
-    },
-    {
-      "scene": 186,
-      "name": "Faraday Dish",
-      "replacement": 101,
-      "wasOffered": true
-    },
-    {
-      "scene": 190,
-      "name": "Torsion Wave",
-      "replacement": 101,
-      "wasOffered": true
-    },
-    {
-      "scene": 191,
-      "name": "Spin Paint",
-      "replacement": 101,
-      "wasOffered": true
-    },
-    {
-      "scene": 194,
-      "name": "Confetti Storm",
-      "replacement": 101,
-      "wasOffered": true
-    },
-    {
-      "scene": 195,
-      "name": "Bokeh Club",
-      "replacement": 101,
-      "wasOffered": true
-    },
-    {
-      "scene": 196,
-      "name": "Persistence Fans",
-      "replacement": 101,
-      "wasOffered": true
-    },
-    {
-      "scene": 198,
-      "name": "Aerial Silks",
-      "replacement": 101,
-      "wasOffered": true
-    },
-    {
-      "scene": 199,
-      "name": "Hula Hoops",
-      "replacement": 101,
-      "wasOffered": true
-    },
-    {
-      "scene": 200,
-      "name": "Chromatic Speedway",
-      "replacement": 101,
-      "wasOffered": true
-    },
-    {
-      "scene": 217,
-      "name": "Orbit Salsa",
-      "replacement": 101,
-      "wasOffered": true
-    },
-    {
-      "scene": 219,
-      "name": "Vivid Foxtrot",
-      "replacement": 101,
-      "wasOffered": true
-    },
-    {
-      "scene": 262,
-      "name": "Neon Needle",
-      "replacement": 270,
-      "wasOffered": false
-    },
-    {
-      "scene": 277,
-      "name": "Velvet Wormhole",
-      "replacement": 270,
-      "wasOffered": false
-    }
-  ],
+  "reservedIDs": 390,
+  "withdrawn": 120,
   "functionsRemoved": [
     {
       "file": "NativeParticles.metal",
@@ -3306,5 +2680,101 @@
   "restoredRedKeepers": [
     245,
     259
-  ]
+  ],
+  "review300to369": {
+    "date": "2026-10-13",
+    "rule": "Every red-tagged review clip is a keeper. Original clip only: original version at its ID. v2 clip only: final version at its ID. Both: original at its ID and the final version appended as \"<Name> II\". Neither: withdrawn.",
+    "originalVersionAtID": [
+      310,
+      311,
+      312,
+      313,
+      315,
+      316,
+      317,
+      318,
+      319,
+      320,
+      321,
+      322,
+      323,
+      325,
+      326,
+      327,
+      328,
+      329,
+      330,
+      331,
+      332,
+      333,
+      334,
+      335,
+      336,
+      337,
+      338,
+      339,
+      340,
+      341,
+      342,
+      343,
+      344,
+      345,
+      346,
+      347,
+      348,
+      349,
+      350,
+      351,
+      352,
+      353,
+      354,
+      355,
+      356,
+      357,
+      358,
+      359
+    ],
+    "finalVersionAtID": [
+      300,
+      301,
+      302,
+      303,
+      304,
+      305,
+      306,
+      307,
+      308,
+      309,
+      314
+    ],
+    "secondVersions": {
+      "370": 336,
+      "371": 337,
+      "372": 339,
+      "373": 340,
+      "374": 341,
+      "375": 342,
+      "376": 343,
+      "377": 345,
+      "378": 346,
+      "379": 347,
+      "380": 348,
+      "381": 349,
+      "382": 351,
+      "383": 352,
+      "384": 353,
+      "385": 354,
+      "386": 355,
+      "387": 357,
+      "388": 358,
+      "389": 359
+    },
+    "withdrawn": {
+      "324": 320
+    },
+    "identicalVersions": {
+      "350": "Both clips were red, but its original and final code render identically, so it ships once."
+    },
+    "originalSourceSHA256": "docs: matches shaderHashes in new-metal-300-359-manifest.json of the review folder"
+  }
 }

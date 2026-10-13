@@ -26,21 +26,6 @@ float cosmStars(float2 p, float density, float t) {
 float cosmContour(float v, float px) {
     return abs(fract(v + .5) - .5) * px / max(fwidth(v), 1e-5f);
 }
-// Level of band i (0...3) for a data-dependent index, without dynamic vector indexing.
-float cosmBand(float4 bands, float i) {
-    return dot(bands, saturate(1 - abs(float4(0, 1, 2, 3) - i)));
-}
-// Raised cosine in [0, 1], clamped so pow() never sees a rounding-negative base.
-float cosmWave(float x) { return saturate(.5f + .5f * cos(x)); }
-// A fixed oblique rotation, so value-noise lattice planes never line up with polar axes.
-float3 cosmTilt(float3 p) {
-    return float3(.80f * p.x + .36f * p.y + .48f * p.z, -.48f * p.x + .80f * p.y + .36f * p.z, -.36f * p.x - .48f * p.y + .80f * p.z);
-}
-// Sharp crest of a ridge value (1 on the crest), widened where it would fall below a pixel.
-float cosmCrest(float ridge, float sharpness) {
-    float k = min(sharpness, .8f / max(fwidth(ridge), 1e-4f));
-    return exp(-k * (1 - ridge)) * sqrt(k / sharpness);
-}
 // Lay a two-body composition along the canvas's long axis.
 float2 cosmLongAxis(float2 p, float2 extent) {
     return extent.y > extent.x ? float2(p.y, -p.x) : p;
@@ -69,7 +54,7 @@ float3 pulsarBeacon(Ctx c, constant NativeFrame &f) {
     float after = (1 - exp(-lag * 30)) * exp(-lag * (2.6 - 1.4 * c.b.y));
     float lit = after * (.3 + .7 * cloud) * (.35 + strands * 1.6);
     float glint = pow(strands, 6.f) * cloud * (.2 + 3 * c.b.w);
-    float pulse = pow(cosmWave(TAU * (r * 1.5 - c.t * .4)), 30.f) * cloud * (.15 + 1.6 * c.b.w);
+    float pulse = pow(.5 + .5 * cos(TAU * (r * 1.5 - c.t * .4)), 30.f) * cloud * (.15 + 1.6 * c.b.w);
 
     // Magnetic loops share the beam axis and spin with it.
     float2 m = rot(p, -spin);
@@ -99,83 +84,76 @@ float3 pulsarBeacon(Ctx c, constant NativeFrame &f) {
 NATIVE_EFFECT(pulsarBeacon)
 
 // ---------------------------------------------------------------- 351 Twin Suns
-// A glowing star: saturated limb-darkened body with a soft edge, a neon rim, corona and rays.
-float4 cosmSun(float2 d, float radius, float spin, float hue, float corona, constant NativeFrame &f) {
+float4 cosmSun(float2 d, float radius, float spin, float hue, float corona, float px, constant NativeFrame &f) {
     float r = length(d) / radius;
     float mu = sqrt(max(0.f, 1 - r * r));
     float2 sp = rot(d / radius, spin);
     float cells = noise2(sp * 5 + 3.3) * .6 + noise2(sp * 11 + 8.1) * .4;
-    float3 surface = paint(hue + .22 * mu + .1 * cells, f) * (.3 + .55 * mu * (.6 + .6 * cells))
-                   + paint(.92, f) * pow(mu, 8.f) * .45;
-    float disc = 1 - smoothstep(.9f, 1.02f, r);
+    float3 surface = paint(hue + .2 * mu + .12 * cells, f) * (.7 + 1.1 * mu) + paint(.95, f) * pow(mu, 3.f) * .5;
+    float disc = fill(r - 1, px / radius);
     float a = atan2(d.y, d.x) + spin * .3;
-    float outer = max(r - 1, 0.f);
-    float rays = pow(cosmWave(a * 14 + 2 * sin(a * 5 + spin * 2)), 8.f) * exp(-outer * (3.2 - corona * 1.6));
-    float halo = glow(outer, .2 + corona * .35) * (.22 + corona * .8);
-    float rim = glow(r - .98, .035) * .9 + glow(r - .98, .012);
-    float3 col = surface * disc + paint(hue + .3, f) * rim * (.5 + .8 * corona)
-               + paint(hue + .1, f) * (halo + rays * (.2 + corona * 1.2)) * (1 - disc);
+    float rays = pow(.5 + .5 * cos(a * 14 + 2 * sin(a * 5 + spin * 2)), 6.f) * exp(-max(r - 1, 0.f) * (2.6 - corona * 1.2));
+    float halo = glow(max(r - 1, 0.f), .25 + corona * .45) * (.3 + corona * 1.4);
+    float rim = glow(r - 1, .05);
+    float3 col = surface * disc + (paint(hue + .15, f) * (halo + rays * (.25 + corona * 1.5)) + paint(.9, f) * rim * .6) * (1 - disc);
     return float4(col, disc);
 }
 
 float3 twinSuns(Ctx c, constant NativeFrame &f) {
     float2 p = cosmLongAxis(c.uv / c.size, c.extent);
     float phase = c.t * .3;
-    // The heavy primary rides close to the canvas centre while the companion swings wide along
-    // the long axis, so the forward-zoom echo of the primary reads as its own corona.
-    float span = clamp(max(c.extent.x, c.extent.y) / c.size, 1.f, 1.8f);
-    float2 orbit = float2(cos(phase) * (.62 + .35 * span), sin(phase) * .55);
-    float2 s1 = -orbit * .2, s2 = orbit * .8;
-    const float r1 = .2, r2 = .075;
+    float2 orbit = float2(cos(phase), sin(phase) * .55);
+    float2 s1 = orbit * .42, s2 = -orbit * .74;
+    const float r1 = .23, r2 = .135;
 
-    // Circumbinary outflow: trailing arms of fine glowing threads that turn with the orbit.
+    // Circumbinary outflow: two trailing arms of glowing filaments that turn with the orbit.
     float rho = length(p), th = atan2(p.y, p.x);
     float spiral = 2 * (th - phase) + log(rho + .08) * 3.4;
-    float arms = pow(cosmWave(spiral), 3.f);
+    float arms = pow(.5 + .5 * cos(spiral), 2.f);
     float tex = fbm2(p * 2.1 + float2(c.t * .02, -c.t * .013), 4);
-    float threads = pow(cosmWave(spiral * 5 + tex * 5), 14.f);
-    float reachArms = exp(-rho * .45);
-    float3 col = deep(.2 + .25 * tex, f) * (.025 + .09 * tex * tex);
-    col += paint(.12 + .3 * tex, f) * pow(cosmWave(spiral), 1.5f) * reachArms * (.05 + .16 * tex) * (.6 + 1.2 * c.b.y);
-    col += paint(.35 + .4 * arms, f) * threads * arms * reachArms * (.3 + 1.6 * c.b.y);
+    float threads = pow(.5 + .5 * cos(spiral * 5 + tex * 5), 10.f);
+    float gas = arms * exp(-rho * .3);
+    float3 col = paint(.02 + tex * .1, f) * (.04 + .1 * tex);
+    col += paint(.25 + tex * .35, f) * gas * (.06 + .2 * tex) * (.6 + 1.2 * c.b.y);
+    col += paint(.5 + .25 * tex, f) * gas * threads * (.22 + 1.5 * c.b.y);
 
-    // Tidal streams pulled from the companion onto the primary, one strand per band.
-    float2 dv = s1 - s2; float len = length(dv);
-    float2 ax = dv / len, nv = float2(-ax.y, ax.x), rel = p - s2;
+    // Tidal streams from the larger star to its companion, one strand per band.
+    float2 dv = s2 - s1; float len = length(dv);
+    float2 ax = dv / len, nv = float2(-ax.y, ax.x), rel = p - s1;
     float u = dot(rel, ax) / len, v = dot(rel, nv), uc = clamp(u, 0.f, 1.f);
-    float ends = smoothstep(-.05f, .12f, u) * smoothstep(1.02f, .85f, u);
+    float ends = smoothstep(-.05f, .15f, u) * smoothstep(1.05f, .85f, u);
     for (int k = 0; k < 4; ++k) {
         float fk = float(k), level = c.b[k];
-        float bend = ((.1 + .07 * fk) * len + .05 * sin(TAU * uc * 1.5 + c.t * .8 + fk * 1.7)) * sin(PI * uc) * (k % 2 == 0 ? 1.f : -.7f);
+        float bend = ((.12 + .06 * fk) * len + .04 * sin(TAU * uc * 1.5 + c.t * .8 + fk * 1.7)) * sin(PI * uc);
         float dist = abs(v - bend);
-        float flow = pow(cosmWave(u * 18 - c.t * 2.4 + fk * 1.9 - PI * .5), 4.f);
-        float strand = glow(dist, .006 + .008 * level) * (.3 + .7 * flow) + glow(dist, .035) * .12;
-        col += paint(.25 + .17 * fk + .12 * flow, f) * strand * ends * (.3 + 1.9 * level);
+        float flow = pow(.5 + .5 * sin(u * 16 - c.t * 2.4 + fk * 1.9), 3.f);
+        float strand = glow(dist, .009 + .009 * level) * (.35 + .65 * flow) + glow(dist, .06) * .2;
+        col += paint(.55 + .08 * fk + .25 * flow, f) * strand * ends * (.35 + 1.8 * level);
     }
 
     // Attacks erupt a flare loop and an ejected blob from each star.
-    float burst = c.hit * (.6 + .4 * c.hit) * 1.8;
+    float burst = c.hit * c.hit;
     float3 flares = 0;
     for (int k = 0; k < 2; ++k) {
         float2 s = k == 0 ? s1 : s2; float radius = k == 0 ? r1 : r2;
         float fa = phase * (k == 0 ? 1.7 : -1.3) + float(k) * 2.4 + .8;
         float2 dir = float2(cos(fa), sin(fa));
         float2 site = s + dir * radius;
-        float loopArc = abs(length(p - site) - radius * (.3 + 1.4 * c.hit));
+        float loopArc = abs(length(p - site) - radius * (.2 + .9 * c.hit));
         float outside = smoothstep(radius, radius * 1.05, length(p - s));
-        float blob = glow(length(p - s - dir * radius * (1.15 + 3 * (1 - c.hit))), .04 + .06 * (1 - c.hit));
-        flares += paint(.7, f) * (glow(loopArc, .008) * outside * 1.5 + blob) * burst;
+        float blob = glow(length(p - s - dir * radius * (1.15 + 2.6 * (1 - c.hit))), .03 + .05 * (1 - c.hit));
+        flares += paint(.85, f) * (glow(loopArc, .008) * outside * 1.5 + blob) * burst;
     }
 
-    // Stars, drawn back to front; they swap only at full separation, never while overlapping.
-    float4 a = cosmSun(p - s1, r1, c.t * .2, .3, c.b.x, f);
-    float4 b = cosmSun(p - s2, r2, -c.t * .3, .62, .35 + c.b.z, f);
-    bool firstFront = sin(phase) > 0;
+    // Stars, drawn back to front as the orbit turns.
+    float4 a = cosmSun(p - s1, r1, c.t * .2, .45, c.b.x, c.px, f);
+    float4 b = cosmSun(p - s2, r2, -c.t * .3, .7, c.b.z, c.px, f);
+    bool firstFront = sin(phase) < 0;
     float4 back = firstFront ? b : a, front = firstFront ? a : b;
     col = col * (1 - back.w) + back.rgb;
     col += flares;
     col = col * (1 - front.w) + front.rgb;
-    col += paint(.8, f) * cosmStars(p * 9, .25, c.t) * .5;
+    col += paint(.9, f) * cosmStars(p * 9, .25, c.t) * .5;
     return col;
 }
 NATIVE_EFFECT(twinSuns)
@@ -187,102 +165,99 @@ float3 supernovaShell(Ctx c, constant NativeFrame &f) {
     float2 dirv = p / max(r, 1e-4f);
     const float R = .64;
     float wob = noise2(dirv * 2.2 + 11.3) - .5;
-    float Ro = R * (1 + .14 * wob), Ri = Ro * .78;
+    float Ro = R * (1 + .14 * wob), Ri = Ro * .84;
     float shell = (sqrt(max(Ro * Ro - r * r, 0.f)) - sqrt(max(Ri * Ri - r * r, 0.f))) / sqrt(Ro * Ro - Ri * Ri);
 
-    // Rayleigh-Taylor fingers: ridges of a noise field stretched along the radius. They drift
-    // outward in log radius, so the forward-zoom echo lines up with the fingers themselves.
-    // The music clock drives the expansion, so energetic passages push the fingers out faster.
-    float lr = log(max(r, .03f));
-    float3 fq = float3(dirv * 6.5, lr * 1.25 - c.t * .05 - c.m * .45);
-    float ridgeA = 1 - abs(2 * noise3(cosmTilt(fq)) - 1);
-    float ridgeB = 1 - abs(2 * noise3(cosmTilt(fq * float3(1.8, 1.8, 1.5) + 7.3).zxy) - 1);
-    float fingerA = cosmCrest(ridgeA, 16), fingerB = cosmCrest(ridgeB, 22);
-    float bead = smoothstep(.62f, .9f, noise3(cosmTilt(fq * float3(1, 1, 5) + 2.1).yzx));
-    float band = smoothstep(Ri * .35f, Ri, r) * smoothstep(Ro * 1.06f, Ro * .97f, r);
-    float tip = smoothstep(Ri * .8f, Ro, r);
+    // Filaments drift outward through a seamless two-octave zoom.
+    float coarse = 0, fine = 0, wisp = 0;
+    for (int o = 0; o < 2; ++o) {
+        float2 z = octaveZoom(c.t * .03, o);
+        float2 q = p * z.x;
+        coarse += z.y * cosmRidge(q * 3.1 + 1.7, 3);
+        fine += z.y * cosmRidge(q * 7.3 - 4.1, 3);
+        wisp += z.y * fbm2(q * 2.4 + 9.5, 2);
+    }
+    coarse = pow(coarse / .875, 5.f);
+    fine = pow(fine / .875, 7.f);
 
-    // Hit: a fresh shock ring races out and lights the fingers it crosses.
+    // Hit: a fresh shock ring races out and lights the filaments it crosses.
     float Rh = R * (.08 + 1.35 * (1 - c.hit)) * (1 + .1 * wob);
     float shockBoost = 1 + 2.5 * c.hit * exp(-(r - Rh) * (r - Rh) / .008);
-    float newRing = (glow(r - Rh, .012) * 2.2 + glow(r - Rh, .06) * .4) * c.hit;
+    float newRing = glow(r - Rh, .012) * c.hit * c.hit * 2;
 
-    float inner = smoothstep(Ri, Ri * .25f, r);
-    float wisp = fbm2(p * 3 + float2(c.t * .02, 1.3), 3);
+    float inner = smoothstep(Ri, Ri * .3, r);
+    float2 kq = p * 8;
+    float2 kid = floor(kq), kl = fract(kq) - .5 - (hash22(kid + 4.4) - .5) * .6;
+    float knot = step(.6, hash21(kid + 1.9)) * exp(-dot(kl, kl) * 60) * smoothstep(.3f, .7f, shell);
+
     float Rs = R * (1.15 + .1 * (noise2(dirv * 3.1 + 2.2) - .5));
-    float forward = glow(r - Rs, .006) * .9 + glow(r - Rs, .045) * .2;
-    float outside = smoothstep(Rs * .98f, Rs * 1.1f, r);
+    float forward = glow(r - Rs, .006) * .9 + glow(r - Rs, .05) * .18;
 
     float haze = fbm2(p * .9 + float2(4.1, c.t * .01), 3);
-    float3 col = deep(.9 + haze * .2, f) * (.05 + .12 * haze * haze);
-    col += paint(.95 + .1 * haze, f) * smoothstep(.5f, .85f, haze) * .06 * outside;
-    col += paint(.92, f) * shell * shell * .1;
-    col += paint(mix(.8f, .6f, tip), f) * band * fingerA * (.38 + 2 * c.b.x) * shockBoost;
-    col += paint(.06 + .12 * tip, f) * band * fingerB * (.24 + 2 * c.b.y) * shockBoost;
-    col += paint(.5, f) * band * fingerA * bead * (.3 + 3 * c.b.w) * shockBoost;
-    col += paint(1 - .1 * wisp, f) * inner * pow(wisp, 3.f) * (.4 + 1.8 * c.b.z);
-    col += paint(.02, f) * forward;
-    col += paint(.65, f) * newRing + paint(.5, f) * (glow(r, .02) * 1.4 + glow(r, .07) * .25);
-    col += paint(.6, f) * cosmStars(p * 11, .2, c.t) * .4 * outside;
+    float3 col = paint(.95 + haze * .1, f) * (.03 + .08 * haze * haze);
+    col += paint(.1 + haze * .3, f) * smoothstep(.5f, .85f, haze) * .1;
+    col += paint(.8 + .1 * wob, f) * shell * (.07 + coarse * (.7 + 2.4 * c.b.x)) * shockBoost;
+    col += paint(.3 + .1 * fine, f) * shell * fine * (.45 + 2.6 * c.b.y) * shockBoost;
+    col += paint(.02 + .08 * wisp, f) * inner * pow(wisp, 3.f) * (.4 + 2.4 * c.b.z);
+    col += paint(.72, f) * knot * (.4 + 3 * c.b.w) * shockBoost;
+    col += paint(.05, f) * forward;
+    col += paint(.7, f) * (newRing + glow(r, .025) * 1.2 + glow(r, .08) * .2);
+    col += paint(.6, f) * cosmStars(p * 11, .2, c.t) * .4;
     return col;
 }
 NATIVE_EFFECT(supernovaShell)
 
 // ---------------------------------------------------------------- 353 Galaxy Collision
-// Two-armed log spiral in its own (de-projected) plane: x = arm A, y = arm B (broad),
-// z = arm A spine, w = arm B spine (thin glowing cores). Radius returned separately.
-float4 cosmSpiral(float2 q, float spin, float wind, thread float &r) {
-    r = max(length(q), 1e-3f);
-    float c1 = cos(atan2(q.y, q.x) - wind * log(r) - spin);
-    float a = max(c1, 0.f), b = max(-c1, 0.f);
-    return float4(pow(a, 6.f), pow(b, 6.f), pow(a, 110.f), pow(b, 110.f));
+// Two-armed log spiral seen in its own (de-projected) plane: x = arm A, y = arm B, z = disc.
+float3 cosmSpiral(float2 q, float spin, float wind) {
+    float r = max(length(q), 1e-3f);
+    float phi = atan2(q.y, q.x) - wind * log(r) - spin;
+    float c1 = cos(phi);
+    return float3(pow(max(c1, 0.f), 6.f), pow(max(-c1, 0.f), 6.f), r);
 }
 
 float3 galaxyCollision(Ctx c, constant NativeFrame &f) {
     float2 p = cosmLongAxis(c.uv / c.size, c.extent);
     float orbit = c.t * .035;
-    // A close pair near the centre: the forward-zoom echo lands on their own discs and tails.
-    float2 c1 = rot(float2(-.36, .1), orbit), c2 = rot(float2(.4, -.1), orbit);
+    float2 c1 = rot(float2(-.58, .14), orbit), c2 = rot(float2(.62, -.16), orbit);
     float2 q1 = rot(p - c1, .5 + orbit); q1.y /= .6;
     float2 q2 = rot(p - c2, -.9 + orbit); q2.y /= .5;
-    float r1, r2;
-    float4 g1 = cosmSpiral(q1 * .8, c.t * .16, 2.3, r1), g2 = cosmSpiral(q2 * .9, -c.t * .13, -2.1, r2);
+    float3 g1 = cosmSpiral(q1 * .8, c.t * .16, 2.3), g2 = cosmSpiral(q2 * .9, -c.t * .13, -2.1);
     float clumps = .45 + .55 * noise2(p * 9 + float2(c.t * .05, 0));
 
-    float disc1 = exp(-r1 * 2.6), disc2 = exp(-r2 * 3);
+    float disc1 = exp(-g1.z * 2.6), disc2 = exp(-g2.z * 3);
     // Tidal tails: the outer arms keep going on the side facing away from the partner.
     float2 away1 = normalize(c1 - c2);
-    float tailMask1 = smoothstep(-.2f, .5f, dot(normalize(p - c1 + 1e-4), away1)) * smoothstep(.25f, .6f, r1);
-    float tailMask2 = smoothstep(-.2f, .5f, dot(normalize(p - c2 + 1e-4), -away1)) * smoothstep(.25f, .6f, r2);
-    float tail1 = (g1.x * .6 + g1.z) * exp(-r1 * .75) * tailMask1;
-    float tail2 = (g2.y * .6 + g2.w) * exp(-r2 * .8) * tailMask2;
+    float tailMask1 = smoothstep(-.2f, .5f, dot(normalize(p - c1 + 1e-4), away1));
+    float tailMask2 = smoothstep(-.2f, .5f, dot(normalize(p - c2 + 1e-4), -away1));
+    float tail1 = g1.x * exp(-g1.z * .75) * tailMask1 * smoothstep(.25f, .6f, g1.z);
+    float tail2 = g2.y * exp(-g2.z * .8) * tailMask2 * smoothstep(.25f, .6f, g2.z);
 
     // A bridge of stars stretched between the pair.
     float2 dv = c2 - c1; float len = length(dv);
     float2 ax = dv / len, rel = p - c1;
     float u = dot(rel, ax) / len, v = dot(rel, float2(-ax.y, ax.x));
     float bridgeDist = abs(v - .16 * len * sin(PI * clamp(u, 0.f, 1.f)));
-    float bridge = (glow(bridgeDist, .025) + glow(bridgeDist, .005)) * smoothstep(-.05f, .2f, u) * smoothstep(1.05f, .8f, u);
+    float bridge = glow(bridgeDist, .03) * smoothstep(-.05f, .2f, u) * smoothstep(1.05f, .8f, u);
 
-    float armA = (g1.x * .35 + g1.z * 2.1) * disc1, armB = (g1.y * .35 + g1.w * 2.1) * disc1;
-    float armC = ((g2.x + g2.y) * .35 + (g2.z + g2.w) * 2.1) * disc2;
-    float tails = tail1 + tail2 + bridge * .5;
+    float armA = g1.x * disc1, armB = g1.y * disc1, armC = (g2.x + g2.y) * disc2;
+    float tails = tail1 + tail2 + bridge * .6;
 
     // Starburst knots sit on the arms; attacks blossom them with an expanding ring.
     float2 kq = p * 7, kid = floor(kq), kl = (fract(kq) - .5 - (hash22(kid + 2.7) - .5) * .6) / 7;
     float kd = length(kl);
-    float knotOn = step(.6, hash21(kid + 6.1));
+    float knotOn = step(.5, hash21(kid + 6.1));
     float host = min(1.f, (armA + armB + armC) * 2 + tails * 2);
-    float knot = knotOn * host * (glow(kd, .006 + .014 * c.hit) * (.6 + 5 * c.hit)
-                                + glow(kd - (.02 + .08 * (1 - c.hit)), .005) * c.hit * 3 * smoothstep(.5f, .9f, host));
+    float knot = knotOn * host * (glow(kd, .006 + .01 * c.hit) * (.6 + 3 * c.hit)
+                                + glow(kd - (.015 + .05 * (1 - c.hit)), .004) * c.hit * c.hit * 2);
 
-    float3 col = paint(0, f) * .05 + paint(.2, f) * exp(-min(length(p - c1), length(p - c2)) * 1.3) * .08;
+    float3 col = paint(0, f) * .07 + paint(.2, f) * exp(-min(length(p - c1), length(p - c2)) * 1.1) * .1;
     col += paint(.75, f) * armA * clumps * (.5 + 2.4 * c.b.x);
-    col += paint(.55, f) * armB * clumps * (.5 + 2.4 * c.b.y);
+    col += paint(.52, f) * armB * clumps * (.5 + 2.4 * c.b.y);
     col += paint(.3, f) * armC * clumps * (.55 + 2.4 * c.b.z);
     col += paint(.45 + .25 * clumps, f) * tails * clumps * (.45 + 2.2 * c.b.w);
-    col += paint(.3, f) * (disc1 + disc2) * .1;
-    col += paint(.8, f) * (exp(-r1 * r1 * 90) * 1.8 + exp(-r2 * r2 * 110) * 1.6);
+    col += paint(.3, f) * (disc1 + disc2) * .3;
+    col += paint(.8, f) * (exp(-g1.z * g1.z * 90) * 1.8 + exp(-g2.z * g2.z * 110) * 1.6);
     col += paint(.78, f) * knot;
     col += paint(.7, f) * cosmStars(p * 10, .25, c.t) * .5;
     return col;
@@ -293,9 +268,7 @@ NATIVE_EFFECT(galaxyCollision)
 float3 solarProminence(Ctx c, constant NativeFrame &f) {
     float2 p = c.uv / c.size;
     const float Rs = 2.2;
-    // The limb crosses just below the canvas centre, so the forward-zoom echo of the limb
-    // stays on the limb instead of drawing a second horizon.
-    float2 C = float2(0, -.1 - Rs);
+    float2 C = float2(0, -.3 - .3 * max(c.extent.y - c.extent.x, 0.f) - Rs);
     float2 d = p - C; float rr = length(d);
     float h = rr - Rs;                         // height above the limb
     float s = atan2(d.x, d.y) * Rs;            // arc length along the limb
@@ -303,15 +276,12 @@ float3 solarProminence(Ctx c, constant NativeFrame &f) {
 
     // Granulated surface, foreshortened toward the limb.
     float mu = sqrt(max(0.f, 1 - (rr / Rs) * (rr / Rs)));
-    float2 gq = float2(s, acos(clamp(rr / Rs, 0.f, 1.f)) * Rs) * 9;
+    float2 gq = float2(s, acos(clamp(rr / Rs, 0.f, 1.f)) * Rs) * 7;
     float4 cell = voronoi(gq + float2(c.t * .05, 0), .9, c.t * .6);
-    float granule = exp(-cell.x * cell.x * 4.5) * smoothstep(0.f, .14f, cell.y - cell.x);
-    float gran = mix(.55f, granule, smoothstep(0.f, .3f, mu));
+    float gran = mix(.6f, smoothstep(0.f, .45f, cell.y - cell.x), smoothstep(0.f, .3f, mu));
     float plage = smoothstep(.55f, .8f, noise2(gq * .09 + 3.3)) * c.b.x;
-    float sink = .3 + .7 * exp(max(-h, 0.f) * -2.2);          // the deep disc settles darker than the limb
-    // Glowing granules in hot orange over crimson lanes: saturated at every brightness.
-    float3 surface = (mix(paint(.04, f) * .3, paint(.2 + .32 * gran, f) * (.55 + .5 * mu), gran)
-                   + paint(.75, f) * plage * gran * 1.1) * sink;
+    float3 surface = paint(.5 + .25 * gran * mu + .15 * mu, f) * (.5 + 1.1 * mu) * (.7 + .4 * gran)
+                   + paint(.9, f) * plage * gran * 1.2;
     float disc = 1 - above;
 
     float hp = max(h, 0.f);
@@ -319,10 +289,9 @@ float3 solarProminence(Ctx c, constant NativeFrame &f) {
     float corona = exp(-hp * 2.2) * (.3 + .9 * streamer) + exp(-hp * .45) * streamer * .3;
     float spicule = pow(noise2(float2(s * 45, c.t * .7)), 4.f) * 5 * exp(-hp / (.03 + .06 * c.b.w)) * above;
     float limb = glow(h, .012);
-    float tall = 1 + .45 * max(c.extent.y - c.extent.x, 0.f);   // taller loops on portrait canvases
     // A faint arcade of nested field arches high in the corona.
     float sa = (floor(s / 1.1) + .5) * 1.1;
-    float2 ea = float2((s - sa) / .55, hp / ((.8 + .2 * sin(sa * 3.1 + c.t * .1)) * tall));
+    float2 ea = float2((s - sa) / .55, hp / (.8 + .2 * sin(sa * 3.1 + c.t * .1)));
     float ela = length(ea);
     float arcade = glow(cosmContour(ela * 5, c.px) / c.size, .0035) * smoothstep(.98f, .85f, ela) * smoothstep(.2f, .35f, ela);
 
@@ -336,7 +305,7 @@ float3 solarProminence(Ctx c, constant NativeFrame &f) {
         float fk = float(k), level = c.b[k % 4];
         float sk = (fk - 2.5) * .95 + .25 * sin(c.t * .05 + fk * 1.3);
         float w = .2 + .16 * hash11(fk + 3.1);
-        float H = (.26 + .3 * hash11(fk + 8.7)) * (.6 + 1.2 * level) * (1 + .08 * sin(c.t * .3 + fk)) * tall;
+        float H = (.26 + .3 * hash11(fk + 8.7)) * (.6 + 1.2 * level) * (1 + .08 * sin(c.t * .3 + fk));
         float tilt = .5 * (hash11(fk + 1.9) - .5);
         float2 e = float2((s - sk - h * tilt) / w, h / H);
         float el = length(e), along = atan2(e.y, e.x), scale = min(w, H);
@@ -345,7 +314,7 @@ float3 solarProminence(Ctx c, constant NativeFrame &f) {
             float off = .09 * sin(along * 5 + c.t * 1.1 + float(j) * 2.09 + fk);
             rope += glow((el - 1 - off) * scale, .005 + .003 * level);
         }
-        float flow = pow(cosmWave(along * 7 - c.t * 2.2 + fk * 2 - PI * .5), 4.f);
+        float flow = pow(.5 + .5 * sin(along * 7 - c.t * 2.2 + fk * 2), 4.f);
         float halo = glow((el - 1) * scale, .035) * .3;
         col += paint(.55 + .3 * flow + .05 * fk, f) * (rope * (.4 + .6 * flow) + halo) * above * (.3 + 1.5 * level);
     }
@@ -357,15 +326,15 @@ float3 solarProminence(Ctx c, constant NativeFrame &f) {
     float rad = .08 + lift * .5;
     float bubble = length(eb * float2(1, 1.15)) - rad;
     float cme = glow(bubble, .02 + .03 * lift) * 1.4 + glow(length(eb + float2(0, rad * .5)), .04 + .06 * lift) * .9;
-    col += paint(.88, f) * cme * c.hit * (.5 + .5 * c.hit) * 2 * above;
-    return col * .85;
+    col += paint(.88, f) * cme * c.hit * c.hit * above;
+    return col;
 }
 NATIVE_EFFECT(solarProminence)
 
 // ---------------------------------------------------------------- 355 Quasar Jet
 float3 quasarJet(Ctx c, constant NativeFrame &f) {
     float2 p = c.uv / c.size;
-    float ang = atan2(c.extent.y, c.extent.x) * .85 + .17 * sin(c.t * .09);
+    float ang = atan2(c.extent.y, c.extent.x) * .85 + .1 * sin(c.t * .05);
     float2 q = rot(p, -ang);
     float ax = abs(q.x), side = q.x < 0 ? -1.f : 1.f;
     const float L = 1.15;
@@ -385,12 +354,11 @@ float3 quasarJet(Ctx c, constant NativeFrame &f) {
 
     float knots = 0;
     for (int k = 0; k < 4; ++k) {
-        float ph = fract(c.t * .075 + float(k) * .25 + (side > 0 ? 0.f : .125f));
+        float ph = fract(c.t * .05 + float(k) * .25 + (side > 0 ? 0.f : .125f));
         knots += glow(length(float2(ax - ph * L, q.y * 1.4)), .018 + .02 * ax) * sin(PI * ph);
     }
     float lx = .06 + (1 - c.hit) * L * .85;
-    float launch = (glow(length(float2(ax - lx, q.y * 1.3)), .03 + .035 * lx) * 3 + glow(length(float2(ax - lx, q.y)), .15) * .4)
-                 * c.hit * reach;
+    float launch = glow(length(float2(ax - lx, q.y * 1.3)), .025 + .03 * lx) * c.hit * c.hit * 2.5;
 
     // Radio lobes where the jets stall, with hot spots and glowing rims.
     float2 lc = q - float2(side * L, 0);
@@ -408,7 +376,7 @@ float3 quasarJet(Ctx c, constant NativeFrame &f) {
 
     float rp = length(p);
     float hostGlow = exp(-length(rot(p, .4) * float2(1, 1.6)) * 2.2);
-    float haze = fbm2(p * 1.1 + float2(c.t * .05, 3), 4);
+    float haze = fbm2(p * 1.1 + float2(c.t * .01, 3), 4);
 
     float3 col = paint(.02 + haze * .2, f) * (.05 + .14 * haze * haze);
     col += paint(.3 + .5 * strands, f) * lobe * (.3 + 1.6 * c.b.x) + paint(.85, f) * (lobeRim * .3 + hotspot) * (.5 + 1.2 * c.b.x);
@@ -418,90 +386,85 @@ float3 quasarJet(Ctx c, constant NativeFrame &f) {
     col += paint(.95, f) * (knots * 1.2 + launch);
     col += paint(.5, f) * hostGlow * .22 + paint(.98, f) * (glow(rp, .022) * 3 + glow(rp, .1) * .25);
     col += paint(.9, f) * cosmStars(p * 10, .22, c.t) * .5;
-    return col * .85;
+    return col;
 }
 NATIVE_EFFECT(quasarJet)
 
 // ---------------------------------------------------------------- 356 Ring Plane Run
 float3 ringPlaneRun(Ctx c, constant NativeFrame &f) {
-    float2 uv = rot(c.uv / c.size, .12 * sin(c.t * .07));
-    // Flying along the orbit inside the ring layer: the lower sheet runs underneath and the
-    // upper sheet hangs overhead, both converging on the vanishing point at the centre.
-    float vy = uv.y - .04 * sin(c.t * .05);
-    bool ceiling = vy > 0;
-    float h = ceiling ? .8 : .55;
-    float Z = h / max(abs(vy), .012f);
-    float X = uv.x * Z;
-    const float R0 = 9;
-    float2 dp = float2(X + R0, Z);
-    float rho = length(dp) + .5 * sin(c.t * .045) + (ceiling ? 37.3 : 0.f);   // sheets get their own ringlets
-    float flowArc = c.travel * 2.2 + c.t * .1;
-    float arc = atan2(dp.y, dp.x) * R0 - flowArc;    // features stream toward the camera
+    float2 uv = rot(c.uv / c.size, .1 * sin(c.t * .07));
+    // Low, gently tilted view across the ring plane; the planet lies far off to the upper left,
+    // so the ringlets sweep diagonally as long, nearly parallel arcs.
+    float den = max(1.1 - .32 * uv.y, .5f);
+    float2 P = uv / den;
+    const float2 C = float2(-9, 11);
+    const float Rref = 14;
+    float2 dp = P - C;
+    float sway = .9 * sin(c.t * .045);              // the camera drifts slowly across the ringlets
+    float rho = length(dp) + sway, phi = atan2(dp.y, dp.x);
+    float flowArc = c.travel * 1.6 + c.t * .06;
+    float arc = phi * Rref + flowArc;              // along-ring coordinate, streaming with travel
 
-    // Shepherd moonlets ride the lower sheet's two gaps and rush past; their wakes scallop the edges.
+    // Two shepherd gaps, each with moonlets that scallop the ringlet edges downstream.
     float wake = 0, gapMask = 1, moonCover = 0;
     float3 moonBody = 0, moonHalo = 0;
     for (int g = 0; g < 2; ++g) {
-        float rg = R0 + (g == 0 ? .95 : -1.35);
-        float local = arc + c.t * (g == 0 ? .25 : .18);
-        float idm = floor(local / 6 + .5);
-        float ds = local - idm * 6;
-        float lower = ceiling ? 0.f : 1.f;
-        wake += .05 * sin(ds * 3.5) * exp(-max(-ds, 0.f) * .5) * step(ds, 0.f) * smoothstep(3.f, 2.2f, -ds)
-              * exp(-(rho - rg) * (rho - rg) * 30) * lower;
-        gapMask *= mix(1.f, smoothstep(.03f, .08f, abs(rho - rg)), lower);
-        float phiM = (idm * 6 - c.t * (g == 0 ? .25 : .18) + flowArc) / R0;
-        float2 Pm = float2(rg * cos(phiM) - R0, rg * sin(phiM));
-        const float radius = .06;
-        float zm = max(Pm.y, .05f);
-        float2 centre = float2(Pm.x / zm, .04 * sin(c.t * .05) - (.55 - radius) / zm);
-        float2 nrm = (uv - centre) * zm / radius;
+        float rg = g == 0 ? 13.55 : 14.92;
+        float drift = c.t * (g == 0 ? .11 : .08);
+        float local = arc - drift;
+        float idm = floor(local / 5 + .5);
+        float ds = local - idm * 5;
+        wake += .06 * sin(ds * 3) * exp(-max(ds, 0.f) * .35) * step(0.f, ds) * smoothstep(2.5f, 1.8f, ds)
+              * exp(-(rho - rg) * (rho - rg) * 5);
+        gapMask *= smoothstep(.05f, .13f, abs(rho - rg));
+        float phiM = (idm * 5 + drift - flowArc) / Rref;
+        float2 Pm = C + (rg - sway) * float2(cos(phiM), sin(phiM));
+        float uyM = 1.1 * Pm.y / (1 + .32 * Pm.y);
+        float denM = max(1.1 - .32 * uyM, .5f);
+        float radM = .075 * denM;
+        float2 nrm = (uv - float2(Pm.x * denM, uyM)) / radM;
         float dm = length(nrm);
-        float visible = smoothstep(.05f, .3f, Pm.y) * (1 - smoothstep(12.f, 20.f, Pm.y));
-        float body = fill(dm - 1, c.px * zm / radius) * visible;
-        float lit = clamp(.35 - nrm.x * .4 + nrm.y * .7, 0.f, 1.f) * sqrt(max(0.f, 1 - dm * dm));
-        moonBody += paint(.55 + .4 * lit, f) * (.15 + 1.5 * lit) * body;
-        moonHalo += paint(.9, f) * glow(max(dm - 1, 0.f) * radius / zm, .012) * .7 * visible;
+        float body = fill(dm - 1, c.px / radM);
+        float lit = clamp(.35 - nrm.x * .5 + nrm.y * .6, 0.f, 1.f) * sqrt(max(0.f, 1 - dm * dm));
+        moonBody += paint(.55 + .4 * lit, f) * (.12 + 1.4 * lit) * body;
+        moonHalo += paint(.9, f) * glow(max(dm - 1, 0.f) * radM, .015) * .6;
         moonCover = max(moonCover, body);
     }
     float rw = rho + wake;
 
     // Ringlets: faint fills edged by glowing lines; each band lights its own family of lines.
-    float rr = rw * 7;
+    float rr = rw * 5.5;
     float n = floor(rr), m = floor(rr + .5);
     float dens = hash11(n * 1.37 + 2.1);
     float present = smoothstep(.08f, .2f, dens) * gapMask;
     float lineDens = hash11(m * 2.31 + .7);
-    float level = cosmBand(c.b, m - 4 * floor(m / 4));
+    float level = c.b[int(m - 4 * floor(m / 4))];
     float rim = glow(cosmContour(rr, c.px) / c.size, .003 + .003 * level) * smoothstep(.5f, .2f, fwidth(rr));
     float fineLines = glow(cosmContour(rr * 3 + dens, c.px) / c.size, .0016) * smoothstep(.35f, .12f, fwidth(rr * 3));
-    float farAA = smoothstep(.6f, .2f, max(fwidth(rr), fwidth(arc * 1.3)));   // average detail away near the horizon
-    float clumps = mix(.62f, .3f + .7f * smoothstep(.2f, .8f, noise2(float2(arc * 1.3, rw * 9))), farAA);
+    float clumps = .3 + .7 * smoothstep(.2f, .8f, noise2(float2(arc * .9, rw * 7)));
 
-    // Attacks drive a density wave sideways across both sheets.
-    float rhoF = R0 - 3 + (1 - c.hit) * 6;
-    float waveRho = rho - (ceiling ? 37.3 : 0.f);
-    float packet = exp(-(waveRho - rhoF) * (waveRho - rhoF) / .09) * c.hit * 1.4;
-    float ripple = .5 + .5 * sin((waveRho - rhoF) * 40 - arc * .5);
+    // Attacks drive a spiral density wave outward across the plane.
+    float rhoF = 11.5 + (1 - c.hit) * 5.5;
+    float packet = exp(-(rho - rhoF) * (rho - rhoF) / .1) * c.hit;
+    float ripple = .5 + .5 * sin((rho - rhoF) * 32 - arc * .3);
     float waveBoost = 1 + 2.6 * packet * ripple;
 
-    float2 gq = float2(arc, rw) * float2(2.2, 4), gid = floor(gq);
-    float2 gl = (fract(gq) - .5 - (hash22(gid + 1.3) - .5) * .5) * float2(1, .55);
-    float grains = step(.6, hash21(gid + 4.2)) * exp(-dot(gl, gl) * 220) * (.5 + .5 * sin(c.t * 3 + hash21(gid) * TAU))
+    float2 gq = float2(arc, rw) * 2.5, gid = floor(gq);
+    float2 gl = fract(gq) - .5 - (hash22(gid + 1.3) - .5) * .5;
+    float grains = step(.55, hash21(gid + 4.2)) * exp(-dot(gl, gl) * 160) * (.5 + .5 * sin(c.t * 3 + hash21(gid) * TAU))
                  * (.3 + 2.4 * c.b.w);
-    float body = mix(.15f, present * (.03 + .55 * pow(dens, 2.5f)), farAA) * clumps * waveBoost;
-    grains *= farAA;
+    float body = present * (.06 + .45 * dens * dens) * clumps * waveBoost;
 
-    float3 col = paint(0, f) * .03;
-    col += paint((ceiling ? .3 : .12) + .55 * mix(.5f, dens, farAA), f) * body;
-    col += paint(.55 + .35 * lineDens, f) * rim * gapMask * (.15 + .85 * lineDens * lineDens) * (.55 + 2.2 * level) * waveBoost * (.4 + .6 * clumps);
+    float3 col = paint(0, f) * .045;
+    col += paint(.3 + .4 * dens, f) * body;
+    col += paint(.55 + .35 * lineDens, f) * rim * gapMask * (.15 + .85 * lineDens * lineDens) * (.4 + 2 * level) * waveBoost * (.4 + .6 * clumps);
     col += paint(.7, f) * fineLines * present * (.2 + .5 * dens);
-    col += paint(.95, f) * (grains * present + packet * ripple * .6);
-
-    // Distance haze and the bright seam where both sheets meet the horizon.
-    float fogT = 1 - exp(-Z * .07);
-    col = mix(col, deep(.35, f) * .14, fogT) + paint(.85, f) * (glow(vy, .008) * .8 + glow(vy, .06) * .22);
+    col += paint(.95, f) * (grains * present + packet * ripple * .3);
     col = mix(col, moonBody, moonCover) + moonHalo;
+
+    // Planetshine from the inner rings warms the side nearest the planet.
+    col *= .7 + .5 * smoothstep(16.5f, 12.f, rho);
+    col = mix(col, paint(.45, f) * .18 + col * .6, smoothstep(.95f, .55f, den) * .6);   // far side recedes into haze
     return col;
 }
 NATIVE_EFFECT(ringPlaneRun)
@@ -509,21 +472,18 @@ NATIVE_EFFECT(ringPlaneRun)
 // ---------------------------------------------------------------- 357 Magnetosphere
 float3 magnetosphere(Ctx c, constant NativeFrame &f) {
     float2 p = cosmLongAxis(c.uv / c.size, c.extent);
-    // The planet sits at the canvas centre, where the forward-zoom echo of the dipole field
-    // lands on the field itself.
-    float2 q = rot(p, .25 * sin(c.t * .14));
-    const float Rp = .12;
+    float2 q = rot(p - float2(-.15, 0), .18 * sin(c.t * .08));
+    const float Rp = .1;
     // Dayside compressed by the wind (harder on attacks), nightside stretched into a tail.
-    float press = 1.45 + .15 * sin(c.t * .3) + .4 * c.hit;
+    float press = 1.45 + .4 * c.hit;
     float xd = q.x * mix(press, 1 / (1 + 1.25 * max(q.x, 0.f)), smoothstep(-.1f, .1f, q.x));
-    float flap = .2 * sin(q.x * 2.2 - c.t * .8) * smoothstep(0.f, 1.5f, q.x);   // the tail flaps in the wind
-    float rd = length(float2(xd, q.y + flap));
+    float rd = length(float2(xd, q.y));
     float shellL = rd * rd * rd / max(xd * xd, 1e-6f);
-    float lv = log2(shellL) * 2.4 - c.t * .22;            // field shells drift steadily outward
+    float lv = log2(shellL) * 2.4;
     float id = floor(lv + .5);
-    float level = cosmBand(c.b, id - 4 * floor(id / 4));
+    float level = c.b[int(id - 4 * floor(id / 4))];
     float lat = atan2(q.y, abs(xd));
-    float bounce = .55 + .45 * pow(cosmWave(lat * 8 - c.t * 3 + id * 1.7 - PI * .5), 3.f);
+    float bounce = .55 + .45 * pow(.5 + .5 * sin(lat * 8 - c.t * 3 + id * 1.7), 3.f);
     float xm = -.62 + .7 * q.y * q.y;                       // magnetopause
     float inside = smoothstep(xm - .02, xm + .03, q.x) * smoothstep(Rp, Rp * 1.3, length(q));
     float fieldD = cosmContour(lv, c.px) / c.size;
@@ -539,7 +499,7 @@ float3 magnetosphere(Ctx c, constant NativeFrame &f) {
     float outside = smoothstep(0.f, .02f, y2 - body);
     float wv = eta * 9;
     float windD = cosmContour(wv, c.px) / c.size;
-    float dash = pow(cosmWave(q.x * 12 - c.t * 4 + hash11(floor(wv + .5)) * TAU - PI * .5), 6.f);
+    float dash = pow(.5 + .5 * sin(q.x * 12 - c.t * 4 + hash11(floor(wv + .5)) * TAU), 6.f);
     float wind = (glow(windD, .003) * (.25 + dash * (.5 + 2.2 * c.b.w))) * outside * smoothstep(.45f, .15f, fwidth(wv));
     float sheathMask = (1 - outside) * (1 - inside) * smoothstep(Rp, Rp * 1.3, length(q));
     float sheath = fbm2(q * 4 + float2(-c.t * .3, 0), 3) * sheathMask;
@@ -548,8 +508,7 @@ float3 magnetosphere(Ctx c, constant NativeFrame &f) {
 
     // Attacks fire an interplanetary shock front across the scene.
     float xf = -2.8 + (1 - c.hit) * 5.4;
-    float shockD = q.x - xf - .25 * y2;
-    float shock = (glow(shockD, .02) * 2 + glow(shockD, .12) * .35 * step(shockD, 0.f)) * c.hit;
+    float shock = glow(q.x - xf - .25 * y2, .02) * c.hit * c.hit * 1.8;
 
     float2 pole = float2(0, Rp * .9);
     float aurora = glow(abs(length((q - pole) * float2(1, 3.2)) - .045), .006) + glow(abs(length((q + pole) * float2(1, 3.2)) - .045), .006);
@@ -559,80 +518,63 @@ float3 magnetosphere(Ctx c, constant NativeFrame &f) {
     float2 nrm = q / Rp;
     float day = clamp(-nrm.x * .9 + .25, 0.f, 1.f) * sqrt(max(0.f, 1 - pr * pr));
 
-    float haze = fbm2(p * 1.4 + float2(-c.t * .12, 0), 3);
+    float haze = fbm2(p * 1.4 + float2(-c.t * .04, 0), 3);
     float3 col = paint(.02 + haze * .2, f) * (.05 + .12 * haze * haze);
     col += paint(.35, f) * sheath * .55;
     col += paint(.25 + .1 * id, f) * field * .9 + paint(.15, f) * wind;
     col += paint(.8, f) * (glow(bowD, .006) * .9 + glow(bowD, .05) * .2) + paint(.6, f) * glow(mpD, .005) * inside * .4;
     col += paint(.92, f) * shock + paint(.95, f) * aurora * (.3 + 2 * c.b.z);
-    float dayRim = glow((pr - 1) * Rp, .005) * clamp(.45 - nrm.x * .7, 0.f, 1.f);
-    col = mix(col, deep(.1 + .2 * day, f) * .25 + paint(.4 + .3 * day, f) * day * .75, disc);
-    col += paint(.75, f) * dayRim * 1.3 + paint(.5, f) * glow(max(pr - 1, 0.f) * Rp, .02) * .35;
+    col = mix(col, paint(.55 + .3 * day, f) * (.12 + 1.3 * day), disc) + paint(.9, f) * glow(max(pr - 1, 0.f) * Rp, .012) * .7;
     col += paint(.9, f) * cosmStars(p * 9, .2, c.t) * .4;
     return col;
 }
 NATIVE_EFFECT(magnetosphere)
 
-// ---------------------------------------------------------------- 358 Nebular Filaments
+// ---------------------------------------------------------------- 358 Cosmic Web
 struct CosmCells { float d1; float d3; float edge; float2 a; float2 b; };
 CosmCells cosmCells(float2 p, float phase) {
     float2 cell = floor(p), fp = fract(p);
-    float d1 = 64, d2 = 64, d3 = 64; float2 a = 0, b = 0, sa = 0, sb = 0;
-    float cosine, sine = sincos(phase, cosine);       // every site circles its cell at one rate
+    float d1 = 8, d2 = 8, d3 = 8; float2 a = 0, b = 0, sa = 0, sb = 0;
     for (int y = -1; y <= 1; ++y) for (int x = -1; x <= 1; ++x) {
-        float2 g = float2(x, y), id = cell + g;
-        uint seed = canvasSeed(canvasPair(id));        // one mix, split into two channels
-        float2 o = float2(float(seed & 0xFFFFu), float(seed >> 16)) * (.6f / 65536.f) - .3f;
-        float2 site = g + .5 + float2(o.x * cosine - o.y * sine, o.x * sine + o.y * cosine);
-        float2 delta = site - fp;
-        float d = dot(delta, delta);
-        bool first = d < d1, second = d < d2;          // branch-free insertion keeps SIMD lanes together
-        d3 = second ? d2 : min(d3, d);
-        d2 = first ? d1 : (second ? d : d2);
-        b = first ? a : (second ? id : b);
-        sb = first ? sa : (second ? site : sb);
-        d1 = first ? d : d1; a = first ? id : a; sa = first ? site : sa;
+        float2 g = float2(x, y), id = cell + g, h = hash22(id);
+        float2 site = g + .5 + .4 * sin(phase * (.4 + .3 * h) + h * TAU);
+        float d = length(site - fp);
+        if (d < d1) { d3 = d2; d2 = d1; b = a; sb = sa; d1 = d; a = id; sa = site; }
+        else if (d < d2) { d3 = d2; d2 = d; b = id; sb = site; }
+        else if (d < d3) d3 = d;
     }
     CosmCells k;
-    k.d1 = sqrt(d1); k.d3 = sqrt(d3); k.a = a; k.b = b;
+    k.d1 = d1; k.d3 = d3; k.a = a; k.b = b;
     k.edge = abs(dot(fp - .5 * (sa + sb), normalize(sb - sa + 1e-5)));
     return k;
 }
 
 float3 cosmicWeb(Ctx c, constant NativeFrame &f) {
-    float2 p = c.uv / c.size;
-    float r = length(p);
-    // A supercluster sits ahead: the web crowds toward it, brightens and feeds it great filaments.
-    float well = exp(-r * 1.5), pull = 1 + 1.3 * exp(-r * 1.3);
-    float haze = fbm2(c.uv * .8 + float2(c.t * .01, 0), 2);
-    float3 col = paint(.02 + haze * .2, f) * (.03 + .1 * haze * haze) + paint(.45, f) * well * .08;
-    float bend = atan2(p.y, p.x) + .35 * sin(r * 2.2 - c.t * .12);
-    float spoke = glow(r * abs(sin(3 * bend)) / 3, .004 + .012 * r) * smoothstep(.05f, .25f, r) * exp(-r * .45);
-    for (int k = 0; k < 4; ++k) {
-        float2 s = layerSlot(k, 4, c.travel * .07);
-        float sc = layerScale(s.x, 2) * pull;
-        float2 q = rot(p * sc, s.y * 1.1) + hash22(float2(s.y, 7.3)) * 40;
-        q += .32 * sin(q.yx * float2(.9, 1.1) + float2(s.y, s.y * 1.7 + 2));      // bend the filaments
+    float haze = fbm2(c.uv * .8 + float2(c.t * .01, 0), 3);
+    float3 col = paint(.02 + haze * .2, f) * (.04 + .12 * haze * haze);
+    for (int k = 0; k < 6; ++k) {
+        float2 s = layerSlot(k, 6, c.travel * .09);
+        float sc = layerScale(s.x, 2.4) / c.size;
+        float2 q = rot(c.uv * sc, s.y * 1.1) + hash22(float2(s.y, 7.3)) * 40;
+        q += (float2(noise2(q * .5), noise2(q * .5 + 9.1)) - .5) * .7;
         CosmCells v = cosmCells(q, c.t * .25 + s.y);
         float edge = v.edge / sc, node = (v.d3 - v.d1) / sc;
         float pair = hash21(v.a + v.b);
-        float band = floor(pair * 3.999);
-        float level = cosmBand(c.b, band);
+        int band = int(pair * 3.999);
+        float level = c.b[band];
         float strength = fract(pair * 7.3);                 // some filaments thick and bright, some faint
-        float fade = layerFade(s.x) * (.3 + .7 * s.x) * (1 - c.fog * .5 * (1 - s.x)) * (.42 + .5 * well);
-        float beads = .55 + .45 * sin(q.x * 6.3 + s.y) * sin(q.y * 5.7 - s.y);
+        float fade = layerFade(s.x) * (.3 + .7 * s.x) * (1 - c.fog * .5 * (1 - s.x));
+        float beads = .5 + .5 * noise2(q * 3.5 + s.y);
         float pulseAlong = .6 + .4 * sin(v.d1 * 9 - c.t * 2 + hash21(v.a) * TAU);
-        float wide = (.0015 + .004 * s.x) * (.6 + strength) * (1 + 1.5 * exp(-node * sc * 4));   // thicker near clusters
-        float fil = (glow(edge, wide * (1 + 1.2 * level)) * (.4 + 2.2 * level) * beads * pulseAlong
-                   + glow(edge, .03 * (.4 + s.x)) * .08) * (.3 + 1.1 * strength);
+        float wide = (.0015 + .004 * s.x) * (.6 + strength);
+        float fil = (glow(edge, wide * (1 + 1.2 * level)) * (.3 + 2 * level) * beads * pulseAlong
+                   + glow(edge, .03 * (.4 + s.x)) * .1) * (.3 + .9 * strength);
         float lightUp = step(.45, hash21(v.a + 3.3));
         float flare = 1 + 3.5 * c.hit * lightUp;
-        float hub = glow(node, .009 + .018 * s.x) * flare + glow(node, .07 * (.4 + s.x)) * .28 * flare;
-        col += (paint(.25 + s.y * .11 + band * .1, f) * fil + paint(.75, f) * hub) * fade;
+        float hub = glow(node, .007 + .014 * s.x) * (.7 * flare) + glow(node, .06 * (.4 + s.x)) * .22 * flare;
+        col += (paint(.25 + s.y * .11 + float(band) * .1, f) * fil + paint(.75, f) * hub) * fade;
     }
-    col += paint(.6, f) * spoke * (.4 + 1.2 * c.b.x);
-    col += paint(.78, f) * (glow(r, .03) * 1.2 + glow(r, .15) * .15) * (1 + 1.5 * c.hit);
-    return col * .8;
+    return col;
 }
 NATIVE_EFFECT(cosmicWeb)
 
@@ -640,7 +582,7 @@ NATIVE_EFFECT(cosmicWeb)
 float3 cosmGalaxySource(float2 d, float spin, float hue, constant NativeFrame &f) {
     float r = length(d);
     float phi = atan2(d.y, d.x) - 2.6 * log(r + .02);
-    float arms = pow(cosmWave(2 * phi - spin), 5.f);
+    float arms = pow(.5 + .5 * cos(2 * phi - spin), 5.f);
     float body = exp(-r * 6) * (.15 + .85 * arms) * 1.4 + exp(-r * r * 300) * 1.8;
     return paint(hue + .3 * exp(-r * 6), f) * body;
 }
@@ -657,21 +599,8 @@ float3 einsteinRing(Ctx c, constant NativeFrame &f) {
     float centre = smoothstep(.06f, .22f, r);
 
     float bg = fbm2(beta * 1.6 + float2(3, c.t * .01), 4);
-    float3 col = deep(.9 + bg * .2, f) * (.04 + .1 * bg * bg) * centre;
-    col += paint(.1 + bg * .8, f) * pow(smoothstep(.45f, .9f, bg), 2.f) * .12 * centre;
-    // A field of faint background galaxies, sheared into tangential arclets around the lens.
-    float2 gq = beta * 3.2 + float2(7.1, 2.3);
-    float2 gid = floor(gq);
-    float3 gh = hash33(float3(gid, 4.7));
-    float2 home = (gid + .5 - float2(7.1, 2.3)) / 3.2;          // each galaxy lies along its circle
-    float2 go = rot(fract(gq) - .5 - (gh.xy - .5) * .45, -atan2(home.y, home.x) + (gh.z - .5) * .5) * float2(2.4, 1);
-    float arclet = exp(-dot(go, go) * 55) * step(.3f, gh.x) * smoothstep(thetaE * .75f, thetaE * 1.05f, r);
-    col += paint(gh.z > .5 ? .02 + .2 * gh.y : .74 + .22 * gh.y, f) * arclet * (.35 + 1.2 * c.b.w) * centre;
-    // A compact source almost exactly behind the lens: its image is a crisp near-complete ring
-    // on the Einstein radius, which swells and contracts with the lens mass.
-    float2 b0 = .05 * float2(cos(c.t * .11), sin(c.t * .13));
-    float d0 = length(beta - b0);
-    col += paint(.02 + 2 * d0, f) * (exp(-d0 * d0 * 1400) * 2.2 + exp(-d0 * 12) * .35) * (.5 + 1.4 * c.b.x) * centre;
+    float3 col = paint(1 - bg * .15, f) * (.035 + .05 * bg * bg) * centre;
+    col += paint(.1 + bg * .8, f) * pow(smoothstep(.4f, .9f, bg), 2.f) * .25 * centre;
     for (int j = 0; j < 5; ++j) {
         float fj = float(j);
         float2 home = float2(cos(fj * 2.4 + 1), sin(fj * 2.4 + 1)) * (.1 + .36 * fract(fj * .618 + .2));
@@ -679,13 +608,12 @@ float3 einsteinRing(Ctx c, constant NativeFrame &f) {
         float2 d = rot(beta - sp, fj * 1.3 + c.t * .1);
         d.y /= .6;
         float level = c.b[j % 4];
-        float hue = j % 2 == 0 ? .02 + fj * .04 : .72 + fj * .05;      // cool and hot sources alternate
-        col += cosmGalaxySource(d * (1.5 + fj * .15), c.t * .3 + fj, hue, f) * (.6 + 2.8 * level) * centre;
+        col += cosmGalaxySource(d * (1.1 + fj * .12), c.t * .3 + fj, .05 + fj * .22, f) * (.4 + 1.9 * level) * centre;
     }
     // Attacks slide a bright new source behind the lens: a ring forms, then breaks into arcs.
     float2 sh2 = rot(float2(-.08 + (1 - c.hit) * .9, .04), c.t * .07);
     float flash = length(beta - sh2);
-    col += paint(.75, f) * (glow(flash, .035) * 3 + glow(flash, .12) * .6) * c.hit * centre;
+    col += paint(.75, f) * (glow(flash, .03) * 2 + glow(flash, .1) * .4) * c.hit * c.hit * centre;
     col += paint(.6, f) * cosmStars(beta * 9, .25, c.t) * .5 * centre;
     col += paint(.9, f) * glow(r, .05) * .3;
     return col;
