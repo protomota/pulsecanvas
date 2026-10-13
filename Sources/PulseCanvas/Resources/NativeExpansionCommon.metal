@@ -201,8 +201,8 @@ Ctx rhythmicSurface(Ctx c, constant NativeFrame &f) {
     float2 p = c.uv;
     float bass = c.b.x * c.b.x, body = c.b.y * c.b.y;
     float fine = c.b.z * c.b.z + c.b.w * c.b.w;
-    bool tunnel = f.scene >= 245 && f.scene <= 279;
-    bool drive = (f.scene >= 200 && f.scene <= 209) || (f.scene >= 220 && f.scene <= 244);
+    bool tunnel = (f.scene >= 245 && f.scene <= 279) || (f.scene >= 300 && f.scene <= 319);
+    bool drive = (f.scene >= 200 && f.scene <= 209) || (f.scene >= 220 && f.scene <= 244) || (f.scene >= 330 && f.scene <= 339);
     if (tunnel) {
         float r = length(p), a = atan2(p.y, p.x);
         float2 radial = p / max(r, 1e-5f), tangent = float2(-radial.y, radial.x);
