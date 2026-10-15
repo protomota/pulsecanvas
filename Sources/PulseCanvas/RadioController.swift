@@ -333,7 +333,7 @@ final class RadioController: ObservableObject {
         sceneTitle = RenderState.sceneNames[scene]
     }
 
-    private func rebuildVisuals(keepingCurrent: Bool = false) {
+    private func rebuildVisuals(keepingCurrent: Bool = false, previousScene: Int? = nil) {
         guard let audio, let plan = audio.segmentPlan(beatsPerSection: barsPerVisualizer * 4) else { return }
         let available = presets.availableScenes
         let favorites = available.filter { presets.isFavorite($0) }
@@ -353,7 +353,7 @@ final class RadioController: ObservableObject {
             segments = retained + future
         } else {
             segments = RadioVisualSchedule.make(plan: plan, pool: available, bars: barsPerVisualizer,
-                favorites: Set(favorites), played: playedVisualizers)
+                favorites: Set(favorites), played: playedVisualizers, previous: previousScene)
         }
         sceneTitle = ""; follow(time: audio.playbackSeconds)
     }
@@ -382,11 +382,12 @@ final class RadioController: ObservableObject {
                     }
                     try Task.checkCancellation()
                     guard let self, self.revision == token, self.isActive else { return }
+                    let previousScene = self.hasRadioAudio ? self.visualizer.scene : nil
                     guard audio.install(prepared, title: track.title) else { throw RadioError.download }
                     self.hasRadioAudio = true
                     self.currentIndex = index; self.requestedIndex = nil; self.isLoading = false
                     self.segments = []; self.playedVisualizers = []; self.sceneTitle = ""
-                    self.rebuildVisuals(); self.soundtrackInstalled.send()
+                    self.rebuildVisuals(previousScene: previousScene); self.soundtrackInstalled.send()
                     self.status = "\(track.title) · \(track.genre)"
                     if self.wantsPlayback { audio.playFullSoundtrack() }
                     // Download AND analyze the next song while this song plays.

@@ -215,7 +215,15 @@ enum RadioVisualSchedule {
         var bag: [Int] = [], previous = previous, result: [StudioSegment] = []
         for (start, end) in zip(plan.boundaries, plan.boundaries.dropFirst()) {
             let scene: Int
-            if let favorite = preferred.popLast() { scene = favorite }
+            if preferred.last == previous,
+               let alternate = preferred.firstIndex(where: { $0 != previous }) {
+                preferred.swapAt(alternate, preferred.count - 1)
+            }
+            // A lone favorite can be the outgoing song's last visual. Open with
+            // a different design, then deal that favorite later in the song.
+            if let favorite = preferred.last, favorite != previous || available.count == 1 {
+                scene = preferred.removeLast()
+            }
             else {
                 // If the entire gallery is favorited, hold the last design once
                 // its unique choices run out rather than repeating favorites.

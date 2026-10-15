@@ -107,6 +107,21 @@ import Foundation
         precondition(shortSong.count == 2 && Set(shortSong.map(\.scene)).count == 2)
         print("PASS mixed visuals: one/three favorites once per song, random non-favorite fill, short songs, spent favorites and all-favorite galleries")
 
+        for favorites: Set<Int> in [[], [10], [10, 18, 22], Set(mixedPool)] {
+            for previous in mixedPool {
+                for _ in 0..<40 {
+                    let nextSong = RadioVisualSchedule.make(plan: visualPlan, pool: mixedPool, bars: 4,
+                        favorites: favorites, previous: previous)
+                    precondition(nextSong.first?.scene != previous, "A new track must open with a different visualizer")
+                    precondition(nextSong.first?.start == 0 && nextSong.last?.end == 18)
+                    for favorite in favorites { precondition(nextSong.filter { $0.scene == favorite }.count == 1) }
+                }
+            }
+        }
+        let singleVisual = RadioVisualSchedule.make(plan: visualPlan, pool: [10], bars: 4, favorites: [10], previous: 10)
+        precondition(singleVisual.first?.scene == 10 && singleVisual.last?.end == 18)
+        print("PASS track transitions: different opening visual with zero, one, several or all favorites; one-design fallback remains valid")
+
         let library = RadioLibrary(directory: temporary.appendingPathComponent("cache"))
         let cached = try await library.localAudio(for: tracks[0], catalogURL: catalogURL)
         try Data("broken cache".utf8).write(to: cached)
@@ -198,9 +213,25 @@ import Foundation
         try await wait("playlist wrap") { radio.currentIndex == 0 && !radio.isLoading }
         print("PASS playback: full-song completion, automatic next, playlist wrap, pause/resume and complete Studio coverage")
 
+        let beforeSkip = radio.visualizer.scene
+        radio.next()
+        try await wait("manual skip changes visual") { radio.currentIndex == 1 && !radio.isLoading }
+        precondition(radio.visualizer.scene != beforeSkip && audio.isPlaying)
+        let beforePausedSkip = radio.visualizer.scene
+        radio.togglePlayback()
+        radio.next()
+        try await wait("paused skip changes visual") { radio.currentIndex == 2 && !radio.isLoading }
+        precondition(radio.visualizer.scene != beforePausedSkip && !audio.isPlaying)
+        radio.togglePlayback()
+        radio.next()
+        try await wait("return to first song") { radio.currentIndex == 0 && !radio.isLoading }
+        print("PASS manual skip: next song changes visuals while preserving playing/paused transport state")
+
+        let beforeRapidSkip = radio.visualizer.scene
         radio.next(); radio.next()
         precondition(radio.isLoading && radio.isPlaybackRequested, "Skipping while playing must keep the Pause transport state during preparation")
         try await wait("rapid double skip") { radio.currentIndex == 2 && !radio.isLoading }
+        precondition(radio.visualizer.scene != beforeRapidSkip)
         radio.next(); radio.leave()
         try await Task.sleep(nanoseconds: 300_000_000)
         precondition(!radio.isActive && !radio.isLoading && !audio.isPlaying && audio.onSoundtrackFinished == nil)
