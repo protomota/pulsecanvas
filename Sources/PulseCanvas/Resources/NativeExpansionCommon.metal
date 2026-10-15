@@ -10,7 +10,7 @@ using namespace metal;
 // SpatialFrame so every native pass shares one uniform block.
 struct NativeFrame {
     float2 resolution; float time; int scene;
-    float4 rhythm;   // pulse, drive, raw bass, raw treble (Chaos-scaled)
+    float4 rhythm;   // attack, drive, attack swell, raw treble (Chaos-scaled)
     float4 style;    // brightness, size, fog, camera zoom
     float4 camera;   // rotation, Chaos, detail, zoom speed
     float4 colors[5];
@@ -192,45 +192,79 @@ Ctx makeContext(float2 position, constant NativeFrame &f) {
     return c;
 }
 
-// Beat-driven movement of the design's own elements, never a whole-picture pulse: the
-// displacement differs from place to place, so lines twist, bend and swirl while the frame
-// as a whole stays put. The per-effect band consumers still control individual cells,
-// layers and materials independently.
+// Music moves each design's elements, never the picture as a whole. Every design gets one of
+// three motion styles for its family, so neighbouring designs move differently:
+//   tunnels  0 wobble (the tube flexes in lobes that roll around it)
+//            1 twist  (rings at different depths turn, so lines wind into spirals; all of 310–319)
+//            2 ripple (rings wave in and out as waves run down the bore)
+//   flights  0 slither (lanes bend sideways in an S that runs toward the viewer)
+//            1 swell   (the ground rolls in waves across the lanes)
+//            2 churn   (turbulent ground)
+//   fields   0 eddies, 1 rolling waves, 2 liquid flow
+// The attack swell keeps each beat moving for about a quarter second and the music's momentum
+// keeps everything moving between beats. All of it is zero at zero Chaos or in silence; higher
+// Chaos also raises the gain, so the slider reads as "more chaotic", not just "louder".
 // Second versions (370–390) move exactly like the designs they come from.
 constant short secondVersionSources[20] = {336, 337, 339, 340, 341, 342, 343, 345, 346, 347, 348, 349, 351, 352, 353, 354, 355, 357, 358, 359};
 Ctx rhythmicSurface(Ctx c, constant NativeFrame &f) {
     int scene = f.scene >= 370 && f.scene <= 389 ? int(secondVersionSources[f.scene - 370]) : f.scene;
     float variant = float((scene - 100) % 7);
+    // Material-lined tunnels (310–319) twist: their fine weaves and scales read best turning,
+    // and the encoder keeps their detail; everything else spreads across the three styles.
+    int style = scene >= 310 && scene <= 319 ? 1 : scene % 3;
     float2 p = c.uv;
-    float bass = c.b.x * c.b.x, body = c.b.y * c.b.y;
-    float fine = c.b.z * c.b.z + c.b.w * c.b.w;
+    float chaos = clamp(f.camera.y, 0.f, 1.f);
+    float gain = .55 + chaos;
+    float beat = min(1.f, c.hit * .7 + clamp(f.rhythm.z, 0.f, 1.f) * .6);
+    float energy = c.e;
+    float bass = c.b.x, body = c.b.y, fine = .5 * (c.b.z + c.b.w);
+    // Slow turbulence shared by every style; its strength follows the music's energy.
+    float2 drift = curl2(p * 1.4 + float2(c.t * .05, -c.t * .04) + variant) * .3;
     bool tunnel = (scene >= 245 && scene <= 279) || (scene >= 300 && scene <= 319) || (scene >= 360 && scene <= 369);
     bool drive = (scene >= 200 && scene <= 209) || (scene >= 220 && scene <= 244) || (scene >= 330 && scene <= 339);
     if (tunnel) {
-        // A beat sends a twist wave down the bore: rings at different depths turn by different
-        // amounts, so straight lines wind into spirals and unwind as the attack fades. Turning
-        // about the axis keeps every ring's radius, so the tube never breathes in and out.
         float r = length(p), a = atan2(p.y, p.x);
         float depth = log(max(r, 1e-3f));
         float reach = smoothstep(.04f, .35f, r);
-        float wave = sin(depth * (3.5 + variant * .4) + c.hit * 7 - c.t * .4);
-        float turn = (c.hit * 1.1 + bass * .1) * wave;
-        // The low-mid and high bands roll smaller ripples around each ring.
-        turn += (body * .16 + fine * .08) * sin(a * 4 - depth * 6 + c.t * .6);
-        c.uv = rot(p, turn * reach);
+        float2 radial = p / max(r, 1e-5f);
+        float push = 0, turn = 0;
+        if (style == 0) {
+            push = (beat * .5 + bass * .16 + energy * .1) * sin(a * (3 + variant) + depth * 2 - c.t * .45);
+        } else if (style == 1) {
+            turn = (beat * 1.1 + bass * .32 + energy * .25) * sin(depth * (3.5 + variant * .4) + beat * 6 - c.t * .4);
+        } else {
+            push = (beat * .32 + bass * .14 + energy * .08) * sin(depth * 6 - c.t * 1.6 + variant);
+            turn = body * .2 * sin(a * 3 - depth * 4 + c.t * .5);
+        }
+        turn += (body * .16 + fine * .1) * sin(a * 4 - depth * 6 + c.t * .6);
+        float2 q = rot(p, turn * gain * reach);
+        q += radial * push * gain * r / (1 + r);
+        c.uv = q + drift * energy * gain * .35 * reach;
     } else if (drive) {
-        // A beat sends an S-bend through the lanes that runs toward the viewer, so lines slither
-        // sideways instead of the whole ground bouncing; the horizon and camera stay put.
         float lane = p.x * (2.4 + variant * .2);
-        c.uv.x += (c.hit * .24 + bass * .08) * sin(p.y * 4 + c.hit * 7 + c.t * .5 + variant);
-        c.uv.y += (body * .06 + fine * .06) * sin(lane + p.y * 5 + c.t * .4);
+        if (style == 0) {
+            c.uv.x += (beat * .24 + bass * .1 + energy * .06) * gain * sin(p.y * 4 + beat * 6 + c.t * .5 + variant);
+        } else if (style == 1) {
+            c.uv.y += (beat * .2 + bass * .1 + energy * .05) * gain * sin(lane + p.y * 3 - c.t * .5);
+        } else {
+            c.uv += drift * (beat * .35 + bass * .12 + energy * .1) * gain;
+        }
+        c.uv.x += (body * .1 + fine * .1) * gain * sin(p.y * 5 + lane * .5 + c.t * .4);
+        c.uv += drift * energy * gain * .25;
     } else {
-        // A beat stirs eddies that turn neighbouring elements in different directions, rather
-        // than shoving the whole pattern one way.
-        float2 q = p * (1.2 + variant * .1) + float2(c.t * .06, -c.t * .045);
-        c.uv += curl2(q) * .45 * (c.hit * .5 + bass * .16);
-        c.uv += curl2(q * .6 + 4.7) * .45 * body * .2;
-        c.uv += fine * .055 * float2(sin(p.y * 13 - c.t), cos(p.x * 11 + c.t));
+        if (style == 0) {
+            float2 q = p * (1.2 + variant * .1) + float2(c.t * .06, -c.t * .045);
+            c.uv += curl2(q) * .45 * (beat * .55 + bass * .18 + body * .12 + energy * .1) * gain;
+        } else if (style == 1) {
+            float2 wave = float2(sin(p.y * (3.2 + variant * .2) + p.x * 1.7 + c.t * .6),
+                                 cos(p.x * (3.8 + variant * .2) - p.y * 2.1 - c.t * .5));
+            c.uv += wave * float2(beat * .3 + bass * .12 + energy * .05, beat * .22 + body * .16 + energy * .05) * gain;
+        } else {
+            float2 flow = float2(fbm2(p * 1.3 + c.t * .08, 3), fbm2(p * 1.3 + 5.2 - c.t * .07, 3)) - .5;
+            c.uv += flow * (beat * .5 + bass * .2 + body * .14 + energy * .15) * gain;
+        }
+        c.uv += fine * .055 * gain * float2(sin(p.y * 13 - c.t), cos(p.x * 11 + c.t));
+        c.uv += drift * energy * gain * .3;
     }
     return c;
 }

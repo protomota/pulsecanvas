@@ -568,8 +568,11 @@ final class VisualizerRenderer: NSObject, MTKViewDelegate {
         pass.colorAttachments[0].loadAction = .dontCare; pass.colorAttachments[0].storeAction = .store
         guard let encoder = command.makeRenderCommandEncoder(descriptor: pass) else { throw RenderError("Could not encode \(effect.name)") }
         let colors = (VisualPalette(rawValue: state.palette) ?? .ultraviolet).stops.map { SIMD4<Float>($0, 1) }
+        // Expansion designs read the sharp attack in x and the quarter-second attack swell in z,
+        // which their shared beat motion uses so beats read as movement rather than a flick.
+        let expansion = effect.file?.hasPrefix("NativeExpansion") == true
         var frame = SpatialUniforms(resolution: SIMD2(Float(target.width), Float(target.height)), time: Float(base), scene: Int32(state.scene),
-            rhythm: SIMD4(effect.file?.hasPrefix("NativeExpansion") == true ? visualPulse : swell * chaosAmount, chaosDrive, visualLevels.x, visualLevels.w),
+            rhythm: SIMD4(expansion ? visualPulse : swell * chaosAmount, chaosDrive, expansion ? swell * chaosAmount : visualLevels.x, visualLevels.w),
             style: SIMD4(state.brightness, state.particleSize, state.fog, state.zoom),
             camera: SIMD4(state.rotation, chaosAmount, state.liquidDetail, zoomSpeed),
             color0: colors[0], color1: colors[1], color2: colors[2], color3: colors[3], color4: colors[4],
