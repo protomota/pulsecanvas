@@ -316,6 +316,8 @@ The owner red-tagged review clips of these designs; every red-tagged clip is a k
 
 ## Current visual fixes
 
+Beat motion of the expansion designs (200–389) no longer bends the whole picture at once. The shared beat warp in `NativeExpansionCommon.metal` used to push every ring of a tunnel out in the same lobes, bounce whole ground planes and shift full-frame patterns as one piece, which read as a generic pulse. Now a beat sends a twist wave down each tunnel (rings at different depths turn by different amounts, so straight lines wind into spirals and unwind as the attack fades; radii never change), makes the lanes of a flight slither sideways in an S-bend that runs toward the viewer, and stirs local eddies that turn neighbouring elements of a full-frame design in different directions. Zero Chaos is unaffected.
+
 Pearl Terrain and Prism Rain use neighboring-object intersections to preserve whole spheres and prisms across repeated cell boundaries. Mandel Bloom has continuously bending, music-driven folds with an integer-power fractal domain. Its bands deform the surface rather than only moving a camera around a rigid shape. Zero Chaos still removes the musical deformation.
 
 Ferrofluid Crown was not red-labeled and is withdrawn from the app. Its smooth-surface rewrite is preserved as a separate development prototype; it is not part of the offered catalog.

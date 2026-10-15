@@ -192,10 +192,10 @@ Ctx makeContext(float2 position, constant NativeFrame &f) {
     return c;
 }
 
-// Beat-driven surface movement, rather than a uniform camera scale or screen flash.
-// Every displacement varies across the pattern. Bass flexes surfaces, midrange
-// bends ribbons and treble adds fine ripples. The existing per-effect band consumers
-// still control individual cells, layers and materials independently.
+// Beat-driven movement of the design's own elements, never a whole-picture pulse: the
+// displacement differs from place to place, so lines twist, bend and swirl while the frame
+// as a whole stays put. The per-effect band consumers still control individual cells,
+// layers and materials independently.
 // Second versions (370–390) move exactly like the designs they come from.
 constant short secondVersionSources[20] = {336, 337, 339, 340, 341, 342, 343, 345, 346, 347, 348, 349, 351, 352, 353, 354, 355, 357, 358, 359};
 Ctx rhythmicSurface(Ctx c, constant NativeFrame &f) {
@@ -207,22 +207,29 @@ Ctx rhythmicSurface(Ctx c, constant NativeFrame &f) {
     bool tunnel = (scene >= 245 && scene <= 279) || (scene >= 300 && scene <= 319) || (scene >= 360 && scene <= 369);
     bool drive = (scene >= 200 && scene <= 209) || (scene >= 220 && scene <= 244) || (scene >= 330 && scene <= 339);
     if (tunnel) {
+        // A beat sends a twist wave down the bore: rings at different depths turn by different
+        // amounts, so straight lines wind into spirals and unwind as the attack fades. Turning
+        // about the axis keeps every ring's radius, so the tube never breathes in and out.
         float r = length(p), a = atan2(p.y, p.x);
-        float2 radial = p / max(r, 1e-5f), tangent = float2(-radial.y, radial.x);
-        float wave = sin(a * (3 + variant) + r * 3 - c.t * .45);
-        float flex = (c.hit * .48 + bass * .16) * wave;
-        float twist = (body * .13 + fine * .065) * sin(a * 4 - r * 5 + c.t * .6);
-        c.uv += (radial * flex + tangent * twist) * r / (1 + r);
+        float depth = log(max(r, 1e-3f));
+        float reach = smoothstep(.04f, .35f, r);
+        float wave = sin(depth * (3.5 + variant * .4) + c.hit * 7 - c.t * .4);
+        float turn = (c.hit * 1.1 + bass * .1) * wave;
+        // The low-mid and high bands roll smaller ripples around each ring.
+        turn += (body * .16 + fine * .08) * sin(a * 4 - depth * 6 + c.t * .6);
+        c.uv = rot(p, turn * reach);
     } else if (drive) {
-        // Travel accelerates through integrated percussion. Here the road/wall
-        // itself ripples; the horizon and camera don't kick on a drum hit.
+        // A beat sends an S-bend through the lanes that runs toward the viewer, so lines slither
+        // sideways instead of the whole ground bouncing; the horizon and camera stay put.
         float lane = p.x * (2.4 + variant * .2);
-        c.uv.y += (c.hit * .20 + bass * .09) * sin(lane + p.y * 3 - c.t * .5);
-        c.uv.x += (body * .12 + fine * .12) * sin(p.y * 5 + lane * .5 + c.t * .4);
+        c.uv.x += (c.hit * .24 + bass * .08) * sin(p.y * 4 + c.hit * 7 + c.t * .5 + variant);
+        c.uv.y += (body * .06 + fine * .06) * sin(lane + p.y * 5 + c.t * .4);
     } else {
-        float2 wave = float2(sin(p.y * (3.2 + variant * .2) + p.x * 1.7 + c.t * .6),
-                            cos(p.x * (3.8 + variant * .2) - p.y * 2.1 - c.t * .5));
-        c.uv += wave * float2(c.hit * .30 + bass * .12, c.hit * .22 + body * .16);
+        // A beat stirs eddies that turn neighbouring elements in different directions, rather
+        // than shoving the whole pattern one way.
+        float2 q = p * (1.2 + variant * .1) + float2(c.t * .06, -c.t * .045);
+        c.uv += curl2(q) * .45 * (c.hit * .5 + bass * .16);
+        c.uv += curl2(q * .6 + 4.7) * .45 * body * .2;
         c.uv += fine * .055 * float2(sin(p.y * 13 - c.t), cos(p.x * 11 + c.t));
     }
     return c;
