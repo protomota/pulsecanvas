@@ -1,3 +1,25 @@
+## Creators 1.1.2 (19) — update indicator released
+
+Published on 2026-10-15 at https://pulsecanvas.si/download/. Creators now shows a
+round download icon beside Random visualizer when Sparkle finds a newer release.
+The icon opens the existing Sparkle installer; Remind Me Later retains it and Skip
+This Version hides it. Automatic-check preferences remain respected.
+
+Developer ID signing, Apple notarization, stapling, Gatekeeper and the pinned
+Sparkle Ed25519 signature all passed. The public DMG and matching source archive
+were verified with full download checksums. The deployed website's 77 files were
+verified; only its release manifest, appcast and download release notes changed.
+An isolated QA app detected the real published 1.1.2 update, displayed the button
+and opened Sparkle's update dialog without installing it or changing the user's
+session. This release retains 270 native designs, 7,758 community presets and 67
+textures. Source revision: `6a661aac2e28d848ff70e3719c1cd2f8ce78ae66`.
+
+DMG SHA-256: `8036fa82160b7fc9a6c692c8b57927aa4959f2d39033e87f4149141ca424ac7d`.
+Matching source SHA-256: `a03d5a5d7a3af609a17e0ec9bd6db0c72bb0e3ae9f10fd1c26c386a027f21ae6`.
+
+The update UI and Sparkle remain excluded from the Store edition. No new Store
+upload or App Review submission was made for this Creators-only release.
+
 ## TestFlight 1.1.1 (18) tester access corrected — 2026-10-15
 
 Build 18 completed upload/processing but had no assigned tester group. It is now assigned to **PulseCanvas Mac Beta**, and the group's build list is verified as **Testing**. Its build ID is `8ee4fe88-6ac3-42d0-aae8-eb3571c06349`. No App Review submission was changed. Future uploads must verify group assignment after processing; an upload alone is not a completed TestFlight release.
