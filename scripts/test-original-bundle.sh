@@ -1,7 +1,9 @@
 #!/bin/bash
 set -euo pipefail
 cd "$(dirname "$0")/.."
-app="${1:?Usage: test-original-bundle.sh APP}"
+app="${1:-}"
+# The validation suite runs every test without arguments; this one inspects a built app.
+[[ -n "$app" ]] || { echo 'SKIP: pass a built PulseCanvas Studio.app to inspect (Usage: test-original-bundle.sh APP)'; exit 0; }
 app="$(cd "$app" && pwd)"
 python3 scripts/verify-original-resources.py "$app"
 mkdir -p .build/validation

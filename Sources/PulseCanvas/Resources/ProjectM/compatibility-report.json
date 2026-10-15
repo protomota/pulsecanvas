@@ -3,8 +3,8 @@
   "gpuRenderChecked": 8790,
   "familySkippedAfterConfirmation": 993,
   "userReportedRemovals": 45,
-  "retained": 7838,
-  "removed": 1945,
+  "retained": 7758,
+  "removed": 2025,
   "nativeVisualizers": 31,
   "maximumFramesPerPreset": 90,
   "minimumVisualCheckSeconds": 2,
@@ -27,6 +27,11 @@
     "Repeated user-reported defects in the Core Mirror family": 60,
     "Sustained solid white output": 4,
     "Sustained frame time exceeds 33 ms at audit resolution": 2,
-    "Verified black across 900 GPU frames with soundtrack PCM": 1
+    "Verified black across 900 GPU frames with soundtrack PCM": 1,
+    "ownerCuration": 80
+  },
+  "ownerCuration": {
+    "source": "preset-curation.json",
+    "withdrawn": 80
   }
 }

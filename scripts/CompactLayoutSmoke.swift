@@ -19,8 +19,8 @@ import SwiftUI
             if let previousFormat { UserDefaults.standard.set(previousFormat, forKey: "PulseCanvas.videoFormat.v1") }
             else { UserDefaults.standard.removeObject(forKey: "PulseCanvas.videoFormat.v1") }
         }
-        let host = NSHostingView(rootView: CreatorView(render: render, audio: audio, studio: studio,
-            exporter: exporter, presentation: StudioPresentationController()).preferredColorScheme(.dark))
+        let host = NSHostingView(rootView: CreatorView(render: render, audio: audio, radio: RadioController(), studio: studio,
+            exporter: exporter, presentation: StudioPresentationController(), lifecycle: AppLifecycle()).preferredColorScheme(.dark))
         for height in stride(from: 180, through: 600, by: 1) {
             let layout = CanvasPreviewLayout(size: CGSize(width: 900, height: height), aspectRatio: 16.0 / 9)
             let next = CanvasPreviewLayout(size: CGSize(width: 900, height: height + 1), aspectRatio: 16.0 / 9)
