@@ -1,3 +1,7 @@
+## TestFlight 1.1.1 (18) tester access corrected — 2026-10-15
+
+Build 18 completed upload/processing but had no assigned tester group. It is now assigned to **PulseCanvas Mac Beta**, and the group's build list is verified as **Testing**. Its build ID is `8ee4fe88-6ac3-42d0-aae8-eb3571c06349`. No App Review submission was changed. Future uploads must verify group assignment after processing; an upload alone is not a completed TestFlight release.
+
 ## Build 1.1.0 (17) published to website and TestFlight — 2026-10-15
 
 Main is fast-forwarded to `1114115732434abcfd266b053c5b999b3d604647`, preserving local Radio, favorites and curation changes. The latest tunnel-twist and element-level beat motion is verified byte-for-byte in the Store archive, exported installer and Creators app. Both editions contain 270 active native effects; Creators retains 7,758 community presets and 67 textures.

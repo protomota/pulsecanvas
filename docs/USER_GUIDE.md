@@ -161,3 +161,8 @@ Open **Library → Favorite songs** to browse saved songs and click a row to sta
 Removed visualizers are automatically deleted from saved favorites on launch; restoring a backup skips effects absent from this edition’s gallery. Retired designs do not automatically favorite their replacements. Song favorites are checked against their source’s complete catalog and removed when that catalog confirms the song is gone, including an empty catalog. A genre subset, invalid catalog or network failure does not prove removal and does not erase favorites. Cleanup updates saved preferences, so removed entries do not return on the next launch. Original user audio files are never deleted by favorites cleanup.
 
 Radio shuffles songs by default. Each station round plays its favorite songs first in random order, then the remaining station songs in random order, avoiding adjacent repeats. Adding or removing song favorites refreshes the next-song choice and its prefetch without stopping the current song. Each favorite visualizer is used at most once per song, in shuffled order; remaining sections use random non-favorites. Changing favorite hearts or bar lengths keeps the current scene and does not replay favorites already shown in that song. A song with fewer sections than favorites can only show as many as fit. If every available visualizer is favorited and the unique choices run out, Radio holds the last design instead of cycling the favorites.
+
+
+## Creators updates
+
+A tan download-tray icon appears beside **Random visualizer** when an update is available. Click it to open the existing Sparkle installer. Automatic checks can be changed in Settings; manual checks remain in the app menu. See [Updates](UPDATES.md) for reminder behavior and edition differences.

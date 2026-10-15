@@ -59,6 +59,9 @@ struct PulseCanvasApp: App {
     var body: some Scene {
         WindowGroup("PulseCanvas Studio") {
             CreatorView(render: render, audio: audio, radio: radio, studio: studio, exporter: exporter, presentation: presentation, lifecycle: lifecycle)
+                #if DIRECT_BUILD && canImport(Sparkle) && !LOCAL_BUILD
+                .environmentObject(updater)
+                #endif
                 .preferredColorScheme(.dark)
                 .frame(minWidth: 1080, minHeight: 740)
                 .onReceive(audio.visualizationUpdated) {
@@ -139,6 +142,9 @@ struct PulseCanvasApp: App {
 @MainActor
 struct CreatorView: View {
     @Environment(\.openWindow) private var openWindow
+    #if DIRECT_BUILD && canImport(Sparkle) && !LOCAL_BUILD
+    @EnvironmentObject private var updater: AppUpdater
+    #endif
     @ObservedObject var render: RenderState
     @ObservedObject var audio: AudioController
     @ObservedObject var radio: RadioController
@@ -305,6 +311,9 @@ struct CreatorView: View {
                 Label("Random visualizer", systemImage: "shuffle")
             }.buttonStyle(StudioButtonStyle(treatment: .accent))
                 .help("Pick another visualizer with its saved settings")
+            #if DIRECT_BUILD && canImport(Sparkle) && !LOCAL_BUILD
+            AppUpdateButton(updater: updater)
+            #endif
             Spacer(minLength: 8)
             Button { showVisualizerBrowser = true } label: { Label("Library", systemImage: "square.grid.2x2") }
                 .help("Browse categories and save favorites")
