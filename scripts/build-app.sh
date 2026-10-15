@@ -5,16 +5,14 @@ cd "$(dirname "$0")/.."
 swift build -c release
 APP="build/PulseCanvas Studio.app"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
+# Remove stale payloads when rebuilding a previously full-library bundle.
+rm -f "$APP/Contents/Frameworks/libprojectM.dylib" "$APP/Contents/Resources/Third-Party-Notices.md"
+rm -rf "$APP/Contents/Resources/Legal"
 cp .build/release/PulseCanvas "$APP/Contents/MacOS/PulseCanvas"
-mkdir -p "$APP/Contents/Frameworks"
-cp .build/projectm/install/lib/libprojectM-4.4.2.0.dylib "$APP/Contents/Frameworks/libprojectM.dylib"
-install_name_tool -id @rpath/libprojectM.dylib "$APP/Contents/Frameworks/libprojectM.dylib"
-codesign --force --sign - "$APP/Contents/Frameworks/libprojectM.dylib"
 find "$APP/Contents/Resources" -maxdepth 1 -name "*.bundle" -type d -exec rm -rf {} +
 cp -R .build/release/PulseCanvas_PulseCanvas.bundle "$APP/Contents/Resources/"
 rm -f "$APP/Contents/Resources/PulseCanvas-MIT-LICENSE.txt"
 cp LICENSE "$APP/Contents/Resources/PulseCanvas-LICENSE.txt"
-cp third_party/PROJECTM.md "$APP/Contents/Resources/Third-Party-Notices.md"
 ./scripts/prepare-legal-resources.sh "$APP/Contents/Resources/Legal"
 release_version="$(awk '/^MARKETING_VERSION = / {print $3}' macOS/Release.xcconfig)"
 release_build="$(awk '/^CURRENT_PROJECT_VERSION = / {print $3}' macOS/Release.xcconfig)"
@@ -38,5 +36,5 @@ PLIST
 xcrun swift scripts/build-icon.swift .build/AppIcon.iconset
 xcrun iconutil -c icns .build/AppIcon.iconset -o "$APP/Contents/Resources/AppIcon.icns"
 codesign --force --deep --sign - "$APP"
-python3 scripts/preset-provenance.py --app "$APP"
+python3 scripts/verify-original-resources.py "$APP"
 printf 'Built %s\n' "$PWD/$APP"

@@ -1,10 +1,15 @@
+import AppKit
 import SwiftUI
 
 struct CreatorThanksView: View {
-    let offersWebsiteTip: Bool
+    @ObservedObject var engagement: CreatorEngagement
     var isExportMilestone = false
     let done: () -> Void
     @Environment(\.openURL) private var openURL
+    @State private var shareAnchor = NSView()
+    @State private var sharePicker: NSSharingServicePicker?
+    @State private var didReset = false
+    private var offersWebsiteTip: Bool { engagement.offersWebsiteTip }
     private let peach = Color(red: 0.95, green: 0.68, blue: 0.55)
 
     var body: some View {
@@ -16,7 +21,7 @@ struct CreatorThanksView: View {
                     .frame(width: 66, height: 66)
                     .background(peach.opacity(0.12), in: RoundedRectangle(cornerRadius: 18))
                 VStack(alignment: .leading, spacing: 7) {
-                    Text(isExportMilestone ? "YOUR SECOND VIDEO, SAVED" : "RATINGS & SUPPORT")
+                    Text(isExportMilestone ? "YOUR VIDEO, SAVED" : "RATINGS & SUPPORT")
                         .font(.system(size: 11, weight: .bold)).tracking(1.4).foregroundStyle(peach)
                     Text("Free software.\nSupported by people.")
                         .font(.system(size: 25, weight: .semibold, design: .rounded))
@@ -30,21 +35,35 @@ struct CreatorThanksView: View {
                     .fixedSize(horizontal: false, vertical: true)
             }
             VStack(spacing: 10) {
-                Button { openURL(PulseCanvasCommunity.review) } label: {
-                    action("Rate on the App Store", detail: "Leave a rating and share your experience", icon: "star.bubble", primary: true)
+                Button { visit(.review, url: PulseCanvasCommunity.review) } label: {
+                    action("Rate on the App Store", detail: "Leave a rating and share your experience", icon: "star.bubble", kind: .review, primary: true)
                 }.buttonStyle(StudioButtonStyle(treatment: .primary))
                 if offersWebsiteTip {
-                    Button { openURL(PulseCanvasCommunity.tips) } label: {
-                        action("Tip the Developer", detail: "Opens pulsecanvas.si/tips in your browser", icon: "heart.circle")
+                    Button { visit(.tip, url: PulseCanvasCommunity.tips) } label: {
+                        action("Tip the Developer", detail: "Opens pulsecanvas.si/tips in your browser", icon: "heart.circle", kind: .tip)
                     }.buttonStyle(StudioButtonStyle())
                 }
-                ShareLink(item: PulseCanvasCommunity.website) {
-                    action("Share PulseCanvas", detail: "Help another music lover find their next visual", icon: "square.and.arrow.up")
-                }.buttonStyle(StudioButtonStyle())
-                Button { openURL(PulseCanvasCommunity.feedback) } label: {
-                    action("Send feedback", detail: "Your ideas help shape what comes next", icon: "bubble.left.and.bubble.right")
+                Button {
+                    engagement.recordClick(.share)
+                    didReset = false
+                    sharePicker = NSSharingServicePicker(items: [PulseCanvasCommunity.website])
+                    sharePicker?.show(relativeTo: shareAnchor.bounds, of: shareAnchor, preferredEdge: .minY)
+                } label: {
+                    action("Share PulseCanvas", detail: "Help another music lover find their next visual", icon: "square.and.arrow.up", kind: .share)
+                }.buttonStyle(StudioButtonStyle()).background(CommunityShareAnchor(view: shareAnchor))
+                Button { visit(.feedback, url: PulseCanvasCommunity.feedback) } label: {
+                    action("Send feedback", detail: "Your ideas help shape what comes next", icon: "bubble.left.and.bubble.right", kind: .feedback)
                 }.buttonStyle(StudioButtonStyle())
 
+            }
+            VStack(alignment: .leading, spacing: 8) {
+                Text(didReset ? "Saved clicks reset." : "Checkmarks remember buttons you've clicked on this Mac, not completed reviews, tips or shares.")
+                    .font(.system(size: 11)).foregroundStyle(.secondary)
+                Button("Reset saved clicks") {
+                    engagement.resetClickedActions()
+                    didReset = true
+                }.buttonStyle(StudioButtonStyle(compact: true))
+                    .help("Clear local action checkmarks. Your music, projects and favorites stay intact. Apple's review limits are unchanged.")
             }
             HStack(spacing: 18) {
                 Text("All features stay free. Thank you for your support.")
@@ -60,7 +79,13 @@ struct CreatorThanksView: View {
             .onExitCommand(perform: done)
     }
 
-    private func action(_ title: String, detail: String, icon: String, primary: Bool = false) -> some View {
+    private func visit(_ kind: CreatorEngagement.Action, url: URL) {
+        engagement.recordClick(kind)
+        didReset = false
+        openURL(url)
+    }
+
+    private func action(_ title: String, detail: String, icon: String, kind: CreatorEngagement.Action, primary: Bool = false) -> some View {
         HStack(spacing: 14) {
             Image(systemName: icon).font(.system(size: 23)).foregroundStyle(primary ? Color(red: 0.22, green: 0.13, blue: 0.15) : peach).frame(width: 30)
             VStack(alignment: .leading, spacing: 4) {
@@ -68,7 +93,15 @@ struct CreatorThanksView: View {
                 Text(detail).font(.system(size: 12, weight: .regular)).foregroundStyle(primary ? Color(red: 0.22, green: 0.13, blue: 0.15).opacity(0.8) : Color.secondary)
             }
             Spacer()
-            Image(systemName: "arrow.up.right").font(.system(size: 11)).foregroundStyle(primary ? Color(red: 0.22, green: 0.13, blue: 0.15) : Color.secondary)
+            Image(systemName: engagement.hasClicked(kind) ? "checkmark.circle.fill" : "arrow.up.right")
+                .font(.system(size: 13)).foregroundStyle(primary ? Color(red: 0.22, green: 0.13, blue: 0.15) : peach)
+                .accessibilityLabel(engagement.hasClicked(kind) ? "Previously clicked" : "Open")
         }.padding(.vertical, 9).frame(maxWidth: .infinity, alignment: .leading)
     }
+}
+
+private struct CommunityShareAnchor: NSViewRepresentable {
+    let view: NSView
+    func makeNSView(context: Context) -> NSView { view }
+    func updateNSView(_ nsView: NSView, context: Context) {}
 }

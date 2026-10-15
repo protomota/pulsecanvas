@@ -1,0 +1,73 @@
+{
+  "build": "1.0.3 (13)",
+  "edition": "Native Metal",
+  "activeEffects": 240,
+  "capture": "Actual STORE_BUILD app with isolated storevalidation bundle ID; user session not changed",
+  "processing": "Crop titlebar and bottom window padding to Apple-supported 1440x900; no added effects, fake UI, retouching or upscaling",
+  "screenshots": [
+    {
+      "file": "01-led-corridor.jpg",
+      "size": [
+        1440,
+        900
+      ],
+      "raw": "/Users/brad/Documents/GIT_SOURCE/pulsecanvas-studio/.build/store-release-1.0.3-13/assets/app-store/native-1.0.3-13/raw/01-led-corridor.png",
+      "rawSHA256": "d9581bb7125f26c0718e2e82857c06a70a6b2421b84412ca36fe036d819645fa",
+      "sha256": "f9c1e1ec11b0890d985fe1768f97d1951b078dbac3dd96c95d29086578dad837",
+      "crop": [
+        0,
+        32,
+        1440,
+        932
+      ]
+    },
+    {
+      "file": "02-molten-glass.jpg",
+      "size": [
+        1440,
+        900
+      ],
+      "raw": "/Users/brad/Documents/GIT_SOURCE/pulsecanvas-studio/.build/store-release-1.0.3-13/assets/app-store/native-1.0.3-13/raw/02-molten-glass.png",
+      "rawSHA256": "0396f0a8768cbfa868d97580afc525069cdcf88fb0633f915fcf3b68558a9c8f",
+      "sha256": "69ca6b05bb542330b4c2651e87467685e14d7d2447a087cf6032883d570d3448",
+      "crop": [
+        0,
+        32,
+        1440,
+        932
+      ]
+    },
+    {
+      "file": "03-studio.jpg",
+      "size": [
+        1440,
+        900
+      ],
+      "raw": "/Users/brad/Documents/GIT_SOURCE/pulsecanvas-studio/.build/store-release-1.0.3-13/assets/app-store/native-1.0.3-13/raw/03-studio.png",
+      "rawSHA256": "95857f2ae09e7204859cbf3a11d7f6bacb93152b732e3880eae41f6ce5948c6b",
+      "sha256": "7cffa9830b825835bc0c74a6e829dbceb29d82ae35a22e220e51cefd1e7cdceb",
+      "crop": [
+        0,
+        32,
+        1440,
+        932
+      ]
+    },
+    {
+      "file": "05-aurora-fold.jpg",
+      "size": [
+        1440,
+        900
+      ],
+      "raw": "/Users/brad/Documents/GIT_SOURCE/pulsecanvas-studio/.build/store-release-1.0.3-13/assets/app-store/native-1.0.3-13/raw/05-aurora-fold.png",
+      "rawSHA256": "67388ca635e098531490ce4d300b57fccece0f536d10376e87db554376894c97",
+      "sha256": "848ef9fad9bd70bd0aaf156704aa3350d0569de3c491b40139141338c92b2532",
+      "crop": [
+        0,
+        32,
+        1440,
+        932
+      ]
+    }
+  ]
+}

@@ -232,5 +232,5 @@ float3 eventHorizon(Ctx c, constant NativeFrame &f) {
 // bands brighten their tubes and attacks make them buzz.
 
 
-#define PARTICLE_EFFECTS(X)  X(magneticBallet)     X(plexusConstellations)  X(ringShepherds)   X(eventHorizon) 
+#define PARTICLE_EFFECTS(X)  X(magneticBallet)     X(plexusConstellations)  X(ringShepherds)   X(eventHorizon)
 PARTICLE_EFFECTS(NATIVE_EFFECT)

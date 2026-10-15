@@ -11,19 +11,19 @@ PASS: entire soundtrack exports all 48 frames and full 2-second audio
 PASS: cancellation preserves existing output and cleans up partial export
 PASS: actual treble PCM -> MP4 yields 10 brief white frames; bass PCM yields none
 PASS: decoded MP4 deforms elements on both PCM kicks and releases, with procedural motion frozen and white strobe disabled
-PASS: Octagon Vault local waves survive MP4, kick change 22.752685185185186, relaxed change 1.9271064814814816
+PASS: Octagon Vault local waves survive MP4, kick change 22.753819444444446, relaxed change 1.9276157407407408
 PASS: Mercury Fold local waves survive MP4, kick change 25.851689814814815, relaxed change 1.6546296296296297
-PASS: decoded low/high Chaos exports differ on real PCM beats while retaining the live setting, mean brightness difference 5.462705176767677
+PASS: decoded low/high Chaos exports differ on real PCM beats while retaining the live setting, mean brightness difference 5.466181607744107
 PASS: decoded Studio MP4 follows generated 4/1/2 per-card bar timing exactly, repeats shared blue appearance, applies first-section preset, retains live state and full audio
 PASS: 4K 16:9 · Wide 3840x2160 decodes every frame with full soundtrack
 PASS: 4K 9:16 · Phone 2160x3840 decodes every frame with full soundtrack
 PASS: decoded Studio export plays all 12 spatial designs with shared palettes and full audio
 PASS: decoded Liquid detail exports visibly differ; Studio shared detail matches single-visualizer output and preserves live state
 PASS: scene 18 decoded zoom mean pixel change 13.561345003858024, shared preset mismatch 0.0
-PASS: scene 22 decoded zoom mean pixel change 25.70066936728395, shared preset mismatch 0.0
+PASS: scene 22 decoded zoom mean pixel change 25.70067177854938, shared preset mismatch 0.0
 PASS: decoded flat/forward zoom differs for geometry and mesh tunnels; Studio reproduces shared zoom and retains live state
-PASS: decoded Halo count changes geometry, mean pixel change 47.50778115354938; shared Studio preset mismatch 0.0, live count retained
-PASS: decoded uniform blur visibly softens movie, mean pixel change 10.998217110339507; shared Studio mismatch 0.0, live blur retained
+PASS: decoded Halo count changes geometry, mean pixel change 47.50774016203704; shared Studio preset mismatch 0.0, live count retained
+PASS: decoded uniform blur visibly softens movie, mean pixel change 10.997597415123456; shared Studio mismatch 0.0, live blur retained
 PASS: Double Twist zero-Chaos music/silence decoded mismatch 0.0, Studio mismatch 0.0, live setting retained
 PASS: Octagon Vault zero-Chaos music/silence decoded mismatch 0.0, Studio mismatch 0.0, live setting retained
 PASS: Ink Cyclone zero-Chaos music/silence decoded mismatch 0.0, Studio mismatch 0.0, live setting retained

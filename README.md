@@ -26,7 +26,7 @@ PulseCanvas Studio is a native macOS visualizer and video creator. Bring a song,
 
 Make a music video, a vertical clip, a release teaser, or a backdrop for your next set. No account. No subscription. Every feature and export is free.
 
-| 270 native visualizers | 7,838 ProjectM effects | 5 canvas shapes | Up to 4K · 60 fps |
+| 270 native visualizers | 7,758 ProjectM effects | 5 canvas shapes | Up to 4K · 60 fps |
 | :---: | :---: | :---: | :---: |
 | Particles, tunnels, liquid forms, and geometry | A searchable library of thousands of looks | Wide, phone, portrait, landscape, and square | MP4 video with your soundtrack |
 
@@ -54,11 +54,25 @@ Every visualizer has a deliberate default look. Choose blue, green, warm, violet
 | **Bars per scene** | Give each section its own length; later sections follow the beat grid. |
 | **Loop a section** | Preview a scene repeatedly while you try different visualizers and styles. |
 | **Use at playhead** | Assign the visualizer you are watching to the current point in the song. |
-| **Randomize timeline** | Generate new visualizer assignments, bar lengths, or both. |
+| **Randomize timeline** | Generate visualizer assignments without duplicates, using favorites first and unused library visuals for the remaining clips; randomize bar lengths too if desired. |
 | **Apply to all** | Share Chaos, motion speed, zoom speed, bar lengths, and strobe choices across the video. |
 | **Save your project** | Reopen your timeline and visual settings in a `.pulsecanvas` project. |
 
 Each scene uses its visualizer’s saved appearance settings, so a look stays consistent wherever you use it. Imported audio remains linked to its original file; keep that file available when reopening a project.
+
+## Listen to Radio
+
+Open **Radio** beside **Library** in the top toolbar. Radio has its own player and visual sequence; it does not edit your Studio timeline or use saved Studio appearance settings. Visuals shuffle through your available favorites before repeating, falling back to the library when you have no favorites. **Randomize** switches the current visualizer immediately using the same favorites-first pool, without seeking the song or changing bar timing. Choose **1, 2, 4, 8, or 16 bars per visualizer** (four by default). Songs advance automatically and the station loops. **Present** fills the display without aspect-ratio controls; playback controls fade and reappear on pointer movement. Escape returns to windowed radio. Returning to the editor restores your previous soundtrack and position, paused.
+
+Closing the last main window stops playback and quits the app. Minimize keeps playback running.
+
+Radio has its own volume preference, initially 70%. It remembers the chosen level between songs and sessions; leaving Radio restores the editor's previous volume.
+
+The initial **All Music** station includes every radio track. A versioned `stations.json` directory points each stable station ID to its own track catalog; the player shows a station selector only when more than one station is available. Genre stations can reuse the same audio objects. The app refreshes these public static JSON files whenever Radio opens, so new songs and stations require no API or app release. Radio downloads and verifies audio locally, analyzes it off the main thread, and prepares the next track while the current track plays.
+
+For local development, run `python3 scripts/prepare-radio-library.py --handoff /path/to/HANDOFF.md --output build/radio`. A development bundle with `PulseCanvasRadioDeveloperMode` set to true exposes Radio → Library source → Open local library; choose `build/radio`. Originals are not modified. `bash scripts/test-radio.sh build/radio/catalog.json` validates playlist transitions, favorites, isolated visuals, station switching, cache integrity, and all prepared songs. `scripts/upload-radio-r2.py --help` describes the R2 upload environment variables; credentials never enter the app or catalogs.
+
+The radio bucket is managed in the [Cloudflare R2 dashboard](https://dash.cloudflare.com/36090598a0df96b2a7bafd9119b3a15b/r2/default/buckets/pulsecanvas-radio). Its production entry point is [radio.pulsecanvas.si/stations.json](https://radio.pulsecanvas.si/stations.json). Cloudflare recommends a custom domain for production access; `r2.dev` endpoints are for development. See [Cloudflare's public bucket documentation](https://developers.cloudflare.com/r2/buckets/public-buckets/).
 
 ## From beat to video
 
@@ -97,7 +111,7 @@ Visit **[pulsecanvas.si](https://pulsecanvas.si/)** for the project website, or 
 | Edition | Visual library | Updates |
 | --- | --- | --- |
 | **Mac App Store** | 270 native Metal visualizers; excludes projectM, OpenGL presets and the external texture pack | Apple distribution |
-| **Direct download** | 270 native visualizers plus 7,838 original presets | Signed Sparkle updates; system profiling disabled |
+| **Direct download** | 270 native visualizers plus 7,758 original presets | Signed Sparkle updates; system profiling disabled |
 
 Both editions support Studio, native visual settings and video export. Native projects can move between editions; full-library projects require the direct edition. Preferences for the full preset library remain separate so the Metal edition does not overwrite them.
 
@@ -142,13 +156,29 @@ The [user guide](docs/USER_GUIDE.md#checks) lists the wider rendering, playback,
 
 </details>
 
-## Free to create. Supported by people.
+## Free to use. Source available.
+
+Use the official PulseCanvas app for personal projects or paid creative work. Every feature and export is free. The application-code license does not restrict your video output; music, presets, textures and other material still need their own applicable permissions.
+
+PulseCanvas's original application code, native shaders, build scripts and associated documentation are **© 2026 Protomota, LLC** and use the [PulseCanvas Source-Available Noncommercial License 1.0](LICENSE). You may inspect, build, modify and redistribute that material noncommercially, with the required notices. Commercial source reuse or distribution requires written permission from Protomota, LLC. This is a source-available license, rather than an OSI-approved open-source license. Earlier MIT-licensed copies retain their original grants.
+
+Third-party code, dependencies and assets retain their own terms. The application license does not relicense them or establish permission to redistribute them.
+
+## Made by Protomota. Supported by people.
 
 If PulseCanvas helps you make something you love, share the project, [send feedback](https://github.com/protomota/pulsecanvas/issues), or [tip the developer](https://pulsecanvas.si/tips/). Your feedback and support help Protomota keep building. Every feature and export stays free.
 
+[Website](https://pulsecanvas.si/) · [Support](mailto:support@pulsecanvas.si) · [Licensing inquiries](mailto:support@pulsecanvas.si)
+
 ## Licensing and credits
 
-PulseCanvas’s first-party code uses the [PulseCanvas Source-Available Noncommercial License](LICENSE). Commercial code reuse, resale, and commercial forks require separate written permission from Protomota. The official app may be used to create commercial videos; music, presets, and other assets still need their own applicable permissions. Earlier MIT-licensed releases retain their original grants. The current application-code license is source available, not an OSI-approved open-source license.
+| Material | License or provenance |
+| --- | --- |
+| **Original application code, native shaders, build scripts and documentation** | Protomota, LLC's [source-available noncommercial license](LICENSE), with required third-party rights preserved. |
+| **App branding, icon, screenshots and campaign artwork** | Brand assets are distinct from the effect library. [README artwork sources](assets/readme/README.md) distinguish conceptual artwork from real app captures. The application license grants no trademark rights or endorsement. |
+| **projectM engine — Creators edition** | Its own LGPL terms, notices, corresponding source and rebuild/relink instructions in [third_party/PROJECTM.md](third_party/PROJECTM.md). |
+| **Imported presets and textures — Creators edition** | Their original notices and separate [provenance record](Sources/PulseCanvas/Resources/ProjectM/Provenance.md); individual permissions remain unresolved. |
+| **Bundled or imported music** | Separate from the application-code license; no blanket grant for soundtrack reuse or redistribution. Use material you have permission to use. |
 
 The **application**, **projectM engine**, **presets**, and **textures** have separate terms and provenance. Third-party licenses and notices, including required LGPL modification and relinking rights, remain intact. See [licensing](docs/licensing.md) and [engine sources and notices](third_party/PROJECTM.md).
 
@@ -156,6 +186,6 @@ The **application**, **projectM engine**, **presets**, and **textures** have sep
 
 [https://www.patreon.com/posts/pack-nestdrop-91682111](https://www.patreon.com/posts/pack-nestdrop-91682111)
 
-The exact credit and link also appear in the app’s **Legal & Credits** window. The [preset and texture provenance record](Sources/PulseCanvas/Resources/ProjectM/Provenance.md) retains unchanged upstream README and LICENSE text, pinned commits, original filenames and creator metadata, and SHA-256 manifests for the actual **7,838 presets** and **67 texture images**. Individual preset and texture permissions remain unresolved; attribution alone does not settle them.
+The exact credit and link also appear in the app’s **Legal & Credits** window. The [preset and texture provenance record](Sources/PulseCanvas/Resources/ProjectM/Provenance.md) retains unchanged upstream README and LICENSE text, pinned commits, original filenames and creator metadata, and SHA-256 manifests for the actual **7,758 presets** and **67 texture images**. Individual preset and texture permissions remain unresolved; attribution alone does not settle them.
 
 [Official projectM licensing guidance](https://github.com/projectM-visualizer/projectm/wiki/projectM-Licensing#apple-store-compatibility) explicitly states incompatibility with Apple’s stores, including macOS, and recommends standalone distribution subject to LGPL terms. This remains an unresolved Apple-store blocker for a package containing that engine. The Metal Store package excludes it entirely. Dynamic linking, a wrapper license, and a matching source archive do not resolve the warning for the full-library package. Existing engine-source and rebuild-compliance work is preserved; the full status is in [rights and release blockers](docs/app-store/RIGHTS-RESOLUTION.md).

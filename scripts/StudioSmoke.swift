@@ -6,6 +6,14 @@ import Combine
         let defaults = UserDefaults(suiteName:suite)!
         defer { defaults.removePersistentDomain(forName:suite) }
         let render = RenderState(), store = StudioStore(defaults:defaults)
+        for _ in 0..<50 {
+            let unique = StudioTimeline.randomizedScenes(current: Array(repeating: 0, count: 80), favorites: [98,99], available: Array(0..<100))!
+            precondition(unique.count == 80 && Set(unique).count == 80 && Set(unique).isSuperset(of: [98,99]))
+            let full = StudioTimeline.randomizedScenes(current: Array(0..<20), favorites: [], available: Array(0..<20))!
+            precondition(Set(full).count == 20 && zip(full, 0..<20).allSatisfy { $0 != $1 })
+        }
+        precondition(StudioTimeline.randomizedScenes(current: [0,1,2], favorites: [0], available: [0,1]) == nil)
+        print("PASS unique Studio shuffle: no duplicate scenes, favorites included first, full-pool derangement and bounded pool exhaustion")
         render.playbackTime = 12.3; render.audioBands = Array(repeating: 0.25, count: 32); render.audioPulse = 0.7
         render.paused = true
         var selected = Set<Int>()
@@ -266,6 +274,7 @@ import Combine
         let styles = try encoder.encode(store.presets)
         let oldScenes = store.segments.map(\.scene)
         store.randomizeTimeline(render)
+        precondition(Set(store.segments.map(\.scene)).count == store.segments.count)
         precondition(zip(oldScenes, store.segments.map(\.scene)).allSatisfy { $0 != $1 })
         precondition(zip(store.segments,store.segments.dropFirst()).allSatisfy { $0.scene != $1.scene })
         precondition(store.segments.map { [$0.start, $0.end] } == boundaries)
@@ -273,12 +282,14 @@ import Combine
         precondition(randomizedStyles == styles, "Timeline randomization retains shared visual settings")
         let beforeSection = store.segments.map(\.scene)
         store.randomizeSegment(at: 1, render: render)
+        precondition(Set(store.segments.map(\.scene)).count == store.segments.count)
         precondition(store.segments[1].scene != beforeSection[1] && store.segments[0].scene == beforeSection[0] && store.segments[2].scene == beforeSection[2])
         precondition(store.segments.map { [$0.start, $0.end] } == boundaries && store.preset(render).chaos == store.presets[render.scene]?.chaos)
         store.save(render)
         let settingsBeforeStudioShuffle = try selectionEncoder.encode(store.presets)
         let beforeStudioShuffle = store.segments.map(\.scene)
         store.randomizeScene(render)
+        precondition(Set(store.segments.map(\.scene)).count == store.segments.count)
         precondition(store.segments[store.selectedSegment].scene == render.scene && render.scene != beforeStudioShuffle[store.selectedSegment])
         precondition(store.segments.enumerated().allSatisfy { $0.offset == store.selectedSegment || $0.element.scene == beforeStudioShuffle[$0.offset] })
         precondition(store.segments.map { [$0.start, $0.end] } == boundaries)

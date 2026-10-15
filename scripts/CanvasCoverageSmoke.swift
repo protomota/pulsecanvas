@@ -45,6 +45,18 @@ import MetalKit
                     state.zoom = zoom; state.rotation = rotation
                     let p = pixels(try renderer.renderOffscreen(time: time, audioBands: Array(repeating: 0.2, count: 32)))
                     let c = coverage(p, width: w, height: h)
+                    if c.width <= 0.95 || c.height <= 0.95 || c.lit <= 0.05 || c.occupied < 14 {
+                        let image = NSBitmapImageRep(bitmapDataPlanes: nil, pixelsWide: w, pixelsHigh: h,
+                            bitsPerSample: 8, samplesPerPixel: 4, hasAlpha: true, isPlanar: false,
+                            colorSpaceName: .deviceRGB, bytesPerRow: w*4, bitsPerPixel: 32)!
+                        for pixel in stride(from: 0, to: p.count, by: 4) {
+                            image.bitmapData![pixel] = p[pixel+2]; image.bitmapData![pixel+1] = p[pixel+1]
+                            image.bitmapData![pixel+2] = p[pixel]; image.bitmapData![pixel+3] = 255
+                        }
+                        let file = URL(fileURLWithPath: ".build/validation/coverage-failure-\(scene)-\(tag).png")
+                        try image.representation(using: .png, properties: [:])!.write(to: file)
+                        print("Failed frame saved: \(file.path)")
+                    }
                     try require(c.width > 0.95 && c.height > 0.95, "Canvas span failed \(scene) \(tag) t=\(time) zoom=\(zoom): \(c.width),\(c.height)")
                     try require(c.lit > 0.05 && c.occupied >= 14, "Too sparse or confined: \(scene) \(tag) t=\(time) lit=\(c.lit) cells=\(c.occupied)")
                     leastWidth = min(leastWidth,c.width); leastHeight = min(leastHeight,c.height)

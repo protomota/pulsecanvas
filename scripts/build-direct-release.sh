@@ -2,6 +2,7 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 identity="${DEVELOPER_ID_APPLICATION:-Developer ID Application: Protomota, LLC (22HV69L32T)}"
+python3 scripts/native-visualizer-catalog.py --output Sources/PulseCanvas/Resources/NativeVisualizers.json
 python3 scripts/prepare-sparkle.py
 ./scripts/build-projectm.sh
 app="$PWD/build/direct/PulseCanvas Studio.app"

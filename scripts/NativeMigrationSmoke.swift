@@ -63,7 +63,7 @@ import Foundation
         let render = RenderState()
         precondition(!NativeEffects.isRetired(render.scene), "A new session must open an active design")
         for scene in retiredNative { render.scene = scene; precondition(render.scene == NativeEffects.resolved(scene)) }
-        print("PASS retired: \(retiredNative.count) withdrawn designs are hidden and resolve to replacements in projects, favorites and live state")
+        print("PASS retired: \(retiredNative.count) withdrawn designs are hidden and resolve to replacements in projects and live state")
 
         // 5. Saved Studio styles from the 31-effect release.
         var a = VisualPreset(); a.chaos = 0.11
@@ -100,7 +100,7 @@ import Foundation
         defaults.set(["native:12", "native:5", "native:31", legacy[firstActive]], forKey: "PulseCanvas.effectFavorites.v1")
         let favorites = ProjectMPresets(defaults: defaults)
         precondition(favorites.isFavorite(12) && favorites.isFavorite(31) && favorites.isFavorite(favorites.scene(for: legacy[firstActive])!))
-        precondition(!favorites.isFavorite(5) && favorites.isFavorite(NativeEffects.resolved(5)), "A retired favorite follows its replacement")
+        precondition(favorites.favoriteIDs == Set(["native:12", "native:31", legacy[firstActive]]), "A retired favorite must be removed rather than replaced")
         precondition(!favorites.isFavorite(oldFirst), "An old external index must not inherit a favorite")
         print("PASS favorites: native and external favorites keep their identities")
     }

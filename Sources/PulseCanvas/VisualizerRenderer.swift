@@ -77,7 +77,7 @@ private struct VisualVertex {
     var position: SIMD3<Float>
     var color: SIMD4<Float>
     var uv: SIMD2<Float>
-    /// Zero selects screen-derivative (faceted) lighting in Canvas.metal.
+    /// Zero selects deterministic per-triangle lighting in Canvas.metal.
     var normal = SIMD3<Float>(repeating: 0)
 }
 private struct CanvasPointUniforms {
@@ -223,7 +223,6 @@ final class VisualizerRenderer: NSObject, MTKViewDelegate {
             descriptor.attributes[2].format = .float2; descriptor.attributes[2].offset = 32; descriptor.attributes[2].bufferIndex = 0
             descriptor.attributes[3].format = .float3; descriptor.attributes[3].offset = MemoryLayout<VisualVertex>.offset(of: \.normal)!; descriptor.attributes[3].bufferIndex = 0
             descriptor.layouts[0].stride = MemoryLayout<VisualVertex>.stride
-            canvas.vertexDescriptor = descriptor
             canvas.depthAttachmentPixelFormat = .depth32Float
             canvas.colorAttachments[0].pixelFormat = .bgra8Unorm
             canvasPipeline = try device.makeRenderPipelineState(descriptor: canvas)
@@ -528,9 +527,8 @@ final class VisualizerRenderer: NSObject, MTKViewDelegate {
             encoder.setRenderPipelineState(canvasPipeline)
             encoder.setDepthStencilState(depthState)
             encoder.setVertexBytes(&mvp, length: 64, index: 1)
-            var scene = UInt32(state.scene)
-            encoder.setVertexBytes(&scene, length: 4, index: 2)
-            drawMesh(encoder, count: indices.count)
+            encoder.setVertexBuffer(indexBuffer, offset: 0, index: 3)
+            encoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: indices.count)
         }
         encoder.endEncoding()
         try encodeEffects(command: command, target: target)
@@ -664,7 +662,7 @@ final class VisualizerRenderer: NSObject, MTKViewDelegate {
 
     /// Thin-strip mesh designs shade with averaged mesh normals: screen-derivative normals
     /// occasionally shaded their strips differently between identical frames on the GPU.
-    /// Resonant Shell keeps its faceted derivative lighting, which smooth normals would change.
+    /// Resonant Shell keeps its deterministic faceted lighting, which smooth normals would change.
     private static let smoothShadedScenes: Set<Int> = [15, 16, 17, 20]
 
     private func meshNormals(_ mesh: OriginalGeometry.Mesh) -> [SIMD3<Float>] {

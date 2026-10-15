@@ -27,10 +27,10 @@ struct LegalCreditsView: View {
                 Text("Preset provenance").font(.headline)
                 Text("Cream of the Crop pack curated by ISOSCELES")
                 Link("https://www.patreon.com/posts/pack-nestdrop-91682111", destination: URL(string: "https://www.patreon.com/posts/pack-nestdrop-91682111")!)
-                Text("7,838 original presets are bundled from the pinned Cream of the Crop snapshot. Display labels are separate from original filenames and creator metadata. Upstream assumes public domain where author licenses are missing; individual permissions remain unresolved. Attribution does not establish licensing clearance.")
+                Text("\(ProjectMPresets.shared.entries.count.formatted()) presets are available from the curated library. Bundled originals retain their pinned Cream of the Crop provenance; user imports, if present, have separate origins. Display labels are separate from original filenames and creator metadata. Upstream assumes public domain where author licenses are missing; individual permissions remain unresolved. Attribution does not establish licensing clearance.")
                 Text("Texture provenance").font(.headline)
                 Text("67 images come from the Milkdrop texture pack. Its inclusion guidance does not document individual asset grants; those permissions remain unresolved separately from the presets.")
-                #if DIRECT_BUILD && canImport(Sparkle)
+                #if DIRECT_BUILD && canImport(Sparkle) && !LOCAL_BUILD
                 Text("Automatic updates").font(.headline)
                 Text("Sparkle provides signed updates for the direct-download edition. Update checks send only the information needed to deliver the app; system profiling is disabled.")
                 #endif
@@ -45,37 +45,43 @@ struct LegalCreditsView: View {
 
 @main
 struct PulseCanvasApp: App {
+    @NSApplicationDelegateAdaptor(AppLifecycle.self) private var lifecycle
     @Environment(\.openWindow) private var openWindow
     @StateObject private var render = RenderState()
     @StateObject private var audio = AudioController()
+    @StateObject private var radio = RadioController()
     @StateObject private var studio = StudioStore()
     @StateObject private var exporter = SocialExportController()
     @StateObject private var presentation = StudioPresentationController()
-    #if DIRECT_BUILD && canImport(Sparkle)
+    #if DIRECT_BUILD && canImport(Sparkle) && !LOCAL_BUILD
     @StateObject private var updater = AppUpdater()
     #endif
     var body: some Scene {
         WindowGroup("PulseCanvas Studio") {
-            CreatorView(render: render, audio: audio, studio: studio, exporter: exporter, presentation: presentation)
+            CreatorView(render: render, audio: audio, radio: radio, studio: studio, exporter: exporter, presentation: presentation, lifecycle: lifecycle)
                 .preferredColorScheme(.dark)
                 .frame(minWidth: 1080, minHeight: 740)
                 .onReceive(audio.visualizationUpdated) {
-                    render.audioTrebleAttackTime = audio.trebleAttackTime
-                    render.audioTreblePulse = audio.selectedURL == nil ? nil : audio.treblePulse
-                    render.audioBeatMotionTime = audio.beatMotionTime
-                    render.audioMomentum = audio.momentum
-                    render.audioPulse = audio.beatPulse
-                    render.audioBands = audio.spectrum
-                    render.audioEnvelopes = audio.envelopes
-                    render.audioSwell = audio.swell
-                    render.playbackTime = audio.selectedURL == nil ? nil : audio.playbackSeconds
-                    if !exporter.isExporting && presentation.followsStudioTimeline { studio.follow(time: audio.playbackSeconds, render: render) }
-                    if render.scene >= RenderState.nativeSceneNames.count { render.audioPCM = audio.visualizationPCM(at: audio.playbackSeconds) }
+                    let target = radio.isActive ? radio.visualizer : render
+                    target.audioTrebleAttackTime = audio.trebleAttackTime
+                    target.audioTreblePulse = audio.selectedURL == nil ? nil : audio.treblePulse
+                    target.audioBeatMotionTime = audio.beatMotionTime
+                    target.audioMomentum = audio.momentum
+                    target.audioPulse = audio.beatPulse
+                    target.audioBands = audio.spectrum
+                    target.audioEnvelopes = audio.envelopes
+                    target.audioSwell = audio.swell
+                    target.playbackTime = audio.selectedURL == nil ? nil : audio.playbackSeconds
+                    if radio.isActive { radio.follow(time: audio.playbackSeconds) }
+                    else if !exporter.isExporting && presentation.followsStudioTimeline { studio.follow(time: audio.playbackSeconds, render: render) }
+                    if target.scene >= RenderState.nativeSceneNames.count { target.audioPCM = audio.visualizationPCM(at: audio.playbackSeconds) }
                 }
                 .onAppear {
                     NSApplication.shared.setActivationPolicy(.regular)
                     studio.apply(to: render)
                     audio.loadDefaultSoundtrackIfNeeded()
+                    radio.attach(audio: audio)
+                    lifecycle.attach(audio: audio, radio: radio)
                 }
         }
         #if STORE_BUILD
@@ -86,7 +92,7 @@ struct PulseCanvasApp: App {
         .commands {
             CommandGroup(after: .appInfo) {
                 Button("Legal & Credits") { openWindow(id: "legal-credits") }
-                #if DIRECT_BUILD && canImport(Sparkle)
+                #if DIRECT_BUILD && canImport(Sparkle) && !LOCAL_BUILD
                 Button("Check for Updates…") { updater.checkForUpdates() }.disabled(!updater.canCheck)
                 #endif
             }
@@ -94,14 +100,21 @@ struct PulseCanvasApp: App {
                 if presentation.isPresented {
                     Button("Exit presentation") { audio.pause(); presentation.dismiss() }
                 } else {
-                    Button(audio.isPlaying ? "Pause soundtrack" : "Play soundtrack") { audio.playPause() }.keyboardShortcut(.space, modifiers: [])
-                    Button("Next visualizer") { choose(1) }.keyboardShortcut(.rightArrow, modifiers: [])
-                    Button("Previous visualizer") { choose(-1) }.keyboardShortcut(.leftArrow, modifiers: [])
-                    Button("Random visualizer") { if !exporter.isExporting { studio.randomizeScene(render) } }.keyboardShortcut("r", modifiers: [.command, .shift])
+                    Button(audio.isPlaying ? "Pause soundtrack" : "Play soundtrack") {
+                        if radio.isActive { radio.togglePlayback() } else { audio.playPause() }
+                    }.keyboardShortcut(.space, modifiers: [])
+                    if radio.isActive {
+                        Button("Next radio song") { radio.next() }.keyboardShortcut(.rightArrow, modifiers: [])
+                        Button("Randomize radio visualizer") { radio.randomizeCurrentVisualizer() }.keyboardShortcut("r", modifiers: [.command, .shift])
+                    } else {
+                        Button("Next visualizer") { choose(1) }.keyboardShortcut(.rightArrow, modifiers: [])
+                        Button("Previous visualizer") { choose(-1) }.keyboardShortcut(.leftArrow, modifiers: [])
+                        Button("Random visualizer") { if !exporter.isExporting { studio.randomizeScene(render) } }.keyboardShortcut("r", modifiers: [.command, .shift])
+                    }
                 }
             }
         }
-        #if DIRECT_BUILD && canImport(Sparkle)
+        #if DIRECT_BUILD && canImport(Sparkle) && !LOCAL_BUILD
         Settings {
             VStack(alignment: .leading, spacing: 16) {
                 Text("Updates").font(.title2)
@@ -117,7 +130,9 @@ struct PulseCanvasApp: App {
     }
     private func choose(_ direction: Int) {
         guard !exporter.isExporting else { return }
-        studio.selectScene((render.scene + direction + RenderState.sceneNames.count) % RenderState.sceneNames.count, render: render)
+        let choices = ProjectMPresets.shared.availableScenes
+        guard let position = choices.firstIndex(of: render.scene), !choices.isEmpty else { return }
+        studio.selectScene(choices[(position + direction + choices.count) % choices.count], render: render)
     }
 }
 
@@ -126,15 +141,18 @@ struct CreatorView: View {
     @Environment(\.openWindow) private var openWindow
     @ObservedObject var render: RenderState
     @ObservedObject var audio: AudioController
+    @ObservedObject var radio: RadioController
     @ObservedObject var studio: StudioStore
     @ObservedObject var exporter: SocialExportController
     @ObservedObject var presentation: StudioPresentationController
+    let lifecycle: AppLifecycle
     @State private var message = ""
     @ObservedObject private var presetLibrary = ProjectMPresets.shared
     @State private var showVisualizerBrowser = false
     @State private var showHelp = false
     @State private var showCommunityInHelp = false
     @State private var showProjectSettings = false
+    @State private var showRadio = false
     @StateObject private var engagement = CreatorEngagement()
     @Environment(\.requestReview) private var requestReview
     @State private var timelineSoundtrack: URL?
@@ -144,16 +162,39 @@ struct CreatorView: View {
 
     var body: some View {
         ZStack {
-            if presentation.isPresented {
+            if radio.isActive {
+                RadioPlayerView(radio: radio, audio: audio, render: radio.visualizer)
+            } else if presentation.isPresented {
                 StudioPresentationView(render: render, audio: audio, studio: studio, mode: presentation.mode, aspect: exporter.aspect) {
                     audio.pause(); presentation.dismiss()
                 }
             } else { editor }
         }
-        .background(StudioWindowReader(attach: presentation.attach).frame(width: 0, height: 0))
+        .background(StudioWindowReader(attach: { window in
+            presentation.attach(window); lifecycle.track(window)
+        }).frame(width: 0, height: 0))
         .onChange(of: presentation.isPresented) { _, active in if !active { audio.pause() } }
-        .onChange(of: exporter.isExporting) { _, active in
-            if !active, exporter.exportedURL != nil { engagement.videoSaved() }
+        .onReceive(radio.soundtrackInstalled) {
+            if !radio.isActive { timelineSoundtrack = audio.selectedURL }
+            message = ""
+        }
+        .onChange(of: audio.selectedURL) { _, url in
+            guard !radio.isActive else { return }
+            render.playbackTime = url == nil ? nil : audio.playbackSeconds
+            render.audioTreblePulse = url == nil ? nil : audio.treblePulse
+            if url != timelineSoundtrack {
+                timelineSoundtrack = url
+                studio.segments = []; studio.detectedBPM = nil
+                if studio.isStudio && url != nil { detectSegments() }
+            }
+        }
+        .onChange(of: exporter.isExporting) { _, exporting in if exporting { radio.pause() } }
+        .sheet(isPresented: $showRadio) {
+            RadioLibraryView(radio: radio) { showRadio = false }
+                .dismissOnOutsideClick { showRadio = false }
+        }
+        .onChange(of: exporter.successfulSaveID) { _, id in
+            if let id { engagement.videoSaved(id: id) }
         }
         .task { await engagement.observeStorefront() }
         .task(id: canPresentExportThanks) {
@@ -161,7 +202,7 @@ struct CreatorView: View {
             // Let the saved-video confirmation finish before another modal appears.
             do { try await Task.sleep(for: .seconds(11)) } catch { return }
             while canPresentExportThanks {
-                // Other Studio sheets and an inactive app must not consume the one-time prompt.
+                // Other Studio sheets and an inactive app must not consume the reminder.
                 if presentation.canPresentEditorSheet {
                     if engagement.presentExportThanks() {
                         #if STORE_BUILD
@@ -174,13 +215,14 @@ struct CreatorView: View {
             }
         }
         .sheet(isPresented: $engagement.showsThanks) {
-            CreatorThanksView(offersWebsiteTip: engagement.offersWebsiteTip, isExportMilestone: true) { engagement.showsThanks = false }
+            CreatorThanksView(engagement: engagement, isExportMilestone: true) { engagement.showsThanks = false }
+                .dismissOnOutsideClick { engagement.showsThanks = false }
         }
     }
 
     private var canPresentExportThanks: Bool {
         engagement.pendingExportThanks && !exporter.isExporting && !presentation.isPresented
-            && !showVisualizerBrowser && !showProjectSettings && !showHelp
+            && !showVisualizerBrowser && !showProjectSettings && !showHelp && !showRadio
     }
 
     private var editor: some View {
@@ -199,7 +241,8 @@ struct CreatorView: View {
                             StudioTimelineView(studio: studio, render: render, audio: audio, exporting: exporter.isExporting, present: presentStudio, compactness: compactness)
                             Divider()
                         }
-                        SoundtrackControls(audio: audio, exporting: exporter.isExporting, selectSoundtrack: selectSoundtrack, compactness: compactness)
+                        SoundtrackControls(audio: audio, exporting: exporter.isExporting,
+                            selectSoundtrack: selectSoundtrack, compactness: compactness)
                             .padding(.horizontal, 20).padding(.vertical, 20 - 10 * compactness).background(panel)
                     }
                     Divider()
@@ -207,34 +250,26 @@ struct CreatorView: View {
                 }
                 Divider()
                 HStack {
-                    Text(message.isEmpty ? audio.status : message).lineLimit(1)
+                    Text(message.isEmpty ? (radio.isActive ? radio.status : audio.status) : message).lineLimit(1)
                     Spacer()
                     if !exporter.status.isEmpty { Text(exporter.status).lineLimit(1).foregroundStyle(exporter.status.contains("failed") ? .red : .secondary) }
-                    Text("\(RenderState.sceneNames.count) visualizers").foregroundStyle(.secondary)
+                    Text("\(ProjectMPresets.shared.availableScenes.count) visualizers").foregroundStyle(.secondary)
                 }.font(.system(size: 11)).padding(.horizontal, 20).padding(.vertical, 9)
             }
         }
         .background(background).tint(accent)
         .overlay { ExportOverlayView(exporter: exporter) }
-        .onChange(of: audio.selectedURL) { _, url in
-            render.playbackTime = url == nil ? nil : audio.playbackSeconds
-            render.audioTreblePulse = url == nil ? nil : audio.treblePulse
-            if url != timelineSoundtrack {
-                timelineSoundtrack = url
-                studio.segments = []; studio.detectedBPM = nil
-                if studio.isStudio && url != nil { detectSegments() }
-            }
-        }
         .sheet(isPresented: $showVisualizerBrowser) {
-            VStack(spacing: 0) {
-                VisualizerBrowser(selected: render.scene) { scene in choose(scene); showVisualizerBrowser = false }
-                HStack { Spacer(); Button("Done") {showVisualizerBrowser = false}.buttonStyle(StudioButtonStyle(compact: true)) }.padding(18)
-            }
+            PulseCanvasLibraryView(radio: radio, selected: render.scene,
+                choose: { scene in choose(scene); showVisualizerBrowser = false },
+                dismiss: { showVisualizerBrowser = false })
+                .dismissOnOutsideClick { showVisualizerBrowser = false }
         }
-        .sheet(isPresented: $showProjectSettings) { projectSettings }
+        .sheet(isPresented: $showProjectSettings) { projectSettings.dismissOnOutsideClick { showProjectSettings = false } }
         .sheet(isPresented: $showHelp) {
+            Group {
             if showCommunityInHelp {
-                CreatorThanksView(offersWebsiteTip: engagement.offersWebsiteTip) { showHelp = false }
+                CreatorThanksView(engagement: engagement) { showHelp = false }
             } else {
             VStack(alignment: .leading, spacing: 18) {
                 Text("Create a music visual").font(.title2)
@@ -243,10 +278,13 @@ struct CreatorView: View {
                 Text("3. Open Project settings to choose your canvas shape and video quality. Save video lets you choose a folder and saves an MP4 with your full soundtrack and visuals.")
                 Text("Phone uses 9:16. Portrait uses 3:4.").foregroundStyle(.secondary)
                 DisclosureGroup("Privacy") {
-                    Text("PulseCanvas processes music and videos locally on your Mac. It does not collect or transmit your files, identifiers, usage analytics, or advertising data to the developer. It has no accounts or tracking and does not record your microphone. Preferences and favorites are stored locally. Saved projects can contain a soundtrack path and a macOS access bookmark; audio and preset files are not embedded.")
+                    Text("PulseCanvas processes music and videos locally on your Mac. Radio downloads its catalog and music from the library you choose; the hosting service receives ordinary network requests. Your own soundtracks are not uploaded. The app has no accounts, usage analytics or advertising tracking and does not record your microphone. Preferences, favorites and downloaded radio tracks are stored locally. Saved projects can contain a soundtrack path and a macOS access bookmark; audio and preset files are not embedded.")
                         .font(.callout).foregroundStyle(.secondary)
                 }
-                Link(destination: PulseCanvasCommunity.review) {
+                Button {
+                    engagement.recordClick(.review)
+                    NSWorkspace.shared.open(PulseCanvasCommunity.review)
+                } label: {
                     Label("Rate on the App Store", systemImage: "star.bubble")
                         .frame(maxWidth: .infinity, alignment: .leading)
                 }.buttonStyle(StudioButtonStyle(treatment: .primary))
@@ -257,6 +295,7 @@ struct CreatorView: View {
                 Button("Done") { showHelp = false }.buttonStyle(StudioButtonStyle(treatment: .primary))
             }.padding(30).frame(width: 500)
             }
+            }.dismissOnOutsideClick { showHelp = false }
         }
     }
 
@@ -269,14 +308,18 @@ struct CreatorView: View {
             Spacer(minLength: 8)
             Button { showVisualizerBrowser = true } label: { Label("Library", systemImage: "square.grid.2x2") }
                 .help("Browse categories and save favorites")
+            Button { showRadio = true } label: { Label("Radio", systemImage: "dot.radiowaves.left.and.right") }
+                .help("Listen with a beat-aligned shuffle of your favorite visualizers")
             Button { openProject() } label: { Label("Open project", systemImage: "folder") }
             Button { saveProject() } label: { Label("Save project", systemImage: "square.and.arrow.down") }
             Button { showProjectSettings = true } label: { Label("Project settings", systemImage: "gearshape") }
             Button { startExport() } label: { Label("Save video", systemImage: "square.and.arrow.down") }
                 .buttonStyle(StudioButtonStyle(treatment: .primary))
                 .help("Choose a destination and save your video as an MP4")
-            Button { showCommunityInHelp = false; showHelp = true } label: { Image(systemName: "questionmark").frame(width: 20) }
-                .buttonStyle(StudioButtonStyle(treatment: .quiet, compact: true))
+            Button { showCommunityInHelp = false; showHelp = true } label: {
+                Image(systemName: "questionmark").font(.system(size: 17, weight: .semibold))
+            }
+                .buttonStyle(StudioButtonStyle(circular: true))
                 .help("How to create a video").accessibilityLabel("Help")
         }.buttonStyle(StudioButtonStyle(compact: narrow)).lineLimit(1)
             .padding(.horizontal, 22).padding(.vertical, 14 - 8 * compactness).disabled(exporter.isExporting)
@@ -285,7 +328,7 @@ struct CreatorView: View {
     private func visualizers(compactness: CGFloat) -> some View {
         HStack(spacing: 14) {
             VStack(spacing: 1) {
-                Button("Visualizers") { studio.isStudio = false }
+                Button("Visualizers") { radio.leave(); studio.isStudio = false }
                     .buttonStyle(StudioTabStyle(selected: !studio.isStudio))
                 Button("Studio") {
                     studio.save(render); studio.isStudio = true
@@ -463,8 +506,27 @@ struct CreatorView: View {
                     ForEach(SocialAspect.allCases) { aspect in Text(aspect.rawValue).tag(aspect) }
                 }
                 Picker("Resolution", selection: $exporter.resolution) { Text("720p").tag(720); Text("1080p").tag(1080); Text("4K").tag(2160) }
-                Picker("Frame rate", selection: $exporter.fps) { Text("24 fps").tag(24); Text("30 fps").tag(30); Text("60 fps").tag(60) }
+                Picker("Frame rate", selection: $exporter.fps) {
+                    ForEach(SocialExportController.supportedFrameRates, id: \.self) { rate in
+                        Text(rate == 120 ? "120 fps (Experimental)" : "\(rate) fps").tag(rate)
+                    }
+                }
             }.pickerStyle(.menu).controlSize(.large)
+            if exporter.fps == 120 {
+                HStack(alignment: .top, spacing: 10) {
+                    Image(systemName: "flask").foregroundStyle(accent)
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text("Experimental frame rate").font(.system(size: 13, weight: .semibold))
+                        Text("120 fps renders twice as many frames as 60 fps. Export times and playback support vary.")
+                            .font(.system(size: 12)).foregroundStyle(.secondary)
+                        #if !STORE_BUILD
+                        Text("Some OpenGL presets may become darker or look different. Choose 60 fps if this happens.")
+                            .font(.system(size: 12)).foregroundStyle(.secondary)
+                        #endif
+                    }.fixedSize(horizontal: false, vertical: true)
+                }.padding(14).frame(maxWidth: .infinity, alignment: .leading)
+                    .background(accent.opacity(0.08), in: RoundedRectangle(cornerRadius: 12))
+            }
             Text("Resolution uses the shorter canvas edge. Export saves an MP4 with the soundtrack included.")
                 .font(.system(size: 12)).foregroundStyle(.secondary)
             HStack {
@@ -509,7 +571,10 @@ struct CreatorView: View {
     private func selectSoundtrack() {
         let picker = NSOpenPanel(); picker.allowedContentTypes = [.audio]; picker.allowsMultipleSelection = false; picker.canChooseDirectories = false
         picker.message = "Choose the soundtrack for this video"
-        if picker.runModal() == .OK, let url = picker.url, audio.load(url: url) { message = "" }
+        if picker.runModal() == .OK, let url = picker.url {
+            radio.leave()
+            if audio.load(url: url) { message = "" }
+        }
     }
     private func startExport() {
         guard !exporter.isExporting else { return }
@@ -519,7 +584,7 @@ struct CreatorView: View {
         picker.canCreateDirectories = true
         picker.message = "Choose where to save your finished video"
         guard picker.runModal() == .OK, let url = picker.url else { return }
-        audio.pause()
+        radio.pause(); audio.pause()
         studio.save(render)
         let segments = studio.isStudio ? studio.segments : []
         let appearances = studio.presets
@@ -537,10 +602,11 @@ struct CreatorView: View {
     private func openProject() {
         let picker = NSOpenPanel(); picker.allowsMultipleSelection = false; picker.canChooseDirectories = false; picker.message = "Choose a PulseCanvas project"
         guard picker.runModal() == .OK, let url = picker.url else { return }
+        radio.leave()
         do {
             var project = try JSONDecoder().decode(CreatorProject.self, from: Data(contentsOf: url))
             project = try project.remapped(using: presetLibrary)
-            guard project.version == 1, RenderState.sceneNames.indices.contains(project.scene), [720, 1080, 2160].contains(project.resolution), [24, 30, 60].contains(project.fps), let aspect = SocialAspect(rawValue: project.aspect), project.appearance.isValid else { throw CocoaError(.fileReadCorruptFile) }
+            guard project.version == 1, RenderState.sceneNames.indices.contains(project.scene), [720, 1080, 2160].contains(project.resolution), SocialExportController.supportedFrameRates.contains(project.fps), let aspect = SocialAspect(rawValue: project.aspect), project.appearance.isValid else { throw CocoaError(.fileReadCorruptFile) }
             guard project.barsPerSection.map({ $0 > 0 && $0 <= Int.max / 4 }) ?? true else { throw CocoaError(.fileReadCorruptFile) }
             guard StudioTimeline.valid(project.timeline ?? [], sceneCount: RenderState.sceneNames.count) else { throw CocoaError(.fileReadCorruptFile) }
             guard project.visualPresets?.allSatisfy({ RenderState.sceneNames.indices.contains($0.key) && $0.value.isValid }) ?? true else { throw CocoaError(.fileReadCorruptFile) }
@@ -577,11 +643,17 @@ private struct SpectrumMeter: View {
     let bands: [Float]
     var body: some View {
         GeometryReader { size in
-            HStack(alignment: .bottom, spacing: 2) {
-                ForEach(0..<min(16, bands.count), id: \.self) { index in
-                    RoundedRectangle(cornerRadius: 1).fill(Color(red: 0.95, green: 0.68, blue: 0.55).opacity(0.7)).frame(height: max(2, size.size.height * CGFloat(bands[index])))
+            let gap: CGFloat = 2
+            HStack(alignment: .bottom, spacing: gap) {
+                ForEach(0..<16, id: \.self) { index in
+                    let band = bands.indices.contains(index) && bands[index].isFinite ? CGFloat(bands[index]) : 0
+                    let height = max(2, size.size.height * min(1, max(0, band)))
+                    RoundedRectangle(cornerRadius: 0.5)
+                        .fill(Color(red: 0.95, green: 0.68, blue: 0.55).opacity(0.7))
+                        .frame(width: 3, height: height)
+                        .animation(.linear(duration: 0.065), value: height)
                 }
-            }.frame(maxHeight: .infinity, alignment: .bottom)
+            }.frame(width: size.size.width, height: size.size.height, alignment: .bottomLeading)
         }
     }
 }
@@ -632,7 +704,7 @@ private struct SoundtrackControls: View {
                     Slider(value: Binding(get: { audio.progress }, set: { audio.seek(fraction: $0) }), in: 0...1)
                         .accessibilityLabel("Soundtrack position").disabled(audio.selectedURL == nil)
                 }
-                SpectrumMeter(bands: audio.spectrum).frame(width: 76, height: 28).accessibilityHidden(true)
+                    SpectrumMeter(bands: audio.spectrum).frame(width: 78, height: 28).accessibilityHidden(true)
                 Toggle("Loop", isOn: $audio.loopEnabled).toggleStyle(StudioSwitchStyle(icon: "repeat"))
                     .fixedSize(horizontal: true, vertical: false)
                     .help("Repeat the soundtrack when it ends").disabled(audio.selectedURL == nil)

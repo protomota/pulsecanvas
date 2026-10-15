@@ -10,6 +10,31 @@ struct StudioSegment: Codable, Identifiable, Sendable {
 }
 
 enum StudioTimeline {
+    /// Each scene is dealt once. Favorites lead; unused library scenes fill the tail.
+    /// Return nil when uniqueness is impossible without changing the clip timing.
+    static func randomizedScenes(current: [Int], favorites: [Int], available: [Int]) -> [Int]? {
+        let availableSet = Set(available)
+        let preferred = Set(favorites).intersection(availableSet)
+        var choices = preferred.shuffled() + availableSet.subtracting(preferred).shuffled()
+        guard current.count <= choices.count else { return nil }
+        var result: [Int] = []
+        for (index, previous) in current.enumerated() {
+            let favoritesLeft = choices.prefix(while: { preferred.contains($0) }).count
+            // Reserve enough remaining slots to include every preferred scene.
+            let requiredFavorites = favoritesLeft >= current.count - index
+            let eligible = requiredFavorites ? 0..<favoritesLeft : choices.indices
+            let candidate = eligible.first(where: { choices[$0] != previous }) ?? eligible.lowerBound
+            result.append(choices.remove(at: candidate))
+            // With an exactly full pool the final slot may retain its old scene.
+            // Swap earlier assignments where both cards can still change.
+            if result[index] == previous,
+               let swap = (0..<index).first(where: { result[$0] != previous && current[$0] != previous }) {
+                result.swapAt(swap, index)
+            }
+        }
+        return result
+    }
+
     static func index(at time: Double, in segments: [StudioSegment]) -> Int? {
         guard !segments.isEmpty else { return nil }
         var low = 0, high = segments.count

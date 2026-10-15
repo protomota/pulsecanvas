@@ -277,5 +277,5 @@ float3 velvetNebula(Ctx c, constant NativeFrame &f) {
 // the swarm.
 
 
-#define NATURE_EFFECTS(X)   X(sonicTopography) X(prismaticDunes)   X(crystalOrchard) X(velvetNebula)           
+#define NATURE_EFFECTS(X)   X(sonicTopography) X(prismaticDunes)   X(crystalOrchard) X(velvetNebula)
 NATURE_EFFECTS(NATIVE_EFFECT)

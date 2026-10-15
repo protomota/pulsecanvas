@@ -109,6 +109,9 @@ final class StudioStore: ObservableObject {
         let savedData = defaults.data(forKey: key)
         #endif
         if let data = savedData, let saved = try? JSONDecoder().decode(Saved.self, from: data) {
+            if defaults.data(forKey: key + ".beforeOriginalOnly") == nil {
+                defaults.set(data, forKey: key + ".beforeOriginalOnly")
+            }
             #if STORE_BUILD
             var nativePresets: [Int: VisualPreset] = [:]
             for scene in saved.presets.keys.sorted() where !ProjectMPresets.shared.isRetiredScene(scene, identities: saved.identities) {
@@ -264,25 +267,26 @@ final class StudioStore: ObservableObject {
         selectedSegment = index
         return index
     }
-    func randomizeTimeline(_ render: RenderState) {
-        guard !segments.isEmpty else { return }
+    @discardableResult
+    func randomizeTimeline(_ render: RenderState) -> Bool {
+        let library = ProjectMPresets.shared
+        guard !segments.isEmpty, let scenes = StudioTimeline.randomizedScenes(current: segments.map(\.scene),
+            favorites: library.availableScenes.filter { library.isFavorite($0) }, available: library.availableScenes) else { return false }
         save(render)
-        var preceding: Int?
-        for index in segments.indices {
-            let current = segments[index].scene
-            let choices = ProjectMPresets.shared.availableScenes.filter { $0 != current && $0 != preceding }
-            if let scene = choices.randomElement() { segments[index].scene = scene; preceding = scene }
-        }
+        for index in segments.indices { segments[index].scene = scenes[index] }
         if segments.indices.contains(selectedSegment) {
             render.scene = segments[selectedSegment].scene; apply(to: render)
             requestVisualizerReveal()
         }
+        return true
     }
     func randomizeSegment(at index: Int, render: RenderState) {
         guard segments.indices.contains(index) else { return }
         save(render)
-        let choices = ProjectMPresets.shared.availableScenes.filter { $0 != segments[index].scene }
-        guard let scene = choices.randomElement() else { return }
+        let library = ProjectMPresets.shared, occupied = Set(segments.map(\.scene))
+        let choices = library.availableScenes.filter { !occupied.contains($0) }
+        let favorites = choices.filter { library.isFavorite($0) }
+        guard let scene = (favorites.isEmpty ? choices : favorites).randomElement() else { return }
         segments[index].scene = scene
         if selectedSegment == index { render.scene = scene; apply(to: render) }
     }
@@ -300,6 +304,11 @@ final class StudioStore: ObservableObject {
         }
     }
     func randomizeScene(_ render: RenderState) {
+        if isStudio, segments.indices.contains(selectedSegment) {
+            randomizeSegment(at: selectedSegment, render: render)
+            requestVisualizerReveal()
+            return
+        }
         let candidates = ProjectMPresets.shared.availableScenes.filter { $0 != render.scene }
         guard let scene = candidates.randomElement() else { return }
         selectScene(scene, render: render)

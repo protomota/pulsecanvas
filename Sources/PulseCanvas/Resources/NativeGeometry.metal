@@ -253,5 +253,5 @@ float3 quasicrystalBloom(Ctx c, constant NativeFrame &f) {
 // light with their bands; attacks run light along the straps.
 
 
-#define GEOMETRY_EFFECTS(X)  X(opalTessera)  X(mandelBloom) X(mengerNave)   X(quasicrystalBloom)      
+#define GEOMETRY_EFFECTS(X)  X(opalTessera)  X(mandelBloom) X(mengerNave)   X(quasicrystalBloom)
 GEOMETRY_EFFECTS(NATIVE_EFFECT)

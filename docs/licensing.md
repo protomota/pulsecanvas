@@ -1,3 +1,5 @@
+> Historical development snapshot. The completed main integration now has 181 reviewed Metal effects with separate Store and Creators builds; see [MAIN-INTEGRATION.md](MAIN-INTEGRATION.md). The active new-claude-visualizers worktree is excluded.
+
 # PulseCanvas licensing
 
 Current first-party code uses the **PulseCanvas Source-Available Noncommercial License 1.0** in the root [LICENSE](../LICENSE). This is a custom source-available license, not MIT or an OSI-approved open-source license.

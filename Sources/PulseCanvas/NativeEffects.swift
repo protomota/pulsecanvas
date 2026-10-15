@@ -47,6 +47,9 @@ struct NativeEffect: Sendable {
 }
 
 enum NativeEffects {
+    // Compatibility with retained development tools.
+    static var activeScenes: [Int] { activeIDs }
+    static var activeCount: Int { activeIDs.count }
     /// Native effect sources, each compiled after NativeCommon.metal.
     static let shaderFiles = ["NativeFlow.metal", "NativeStructure.metal", "NativeGeometry.metal", "NativeParticles.metal", "NativeNature.metal",
                               "NativeTunnels.metal", "NativeWormholes.metal", "NativeDrive.metal", "NativeDance.metal", "NativeRave.metal", "NativeExpansionDrive.metal", "NativeExpansionDance.metal", "NativeExpansionVoyage.metal", "NativeExpansionPassage.metal", "NativeExpansionFestival.metal",

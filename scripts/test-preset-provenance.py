@@ -2,6 +2,7 @@
 """Regression checks for tampered subsets/notices and unsafe source archives."""
 import importlib.util
 import io
+import json
 import pathlib
 import tarfile
 import tempfile
@@ -66,6 +67,47 @@ class ProvenanceTests(unittest.TestCase):
 
     def test_archive_symlink_rejected(self):
         self.assert_unsafe_archive('link', tarfile.SYMTYPE)
+
+    def curation_fixture(self, change=None, wrong_hash=False):
+        curation = {'schemaVersion': 1, 'initialBundledCount': 7838, 'batches': [{
+            'completedReview': True, 'selectionSource': 'Finder red label',
+            'reviewedIDs': ['keep', 'remove'], 'retainedIDs': ['keep'], 'removedIDs': ['remove']}]}
+        if change:
+            change(curation['batches'][0])
+        data = json.dumps(curation).encode()
+        (self.root / 'preset-curation.json').write_bytes(data)
+        (self.root / 'retired-presets.json').write_text(json.dumps([{'id': 'remove'}]))
+        presets = {'upstreamCommit': provenance.PRESET_COMMIT, 'upstreamMilkCount': 9795,
+                   'bundledCount': 1, 'presets': [{'id': 'keep'}],
+                   'curationSHA256': 'wrong' if wrong_hash else provenance.digest(data)}
+        (self.root / 'preset-manifest.json').write_text(json.dumps(presets))
+        (self.root / 'texture-manifest.json').write_text(json.dumps({'upstreamCommit': provenance.TEXTURE_COMMIT}))
+
+    def test_changed_curation_receipt_rejected(self):
+        self.curation_fixture(wrong_hash=True)
+        with self.assertRaisesRegex(ValueError, 'Curation receipt differs'):
+            provenance.verify_resource(self.root)
+
+    def test_incomplete_review_rejected(self):
+        self.curation_fixture(lambda b: b.update(completedReview=False))
+        with self.assertRaisesRegex(ValueError, 'Incomplete curation'):
+            provenance.verify_resource(self.root)
+
+    def test_overlap_in_selection_rejected(self):
+        self.curation_fixture(lambda b: b.update(removedIDs=['keep', 'remove']))
+        with self.assertRaisesRegex(ValueError, 'Curation partition differs'):
+            provenance.verify_resource(self.root)
+
+    def test_unreviewed_removals_rejected(self):
+        self.curation_fixture()
+        with self.assertRaisesRegex(ValueError, 'Wrong bundled count'):
+            provenance.verify_resource(self.root)
+
+    def test_missing_retirement_migration_rejected(self):
+        self.curation_fixture()
+        (self.root / 'retired-presets.json').write_text('[]')
+        with self.assertRaisesRegex(ValueError, 'Removed IDs missing retirement'):
+            provenance.verify_resource(self.root)
 
     def assert_unsafe_archive(self, name, kind):
         data = io.BytesIO()

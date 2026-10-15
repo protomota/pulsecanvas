@@ -790,5 +790,5 @@ float3 dominoRun(Ctx c, constant NativeFrame &f) {
 // sparkle the LEDs.
 
 
-#define RAVE_EFFECTS(X) X(smokeRings) X(wandOrbs)  X(stringResonance) X(lightBars) X(sequinCurtain)   X(stadiumWave) X(liquidFloor)    X(dominoRun)  
+#define RAVE_EFFECTS(X) X(smokeRings) X(wandOrbs)  X(stringResonance) X(lightBars) X(sequinCurtain)   X(stadiumWave) X(liquidFloor)    X(dominoRun)
 RAVE_EFFECTS(NATIVE_EFFECT)

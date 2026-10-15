@@ -1,25 +1,32 @@
 #include <metal_stdlib>
 using namespace metal;
-struct CanvasInput {
-    float3 position [[attribute(0)]];
-    float4 color [[attribute(1)]];
-    float2 uv [[attribute(2)]];
-    float3 normal [[attribute(3)]];
+struct CanvasMeshInput {
+    float3 position;
+    float4 color;
+    float2 uv;
+    float3 normal;
 };
-struct CanvasOutput { float4 position [[position]]; float4 color; float3 surface; float3 normal; };
-vertex CanvasOutput canvasVertex(CanvasInput input [[stage_in]], constant float4x4 &mvp [[buffer(1)]], constant uint &scene [[buffer(2)]]) {
+struct CanvasOutput { float4 position [[position]]; float4 color; float3 surface; float3 normal; float3 faceNormal [[flat]]; };
+vertex CanvasOutput canvasVertex(uint id [[vertex_id]], device const CanvasMeshInput *vertices [[buffer(0)]],
+                                 constant float4x4 &mvp [[buffer(1)]], device const uint *indices [[buffer(3)]]) {
+    CanvasMeshInput input=vertices[indices[id]];
+    uint triangle=id/3*3;
+    float3 a=vertices[indices[triangle]].position;
+    float3 b=vertices[indices[triangle+1]].position;
+    float3 c=vertices[indices[triangle+2]].position;
+    float3 face=cross(b-a,c-a);
     CanvasOutput output;
     output.position = mvp * float4(input.position, 1);
     output.surface = input.position;
     output.color = input.color;
+    // Derivatives at narrow triangle edges can depend on helper-lane values.
+    // Derive the face normal from its vertices so lighting has stable inputs.
     output.normal = input.normal;
+    output.faceNormal=dot(face,face)>1e-12 ? normalize(face) : float3(0,0,1);
     return output;
 }
 fragment float4 canvasFragment(CanvasOutput input [[stage_in]]) {
-    // Meshes with supplied normals use them; others keep faceted screen-derivative lighting.
-    float3 normal = length_squared(input.normal) > 0.25
-        ? normalize(input.normal)
-        : normalize(cross(dfdx(input.surface), dfdy(input.surface)) + float3(0,0,0.00001));
+    float3 normal = length_squared(input.normal) > 0.25 ? normalize(input.normal) : input.faceNormal;
     float diffuse = abs(dot(normal, normalize(float3(-0.35,0.45,0.82))));
     float specular = pow(abs(dot(normal, normalize(float3(-0.15,0.25,0.96)))), 18);
     float depth = clamp(1.2 - length(input.surface) / 100, 0.4, 1.0);
@@ -27,6 +34,7 @@ fragment float4 canvasFragment(CanvasOutput input [[stage_in]]) {
     return float4(input.color.rgb * shade, input.color.a);
 }
 
+struct CanvasInput { float3 position [[attribute(0)]]; float4 color [[attribute(1)]]; float2 uv [[attribute(2)]]; };
 struct CanvasPointUniforms { float4x4 mvp; float pointSize; float viewportScale; float2 padding; };
 struct CanvasPoint { float4 position [[position]]; float4 color; float size [[point_size]]; };
 vertex CanvasPoint canvasPointVertex(CanvasInput input [[stage_in]], constant CanvasPointUniforms &u [[buffer(1)]]) {

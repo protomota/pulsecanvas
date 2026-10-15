@@ -321,3 +321,6 @@ Beat motion of the expansion designs (200–389) no longer bends the whole pictu
 Pearl Terrain and Prism Rain use neighboring-object intersections to preserve whole spheres and prisms across repeated cell boundaries. Mandel Bloom has continuously bending, music-driven folds with an integer-power fractal domain. Its bands deform the surface rather than only moving a camera around a rigid shape. Zero Chaos still removes the musical deformation.
 
 Ferrofluid Crown was not red-labeled and is withdrawn from the app. Its smooth-surface rewrite is preserved as a separate development prototype; it is not part of the offered catalog.
+
+
+The earlier completed second review added 59 selected designs at IDs 300–359; 324 Hanging Mobile is withdrawn to 320 Pin Art. That frozen build had 360 permanent IDs, 240 offered and 120 retired. The 2026-10-14 reconciliation then adopted the latest reviewed origin/main: 10 fractals and 20 second versions were appended, giving 390 permanent IDs, 270 offered and 120 retired. Final upstream versions of 300–309 and 314 remain intact. TestFlight 1.0.3 (13) still contains the earlier 240-effect build until a new binary is uploaded.

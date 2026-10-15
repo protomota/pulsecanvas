@@ -1,4 +1,4 @@
-#if DIRECT_BUILD && canImport(Sparkle)
+#if DIRECT_BUILD && canImport(Sparkle) && !LOCAL_BUILD
 import Combine
 import Sparkle
 import SwiftUI

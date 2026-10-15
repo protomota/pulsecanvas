@@ -16,10 +16,21 @@ Upstream: https://github.com/projectM-visualizer/presets-cream-of-the-crop/tree/
 
 Pinned commit: `0180df21f5e0bd39b9060cc5de420ed2f1f9e509`.
 The upstream tree has 9,795 `.milk` files. PulseCanvas bundles a curated subset of
-7,838, not the whole repository. `preset-manifest.json` records every actual
+7,758, not the whole repository. `preset-manifest.json` records every actual
 bundled path, upstream path, SHA-256, stable identity, original creator/title and
 display label. Paths and filenames are unchanged. Presentation labels do not
 replace original creator metadata, equations, shaders or embedded notices.
+
+On 2026-10-14, the owner completed OpenGL review Batch 001: 62 red-labelled
+presets were retained and 38 unselected presets were removed from the bundle.
+`preset-curation.json` records that partition against stable preset IDs and the
+review manifest hash. `retired-presets.json` retains migration records; original
+legacy identity indices remain unchanged. Unreviewed presets are retained. Batch 002 was completed on 2026-10-14: 78 red-labelled presets were retained
+and 22 unselected presets were removed. Batch 003 was also completed on 2026-10-14: 80 red-labelled picks were retained
+and 20 unselected presets were removed. Across three completed batches, 220
+picks remain and 80 rejected presets have been withdrawn. Unreviewed presets
+remain intact. The
+initial 7,838-preset subset is historical; later bundles follow the manifest.
 
 `Preset-README.md` and `Preset-notice.md` are byte-for-byte copies of the pinned
 upstream README.md and LICENSE.md. The README intends inclusion in projectM

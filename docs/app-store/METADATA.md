@@ -15,27 +15,42 @@ Prepared listing update for the Metal-only App Store edition. Historical saved-f
 
 ## Promotional text
 
-Turn your music into moving visuals. Explore 31 Metal visualizers, build beat-aligned scenes, and export MP4 videos with audio—all on your Mac.
+240 music-reactive Metal visualizers. Beat-aligned Studio scenes. MP4 exports up to 4K60. Completely free, with source code on GitHub.
 
-Prepared for the Metal-only App Store edition; live fields must be verified after saving.
+Saved and verified in App Store Connect for draft version 1.0.3 on 2026-10-13.
 
 ## Description
 
-Turn music into moving visuals with PulseCanvas Studio, a free creative app for your Mac.
+Turn your music into moving visuals with PulseCanvas Studio. Built for creators on Mac, with no account, subscription, advertising or tracking. Your music and projects stay on your Mac.
 
-Start with the included demo soundtrack or import your own audio. Explore 31 Metal-powered visualizers, from twisting tunnels and liquid folds to glowing particles and geometric patterns. Find a favorite, choose a palette, and shape the motion, depth and music response with visual controls.
+EXPLORE 240 NATIVE METAL VISUALIZERS
+Dive into twisting tunnels, flowing liquid, kinetic sculptures, glowing particles and geometric worlds. Start with the included soundtrack or import your own audio. Choose a palette and shape the motion, depth, zoom and music response. Save favorites and discover a different look with the randomizer.
 
-Build a video in Studio with beat-aligned scenes and individual bar lengths. Save your project, reopen it later, and present your visuals full screen.
+BUILD YOUR VIDEO IN STUDIO
+Arrange beat-aligned scenes with individual bar lengths. Assign effects to the song at the playhead, loop a section, randomize the timeline, or apply shared visual settings across your video. Save your project and pick up where you left off.
 
-Export an MP4 with your soundtrack included. Choose a wide, phone or square canvas, resolutions up to a 2160-pixel shorter edge, and frame rates up to 60 fps. Wide 4K is 3840×2160; phone 4K is 2160×3840; square output is 2160×2160.
+WATCH FULL SCREEN. EXPORT UP TO 4K60.
+Present one visualizer or your Studio timeline full screen. Export an MP4 with the soundtrack included in wide, phone, portrait, landscape or square formats. Wide 4K is 3840×2160; phone 4K is 2160×3840; square is 2160×2160. Frame rates go up to 60 fps.
 
-Your music and projects stay on your Mac. No account, subscription, advertising or tracking.
+COMPLETELY FREE
+No subscriptions, in-app purchases or paid features. Use PulseCanvas Studio freely for personal projects or commercial video work. Source code is available on GitHub: https://github.com/protomota/pulsecanvas
 
 Requires an Apple silicon Mac running macOS 14 or later. Projects save settings and soundtrack references; audio files are not embedded. Use music and other material you have permission to use.
 
 ## Review notes
 
-No sign-in is required. Launch the app; the bundled PulseCanvas demo track loads paused. Click Play to hear it and see the music response. Replace audio opens the standard file picker. Library offers search, categories and favorites. Studio creates beat-aligned scenes; use Project settings to choose canvas/resolution/frame rate, then Save video and select a destination folder and filename. The MP4 is saved there automatically when rendering finishes and includes the soundtrack; Show in Finder reveals the file. Save project/Open project use native panels; an imported track's read-only bookmark enables reopening after restart, and a locate-file prompt handles missing access. The application is free and all features are available. It does not record audio or upload files. This build contains only the 31 native Metal visualizers; projectM, OpenGL preset packs, and the Sparkle updater are excluded. Application source and license: https://github.com/protomota/pulsecanvas .
+No sign-in is required. The bundled demo soundtrack loads paused; click Play to hear it and see the music response. Replace audio uses a native picker. This edition includes exactly 240 native Metal visualizers. The projectM engine, OpenGL presets, external texture pack and Sparkle updater are not included. Library supports search and hearts/favorites. Studio has beat-aligned scenes with per-scene bar lengths, visualizer selection, visual controls and full-screen presentation.
+
+Project settings offers wide, phone and square output, up to a 2160-pixel shorter edge and 60 fps (wide 4K: 3840x2160, phone 4K: 2160x3840, square: 2160x2160). Save video first asks for a file name and destination in the native save panel, then renders an MP4 with the soundtrack. The success confirmation offers Show in Finder; there is no embedded exported-video player.
+
+Only after the SECOND successful video save, after the saved-video toast finishes and when no other sheet is active, the app makes one automatic StoreKit requestReview attempt directly. No custom review pre-prompt or support window gates it. Apple controls whether its rating/review sheet appears; TestFlight suppresses it. Failed/canceled exports do not count and subsequent exports do not repeat this attempt.
+
+Help includes a permanent Rate on the App Store link using Apple's action=write-review product URL. Help > Ratings, sharing & support opens a styled, user-initiated support screen. App Store rating/review is the first, highlighted action, optional tipping is second, then sharing and feedback. The optional external tip link (https://pulsecanvas.si/tips) appears only when StoreKit reports the USA storefront; unknown and non-USA storefronts omit it. There is no reward, paywall, positive-rating filter or requested rating score. All app features remain free.
+
+Save project/Open project use native panels. Imported audio uses a read-only security-scoped bookmark for reopening; missing access triggers a locate-file prompt. All features are free. No audio recording, account, advertising, tracking or user-file upload.
+
+First-party source is available under the PulseCanvas Source-Available Noncommercial License; third-party terms apply only to components actually bundled in this edition. Official app use, including commercial video creation, is allowed. Application license and edition notes are available in Legal & Credits. Source: https://github.com/protomota/pulsecanvas .
+
 
 Review contact: real reachable name/email/phone must be provided by Account Holder or verified account contact; do not invent or publish a private account email as the support address.
 
@@ -55,3 +70,11 @@ Field lengths are checked by `scripts/check-store-metadata.py`. Apple's actual r
 ## Edition update — 2026-10-12
 
 App Store version 1.0.2 (10) contains exactly 31 Metal visualizers, zero projectM presets/textures, and no OpenGL engine or Sparkle updater. Earlier mature-title questionnaire notes describe the removed community library and must not be carried forward without reviewing the actual Metal-only content. Full-library distribution and its separate asset/license obligations remain documented outside the App Store build.
+
+## Saved 1.0.3 listing update — 2026-10-13
+
+The draft version is 1.0.3 with build 13 attached, 240 native Metal visualizers, and four actual screenshots of the native edition in `assets/app-store/native-1.0.3-13/`. The description and promotional text contain no projectM/library-count claims. The COMPLETELY FREE section and public PulseCanvas GitHub link are near the bottom of the description, as requested. The marketing link remains https://pulsecanvas.si/; no alternative-edition download pitch is added. This is a saved draft, not an App Review submission or public release.
+
+## Local source update: engagement button state (not yet uploaded)
+
+The support screen now remembers individual Rate, Tip, Share and Feedback button clicks on this Mac, shows checkmarks and offers Reset saved clicks. A click never claims a completed review/payment/share. Reset leaves the successful-save count and one-time StoreKit request history intact. App Store automatic review behavior remains Apple's built-in API after the second successful save, without a custom review pre-prompt; TestFlight suppresses Apple's sheet. Multiple windows deduplicate successful export events. Direct-download reminder repetition is separate and is not enabled in the App Store edition. These local changes are not included in already uploaded build 13.

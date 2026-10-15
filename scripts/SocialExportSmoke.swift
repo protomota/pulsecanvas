@@ -303,7 +303,7 @@ struct SocialExportSmoke {
         try require(exporter.exportedURL == haloStudio && state.haloCount == 2, "Studio halo count must retain the live setting")
         let sharedHalos = try framePixels(haloStudio)
         let haloMismatch = zip(sharedHalos,haloFrames[1]).reduce(0.0) { $0 + Double(abs(Int($1.0)-Int($1.1))) } / Double(sharedHalos.count)
-        try require(haloMismatch < 2, "Shared Halo count must reproduce direct export")
+        try require(haloMismatch < 2, "Shared Halo count must reproduce direct export: \(haloMismatch)")
         print("PASS: decoded Halo count changes geometry, mean pixel change \(haloChange); shared Studio preset mismatch \(haloMismatch), live count retained")
         state.scene = 22
         var blurPreset = VisualPreset(); blurPreset.palette = VisualPalette.blueHour.rawValue

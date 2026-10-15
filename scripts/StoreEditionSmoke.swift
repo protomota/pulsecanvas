@@ -14,11 +14,12 @@ import Foundation
             precondition(emptyStore.preset(defaultRender) == VisualPreset.defaults(for: scene))
             precondition(VisualPreset.defaults(for: scene).isValid)
         }
-        // A favorite saved for a retired design follows its replacement.
-        precondition(library.isFavorite(22) && library.isFavorite(NativeEffects.resolved(3)) && !library.isFavorite(3))
-        precondition(library.favoriteIDs.count == 2)
+        // Removed and unavailable favorites are pruned rather than mapped to another design.
+        precondition(library.isFavorite(22) && !library.isFavorite(NativeEffects.resolved(3)) && !library.isFavorite(3))
+        precondition(library.availableScenes.filter(library.isFavorite).count == 1)
+        precondition(library.favoriteIDs == ["native:22"], "Removed and unavailable favorites must be pruned")
         library.toggleFavorite(10)
-        precondition(defaults.stringArray(forKey: "PulseCanvas.effectFavorites.v1")!.count == 3)
+        precondition(Set(defaults.stringArray(forKey: "PulseCanvas.metalEffectFavorites.v1")!) == ["native:22", "native:10"])
         precondition(ProjectMPresets(defaults: defaults).isFavorite(10))
         let native = VisualPreset(speed: 1.7, palette: 3, chaos: 0.3)
         struct Legacy: Encodable { let presets: [Int: VisualPreset]; let identities: [Int: String] }

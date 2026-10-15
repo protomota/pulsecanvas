@@ -1,10 +1,10 @@
-# Rendering
+# Original Metal rendering
 
 PulseCanvas uses MetalKit for its preview and a synchronous offscreen Metal path for export. Both share frame encoding and absolute soundtrack timestamps. Every design supports uniform content blur and optional white flashes.
 
-## Shader sources
+`VisualizerRenderer` draws through MetalKit. `SpatialVisuals.metal` supplies the spatial scenes. `OriginalGeometry.swift` supplies the mesh/point scenes; `Canvas.metal` draws their triangles and analytic lit ball sprites. The native fragment collection is compiled from `NativeCommon.metal` plus ten effect-family source files. The renderer loads no recovered shader binary, LLVM module, external preset, image texture pack or OpenGL engine.
 
-Every visual is PulseCanvas Metal source compiled at runtime; the app ships no prebuilt or extracted shader modules. `NativeCommon.metal` plus eleven `Native*.metal` files hold the native designs (see Native Metal designs). `SpatialVisuals.metal` draws the released spatial designs. `Canvas.metal` shades the OriginalGeometry triangle surfaces with derivative-based lighting and draws the bead sprites of Double Twist and Arc Spray, computing each lit sphere analytically inside the sprite. Content blur and forward travel use `Strobe.metal`, which also contains the separate fullscreen white-flash pass.
+Every visual is PulseCanvas Metal source compiled at runtime; the app ships no prebuilt or extracted shader modules. `NativeCommon.metal` plus eleven `Native*.metal` files hold the native designs (see Native Metal designs). `SpatialVisuals.metal` draws the released spatial designs. `Canvas.metal` shades the OriginalGeometry triangle surfaces with supplied smooth vertex normals or deterministic per-triangle normals and draws the bead sprites of Double Twist and Arc Spray, computing each lit sphere analytically inside the sprite. Content blur and forward travel use `Strobe.metal`, which also contains the separate fullscreen white-flash pass.
 
 ### Retired designs
 

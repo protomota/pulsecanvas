@@ -9,3 +9,7 @@ Read `metal-keeper-selection.json` for permanent IDs, exact Finder tag evidence,
 Two previously withdrawn development variants, 245 Saffron Spindle and 259 Golden Gyre, were explicitly red-labeled. They are retained under the current red-label instruction. This selection does not establish legal clearance or alter third-party license obligations.
 
 Future application of this policy should re-read actual Finder tags, preserve the review folder, and validate all offered GPU passes, migration, Studio switching and decoded exports. Do not renumber existing IDs, commit, push, install a release or change distribution channels without the user’s authorization.
+
+## Completed new-effect review — 2026-10-13
+
+The second review folder had 240 red-labeled keepers: the previous 181 plus 59 of IDs 300–359. Unmarked 324 Hanging Mobile is withdrawn and its implementation removed. Original clips, filenames and Finder labels remain intact. That selection used the frozen source that generated those clips, excluding later work on new-claude-visualizers. The 2026-10-14 reconciliation now retains the latest committed upstream curation, fractals and second versions: 270 active designs and 390 reserved IDs. The current keeper/migration metadata comes from origin/main at 2c4bdd7. Native ID 358 is displayed as Nebular Filaments to distinguish it from the external library title Cosmic Web.

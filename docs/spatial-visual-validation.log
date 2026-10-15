@@ -1,14 +1,13 @@
-Bead Surge: 960x540, 20 completed GPU frames, mean 1.9601523876190186 ms/frame
-Aurora Fold: 960x540, 20 completed GPU frames, mean 1.3454020023345947 ms/frame
-Pearl Terrain: 960x540, 20 completed GPU frames, mean 1.8583476543426514 ms/frame
-Octagon Vault: 960x540, 20 completed GPU frames, mean 0.6423473358154297 ms/frame
+Aurora Fold: 960x540, 20 completed GPU frames, mean 1.7136454582214355 ms/frame
+Pearl Terrain: 960x540, 20 completed GPU frames, mean 1.9203007221221924 ms/frame
+Octagon Vault: 960x540, 20 completed GPU frames, mean 0.5823493003845215 ms/frame
 PASS: Liquid detail changes GPU pixels (mean 31.317787422839505); dark cavities and bright reflections both cover visible areas
-Mercury Fold: 960x540, 20 completed GPU frames, mean 4.58720326423645 ms/frame
-Voltage Weave: 960x540, 20 completed GPU frames, mean 2.181297540664673 ms/frame
-Ink Cyclone: 960x540, 20 completed GPU frames, mean 2.1113038063049316 ms/frame
-Prism Rain: 960x540, 20 completed GPU frames, mean 2.442502975463867 ms/frame
-Monolith Rush: 960x540, 20 completed GPU frames, mean 2.2022485733032227 ms/frame
+Mercury Fold: 960x540, 20 completed GPU frames, mean 5.485349893569946 ms/frame
+Voltage Weave: 960x540, 20 completed GPU frames, mean 2.2810518741607666 ms/frame
+Ink Cyclone: 960x540, 20 completed GPU frames, mean 2.3548007011413574 ms/frame
+Prism Rain: 960x540, 20 completed GPU frames, mean 3.2925546169281006 ms/frame
+Monolith Rush: 960x540, 20 completed GPU frames, mean 2.5408029556274414 ms/frame
 PASS: Halo count changes GPU geometry, mean 38.089837480709875, visible pixels one/twelve 42237/341885
-Halo Engine: 960x540, 20 completed GPU frames, mean 6.062299013137817 ms/frame
-Tidal Glass: 960x540, 20 completed GPU frames, mean 1.9499480724334717 ms/frame
-PASS: all 11 spatial designs are visually distinct using identical palette/settings; GPU captures saved for inspection
+Halo Engine: 960x540, 20 completed GPU frames, mean 5.781853199005127 ms/frame
+Tidal Glass: 960x540, 20 completed GPU frames, mean 1.86845064163208 ms/frame
+PASS: all 10 spatial designs are visually distinct using identical palette/settings; GPU captures saved for inspection

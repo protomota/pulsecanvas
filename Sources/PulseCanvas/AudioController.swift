@@ -25,6 +25,8 @@ final class AudioController: ObservableObject {
     let visualizationUpdated = PassthroughSubject<Void, Never>()
     private var previewSectionEnd: Double?
     @Published var loopEnabled = true
+    /// Radio owns full-song completion; bounded Studio previews still loop normally.
+    var onSoundtrackFinished: (() -> Void)?
     @Published var volume: Float = 0.7 { didSet { engine.mainMixerNode.outputVolume = min(1, max(0, volume)) } }
     private let engine = AVAudioEngine()
     private let player = AVAudioPlayerNode()
@@ -60,21 +62,26 @@ final class AudioController: ObservableObject {
     func load(url: URL, bookmark: Data? = nil) -> Bool {
         do {
             let url = SecurityScopedAccess.resolve(bookmark: bookmark, fallback: url)
-            let access = SecurityScopedAccess(url: url)
-            let opened = try AVAudioFile(forReading: url)
-            guard opened.length > 0 else { throw SoundtrackError.empty }
-            let analysis = try SoundtrackAnalyzer(url: url)
+            return install(try PreparedSoundtrack(url: url))
+        } catch { status = "Cannot open soundtrack: \(error.localizedDescription)"; return false }
+    }
+
+    /// Prepared on a worker, then transferred exclusively to the playback actor.
+    @discardableResult
+    func install(_ prepared: PreparedSoundtrack, title displayTitle: String? = nil) -> Bool {
+        do {
+            let opened = prepared.file, url = prepared.url
             stop()
-            analyzer = analysis
+            analyzer = prepared.analyzer
             file = opened
             engine.disconnectNodeOutput(player)
             engine.connect(player, to: engine.mainMixerNode, format: opened.processingFormat)
             engine.prepare()
             try engine.start()
-            soundtrackAccess = access
-            soundtrackBookmark = BundledSoundtrack.identifier(for: url) == nil ? try? access.readOnlyBookmark() : nil
+            soundtrackAccess = prepared.access
+            soundtrackBookmark = BundledSoundtrack.identifier(for: url) == nil ? try? prepared.access.readOnlyBookmark() : nil
             selectedURL = url
-            title = url.deletingPathExtension().lastPathComponent
+            title = displayTitle ?? url.deletingPathExtension().lastPathComponent
             duration = Double(opened.length) / opened.processingFormat.sampleRate
             schedule(from: 0, playing: false)
             analyze(frame: 0)
@@ -204,7 +211,8 @@ final class AudioController: ObservableObject {
                     self.status = "Playing Studio section · Looping"
                     return
                 }
-                if self.isPlaying && self.loopEnabled {
+                let finished = self.isPlaying ? self.onSoundtrackFinished : nil
+                if self.isPlaying && self.loopEnabled && finished == nil {
                     self.schedule(from: 0, playing: true)
                     self.progress = 0; self.playbackSeconds = 0
                     self.analyze(frame: 0)
@@ -215,6 +223,7 @@ final class AudioController: ObservableObject {
                 self.beatPulse = 0; self.momentum = 0; self.envelopes = .zero; self.swell = 0; self.treblePulse = 0; self.trebleAttackTime = nil; self.spectrum = [Float](repeating: 0, count: 32)
                 self.visualizationUpdated.send()
                 self.status = "End of soundtrack"
+                finished?()
             }
         }
         if playing { player.play() }
@@ -226,6 +235,22 @@ final class AudioController: ObservableObject {
         playbackSeconds = min(previewSectionEnd.map { max(0, $0 - 1 / file.processingFormat.sampleRate) } ?? duration, max(0, Double(segmentStart) / file.processingFormat.sampleRate + max(0, Double(position.sampleTime) / file.processingFormat.sampleRate - player.outputPresentationLatency)))
         progress = duration > 0 ? playbackSeconds / duration : 0
         analyze(frame: AVAudioFramePosition(playbackSeconds * file.processingFormat.sampleRate))
+    }
+}
+
+/// The worker must relinquish this object before the main actor installs it.
+/// AVAudioFile and its analyzer are never accessed concurrently.
+final class PreparedSoundtrack: @unchecked Sendable {
+    let url: URL
+    let access: SecurityScopedAccess
+    let file: AVAudioFile
+    let analyzer: SoundtrackAnalyzer
+    init(url: URL) throws {
+        self.url = url
+        access = SecurityScopedAccess(url: url)
+        file = try AVAudioFile(forReading: url)
+        guard file.length > 0 else { throw SoundtrackError.empty }
+        analyzer = try SoundtrackAnalyzer(url: url)
     }
 }
 

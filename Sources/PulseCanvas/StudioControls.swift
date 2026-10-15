@@ -1,10 +1,56 @@
 import SwiftUI
+import AppKit
+
+extension View {
+    /// Consume the outside click so closing a sheet never activates the editor.
+    func dismissOnOutsideClick(_ dismiss: @escaping () -> Void) -> some View {
+        background(SheetOutsideClickHandler(dismiss: dismiss).frame(width: 0, height: 0))
+    }
+}
+
+private struct SheetOutsideClickHandler: NSViewRepresentable {
+    let dismiss: () -> Void
+    func makeNSView(context: Context) -> SheetClickView {
+        let view = SheetClickView()
+        view.dismiss = dismiss
+        return view
+    }
+    func updateNSView(_ view: SheetClickView, context: Context) { view.dismiss = dismiss }
+    static func dismantleNSView(_ view: SheetClickView, coordinator: ()) { view.stopMonitoring() }
+}
+
+private final class SheetClickView: NSView {
+    var dismiss: (() -> Void)?
+    private var monitor: Any?
+
+    override func viewDidMoveToWindow() {
+        super.viewDidMoveToWindow()
+        stopMonitoring()
+        guard window != nil else { return }
+        monitor = NSEvent.addLocalMonitorForEvents(matching: .leftMouseDown) { [weak self] event in
+            let dismissed = MainActor.assumeIsolated {
+                guard let self, let sheet = self.window, let parent = sheet.sheetParent,
+                      sheet.attachedSheet == nil,
+                      event.window === parent else { return false }
+                self.dismiss?()
+                return true
+            }
+            return dismissed ? nil : event
+        }
+    }
+
+    func stopMonitoring() {
+        if let monitor { NSEvent.removeMonitor(monitor) }
+        monitor = nil
+    }
+}
 
 /// Shared controls keep transport, project actions, and export visually related.
 struct StudioButtonStyle: ButtonStyle {
     enum Treatment { case secondary, accent, primary, quiet }
     var treatment: Treatment = .secondary
     var compact = false
+    var circular = false
     @Environment(\.isEnabled) private var isEnabled
     @Environment(\.isFocused) private var isFocused
     @State private var hovering = false
@@ -13,13 +59,14 @@ struct StudioButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .font(.system(size: 12, weight: .semibold))
-            .padding(.horizontal, compact ? 11 : 16)
+            .padding(.horizontal, circular ? 0 : (compact ? 11 : 16))
+            .frame(width: circular ? 44 : nil, height: circular ? 44 : nil)
             .frame(minHeight: 44)
             .foregroundStyle(treatment == .primary ? Color(red: 0.22, green: 0.13, blue: 0.15) : .white.opacity(0.92))
-            .background(fill(pressed: configuration.isPressed), in: RoundedRectangle(cornerRadius: 11))
-            .overlay(RoundedRectangle(cornerRadius: 11).strokeBorder(border, lineWidth: isFocused ? 2 : 1))
+            .background(fill(pressed: configuration.isPressed), in: RoundedRectangle(cornerRadius: circular ? 22 : 11))
+            .overlay(RoundedRectangle(cornerRadius: circular ? 22 : 11).strokeBorder(border, lineWidth: isFocused ? 2 : 1))
             .opacity(isEnabled ? 1 : 0.4)
-            .contentShape(RoundedRectangle(cornerRadius: 11))
+            .contentShape(RoundedRectangle(cornerRadius: circular ? 22 : 11))
             .onHover { hovering = $0 }
     }
 

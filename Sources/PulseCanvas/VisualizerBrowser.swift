@@ -1,4 +1,6 @@
 import SwiftUI
+import AppKit
+import UniformTypeIdentifiers
 
 @MainActor
 struct VisualizerBrowser: View {
@@ -10,6 +12,8 @@ struct VisualizerBrowser: View {
     @State private var category = ""
     @State private var folder = ""
     @State private var favoritesOnly = false
+    @State private var backupMessage = ""
+    @State private var backupFailed = false
     @FocusState private var searchFocused: Bool
     private let accent = Color(red: 0.95, green: 0.68, blue: 0.55)
     private var matches: [Int] {
@@ -40,7 +44,7 @@ struct VisualizerBrowser: View {
                 HStack(spacing: 10) {
                     Image(systemName: "magnifyingglass").foregroundStyle(.secondary)
                         .accessibilityHidden(true)
-                    TextField("Search names, creators, or folders", text: $query)
+                    TextField("Search visualizers", text: $query)
                         .textFieldStyle(.plain).font(.system(size: 15))
                         .focused($searchFocused).accessibilityLabel("Search visualizers")
                 }.padding(.horizontal, 12).frame(height: 44)
@@ -89,13 +93,68 @@ struct VisualizerBrowser: View {
             }.frame(height: 430)
             if matches.isEmpty {Text(favoritesOnly ? "Tap an effect’s heart to add it to Favorites." : "No matching visualizers").foregroundStyle(.secondary).font(.caption)}
             HStack {
+                Menu {
+                    Button("Export favorites…", systemImage: "square.and.arrow.up", action: exportFavorites)
+                    Button("Import favorites…", systemImage: "square.and.arrow.down", action: importFavorites)
+                    if let directory = library.favoritesBackupDirectory {
+                        Divider()
+                        Button("Show automatic backups") { NSWorkspace.shared.open(directory) }
+                    }
+                } label: {
+                    Label("Back up favorites", systemImage: "heart.circle")
+                }.menuStyle(.borderlessButton).fixedSize()
+                    .help("Export or restore favorites across builds and Macs. Imports keep your existing favorites.")
                 Spacer()
                 Button {if let scene = matches.randomElement() {choose(scene)}} label: {Label("Surprise me", systemImage: "shuffle")}
                     .buttonStyle(StudioButtonStyle(compact: true)).disabled(matches.isEmpty)
                     .help("Choose randomly from the current search, category, or favorites")
             }
+            if !backupMessage.isEmpty || library.favoritesBackupError != nil {
+                Text(library.favoritesBackupError ?? backupMessage).font(.caption)
+                    .foregroundStyle(backupFailed || library.favoritesBackupError != nil ? Color.red : .secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
         }.padding(18).frame(width: 680)
             .onChange(of: category) {_,_ in folder = ""}
+    }
+
+    private func exportFavorites() {
+        let panel = NSSavePanel()
+        panel.allowedContentTypes = [.json]
+        panel.nameFieldStringValue = "PulseCanvas-Favorites.json"
+        panel.title = "Back up favorites"
+        panel.message = "Save a portable backup to restore in another build or on another Mac."
+        present(panel) { response in
+            guard response == .OK, let url = panel.url else { return }
+            do {
+                try library.exportFavorites().write(to: url, options: .atomic)
+                backupFailed = false; backupMessage = "Favorites backup saved."
+            } catch { backupFailed = true; backupMessage = "Couldn't save favorites: \(error.localizedDescription)" }
+        }
+    }
+
+    private func importFavorites() {
+        let panel = NSOpenPanel()
+        panel.allowedContentTypes = [.json]
+        panel.allowsMultipleSelection = false; panel.canChooseDirectories = false
+        panel.title = "Restore favorites"
+        panel.message = "Import a PulseCanvas favorites backup. Your current favorites will be kept."
+        present(panel) { response in
+            guard response == .OK, let url = panel.url else { return }
+            let scoped = url.startAccessingSecurityScopedResource()
+            defer { if scoped { url.stopAccessingSecurityScopedResource() } }
+            do {
+                let restored = try library.importFavorites(Data(contentsOf: url))
+                backupFailed = false
+                backupMessage = "Added \(restored.added) favorites."
+                if restored.unavailable > 0 { backupMessage += " Skipped \(restored.unavailable) effects that aren't in this edition’s gallery." }
+            } catch { backupFailed = true; backupMessage = "Couldn't import favorites: \(error.localizedDescription)" }
+        }
+    }
+
+    private func present(_ panel: NSSavePanel, completion: @escaping (NSApplication.ModalResponse) -> Void) {
+        if let window = NSApp.keyWindow { panel.beginSheetModal(for: window, completionHandler: completion) }
+        else { panel.begin(completionHandler: completion) }
     }
 
     private func filterMenu(_ title: String, selection: Binding<String>, options: [String], emptyTitle: String, prefix: String = "") -> some View {

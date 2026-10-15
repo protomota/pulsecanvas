@@ -28,6 +28,7 @@ import Combine
         }
         let countObserver = exporter.$renderedFrames.sink { counts.append($0) }
         let statusObserver = exporter.$status.sink { statuses.append($0) }
+        var successfulSaveIDs = Set<UUID>()
         for (aspect, resolution) in [(SocialAspect.wide,720),(.phone,2160),(.wide,2160)] {
             exporter.aspect = aspect; exporter.resolution = resolution
             previews = 0; counts = []; statuses = []
@@ -38,6 +39,7 @@ import Combine
             let output = root.appendingPathComponent("\(resolution).mp4")
             await exporter.export(audioURL: audio, render: state, to: output)
             precondition(exporter.exportedURL == output && !exporter.isExporting && exporter.progress == 1)
+            precondition(exporter.successfulSaveID != nil && successfulSaveIDs.insert(exporter.successfulSaveID!).inserted)
             precondition(exporter.renderedFrames == 24 && exporter.totalFrames == 24 && previews >= 1)
             precondition(counts.first == 0 && counts.last == 24 && zip(counts,counts.dropFirst()).allSatisfy { $0 <= $1 })
             precondition(statuses.contains("Preparing export…") && statuses.contains("Finishing video…") && statuses.contains("Adding soundtrack…"))
@@ -57,11 +59,13 @@ import Combine
             if exporter.isExporting && progress > 0.02 && !requestedCancel { requestedCancel = true; exporter.cancel() }
         }
         await exporter.export(audioURL: nil, render: state, to: existing)
+        precondition(successfulSaveIDs.contains(exporter.successfulSaveID!))
         let retained = try Data(contentsOf: existing)
         precondition(requestedCancel && exporter.exportedURL == nil && exporter.status == "Export cancelled" && !exporter.isExporting && retained == contents)
         precondition(exporter.totalFrames == 360 && exporter.renderedFrames < 360)
         cancellationObserver.cancel()
         await exporter.export(audioURL: root.appendingPathComponent("missing.wav"), render: state, to: root.appendingPathComponent("failed.mp4"))
+        precondition(successfulSaveIDs.contains(exporter.successfulSaveID!))
         precondition(exporter.exportedURL == nil && exporter.renderedFrames == 0 && exporter.totalFrames == 0 && exporter.framePreview == nil && exporter.status.hasPrefix("Export failed:"))
         withExtendedLifetime([previewObserver,countObserver,statusObserver]) {}
         print("PASS: cancelled/failed exports reset feedback and never signal success; cancellation preserves the destination")

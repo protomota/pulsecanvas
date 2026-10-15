@@ -3,7 +3,7 @@
   "upstreamRepository": "https://github.com/projectM-visualizer/presets-cream-of-the-crop",
   "upstreamCommit": "0180df21f5e0bd39b9060cc5de420ed2f1f9e509",
   "upstreamMilkCount": 9795,
-  "bundledCount": 7838,
+  "bundledCount": 7758,
   "credit": "Cream of the Crop pack curated by ISOSCELES",
   "creditURL": "https://www.patreon.com/posts/pack-nestdrop-91682111",
   "rightsStatus": "Unresolved individual author permissions; upstream public-domain assumption is not documented permission from every author. No MIT/BSD/clearance claim.",
@@ -53,76 +53,12 @@
       "displayTitle": "Radiating Cyclone"
     },
     {
-      "path": "Dancer/Aurora/Jc - Lungs.milk",
-      "upstreamPath": "Dancer/Aurora/Jc - Lungs.milk",
-      "sha256": "f8ed8438269205ae31fc163377be4d579bd4238ee64be7f9eedf19b68bd65b8e",
-      "id": "projectm:Dancer/Aurora/Jc - Lungs.milk",
-      "originalTitle": "Jc - Lungs",
-      "displayTitle": "Mercury Forest"
-    },
-    {
       "path": "Dancer/Aurora/shifter - urchin kali b.milk",
       "upstreamPath": "Dancer/Aurora/shifter - urchin kali b.milk",
       "sha256": "9f95844e375d028eb7dc7e5c789394672e8f0595fb6c72a81cc92a47f5e17923",
       "id": "projectm:Dancer/Aurora/shifter - urchin kali b.milk",
       "originalTitle": "shifter - urchin kali b",
       "displayTitle": "Neon Quasar"
-    },
-    {
-      "path": "Dancer/Aurora/shifter - urchin kali echos.milk",
-      "upstreamPath": "Dancer/Aurora/shifter - urchin kali echos.milk",
-      "sha256": "9db409e77a7fd4c036e0c007fd52b85c6fe33008df3cd99fbe555a7c871c940a",
-      "id": "projectm:Dancer/Aurora/shifter - urchin kali echos.milk",
-      "originalTitle": "shifter - urchin kali echos",
-      "displayTitle": "Silent Circuit"
-    },
-    {
-      "path": "Dancer/Aurora/shifter - urchin kali mod.milk",
-      "upstreamPath": "Dancer/Aurora/shifter - urchin kali mod.milk",
-      "sha256": "e1665a1313de6cb3589639c600edaad88951965695a0ba8d27a7bfd09780b474",
-      "id": "projectm:Dancer/Aurora/shifter - urchin kali mod.milk",
-      "originalTitle": "shifter - urchin kali mod",
-      "displayTitle": "Atomic Ribbon"
-    },
-    {
-      "path": "Dancer/Aurora/shifter - urchin kali.milk",
-      "upstreamPath": "Dancer/Aurora/shifter - urchin kali.milk",
-      "sha256": "e7105d7cb1ef89b26aebddad8c12b4d08f14015eb56685635492cbe233f7b603",
-      "id": "projectm:Dancer/Aurora/shifter - urchin kali.milk",
-      "originalTitle": "shifter - urchin kali",
-      "displayTitle": "Spectral Nexus"
-    },
-    {
-      "path": "Dancer/Aurora/shifter - urchin mod deli + nz+.milk",
-      "upstreamPath": "Dancer/Aurora/shifter - urchin mod deli + nz+.milk",
-      "sha256": "0381cbad5871c7776be37dac1d8e0a5d2edfb18107ee25bf4da5859eddd57d33",
-      "id": "projectm:Dancer/Aurora/shifter - urchin mod deli + nz+.milk",
-      "originalTitle": "shifter - urchin mod deli + nz+",
-      "displayTitle": "Solar Twist"
-    },
-    {
-      "path": "Dancer/Aurora/shifter - urchin mod.milk",
-      "upstreamPath": "Dancer/Aurora/shifter - urchin mod.milk",
-      "sha256": "7f9bc5ffc1839cb54a4a996e9aab9fe9c4eec6985362eada936651f7c3a7924a",
-      "id": "projectm:Dancer/Aurora/shifter - urchin mod.milk",
-      "originalTitle": "shifter - urchin mod",
-      "displayTitle": "Mystic Mist"
-    },
-    {
-      "path": "Dancer/Aurora/shifter - urchin mod_1.milk",
-      "upstreamPath": "Dancer/Aurora/shifter - urchin mod_1.milk",
-      "sha256": "61e8fbd26ff0c881a63877356851d34693a467c24f2198ff5c5f67539513696e",
-      "id": "projectm:Dancer/Aurora/shifter - urchin mod_1.milk",
-      "originalTitle": "shifter - urchin mod_1",
-      "displayTitle": "Neon Whisper"
-    },
-    {
-      "path": "Dancer/Aurora/shifter - urchin.milk",
-      "upstreamPath": "Dancer/Aurora/shifter - urchin.milk",
-      "sha256": "6e2e8ce49d62597b6a491f5f77ecfabf6ced20da2962b553af2791cf76b73e7f",
-      "id": "projectm:Dancer/Aurora/shifter - urchin.milk",
-      "originalTitle": "shifter - urchin",
-      "displayTitle": "Ghostly Void"
     },
     {
       "path": "Dancer/Aurora/suksma - shifter - urchin kali echos - bowel nz+.milk",
@@ -149,52 +85,12 @@
       "displayTitle": "Cosmic Surge"
     },
     {
-      "path": "Dancer/Aurora/suksma - shifter - urchin kali echos - bowel roams nz.milk",
-      "upstreamPath": "Dancer/Aurora/suksma - shifter - urchin kali echos - bowel roams nz.milk",
-      "sha256": "422e73ce66fa6f76a317d28607904fc69a72084034f4a6186a0e3c0be44ada30",
-      "id": "projectm:Dancer/Aurora/suksma - shifter - urchin kali echos - bowel roams nz.milk",
-      "originalTitle": "suksma - shifter - urchin kali echos - bowel roams nz",
-      "displayTitle": "Echo Dune"
-    },
-    {
-      "path": "Dancer/Aurora/suksma - shifter - urchin kali echos - bowel roams nz3.milk",
-      "upstreamPath": "Dancer/Aurora/suksma - shifter - urchin kali echos - bowel roams nz3.milk",
-      "sha256": "e92c0232e4d220bc4bbbad13a90ce71d8e1f8861de5b71b5b1f45ee075b18084",
-      "id": "projectm:Dancer/Aurora/suksma - shifter - urchin kali echos - bowel roams nz3.milk",
-      "originalTitle": "suksma - shifter - urchin kali echos - bowel roams nz3",
-      "displayTitle": "Woven Cascade"
-    },
-    {
-      "path": "Dancer/Aurora/suksma - shifter - urchin kali echos - moish dt r3 nz+.milk",
-      "upstreamPath": "Dancer/Aurora/suksma - shifter - urchin kali echos - moish dt r3 nz+.milk",
-      "sha256": "9c48568d50b41c7ac3ad86cfbd63b5947e091b80aa56f4fbf3d7b6dafb9e5619",
-      "id": "projectm:Dancer/Aurora/suksma - shifter - urchin kali echos - moish dt r3 nz+.milk",
-      "originalTitle": "suksma - shifter - urchin kali echos - moish dt r3 nz+",
-      "displayTitle": "Polar Domain"
-    },
-    {
-      "path": "Dancer/Aurora/suksma - shifter - urchin kali echos - moish dt r3.milk",
-      "upstreamPath": "Dancer/Aurora/suksma - shifter - urchin kali echos - moish dt r3.milk",
-      "sha256": "d47c8be364104f20e5a7259f88029e3b45c00237963ac31afe928b89d375f03f",
-      "id": "projectm:Dancer/Aurora/suksma - shifter - urchin kali echos - moish dt r3.milk",
-      "originalTitle": "suksma - shifter - urchin kali echos - moish dt r3",
-      "displayTitle": "Tidal Path"
-    },
-    {
       "path": "Dancer/Blobby Mirror/AdamFX 2 Geiss - Mash-Up Sphere Xibit Graffiti Warp me Oval Interprise.milk",
       "upstreamPath": "Dancer/Blobby Mirror/AdamFX 2 Geiss - Mash-Up Sphere Xibit Graffiti Warp me Oval Interprise.milk",
       "sha256": "020b088381fcf79eb2d8d95ca4a2e5d9f6cd05a6844c649e1570536a8a18d4fd",
       "id": "projectm:Dancer/Blobby Mirror/AdamFX 2 Geiss - Mash-Up Sphere Xibit Graffiti Warp me Oval Interprise.milk",
       "originalTitle": "AdamFX 2 Geiss - Mash-Up Sphere Xibit Graffiti Warp me Oval Interprise",
       "displayTitle": "Starlit Spire"
-    },
-    {
-      "path": "Dancer/Blobby Mirror/AdamFX 2 Geiss - Mash-Up Sphere Xibit Graffiti Warp me Oval Interprise3.milk",
-      "upstreamPath": "Dancer/Blobby Mirror/AdamFX 2 Geiss - Mash-Up Sphere Xibit Graffiti Warp me Oval Interprise3.milk",
-      "sha256": "cbc2bc138eeb1ff1faa6a954b4fd78610e9fde9bf5501a2ec297c5231680024c",
-      "id": "projectm:Dancer/Blobby Mirror/AdamFX 2 Geiss - Mash-Up Sphere Xibit Graffiti Warp me Oval Interprise3.milk",
-      "originalTitle": "AdamFX 2 Geiss - Mash-Up Sphere Xibit Graffiti Warp me Oval Interprise3",
-      "displayTitle": "Sublime Tide"
     },
     {
       "path": "Dancer/Blobby Mirror/AdamFX 2 Geiss - Mash-Up Sphere Xibit Graffiti Warp me Oval Interprise4.milk",
@@ -301,30 +197,6 @@
       "displayTitle": "Burning Flight"
     },
     {
-      "path": "Dancer/Blobby Mirror/LuxXx - Benefiscient Prescience Power.milk",
-      "upstreamPath": "Dancer/Blobby Mirror/LuxXx - Benefiscient Prescience Power.milk",
-      "sha256": "a0e9cbfb641f2d1d21279d9483ded6bfe70e82d304739520eb0b5fb7ce8f881b",
-      "id": "projectm:Dancer/Blobby Mirror/LuxXx - Benefiscient Prescience Power.milk",
-      "originalTitle": "LuxXx - Benefiscient Prescience Power",
-      "displayTitle": "Garnet Void"
-    },
-    {
-      "path": "Dancer/Blobby Mirror/LuxXx - Benefiscient Prescience.milk",
-      "upstreamPath": "Dancer/Blobby Mirror/LuxXx - Benefiscient Prescience.milk",
-      "sha256": "bcd00f0081700a3ea6735f75f27c03830610552c3a8d4affbd5d1b1748e36804",
-      "id": "projectm:Dancer/Blobby Mirror/LuxXx - Benefiscient Prescience.milk",
-      "originalTitle": "LuxXx - Benefiscient Prescience",
-      "displayTitle": "Orbital Fire"
-    },
-    {
-      "path": "Dancer/Blobby Mirror/LuxXx - Dain Bammerge v1 (balls).milk",
-      "upstreamPath": "Dancer/Blobby Mirror/LuxXx - Dain Bammerge v1 (balls).milk",
-      "sha256": "ac5123942e445e224e2b936aad8447e3f74e53bd231f157935189654cef62315",
-      "id": "projectm:Dancer/Blobby Mirror/LuxXx - Dain Bammerge v1 (balls).milk",
-      "originalTitle": "LuxXx - Dain Bammerge v1 (balls)",
-      "displayTitle": "Frozen Spray"
-    },
-    {
       "path": "Dancer/Blobby Mirror/LuxXx - Dancing (Or Mating) Blobs II.milk",
       "upstreamPath": "Dancer/Blobby Mirror/LuxXx - Dancing (Or Mating) Blobs II.milk",
       "sha256": "1f443a6ff215a299130ef8babb1ff7593a7f0aed54610a931433874c2b79d6df",
@@ -333,52 +205,12 @@
       "displayTitle": "Magnetic Dimension"
     },
     {
-      "path": "Dancer/Blobby Mirror/LuxXx - Done For the Evening.milk",
-      "upstreamPath": "Dancer/Blobby Mirror/LuxXx - Done For the Evening.milk",
-      "sha256": "4678ae9dfe796748f1a6e661223b174332e585c80001ed8f4c9fc2756766ccf5",
-      "id": "projectm:Dancer/Blobby Mirror/LuxXx - Done For the Evening.milk",
-      "originalTitle": "LuxXx - Done For the Evening",
-      "displayTitle": "Vivid Ocean"
-    },
-    {
-      "path": "Dancer/Blobby Mirror/LuxXx - Done For the Night ii.milk",
-      "upstreamPath": "Dancer/Blobby Mirror/LuxXx - Done For the Night ii.milk",
-      "sha256": "dca3b7507b9ba13c13c5b952d6b05801c5b40a234424218be2509fc983647175",
-      "id": "projectm:Dancer/Blobby Mirror/LuxXx - Done For the Night ii.milk",
-      "originalTitle": "LuxXx - Done For the Night ii",
-      "displayTitle": "Golden Quasar"
-    },
-    {
-      "path": "Dancer/Blobby Mirror/LuxXx - Done For the Night.milk",
-      "upstreamPath": "Dancer/Blobby Mirror/LuxXx - Done For the Night.milk",
-      "sha256": "2fd4c7da29996e1a9e0c45e2884397e39fd57d0a51e0e5d490f1a60c7b2b1ae8",
-      "id": "projectm:Dancer/Blobby Mirror/LuxXx - Done For the Night.milk",
-      "originalTitle": "LuxXx - Done For the Night",
-      "displayTitle": "Blazing Edge"
-    },
-    {
       "path": "Dancer/Blobby Mirror/LuxXx - I Am God (presence).milk",
       "upstreamPath": "Dancer/Blobby Mirror/LuxXx - I Am God (presence).milk",
       "sha256": "8f90e9e67c2377bbf5229436e1646d31c26cf7d1a9f8ecf1f31198bbcf6d9439",
       "id": "projectm:Dancer/Blobby Mirror/LuxXx - I Am God (presence).milk",
       "originalTitle": "LuxXx - I Am God (presence)",
       "displayTitle": "Mercury Star"
-    },
-    {
-      "path": "Dancer/Blobby Mirror/LuxXx - Martin dsl b.milk",
-      "upstreamPath": "Dancer/Blobby Mirror/LuxXx - Martin dsl b.milk",
-      "sha256": "efb9bae4b4c6ad6889534f6e9a5eae4cfe7b82c4b6d9631081251296e9928b8e",
-      "id": "projectm:Dancer/Blobby Mirror/LuxXx - Martin dsl b.milk",
-      "originalTitle": "LuxXx - Martin dsl b",
-      "displayTitle": "Kaleido Bloom"
-    },
-    {
-      "path": "Dancer/Blobby Mirror/LuxXx - Token Beat Galaxy All-Stars.milk",
-      "upstreamPath": "Dancer/Blobby Mirror/LuxXx - Token Beat Galaxy All-Stars.milk",
-      "sha256": "5898e47616eacf3a8ea5d69e6fe89258d8e8fae112e2d6e8768218571480885a",
-      "id": "projectm:Dancer/Blobby Mirror/LuxXx - Token Beat Galaxy All-Stars.milk",
-      "originalTitle": "LuxXx - Token Beat Galaxy All-Stars",
-      "displayTitle": "Golden Cavern"
     },
     {
       "path": "Dancer/Blobby Mirror/LuxXx - Token Beats.milk",
@@ -405,14 +237,6 @@
       "displayTitle": "Solar Cloud"
     },
     {
-      "path": "Dancer/Blobby Mirror/LuxXx - When the First Aliens Came b.milk",
-      "upstreamPath": "Dancer/Blobby Mirror/LuxXx - When the First Aliens Came b.milk",
-      "sha256": "6e230b09069f92d101ffad4a5c19aae2f76c620c07b4b233f93e5a3b61aca87d",
-      "id": "projectm:Dancer/Blobby Mirror/LuxXx - When the First Aliens Came b.milk",
-      "originalTitle": "LuxXx - When the First Aliens Came b",
-      "displayTitle": "Infrared Pattern"
-    },
-    {
       "path": "Dancer/Blobby Mirror/LuxXx - i have a bad mario ball.milk",
       "upstreamPath": "Dancer/Blobby Mirror/LuxXx - i have a bad mario ball.milk",
       "sha256": "9714764699b7d72723d0d2ad09a8b46c8dba9c32f535c9b38e2032ffe919fedd",
@@ -429,52 +253,12 @@
       "displayTitle": "Laser Star"
     },
     {
-      "path": "Dancer/Blobby Mirror/LuxXx - kristy's beautiful balls.milk",
-      "upstreamPath": "Dancer/Blobby Mirror/LuxXx - kristy's beautiful balls.milk",
-      "sha256": "57c4af89e23c4efceac254f38758eb70bd002d96c6141fe5cd29b373ed7b63f5",
-      "id": "projectm:Dancer/Blobby Mirror/LuxXx - kristy's beautiful balls.milk",
-      "originalTitle": "LuxXx - kristy's beautiful balls",
-      "displayTitle": "Sparkling Surge"
-    },
-    {
-      "path": "Dancer/Blobby Mirror/LuxXx - kristy's krusty nutz v2.milk",
-      "upstreamPath": "Dancer/Blobby Mirror/LuxXx - kristy's krusty nutz v2.milk",
-      "sha256": "8990558fdf75b11f851d3615476cdaf3fa543cf7860cab0a3a5069571eadd0e0",
-      "id": "projectm:Dancer/Blobby Mirror/LuxXx - kristy's krusty nutz v2.milk",
-      "originalTitle": "LuxXx - kristy's krusty nutz v2",
-      "displayTitle": "Hollow Star"
-    },
-    {
-      "path": "Dancer/Blobby Mirror/LuxXx - neuronsfiring all quiet like in ur nonfunctional brain ii.milk",
-      "upstreamPath": "Dancer/Blobby Mirror/LuxXx - neuronsfiring all quiet like in ur nonfunctional brain ii.milk",
-      "sha256": "85e9026ee69cfdd1d01d7ff2b50122c45133f68ceb5162f17d57e31e7ed6d2c3",
-      "id": "projectm:Dancer/Blobby Mirror/LuxXx - neuronsfiring all quiet like in ur nonfunctional brain ii.milk",
-      "originalTitle": "LuxXx - neuronsfiring all quiet like in ur nonfunctional brain ii",
-      "displayTitle": "Volcanic Spire"
-    },
-    {
       "path": "Dancer/Blobby Mirror/ORB - Cloud Scope.milk",
       "upstreamPath": "Dancer/Blobby Mirror/ORB - Cloud Scope.milk",
       "sha256": "d3f01a036c6c3a3b2d1d821915d907847135a017447eacb0189c2e972d7a26be",
       "id": "projectm:Dancer/Blobby Mirror/ORB - Cloud Scope.milk",
       "originalTitle": "ORB - Cloud Scope",
       "displayTitle": "Cobalt Thread"
-    },
-    {
-      "path": "Dancer/Blobby Mirror/ORB - Radiation.milk",
-      "upstreamPath": "Dancer/Blobby Mirror/ORB - Radiation.milk",
-      "sha256": "f3a79b932e0b5219788cf6b12ff83c6de620e7ce7eefb09a5634676acf40bc1a",
-      "id": "projectm:Dancer/Blobby Mirror/ORB - Radiation.milk",
-      "originalTitle": "ORB - Radiation",
-      "displayTitle": "Wandering Quasar"
-    },
-    {
-      "path": "Dancer/Blobby Mirror/ORB - Radiation2.milk",
-      "upstreamPath": "Dancer/Blobby Mirror/ORB - Radiation2.milk",
-      "sha256": "7b66c371c852023ab60ef271c505548832faa8dbb509f9ee817ec8591173c3a5",
-      "id": "projectm:Dancer/Blobby Mirror/ORB - Radiation2.milk",
-      "originalTitle": "ORB - Radiation2",
-      "displayTitle": "Mosaic Delta"
     },
     {
       "path": "Dancer/Blobby Mirror/Stahlregen & Flexi + Geiss + Martin + Rovastar + Telek - DiskWasher (Gentle RMX 2)_3.milk",
@@ -493,14 +277,6 @@
       "displayTitle": "Opal Labyrinth"
     },
     {
-      "path": "Dancer/Blobby Mirror/Waltra - Blurry Balls.milk",
-      "upstreamPath": "Dancer/Blobby Mirror/Waltra - Blurry Balls.milk",
-      "sha256": "9fc95430864b06bc4b96ab88f5d18a8cafb2ddfa1600ebb4ffcc3da153108aaf",
-      "id": "projectm:Dancer/Blobby Mirror/Waltra - Blurry Balls.milk",
-      "originalTitle": "Waltra - Blurry Balls",
-      "displayTitle": "Scattered Shell"
-    },
-    {
       "path": "Dancer/Blobby Mirror/Waltra - Horizon.milk",
       "upstreamPath": "Dancer/Blobby Mirror/Waltra - Horizon.milk",
       "sha256": "dbe8bce02661cd39a894da1725daa63b67680aa9a7df40a10fe8e50e981fece6",
@@ -515,14 +291,6 @@
       "id": "projectm:Dancer/Blobby Mirror/Waltra - Priority Lane.milk",
       "originalTitle": "Waltra - Priority Lane",
       "displayTitle": "Scattered Jewel"
-    },
-    {
-      "path": "Dancer/Blobby Mirror/bdrv etAL Aderrasi - Accelerator (orbital Migraine)bdrv94 gdy neck problem solution (tense for hours) atrocious (adj) fellucinate (n).milk",
-      "upstreamPath": "Dancer/Blobby Mirror/bdrv etAL Aderrasi - Accelerator (orbital Migraine)bdrv94 gdy neck problem solution (tense for hours) atrocious (adj) fellucinate (n).milk",
-      "sha256": "cc3384ae7c2a4234e029461dc7bb4274445e4d107b29afe653cc790ac70a04a1",
-      "id": "projectm:Dancer/Blobby Mirror/bdrv etAL Aderrasi - Accelerator (orbital Migraine)bdrv94 gdy neck problem solution (tense for hours) atrocious (adj) fellucinate (n).milk",
-      "originalTitle": "bdrv etAL Aderrasi - Accelerator (orbital Migraine)bdrv94 gdy neck problem solution (tense for hours) atrocious (adj) fellucinate (n)",
-      "displayTitle": "Alchemy Mist"
     },
     {
       "path": "Dancer/Blobby Mirror/flexi +  suksma + goody + fed + other artists - blarfff (throwing up cubes).milk",
@@ -581,44 +349,12 @@
       "displayTitle": "Steaming Garden"
     },
     {
-      "path": "Dancer/Blobby Mirror/suksma - bathory kollect kallz.milk",
-      "upstreamPath": "Dancer/Blobby Mirror/suksma - bathory kollect kallz.milk",
-      "sha256": "7f185174b3d9f38431ae5631f78650b53567389c2d78ca51b290024a911ebd19",
-      "id": "projectm:Dancer/Blobby Mirror/suksma - bathory kollect kallz.milk",
-      "originalTitle": "suksma - bathory kollect kallz",
-      "displayTitle": "Iridescent Rush"
-    },
-    {
       "path": "Dancer/Blobby Mirror/suksma - churlish egronomy steward supress terra preta roam3.milk",
       "upstreamPath": "Dancer/Blobby Mirror/suksma - churlish egronomy steward supress terra preta roam3.milk",
       "sha256": "8f2b7dc8beea8ca3b8759367af097fd9689dcdd58b7c6daaceecb585d98e5561",
       "id": "projectm:Dancer/Blobby Mirror/suksma - churlish egronomy steward supress terra preta roam3.milk",
       "originalTitle": "suksma - churlish egronomy steward supress terra preta roam3",
       "displayTitle": "Hidden Array"
-    },
-    {
-      "path": "Dancer/Blobby Mirror/suksma - churlish egronomy steward supress terra preta.milk",
-      "upstreamPath": "Dancer/Blobby Mirror/suksma - churlish egronomy steward supress terra preta.milk",
-      "sha256": "4f2ce5fe5342ec222bf2af80d00c9d174036cf2800093fcd47f9014ec7b6844d",
-      "id": "projectm:Dancer/Blobby Mirror/suksma - churlish egronomy steward supress terra preta.milk",
-      "originalTitle": "suksma - churlish egronomy steward supress terra preta",
-      "displayTitle": "Azure Fire"
-    },
-    {
-      "path": "Dancer/Blobby Mirror/suksma - deconstrue orbaet.milk",
-      "upstreamPath": "Dancer/Blobby Mirror/suksma - deconstrue orbaet.milk",
-      "sha256": "f4a1325a26c5a69ab23d8561203dbed470c08830f904951f1661250425f1f2d4",
-      "id": "projectm:Dancer/Blobby Mirror/suksma - deconstrue orbaet.milk",
-      "originalTitle": "suksma - deconstrue orbaet",
-      "displayTitle": "Monochrome Phase"
-    },
-    {
-      "path": "Dancer/Blobby Mirror/suksma - dog vs hog vs chicken - naughty little people.milk",
-      "upstreamPath": "Dancer/Blobby Mirror/suksma - dog vs hog vs chicken - naughty little people.milk",
-      "sha256": "2285bf6a08d8f2727a808960106f748b8ef192c9408e2ccf878c85fc3cbf855e",
-      "id": "projectm:Dancer/Blobby Mirror/suksma - dog vs hog vs chicken - naughty little people.milk",
-      "originalTitle": "suksma - dog vs hog vs chicken - naughty little people",
-      "displayTitle": "Violet Dimension"
     },
     {
       "path": "Dancer/Blobby Mirror/suksma - flaring squamoid mode placement nz+.milk",
@@ -629,36 +365,12 @@
       "displayTitle": "Neon Harmony"
     },
     {
-      "path": "Dancer/Blobby Mirror/suksma - flaring squamoid mode placement nz.milk",
-      "upstreamPath": "Dancer/Blobby Mirror/suksma - flaring squamoid mode placement nz.milk",
-      "sha256": "55a6a043f79f4203a6e78ee4718dfa2cf3ece294245ca424a725fc248d471919",
-      "id": "projectm:Dancer/Blobby Mirror/suksma - flaring squamoid mode placement nz.milk",
-      "originalTitle": "suksma - flaring squamoid mode placement nz",
-      "displayTitle": "Iridescent Spire"
-    },
-    {
-      "path": "Dancer/Blobby Mirror/suksma - flaring squamoid mode placement.milk",
-      "upstreamPath": "Dancer/Blobby Mirror/suksma - flaring squamoid mode placement.milk",
-      "sha256": "63f97559581287c83b0b208360f897de3d407616c0ec400f90f6f2b849c775fc",
-      "id": "projectm:Dancer/Blobby Mirror/suksma - flaring squamoid mode placement.milk",
-      "originalTitle": "suksma - flaring squamoid mode placement",
-      "displayTitle": "Galactic Skyline"
-    },
-    {
       "path": "Dancer/Blobby Mirror/suksma - g-martin m-m w-!mu$ wp-m c-m - getting beat isn't embarrassing, it's no one cares.milk",
       "upstreamPath": "Dancer/Blobby Mirror/suksma - g-martin m-m w-!mu$ wp-m c-m - getting beat isn't embarrassing, it's no one cares.milk",
       "sha256": "99d87839d7bfe5fa76b8a52ebccc11dcb5cfa414fc9549f25f63ae890be590ce",
       "id": "projectm:Dancer/Blobby Mirror/suksma - g-martin m-m w-!mu$ wp-m c-m - getting beat isn't embarrassing, it's no one cares.milk",
       "originalTitle": "suksma - g-martin m-m w-!mu$ wp-m c-m - getting beat isn't embarrassing, it's no one cares",
       "displayTitle": "Glitch Smoke"
-    },
-    {
-      "path": "Dancer/Blobby Mirror/suksma - hugs for the evil - altars of sadness.milk",
-      "upstreamPath": "Dancer/Blobby Mirror/suksma - hugs for the evil - altars of sadness.milk",
-      "sha256": "a723f0a667ddc89ba2b167e3d20b17caf0f9a785cd511227e67fc2140df0e989",
-      "id": "projectm:Dancer/Blobby Mirror/suksma - hugs for the evil - altars of sadness.milk",
-      "originalTitle": "suksma - hugs for the evil - altars of sadness",
-      "displayTitle": "Celestial Constellation"
     },
     {
       "path": "Dancer/Blobby Mirror/suksma - kcigam spoo.milk",
@@ -741,22 +453,6 @@
       "displayTitle": "Azure Lantern"
     },
     {
-      "path": "Dancer/Blobby/LuxXx - Dancing (Or Mating) Blobs III nz+.milk",
-      "upstreamPath": "Dancer/Blobby/LuxXx - Dancing (Or Mating) Blobs III nz+.milk",
-      "sha256": "9e7878e120d156d601703a84d7601241960a9ad748972960b06e268e4b262c61",
-      "id": "projectm:Dancer/Blobby/LuxXx - Dancing (Or Mating) Blobs III nz+.milk",
-      "originalTitle": "LuxXx - Dancing (Or Mating) Blobs III nz+",
-      "displayTitle": "Saffron River"
-    },
-    {
-      "path": "Dancer/Blobby/LuxXx - Dancing (Or Mating) Blobs III.milk",
-      "upstreamPath": "Dancer/Blobby/LuxXx - Dancing (Or Mating) Blobs III.milk",
-      "sha256": "b807ca54074897243dfa8ad75464a4ad778b8b8fd288dde82ff7562c7dd76932",
-      "id": "projectm:Dancer/Blobby/LuxXx - Dancing (Or Mating) Blobs III.milk",
-      "originalTitle": "LuxXx - Dancing (Or Mating) Blobs III",
-      "displayTitle": "Monochrome Helix"
-    },
-    {
       "path": "Dancer/Blobby/LuxXx - LavaBlobz.milk",
       "upstreamPath": "Dancer/Blobby/LuxXx - LavaBlobz.milk",
       "sha256": "66ad4cbec8377004f9c62644666676bedf59afd60c382e3b5d3bf6ebf66315de",
@@ -837,14 +533,6 @@
       "displayTitle": "Glass Delta"
     },
     {
-      "path": "Dancer/Blobby/Waltra - Pair of Balls.milk",
-      "upstreamPath": "Dancer/Blobby/Waltra - Pair of Balls.milk",
-      "sha256": "617c06e061f9113e11dc3f197d1d7e67e3dae1e56c17985ea1a3258f2c3c1cbc",
-      "id": "projectm:Dancer/Blobby/Waltra - Pair of Balls.milk",
-      "originalTitle": "Waltra - Pair of Balls",
-      "displayTitle": "Opal Prism"
-    },
-    {
       "path": "Dancer/Blobby/beta106i - The One Eyed Fool cyclopeaen dungeon --- Isosceles edit.milk",
       "upstreamPath": "Dancer/Blobby/beta106i - The One Eyed Fool cyclopeaen dungeon --- Isosceles edit.milk",
       "sha256": "97b0c137ecff61036686334f93f9dcfc7d408ec1885decf929f0e799a19e73ac",
@@ -877,22 +565,6 @@
       "displayTitle": "Mercury Array"
     },
     {
-      "path": "Dancer/Blobby/carved in skin nz.milk",
-      "upstreamPath": "Dancer/Blobby/carved in skin nz.milk",
-      "sha256": "74efc9e79aaa9d3033b5a72d7a7b5fac0406e67d4ae39b920e2ac82328fb9c91",
-      "id": "projectm:Dancer/Blobby/carved in skin nz.milk",
-      "originalTitle": "carved in skin nz",
-      "displayTitle": "Surreal Void"
-    },
-    {
-      "path": "Dancer/Blobby/craq caqt mbaw.milk",
-      "upstreamPath": "Dancer/Blobby/craq caqt mbaw.milk",
-      "sha256": "957430844eaa6638c7a37378cf1dda013f4ea3ea36a59a4b9b947fff8bb31125",
-      "id": "projectm:Dancer/Blobby/craq caqt mbaw.milk",
-      "originalTitle": "craq caqt mbaw",
-      "displayTitle": "Neon Loop"
-    },
-    {
       "path": "Dancer/Blobby/martin - mucus cervix - geiss crossfire shaders.milk",
       "upstreamPath": "Dancer/Blobby/martin - mucus cervix - geiss crossfire shaders.milk",
       "sha256": "afbaf7eb45180080706e183429c45c797c66c8eeb2eec7e402a195889a815cd6",
@@ -915,14 +587,6 @@
       "id": "projectm:Dancer/Blobby/pestilential vibrhatorik.milk",
       "originalTitle": "pestilential vibrhatorik",
       "displayTitle": "Infrared Fragment"
-    },
-    {
-      "path": "Dancer/Blobby/prbdaian zerzan vs fresco.milk",
-      "upstreamPath": "Dancer/Blobby/prbdaian zerzan vs fresco.milk",
-      "sha256": "98769584357130c3527cc388e5977514da8d9f667dd2b5cc577f851590be831a",
-      "id": "projectm:Dancer/Blobby/prbdaian zerzan vs fresco.milk",
-      "originalTitle": "prbdaian zerzan vs fresco",
-      "displayTitle": "Lucid Sphere"
     },
     {
       "path": "Dancer/Blobby/rce-ordinary - melt spinner (particle only).milk",
@@ -973,28 +637,12 @@
       "displayTitle": "Arctic Glow"
     },
     {
-      "path": "Dancer/Blobby/suksma - Chemlock - Spot (Zylot & Aderrasi equations) martin stahlregen - croxley basket.milk",
-      "upstreamPath": "Dancer/Blobby/suksma - Chemlock - Spot (Zylot & Aderrasi equations) martin stahlregen - croxley basket.milk",
-      "sha256": "c4cd80cb523ab00072e19fe1b78927e720d85ee91d284bbf7a53c8b02f4cde54",
-      "id": "projectm:Dancer/Blobby/suksma - Chemlock - Spot (Zylot & Aderrasi equations) martin stahlregen - croxley basket.milk",
-      "originalTitle": "suksma - Chemlock - Spot (Zylot & Aderrasi equations) martin stahlregen - croxley basket",
-      "displayTitle": "Shimmering Trail"
-    },
-    {
       "path": "Dancer/Blobby/suksma - anti-glare dimension lens optics coating.milk",
       "upstreamPath": "Dancer/Blobby/suksma - anti-glare dimension lens optics coating.milk",
       "sha256": "507fb149d7cdb7eabc254f14534f5976c97ca16743bb1cbf15af528fa1425d08",
       "id": "projectm:Dancer/Blobby/suksma - anti-glare dimension lens optics coating.milk",
       "originalTitle": "suksma - anti-glare dimension lens optics coating",
       "displayTitle": "Cobalt Skyline"
-    },
-    {
-      "path": "Dancer/Blobby/suksma - arrange-a-tang - shf radial tripolar swung.milk",
-      "upstreamPath": "Dancer/Blobby/suksma - arrange-a-tang - shf radial tripolar swung.milk",
-      "sha256": "c4e8ba6eb5ec91c0fbe72f524085274cf605ef86a70fecd6e3226d88808d742d",
-      "id": "projectm:Dancer/Blobby/suksma - arrange-a-tang - shf radial tripolar swung.milk",
-      "originalTitle": "suksma - arrange-a-tang - shf radial tripolar swung",
-      "displayTitle": "Chromatic Coil"
     },
     {
       "path": "Dancer/Blobby/suksma - assheadish lice - flx spr col.milk",
@@ -1133,28 +781,12 @@
       "displayTitle": "Feral Zone"
     },
     {
-      "path": "Dancer/Blobby/suksma - my face is black pus - more roosta additive shapes.milk",
-      "upstreamPath": "Dancer/Blobby/suksma - my face is black pus - more roosta additive shapes.milk",
-      "sha256": "0317787b3438285337dc28642174bf43939059334e5419d684fb8f35a70b0cc2",
-      "id": "projectm:Dancer/Blobby/suksma - my face is black pus - more roosta additive shapes.milk",
-      "originalTitle": "suksma - my face is black pus - more roosta additive shapes",
-      "displayTitle": "Majestic Monolith"
-    },
-    {
       "path": "Dancer/Blobby/suksma - never bam.milk",
       "upstreamPath": "Dancer/Blobby/suksma - never bam.milk",
       "sha256": "1e75702b33ce57180bb57aaf06bc5da0f221509d7255df1714388342ca573b01",
       "id": "projectm:Dancer/Blobby/suksma - never bam.milk",
       "originalTitle": "suksma - never bam",
       "displayTitle": "Zigzag Corona"
-    },
-    {
-      "path": "Dancer/Blobby/suksma - never breathe.milk",
-      "upstreamPath": "Dancer/Blobby/suksma - never breathe.milk",
-      "sha256": "ad44f2fae331a6e7bd89404a02ec77040547b5c10f8f02c3099ec42caab26f85",
-      "id": "projectm:Dancer/Blobby/suksma - never breathe.milk",
-      "originalTitle": "suksma - never breathe",
-      "displayTitle": "Monochrome Origin"
     },
     {
       "path": "Dancer/Blobby/suksma - not like this, not like this ap3+ roam2 higgs field satanism.milk",
@@ -1189,36 +821,12 @@
       "displayTitle": "Echo Cyclone"
     },
     {
-      "path": "Dancer/Blobby/suksma - shifter - spincycle + labor of others.milk",
-      "upstreamPath": "Dancer/Blobby/suksma - shifter - spincycle + labor of others.milk",
-      "sha256": "0bd2b75ee877b8a198bd30e79f5f1495a5575357603aeb046bf157ec601c2d5c",
-      "id": "projectm:Dancer/Blobby/suksma - shifter - spincycle + labor of others.milk",
-      "originalTitle": "suksma - shifter - spincycle + labor of others",
-      "displayTitle": "Pearl Afterglow"
-    },
-    {
       "path": "Dancer/Blobby/suksma - shifter - spincycle c - bleusnot roam.milk",
       "upstreamPath": "Dancer/Blobby/suksma - shifter - spincycle c - bleusnot roam.milk",
       "sha256": "5e4f5262ed5f10dfc9c7a6fa5b3cf8ac14483c26a3bc08584d934c0de8a9ca75",
       "id": "projectm:Dancer/Blobby/suksma - shifter - spincycle c - bleusnot roam.milk",
       "originalTitle": "suksma - shifter - spincycle c - bleusnot roam",
       "displayTitle": "Stellar Dawn"
-    },
-    {
-      "path": "Dancer/Blobby/suksma - shifter - spincycle c - bleusnot.milk",
-      "upstreamPath": "Dancer/Blobby/suksma - shifter - spincycle c - bleusnot.milk",
-      "sha256": "f89eeb941da6993eae85ae1d5e92d35b7652e10d9622fc95eae8acb5d3127082",
-      "id": "projectm:Dancer/Blobby/suksma - shifter - spincycle c - bleusnot.milk",
-      "originalTitle": "suksma - shifter - spincycle c - bleusnot",
-      "displayTitle": "Vibrant Trail"
-    },
-    {
-      "path": "Dancer/Comet Mirror/226.milk",
-      "upstreamPath": "Dancer/Comet Mirror/226.milk",
-      "sha256": "cc60c071883857059eb8fe62bc7dd6b871fa22f0cefd0e5da0496ab84e6c806c",
-      "id": "projectm:Dancer/Comet Mirror/226.milk",
-      "originalTitle": "226",
-      "displayTitle": "Pixel Rush"
     },
     {
       "path": "Dancer/Comet Mirror/240.milk",
@@ -1243,14 +851,6 @@
       "id": "projectm:Dancer/Comet Mirror/246.milk",
       "originalTitle": "246",
       "displayTitle": "Molten Petal"
-    },
-    {
-      "path": "Dancer/Comet Mirror/28.milk",
-      "upstreamPath": "Dancer/Comet Mirror/28.milk",
-      "sha256": "78089bcb847198d0a1c1d0895262172385c8d360a6db3f53c382e1489e258f1b",
-      "id": "projectm:Dancer/Comet Mirror/28.milk",
-      "originalTitle": "28",
-      "displayTitle": "Ocean Snow"
     },
     {
       "path": "Dancer/Comet Mirror/325.milk",
@@ -1379,14 +979,6 @@
       "id": "projectm:Dancer/Comet Mirror/EoS + Phat - chasers 13 sentinel 616.milk",
       "originalTitle": "EoS + Phat - chasers 13 sentinel 616",
       "displayTitle": "Harmonic Jewel"
-    },
-    {
-      "path": "Dancer/Comet Mirror/EoS + Phat - chasers 13 sentinel 616_Pretty_interesting.milk",
-      "upstreamPath": "Dancer/Comet Mirror/EoS + Phat - chasers 13 sentinel 616_Pretty_interesting.milk",
-      "sha256": "d774d877c4acfd9e5ced68ee196c4cb890b13491aadd96fbf5f7c2bed41a065b",
-      "id": "projectm:Dancer/Comet Mirror/EoS + Phat - chasers 13 sentinel 616_Pretty_interesting.milk",
-      "originalTitle": "EoS + Phat - chasers 13 sentinel 616_Pretty_interesting",
-      "displayTitle": "Zenith Dawn"
     },
     {
       "path": "Dancer/Comet Mirror/EoS + Phat - chasers 14 sentinel 616 (Jelly 5-55).milk",
@@ -1525,84 +1117,12 @@
       "displayTitle": "Ocean Pearl"
     },
     {
-      "path": "Dancer/Comet Mirror/EoS + Phat - chasers 14 sentinel 617_beta5_v2_Flowering_Phenoix_Mix.milk",
-      "upstreamPath": "Dancer/Comet Mirror/EoS + Phat - chasers 14 sentinel 617_beta5_v2_Flowering_Phenoix_Mix.milk",
-      "sha256": "cb2362ca8823fbc2caff1cd8e03e29c3389b5bf8c0210ae97097385f94e99966",
-      "id": "projectm:Dancer/Comet Mirror/EoS + Phat - chasers 14 sentinel 617_beta5_v2_Flowering_Phenoix_Mix.milk",
-      "originalTitle": "EoS + Phat - chasers 14 sentinel 617_beta5_v2_Flowering_Phenoix_Mix",
-      "displayTitle": "Vivid Phantom"
-    },
-    {
-      "path": "Dancer/Comet Mirror/EoS + Phat - chasers 14 sentinel 617_beta5_v2_Flowering_Phenoix_Mix_v2.milk",
-      "upstreamPath": "Dancer/Comet Mirror/EoS + Phat - chasers 14 sentinel 617_beta5_v2_Flowering_Phenoix_Mix_v2.milk",
-      "sha256": "9056fdefba4e5de984d060155aabb08c66ba1b408db990f197afb9aba064f584",
-      "id": "projectm:Dancer/Comet Mirror/EoS + Phat - chasers 14 sentinel 617_beta5_v2_Flowering_Phenoix_Mix_v2.milk",
-      "originalTitle": "EoS + Phat - chasers 14 sentinel 617_beta5_v2_Flowering_Phenoix_Mix_v2",
-      "displayTitle": "Spiraling Globe"
-    },
-    {
-      "path": "Dancer/Comet Mirror/EoS + Phat - chasers 14 sentinel 617_beta6_v3_Flowering_Phenoix_Keyboard_Comand_Mix.milk",
-      "upstreamPath": "Dancer/Comet Mirror/EoS + Phat - chasers 14 sentinel 617_beta6_v3_Flowering_Phenoix_Keyboard_Comand_Mix.milk",
-      "sha256": "6779a89891095b78712b4dfe12aa13565a7fb321bb3a87c2a47b2c10def107df",
-      "id": "projectm:Dancer/Comet Mirror/EoS + Phat - chasers 14 sentinel 617_beta6_v3_Flowering_Phenoix_Keyboard_Comand_Mix.milk",
-      "originalTitle": "EoS + Phat - chasers 14 sentinel 617_beta6_v3_Flowering_Phenoix_Keyboard_Comand_Mix",
-      "displayTitle": "Opal Kaleidoscope"
-    },
-    {
       "path": "Dancer/Comet Mirror/EoS + Phat - chasers 16 sentinels male and female dragons_1.milk",
       "upstreamPath": "Dancer/Comet Mirror/EoS + Phat - chasers 16 sentinels male and female dragons_1.milk",
       "sha256": "1ff853eded0d24701f015379c7fc35a4c8b1ab4db2f970ccb9033afe8fc88441",
       "id": "projectm:Dancer/Comet Mirror/EoS + Phat - chasers 16 sentinels male and female dragons_1.milk",
       "originalTitle": "EoS + Phat - chasers 16 sentinels male and female dragons_1",
       "displayTitle": "Winding Rush"
-    },
-    {
-      "path": "Dancer/Comet Mirror/EoS + Phat - chasers 17 sentinels ghoul - nz+ ihavenothingtoffal camp hell.milk",
-      "upstreamPath": "Dancer/Comet Mirror/EoS + Phat - chasers 17 sentinels ghoul - nz+ ihavenothingtoffal camp hell.milk",
-      "sha256": "736b8268cf401f74dcde359ddcf6ba2931eb0a872617adc15a339aaa6bc66765",
-      "id": "projectm:Dancer/Comet Mirror/EoS + Phat - chasers 17 sentinels ghoul - nz+ ihavenothingtoffal camp hell.milk",
-      "originalTitle": "EoS + Phat - chasers 17 sentinels ghoul - nz+ ihavenothingtoffal camp hell",
-      "displayTitle": "Cyber Nova"
-    },
-    {
-      "path": "Dancer/Comet Mirror/EoS + Phat - chasers 17 sentinels ghoul - nz+ ihavenothingtoffal consume media.milk",
-      "upstreamPath": "Dancer/Comet Mirror/EoS + Phat - chasers 17 sentinels ghoul - nz+ ihavenothingtoffal consume media.milk",
-      "sha256": "2cb9b97a67d94f6358a48ca140ce9281a5c0c6d42b8c559f6b89a226dbb0fbc7",
-      "id": "projectm:Dancer/Comet Mirror/EoS + Phat - chasers 17 sentinels ghoul - nz+ ihavenothingtoffal consume media.milk",
-      "originalTitle": "EoS + Phat - chasers 17 sentinels ghoul - nz+ ihavenothingtoffal consume media",
-      "displayTitle": "Scarlet Illusion"
-    },
-    {
-      "path": "Dancer/Comet Mirror/EoS + Phat - chasers 17 sentinels ghoul - nz+ ihavenothingtoffal.milk",
-      "upstreamPath": "Dancer/Comet Mirror/EoS + Phat - chasers 17 sentinels ghoul - nz+ ihavenothingtoffal.milk",
-      "sha256": "c58c28ce0c9326ae8923e61cd02ef65d86cbf275e1aa1a429d330b4910fd141f",
-      "id": "projectm:Dancer/Comet Mirror/EoS + Phat - chasers 17 sentinels ghoul - nz+ ihavenothingtoffal.milk",
-      "originalTitle": "EoS + Phat - chasers 17 sentinels ghoul - nz+ ihavenothingtoffal",
-      "displayTitle": "Ghostly Hurricane"
-    },
-    {
-      "path": "Dancer/Comet Mirror/EoS + Phat - chasers 17 sentinels ghoul - nz+ painted with your bowels, juices, scraps.milk",
-      "upstreamPath": "Dancer/Comet Mirror/EoS + Phat - chasers 17 sentinels ghoul - nz+ painted with your bowels, juices, scraps.milk",
-      "sha256": "e15503cc744d31412873ac6815928b761596b26b2005cc30ffbca6b1b8f4b98f",
-      "id": "projectm:Dancer/Comet Mirror/EoS + Phat - chasers 17 sentinels ghoul - nz+ painted with your bowels, juices, scraps.milk",
-      "originalTitle": "EoS + Phat - chasers 17 sentinels ghoul - nz+ painted with your bowels, juices, scraps",
-      "displayTitle": "Flowing Snow"
-    },
-    {
-      "path": "Dancer/Comet Mirror/EoS + Phat - chasers 17 sentinels ghoul - nz+ utm schlische.milk",
-      "upstreamPath": "Dancer/Comet Mirror/EoS + Phat - chasers 17 sentinels ghoul - nz+ utm schlische.milk",
-      "sha256": "0854e8f65a1e4552d2793a8931248d6588c1c92d36d4dfb1ab0a8d3be2e55cd7",
-      "id": "projectm:Dancer/Comet Mirror/EoS + Phat - chasers 17 sentinels ghoul - nz+ utm schlische.milk",
-      "originalTitle": "EoS + Phat - chasers 17 sentinels ghoul - nz+ utm schlische",
-      "displayTitle": "Radiating Origin"
-    },
-    {
-      "path": "Dancer/Comet Mirror/EoS + Phat - chasers 17 sentinels ghoul - nz+.milk",
-      "upstreamPath": "Dancer/Comet Mirror/EoS + Phat - chasers 17 sentinels ghoul - nz+.milk",
-      "sha256": "70e3115eff9f39b756e351642eb03cb88fafe219993d831ea0bb9ae54563585d",
-      "id": "projectm:Dancer/Comet Mirror/EoS + Phat - chasers 17 sentinels ghoul - nz+.milk",
-      "originalTitle": "EoS + Phat - chasers 17 sentinels ghoul - nz+",
-      "displayTitle": "Sapphire Tunnel"
     },
     {
       "path": "Dancer/Comet Mirror/EoS + Phat and Zylot - Chasers (Sentinal Stars Mix).milk",
@@ -1643,30 +1163,6 @@
       "id": "projectm:Dancer/Comet Mirror/EoS_Phat_PeterP_Sentinel_Aware_6 EoS edit C correction malalol mashup.milk",
       "originalTitle": "EoS_Phat_PeterP_Sentinel_Aware_6 EoS edit C correction malalol mashup",
       "displayTitle": "Silent Ember"
-    },
-    {
-      "path": "Dancer/Comet Mirror/EoS_Phat_PeterP_Sentinel_Aware_6 EoS edit C.milk",
-      "upstreamPath": "Dancer/Comet Mirror/EoS_Phat_PeterP_Sentinel_Aware_6 EoS edit C.milk",
-      "sha256": "3d30b54a6ac7e3e01062e4bfaab4e9e8013fdd8f376cd56dc1dfb7fb6d03d882",
-      "id": "projectm:Dancer/Comet Mirror/EoS_Phat_PeterP_Sentinel_Aware_6 EoS edit C.milk",
-      "originalTitle": "EoS_Phat_PeterP_Sentinel_Aware_6 EoS edit C",
-      "displayTitle": "Rippled Atlas"
-    },
-    {
-      "path": "Dancer/Comet Mirror/EoS_Phat_PeterP_Sentinel_Aware_6 EoS edit C2.milk",
-      "upstreamPath": "Dancer/Comet Mirror/EoS_Phat_PeterP_Sentinel_Aware_6 EoS edit C2.milk",
-      "sha256": "da88761548ef4f056fcc1d3f554a139b5eb6fee5bda50070a68e0cb50a5dde2e",
-      "id": "projectm:Dancer/Comet Mirror/EoS_Phat_PeterP_Sentinel_Aware_6 EoS edit C2.milk",
-      "originalTitle": "EoS_Phat_PeterP_Sentinel_Aware_6 EoS edit C2",
-      "displayTitle": "Phantom Skyline"
-    },
-    {
-      "path": "Dancer/Comet Mirror/EoS_Phat_PeterP_Sentinel_Aware_6 EoS edit C_b.milk",
-      "upstreamPath": "Dancer/Comet Mirror/EoS_Phat_PeterP_Sentinel_Aware_6 EoS edit C_b.milk",
-      "sha256": "5dc95c5a9f8e7bd0b8d015c3b6cfcea6c54926c1c574dc01f2549a3aa0aeed58",
-      "id": "projectm:Dancer/Comet Mirror/EoS_Phat_PeterP_Sentinel_Aware_6 EoS edit C_b.milk",
-      "originalTitle": "EoS_Phat_PeterP_Sentinel_Aware_6 EoS edit C_b",
-      "displayTitle": "Temporal Illusion"
     },
     {
       "path": "Dancer/Comet Mirror/Isosceles mashup21.milk",
@@ -1739,14 +1235,6 @@
       "id": "projectm:Dancer/Comet Mirror/Phat+EoS_Zion_v3.milk",
       "originalTitle": "Phat+EoS_Zion_v3",
       "displayTitle": "Feral Coil"
-    },
-    {
-      "path": "Dancer/Comet Mirror/Phat+EoS_Zion_v4.milk",
-      "upstreamPath": "Dancer/Comet Mirror/Phat+EoS_Zion_v4.milk",
-      "sha256": "d5f551162172d1de461c15ec6138f44ca1c25afc4e4d35f6a13cf74e0a474ef4",
-      "id": "projectm:Dancer/Comet Mirror/Phat+EoS_Zion_v4.milk",
-      "originalTitle": "Phat+EoS_Zion_v4",
-      "displayTitle": "Quicksilver Globe"
     },
     {
       "path": "Dancer/Comet Mirror/Serge + martin - crystal palace008.milk",
@@ -1965,28 +1453,12 @@
       "displayTitle": "Distant Origin"
     },
     {
-      "path": "Dancer/Comet/EoS + Phat - chasers 10 sentinel B.milk",
-      "upstreamPath": "Dancer/Comet/EoS + Phat - chasers 10 sentinel B.milk",
-      "sha256": "137b31b4e237087c00491be47e8e046eaffce0fd70b82a7f6881120beda82ef7",
-      "id": "projectm:Dancer/Comet/EoS + Phat - chasers 10 sentinel B.milk",
-      "originalTitle": "EoS + Phat - chasers 10 sentinel B",
-      "displayTitle": "Harmonic Journey"
-    },
-    {
       "path": "Dancer/Comet/EoS + Phat - chasers 11 sentinel C (Jelly V2).milk",
       "upstreamPath": "Dancer/Comet/EoS + Phat - chasers 11 sentinel C (Jelly V2).milk",
       "sha256": "df1203ddc0c6d171460d2be23a6c5e8630c43cc2d89c1fddfdc74455fa8851d9",
       "id": "projectm:Dancer/Comet/EoS + Phat - chasers 11 sentinel C (Jelly V2).milk",
       "originalTitle": "EoS + Phat - chasers 11 sentinel C (Jelly V2)",
       "displayTitle": "Sonic Shell"
-    },
-    {
-      "path": "Dancer/Comet/EoS + Phat - chasers 11 sentinel C (Jelly V3).milk",
-      "upstreamPath": "Dancer/Comet/EoS + Phat - chasers 11 sentinel C (Jelly V3).milk",
-      "sha256": "db295aa9e6b79de5f3b633fd4d756d432ea162ca52e54035d10086c7410a8775",
-      "id": "projectm:Dancer/Comet/EoS + Phat - chasers 11 sentinel C (Jelly V3).milk",
-      "originalTitle": "EoS + Phat - chasers 11 sentinel C (Jelly V3)",
-      "displayTitle": "Steaming Cathedral"
     },
     {
       "path": "Dancer/Comet/EoS + Phat - chasers 11 sentinel C.milk",
@@ -2019,14 +1491,6 @@
       "id": "projectm:Dancer/Comet/EoS + phat - chasers 11 sentinel c (jelly v4-x).milk",
       "originalTitle": "EoS + phat - chasers 11 sentinel c (jelly v4-x)",
       "displayTitle": "Sonic Prism"
-    },
-    {
-      "path": "Dancer/Comet/EoS_Phat_PeterP_Sentinel_Aware_6 EoS edit slice into your beautiful love.milk",
-      "upstreamPath": "Dancer/Comet/EoS_Phat_PeterP_Sentinel_Aware_6 EoS edit slice into your beautiful love.milk",
-      "sha256": "591567f0029068f4f1f7ec3b50d7a8fabd8c1658ece6c981a7f60cfd6f3317ea",
-      "id": "projectm:Dancer/Comet/EoS_Phat_PeterP_Sentinel_Aware_6 EoS edit slice into your beautiful love.milk",
-      "originalTitle": "EoS_Phat_PeterP_Sentinel_Aware_6 EoS edit slice into your beautiful love",
-      "displayTitle": "Burning Glow"
     },
     {
       "path": "Dancer/Comet/Eosphat-chasers11sentinelc.milk",
@@ -2157,54 +1621,6 @@
       "displayTitle": "Fluid Zone"
     },
     {
-      "path": "Dancer/Glowsticks Fast/suksma - face slice metallics.milk",
-      "upstreamPath": "Dancer/Glowsticks Fast/suksma - face slice metallics.milk",
-      "sha256": "7a93639a8e132404f700d753ab028f782e6247763aa17b7ea17ecdc8b049ab61",
-      "id": "projectm:Dancer/Glowsticks Fast/suksma - face slice metallics.milk",
-      "originalTitle": "suksma - face slice metallics",
-      "displayTitle": "Ultraviolet Reef"
-    },
-    {
-      "path": "Dancer/Glowsticks Fast/suksma - lexicographic wedge gen ye olde rotgasm.milk",
-      "upstreamPath": "Dancer/Glowsticks Fast/suksma - lexicographic wedge gen ye olde rotgasm.milk",
-      "sha256": "9a6e7e943db63baf21051eb4e8d79043d9b679aecc007db3635ec554e04329af",
-      "id": "projectm:Dancer/Glowsticks Fast/suksma - lexicographic wedge gen ye olde rotgasm.milk",
-      "originalTitle": "suksma - lexicographic wedge gen ye olde rotgasm",
-      "displayTitle": "Copper Flux"
-    },
-    {
-      "path": "Dancer/Glowsticks Fast/suksma - lexicographic wedge gen.milk",
-      "upstreamPath": "Dancer/Glowsticks Fast/suksma - lexicographic wedge gen.milk",
-      "sha256": "60872454bdae8df4b1c4476200dfac0809848c3a04102a762ba5b9cf1f6e9cc2",
-      "id": "projectm:Dancer/Glowsticks Fast/suksma - lexicographic wedge gen.milk",
-      "originalTitle": "suksma - lexicographic wedge gen",
-      "displayTitle": "Tangled Nova"
-    },
-    {
-      "path": "Dancer/Glowsticks Fast/suksma - lexicographic wedge gen2.milk",
-      "upstreamPath": "Dancer/Glowsticks Fast/suksma - lexicographic wedge gen2.milk",
-      "sha256": "6e609922f7215739cf600c786e8f30f34b93a0d2db2ba7eac974e5cb074bc16b",
-      "id": "projectm:Dancer/Glowsticks Fast/suksma - lexicographic wedge gen2.milk",
-      "originalTitle": "suksma - lexicographic wedge gen2",
-      "displayTitle": "Astral Journey"
-    },
-    {
-      "path": "Dancer/Glowsticks Fast/suksma - no contigency for chaos.milk",
-      "upstreamPath": "Dancer/Glowsticks Fast/suksma - no contigency for chaos.milk",
-      "sha256": "071ea6695457bbbd9b0b3e1118e47cfe73bfc6dbcdd3f2790e37fba4420206bd",
-      "id": "projectm:Dancer/Glowsticks Fast/suksma - no contigency for chaos.milk",
-      "originalTitle": "suksma - no contigency for chaos",
-      "displayTitle": "Bloom Spray"
-    },
-    {
-      "path": "Dancer/Glowsticks Fast/suksma - party without compromise j4.milk",
-      "upstreamPath": "Dancer/Glowsticks Fast/suksma - party without compromise j4.milk",
-      "sha256": "3c3310a96eda681a2f5f03b0f23af8b445f41d082483883685ce4f62068f87dc",
-      "id": "projectm:Dancer/Glowsticks Fast/suksma - party without compromise j4.milk",
-      "originalTitle": "suksma - party without compromise j4",
-      "displayTitle": "Sparkling Gravity"
-    },
-    {
       "path": "Dancer/Glowsticks Mirror/$$$ Royal - Mashup (10).milk",
       "upstreamPath": "Dancer/Glowsticks Mirror/$$$ Royal - Mashup (10).milk",
       "sha256": "88137ab2cec1ac998249dc44fa87b83f453b8c1688c48f72655694b57bc7d78c",
@@ -2245,68 +1661,12 @@
       "displayTitle": "Stormy Aura"
     },
     {
-      "path": "Dancer/Glowsticks Mirror/$$$ Royal - Mashup (118).milk",
-      "upstreamPath": "Dancer/Glowsticks Mirror/$$$ Royal - Mashup (118).milk",
-      "sha256": "0323520a31da94e67bbaf74a97c1595ade011bd4519baf66345c3865bc74f3ce",
-      "id": "projectm:Dancer/Glowsticks Mirror/$$$ Royal - Mashup (118).milk",
-      "originalTitle": "$$$ Royal - Mashup (118)",
-      "displayTitle": "Silver Star"
-    },
-    {
-      "path": "Dancer/Glowsticks Mirror/$$$ Royal - Mashup (119).milk",
-      "upstreamPath": "Dancer/Glowsticks Mirror/$$$ Royal - Mashup (119).milk",
-      "sha256": "79de523d4433fccec11d2a7b830c93a2d78dd070022872fb467e2fbdd8954dbf",
-      "id": "projectm:Dancer/Glowsticks Mirror/$$$ Royal - Mashup (119).milk",
-      "originalTitle": "$$$ Royal - Mashup (119)",
-      "displayTitle": "Parallel Wall"
-    },
-    {
-      "path": "Dancer/Glowsticks Mirror/$$$ Royal - Mashup (120).milk",
-      "upstreamPath": "Dancer/Glowsticks Mirror/$$$ Royal - Mashup (120).milk",
-      "sha256": "76bc8bb4e156a4ab59a80ea45aa6bc7e74698c0462dd1805c2366c2e9db4bb9e",
-      "id": "projectm:Dancer/Glowsticks Mirror/$$$ Royal - Mashup (120).milk",
-      "originalTitle": "$$$ Royal - Mashup (120)",
-      "displayTitle": "Dreaming Dust"
-    },
-    {
       "path": "Dancer/Glowsticks Mirror/$$$ Royal - Mashup (121).milk",
       "upstreamPath": "Dancer/Glowsticks Mirror/$$$ Royal - Mashup (121).milk",
       "sha256": "774aa49587f68d34fb8bb51eaf0e5273d5a150ce6ae96d10a1922cf57e921a8b",
       "id": "projectm:Dancer/Glowsticks Mirror/$$$ Royal - Mashup (121).milk",
       "originalTitle": "$$$ Royal - Mashup (121)",
       "displayTitle": "Sublime Storm"
-    },
-    {
-      "path": "Dancer/Glowsticks Mirror/$$$ Royal - Mashup (122).milk",
-      "upstreamPath": "Dancer/Glowsticks Mirror/$$$ Royal - Mashup (122).milk",
-      "sha256": "690dced57f7ebb3f03a86e47d97ee5235f2a88fccea9612ecb41c987cf613252",
-      "id": "projectm:Dancer/Glowsticks Mirror/$$$ Royal - Mashup (122).milk",
-      "originalTitle": "$$$ Royal - Mashup (122)",
-      "displayTitle": "Galactic Fire"
-    },
-    {
-      "path": "Dancer/Glowsticks Mirror/$$$ Royal - Mashup (123).milk",
-      "upstreamPath": "Dancer/Glowsticks Mirror/$$$ Royal - Mashup (123).milk",
-      "sha256": "7eb52fd11dc742db4d61b000e381cfeeebf569c2422044ddca71bcb00abb243d",
-      "id": "projectm:Dancer/Glowsticks Mirror/$$$ Royal - Mashup (123).milk",
-      "originalTitle": "$$$ Royal - Mashup (123)",
-      "displayTitle": "Liquid Flow"
-    },
-    {
-      "path": "Dancer/Glowsticks Mirror/$$$ Royal - Mashup (124).milk",
-      "upstreamPath": "Dancer/Glowsticks Mirror/$$$ Royal - Mashup (124).milk",
-      "sha256": "be5e2f57126e5de4428148a0f058da88970aa93ef627af890a2e5e13c72d948f",
-      "id": "projectm:Dancer/Glowsticks Mirror/$$$ Royal - Mashup (124).milk",
-      "originalTitle": "$$$ Royal - Mashup (124)",
-      "displayTitle": "Astral Twist"
-    },
-    {
-      "path": "Dancer/Glowsticks Mirror/$$$ Royal - Mashup (125).milk",
-      "upstreamPath": "Dancer/Glowsticks Mirror/$$$ Royal - Mashup (125).milk",
-      "sha256": "f3bb72daaa0ace6910e8a4669164efebe5fb29394e21dfd6917fb2f2956416c2",
-      "id": "projectm:Dancer/Glowsticks Mirror/$$$ Royal - Mashup (125).milk",
-      "originalTitle": "$$$ Royal - Mashup (125)",
-      "displayTitle": "Temporal Corona"
     },
     {
       "path": "Dancer/Glowsticks Mirror/$$$ Royal - Mashup (126).milk",
@@ -62716,5 +62076,6 @@
       "originalTitle": "suksma - pi apart",
       "displayTitle": "Opaline Infinity"
     }
-  ]
+  ],
+  "curationSHA256": "2fde8debe5f24c12d83bf093a50b8ab8bf322ff07f96770b04b22af7d362af45"
 }

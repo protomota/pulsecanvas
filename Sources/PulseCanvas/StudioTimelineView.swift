@@ -12,6 +12,7 @@ struct StudioTimelineView: View {
     @State private var choosingSegment: Int?
     @State private var favoritesSegment: Int?
     @State private var confirmRandomizeTimeline = false
+    @State private var randomizeCapacityError = false
     @State private var randomizeVisualizers = true
     @State private var randomizeBarLengths = false
     @State private var showCommonSettings = false
@@ -77,8 +78,13 @@ struct StudioTimelineView: View {
             }
         }.padding(.horizontal, 20).padding(.vertical, 12 - 4 * compactness)
             .background(Color.black.opacity(0.12)).disabled(exporting)
-            .sheet(isPresented: $confirmRandomizeTimeline) { timelineRandomizationConfirmation }
-            .sheet(isPresented: $showCommonSettings) { commonSettings }
+            .sheet(isPresented: $confirmRandomizeTimeline) { timelineRandomizationConfirmation.dismissOnOutsideClick { confirmRandomizeTimeline = false } }
+            .sheet(isPresented: $showCommonSettings) { commonSettings.dismissOnOutsideClick { showCommonSettings = false } }
+            .alert("Not enough unique visualizers", isPresented: $randomizeCapacityError) {
+                Button("OK", role: .cancel) {}
+            } message: {
+                Text("This timeline has \(studio.segments.count) sections and \(ProjectMPresets.shared.availableScenes.count) available visualizers. Use longer sections or add visualizers to randomize without repeats.")
+            }
             .sheet(isPresented: Binding(get: {choosingSegment != nil}, set: {if !$0 {choosingSegment = nil}})) {
                 if let index = choosingSegment, studio.segments.indices.contains(index) {
                     VStack(spacing:0) {
@@ -88,7 +94,7 @@ struct StudioTimelineView: View {
                             Button("Cancel") {choosingSegment = nil}
                                 .buttonStyle(StudioButtonStyle(compact:true)).keyboardShortcut(.cancelAction)
                         }.padding(18)
-                    }
+                    }.dismissOnOutsideClick { choosingSegment = nil }
                 }
             }
             .onChange(of: studio.selectedSegment) { _, index in
@@ -123,7 +129,7 @@ struct StudioTimelineView: View {
                 VStack(alignment: .leading, spacing: 6) {
                     Toggle("Visualizers", isOn: $randomizeVisualizers).toggleStyle(StudioSwitchStyle())
                         .accessibilityLabel("Randomize timeline visualizers")
-                    Text("Choose a new visualizer for every section.")
+                    Text("Use favorites first, then unused library visuals. Each visualizer appears once.")
                         .font(.system(size: 11)).foregroundStyle(.secondary)
                 }
                 VStack(alignment: .leading, spacing: 6) {
@@ -155,7 +161,7 @@ struct StudioTimelineView: View {
                         choosingSegment = nil; favoritesSegment = nil
                         guard studio.randomizeBars(grid: grid, render: render) else { return }
                     }
-                    if randomizeVisualizers { studio.randomizeTimeline(render) }
+                    if randomizeVisualizers, !studio.randomizeTimeline(render) { randomizeCapacityError = true }
                 } label: { Label("Randomize timeline", systemImage: "shuffle") }
                     .buttonStyle(StudioButtonStyle(treatment: .primary))
                     .disabled(exporting || studio.segments.isEmpty || (!randomizeVisualizers && !randomizeBarLengths))
@@ -169,7 +175,7 @@ struct StudioTimelineView: View {
     private var commonSettings: some View {
         VStack(alignment: .leading, spacing: 18) {
             Label("Apply settings to all", systemImage: "slider.horizontal.3").font(.title2)
-            Text("Choose what to share across all \(RenderState.sceneNames.count) visualizers and every Studio section. Unselected settings keep their individual values.")
+            Text("Choose what to share across all \(ProjectMPresets.shared.availableScenes.count) visualizers and every Studio section. Unselected settings keep their individual values.")
                 .font(.system(size: 13)).foregroundStyle(.secondary)
             ScrollView {
                 VStack(alignment: .leading, spacing: 18) {

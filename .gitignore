@@ -11,3 +11,6 @@ work/
 
 __pycache__/
 *.py[cod]
+
+# Keep separate managed agent checkouts out of app source commits.
+.claude/worktrees/

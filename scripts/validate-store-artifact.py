@@ -20,7 +20,9 @@ ent=plistlib.loads(raw[raw.index(b'<?xml'):])
 for key in ['com.apple.security.app-sandbox','com.apple.security.files.user-selected.read-write','com.apple.security.files.bookmarks.app-scope']:
     assert ent.get(key) is True,key
 assert not ent.get('com.apple.security.get-task-allow',False)
-assert not any(ent.get(k) for k in ['com.apple.security.network.client','com.apple.security.network.server','com.apple.security.device.audio-input','com.apple.security.cs.disable-library-validation'])
+# Radio downloads the public catalog and tracks; incoming connections remain disabled.
+assert ent.get('com.apple.security.network.client') is True
+assert not any(ent.get(k) for k in ['com.apple.security.network.server','com.apple.security.device.audio-input','com.apple.security.cs.disable-library-validation'])
 assert not any('temporary-exception' in k for k in ent)
 for binary in [root]:
     sig=subprocess.check_output(['codesign','-dv','--verbose=4',str(binary)],stderr=subprocess.STDOUT,text=True)

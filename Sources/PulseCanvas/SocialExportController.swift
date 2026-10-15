@@ -32,6 +32,7 @@ enum SocialAspect: String, CaseIterable, Identifiable {
 
 @MainActor
 final class SocialExportController: ObservableObject {
+    static let supportedFrameRates = [24, 30, 60, 120]
     @Published var aspect: SocialAspect = .wide { didSet { persistSettings() } }
     @Published var resolution = 1080 { didSet { persistSettings() } }
     @Published var fps = 30 { didSet { persistSettings() } }
@@ -39,6 +40,7 @@ final class SocialExportController: ObservableObject {
     @Published private(set) var progress = 0.0
     @Published private(set) var status = "Ready to export"
     @Published private(set) var exportedURL: URL?
+    @Published private(set) var successfulSaveID: UUID?
     @Published private(set) var renderedFrames = 0
     @Published private(set) var totalFrames = 0
     @Published private(set) var framePreview: CGImage?
@@ -48,8 +50,12 @@ final class SocialExportController: ObservableObject {
 
     private struct FormatSettings: Codable { var aspect: String; var resolution: Int; var fps: Int }
     private let preferencesKey = "PulseCanvas.videoFormat.v1"
-    init() {
-        if let data = UserDefaults.standard.data(forKey: preferencesKey), let saved = try? JSONDecoder().decode(FormatSettings.self, from: data), let aspect = SocialAspect(rawValue: saved.aspect), [720, 1080, 2160].contains(saved.resolution), [24, 30, 60].contains(saved.fps) {
+    private let scratchDirectory: URL
+    /// Offline test tools can keep intermediate video files on their render drive.
+    /// The app defaults to its sandbox temporary area, as required by NSSavePanel access.
+    init(scratchDirectory: URL = FileManager.default.temporaryDirectory) {
+        self.scratchDirectory = scratchDirectory
+        if let data = UserDefaults.standard.data(forKey: preferencesKey), let saved = try? JSONDecoder().decode(FormatSettings.self, from: data), let aspect = SocialAspect(rawValue: saved.aspect), [720, 1080, 2160].contains(saved.resolution), Self.supportedFrameRates.contains(saved.fps) {
             self.aspect = aspect; self.resolution = saved.resolution; self.fps = saved.fps
         }
     }
@@ -85,8 +91,8 @@ final class SocialExportController: ObservableObject {
         do {
             await Task.yield()
             guard StudioTimeline.valid(segments, sceneCount: RenderState.sceneNames.count) else { throw ExportError("Studio timeline is invalid") }
-            guard [24, 30, 60].contains(frameRate), [720, 1080, 2160].contains(resolution) else {
-                throw ExportError("Choose 720p, 1080p, or 4K and 24, 30, or 60 fps")
+            guard Self.supportedFrameRates.contains(frameRate), [720, 1080, 2160].contains(resolution) else {
+                throw ExportError("Choose 720p, 1080p, or 4K and 24, 30, 60, or 120 fps (Experimental)")
             }
             guard audioURL?.standardizedFileURL != destination.standardizedFileURL else {
                 throw ExportError("The output file must differ from the soundtrack")
@@ -104,7 +110,7 @@ final class SocialExportController: ObservableObject {
             try checkCancellation()
             // NSSavePanel grants the output file, not arbitrary siblings in
             // its parent folder. Render in the app's sandbox temporary area.
-            let work = FileManager.default.temporaryDirectory.appendingPathComponent("PulseCanvas-export-\(UUID().uuidString)", isDirectory: true)
+            let work = scratchDirectory.appendingPathComponent("PulseCanvas-export-\(UUID().uuidString)", isDirectory: true)
             try FileManager.default.createDirectory(at: work, withIntermediateDirectories: false)
             scratch = work
             defer { try? FileManager.default.removeItem(at: work) }
@@ -125,6 +131,7 @@ final class SocialExportController: ObservableObject {
             } else { try FileManager.default.moveItem(at: result, to: destination) }
             progress = 1
             exportedURL = destination
+            successfulSaveID = UUID()
             status = "Saved \(destination.lastPathComponent)"
         } catch is CancellationError {
             status = "Export cancelled"

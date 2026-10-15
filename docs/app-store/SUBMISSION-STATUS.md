@@ -1,3 +1,41 @@
+## Apple submission withdrawn at owner request — 2026-10-14
+
+App Store 1.1.0 (15) was withdrawn after the owner clarified they were not ready to submit. Apple confirms submission `ffaffc6b-8c07-40c3-b645-4ed8d7000c1b` is **Removed** and version 1.1.0 is **Developer Rejected**. The uploaded build and listing remain available for later preparation. Do not resubmit without explicit owner approval. The website release is unchanged.
+
+The submission status in earlier dated entries below is historical.
+
+## Version 1.1.0 (15) released to website and submitted to Apple — 2026-10-14
+
+Creators 1.1.0 (15) is live at https://pulsecanvas.si/download/. App Store 1.1.0 (15) is **Waiting for Review**, with automatic release after approval. Apple submission: https://appstoreconnect.apple.com/apps/6821642700/distribution/reviewsubmissions/details/ffaffc6b-8c07-40c3-b645-4ed8d7000c1b . This is not an App Review approval claim.
+
+Includes Radio with a public JSON station directory, all 15 tracks, favorites-first visualizer shuffle, beat-aligned bars, current-visual randomization, full-screen presentation, remembered volume defaulting to 70%, close-to-quit behavior, safe title-bar controls, and unique Studio timeline shuffles. Both editions contain 270 native effects; Creators also contains 7,758 community presets and 67 textures. Radio catalogs and songs are downloaded from https://radio.pulsecanvas.si; user files are not uploaded. The published privacy policy explains these requests.
+
+Store archive/expanded installer signatures, native-only resources and sandbox/network entitlements passed. Creators signing, Accepted notarization, stapling, Gatekeeper and pinned Sparkle signature passed. Radio's 15 live tracks and the 270-visual Store suite passed. All 8,145 source files and all 95 deployed website file hashes were verified. Matching source, new installer and signed appcast are published; old releases remain available. Unrelated unpublished website edits were excluded. No Git commit or push was made.
+
+- Installer: https://pulsecanvas.si/downloads/PulseCanvas-Studio-1.1.0-15.dmg
+- Matching source: https://pulsecanvas.si/downloads/PulseCanvas-Creators-1.1.0-15-source.tar.gz
+- Update feed: https://pulsecanvas.si/appcast.xml
+- Local receipt: `.build/release-1.1.0-15/release-receipt.json`
+
+Older dated status entries below are historical.
+
+# Native marketing screenshot update — 2026-10-13
+
+The live macOS version **1.0.3 (13)** now shows **Waiting for Review**. The listing now contains three native marketing slides followed by four actual native Metal edition screenshots; its screenshot uploader is disabled again after resubmission. Older audit entries below are historical and do not describe the current edition or review status.
+
+Three new 1440 × 900 opaque RGB marketing slides were created in `assets/app-store/native-marketing-1.0.3-13/`, using unchanged source captures from the actual STORE_BUILD app with 240 native Metal visualizers. The slides cover music response, beat-aligned Studio scenes and MP4 export up to 4K60. No Creators screenshots, community preset counts or OpenGL visuals are used. Source hashes, JPEG dimensions/components, full capture bounds and browser image loading were verified; the actual final Store app bundle remains version 1.0.3 (13) and contains no .milk presets, projectM or Sparkle resources.
+
+All three slides were uploaded to **Apple Asset Library** and processed successfully as App Screenshots. Their persisted filenames, asset detail links and Add for Review state were verified after reloading. Receipt: `assets/app-store/native-marketing-1.0.3-13/manifest.json`; visual proof: `app-store-asset-library.jpg` in the same folder.
+
+**Listing replacement and resubmission completed with owner approval.** The prior submission was withdrawn; all seven assets were selected from the retained Asset Library in order and saved. Their persisted order was verified after reloading: `01-music-in-motion.jpg`, `02-build-your-studio.jpg`, `03-create-and-export.jpg`, `01-led-corridor.jpg`, `02-molten-glass.jpg`, `03-studio.jpg`, `05-aurora-fold.jpg`. The existing description, promotional text, review notes and release setting were preserved.
+
+The same **1.0.3 (13)** build, ID `314e2cee-23d7-4bd1-b057-fef9c842381a`, was verified before and after resubmission. Apple confirmed **1 Item Submitted** and **Waiting for Review**. New submission: https://appstoreconnect.apple.com/apps/6821642700/distribution/reviewsubmissions/details/5944228d-078f-4759-8545-91a187802b05 . Proof: `app-store-listing-submitted.jpg` and `app-store-submission-confirmed.jpg` in the native marketing asset folder. No new binary was uploaded, no Git commit or push was made, and App Review approval has not been claimed.
+
+Live asset library: https://appstoreconnect.apple.com/apps/6821642700/distribution/asset-library
+Live version: https://appstoreconnect.apple.com/apps/6821642700/distribution/macos/version/inflight
+
+---
+
 # Live submission audit — 2026-10-11
 
 PulseCanvas Studio, Apple ID 6821642700, macOS version 1.0.0, English (U.S.). **Preparation remains in progress; no final App Review submission or release.**

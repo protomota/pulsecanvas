@@ -24,6 +24,7 @@ NOTICE_PATTERN = re.compile(
     r'\b(?:MIT|BSD|LGPL|GPL|SPDX|CC-BY)\b|creative commons|redistribut|'
     r'commercial|https?://|www\.|©|created by|written by', re.IGNORECASE)
 MANIFESTS = ['preset-manifest.json', 'preset-notices.json', 'texture-manifest.json']
+CURATION_FILE = 'preset-curation.json'
 
 
 def digest(data):
@@ -80,7 +81,25 @@ def verify_resource(root):
     require(presets['upstreamCommit'] == PRESET_COMMIT, 'Wrong preset pin')
     require(textures['upstreamCommit'] == TEXTURE_COMMIT, 'Wrong texture pin')
     require(presets['upstreamMilkCount'] == 9795, 'Wrong upstream tree count')
-    require(presets['bundledCount'] == len(presets['presets']) == 7838, 'Wrong bundled count')
+    expected_count = 7838
+    curation_path = root / CURATION_FILE
+    if curation_path.exists():
+        curation = json.loads(curation_path.read_text())
+        require(curation['schemaVersion'] == 1 and curation['initialBundledCount'] == 7838, 'Wrong curation baseline')
+        require(presets.get('curationSHA256') == digest(curation_path.read_bytes()), 'Curation receipt differs')
+        removed, retained, reviewed = set(), set(), set()
+        retired = {x['id'] for x in json.loads((root / 'retired-presets.json').read_text())}
+        for batch in curation['batches']:
+            all_ids = set(batch['reviewedIDs']); keep = set(batch['retainedIDs']); discard = set(batch['removedIDs'])
+            require(batch['completedReview'] is True and batch['selectionSource'] == 'Finder red label', 'Incomplete curation')
+            require(len(all_ids) == len(batch['reviewedIDs']) and not (all_ids & reviewed), 'Duplicate reviewed identity')
+            require(keep.isdisjoint(discard) and keep | discard == all_ids, 'Curation partition differs')
+            removed.update(discard); retained.update(keep); reviewed.update(all_ids)
+        require(removed <= retired, 'Removed IDs missing retirement migration records')
+        current = {x['id'] for x in presets['presets']}
+        require(current.isdisjoint(removed) and retained <= current, 'Curation does not match bundled subset')
+        expected_count -= len(removed)
+    require(presets['bundledCount'] == len(presets['presets']) == expected_count, 'Wrong bundled count')
     require(presets['credit'] == CREDIT and presets['creditURL'] == CREDIT_URL, 'Missing curator credit')
     verify_files(root / 'Presets', presets['presets'])
     verify_files(root / 'Textures', textures['files'])
@@ -88,9 +107,9 @@ def verify_resource(root):
             'Wrong texture image count')
     require(all(x['path'] == x['upstreamPath'] for x in textures['files']), 'Texture upstream path changed')
     catalog = json.loads((root / 'catalog.json').read_text())
-    require(len(catalog) == 7838 and len({x['id'] for x in catalog}) == 7838, 'Catalog count/identity mismatch')
+    require(len(catalog) == expected_count and len({x['id'] for x in catalog}) == expected_count, 'Catalog count/identity mismatch')
     by_path = {x['path']: x for x in catalog}
-    require(len(by_path) == 7838, 'Duplicate catalog paths')
+    require(len(by_path) == expected_count, 'Duplicate catalog paths')
     for entry in presets['presets']:
         item = by_path.get(entry['path'])
         require(item is not None, f'Missing catalog entry: {entry["path"]}')
@@ -154,6 +173,8 @@ def generate(preset_checkout, texture_checkout):
                             'is not documented permission from every author. No MIT/BSD/clearance claim.',
             'upstreamNotices': {name: digest((root / name).read_bytes()) for name in notices},
             'presets': entries}
+        if (root / CURATION_FILE).exists():
+            preset_manifest['curationSHA256'] = digest((root / CURATION_FILE).read_bytes())
         texture_entries = []
         for path in sorted((root / 'Textures').rglob('*')):
             if not path.is_file():
@@ -190,10 +211,11 @@ def verify_app(app):
     verify_resource(root)
     require(set(resources.rglob('*.milk')) == set((root / 'Presets').rglob('*.milk')),
             'Unexpected presets outside the intended bundled subset')
-    for name in MANIFESTS + ['Preset-README.md', 'Preset-notice.md', 'Provenance.md', 'catalog.json']:
+    curation_files = [CURATION_FILE] if (REPO / RESOURCE / CURATION_FILE).exists() else []
+    for name in MANIFESTS + ['Preset-README.md', 'Preset-notice.md', 'Provenance.md', 'catalog.json'] + curation_files:
         require((root / name).read_bytes() == (REPO / RESOURCE / name).read_bytes(), f'App differs from checkout: {name}')
     legal = resources / 'Legal'
-    for name in MANIFESTS + ['Preset-README.md', 'Preset-notice.md', 'Provenance.md']:
+    for name in MANIFESTS + ['Preset-README.md', 'Preset-notice.md', 'Provenance.md'] + curation_files:
         require((legal / name).read_bytes() == (root / name).read_bytes(), f'Legal resource differs: {name}')
     require((legal / 'Texture-provenance.md').read_bytes() == (root / 'Textures/README.md').read_bytes(), 'Texture notice differs')
     require((legal / 'PulseCanvas-LICENSE.txt').read_bytes() == (REPO / 'LICENSE').read_bytes(), 'Application license differs')
@@ -224,7 +246,8 @@ def verify_source(path, revision=None):
         verify_resource(root / RESOURCE)
         require(set(root.rglob('*.milk')) == set((root / RESOURCE / 'Presets').rglob('*.milk')),
                 'Unexpected presets outside the source subset')
-        for name in MANIFESTS + ['Preset-README.md', 'Preset-notice.md', 'Provenance.md', 'catalog.json']:
+        curation_files = [CURATION_FILE] if (REPO / RESOURCE / CURATION_FILE).exists() else []
+        for name in MANIFESTS + ['Preset-README.md', 'Preset-notice.md', 'Provenance.md', 'catalog.json'] + curation_files:
             require((root / RESOURCE / name).read_bytes() == (REPO / RESOURCE / name).read_bytes(), f'Source differs: {name}')
         for name in ['LICENSE', 'macOS/Release.xcconfig', 'third_party/projectm-source.tar.gz',
                      'third_party/PROJECTM.md', 'Sources/PulseCanvas/PulseCanvasApp.swift',

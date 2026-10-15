@@ -22,6 +22,15 @@ final class ProjectMPresets: ObservableObject {
     @Published private(set) var entries: [ProjectMPreset] = []
     private(set) var sceneNames: [String] = []
     @Published private(set) var favoriteIDs: Set<String> = []
+    @Published private(set) var favoritesBackupError: String?
+    let favoritesBackupDirectory: URL?
+    #if STORE_BUILD
+    private let backupEdition = "Mac-App-Store"
+    #elseif LOCAL_BUILD
+    private let backupEdition = "Creators-Local"
+    #else
+    private let backupEdition = "Creators"
+    #endif
     private let defaults: UserDefaults
     #if STORE_BUILD
     private let favoritesKey = "PulseCanvas.metalEffectFavorites.v1"
@@ -42,8 +51,10 @@ final class ProjectMPresets: ObservableObject {
     let iconNames: [String]
     private static let nativeIcons = NativeEffects.all.map(\.icon)
 
-    init(importedRoot: URL? = nil, defaults: UserDefaults = .standard) {
+    init(importedRoot: URL? = nil, defaults: UserDefaults = .standard, favoritesBackupDirectory: URL? = nil) {
         self.defaults = defaults
+        self.favoritesBackupDirectory = favoritesBackupDirectory ?? (defaults === UserDefaults.standard
+            ? FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first?.appendingPathComponent("PulseCanvas/Favorites Backups", isDirectory: true) : nil)
         #if STORE_BUILD
         bundledRoot = Bundle.module.resourceURL ?? URL(fileURLWithPath: "/missing-resources")
         self.importedRoot = importedRoot ?? bundledRoot
@@ -60,23 +71,39 @@ final class ProjectMPresets: ObservableObject {
         retiredIDs = Set(retired.map(\.id))
         entries += imported
         #endif
+        var savedFavorites = defaults.stringArray(forKey: favoritesKey)
         #if STORE_BUILD
-        favoriteIDs = Set((defaults.stringArray(forKey: favoritesKey) ?? defaults.stringArray(forKey: "PulseCanvas.effectFavorites.v1") ?? []).filter { $0.hasPrefix("native:") }.map(Self.currentIdentity))
-        #else
-        favoriteIDs = Set((defaults.stringArray(forKey: favoritesKey) ?? []).map(Self.currentIdentity))
+        savedFavorites = savedFavorites ?? defaults.stringArray(forKey: "PulseCanvas.effectFavorites.v1")
         #endif
+        #if LOCAL_BUILD
+        // Seed a fresh isolated test build once, without altering the installed app.
+        if savedFavorites == nil, defaults === UserDefaults.standard {
+            savedFavorites = ["com.protomota.pulsecanvas", "com.protomota.pulsecanvas.direct"].flatMap {
+                UserDefaults.standard.persistentDomain(forName: $0)?["PulseCanvas.effectFavorites.v1"] as? [String] ?? []
+            }
+            defaults.set(savedFavorites, forKey: favoritesKey)
+        }
+        #endif
+        // An explicitly empty list stays empty; a missing preference can recover
+        // from this edition's last successful automatic backup.
+        if savedFavorites == nil, let directory = self.favoritesBackupDirectory,
+           let data = try? Data(contentsOf: directory.appendingPathComponent("Favorites-\(backupEdition).json")),
+           let backup = try? FavoritesBackup.read(data) {
+            savedFavorites = backup.favorites.map(\.id)
+            defaults.set(savedFavorites, forKey: favoritesKey)
+        }
+        let savedIDs = Set(savedFavorites ?? [])
         rebuildNames()
+        favoriteIDs = savedIDs.intersection(availableFavoriteIDs)
+        if favoriteIDs != savedIDs { persistFavorites() }
+        else if !favoriteIDs.isEmpty { backUpFavorites() }
     }
     private func rebuildNames() {
         sceneNames = RenderState.nativeSceneNames + entries.map(\.title)
         scenesByID = Dictionary(uniqueKeysWithValues: entries.enumerated().map { ($0.element.id, $0.offset + nativeCount) })
         availableScenes = NativeEffects.activeIDs + Array(nativeCount..<sceneNames.count)
     }
-    /// A favorite saved for a retired design follows it to its replacement.
-    private static func currentIdentity(_ id: String) -> String {
-        guard id.hasPrefix("native:"), let scene = Int(id.dropFirst(7)) else { return id }
-        return "native:\(NativeEffects.resolved(scene))"
-    }
+    private var availableFavoriteIDs: Set<String> { Set(availableScenes.map { identity(for: $0) }) }
     func identity(for scene: Int) -> String {preset(for: scene)?.id ?? "native:\(scene)"}
     func isFavorite(_ scene: Int) -> Bool {favoriteIDs.contains(identity(for: scene))}
     /// Every scene offered in the library, timeline and random choices. Retired native
@@ -87,9 +114,48 @@ final class ProjectMPresets: ObservableObject {
         return preset(for:scene)?.icon ?? iconNames[max(0,scene) % iconNames.count]
     }
     func toggleFavorite(_ scene: Int) {
+        guard availableScenes.contains(scene) else { return }
         let id = identity(for: scene)
         if favoriteIDs.contains(id) {favoriteIDs.remove(id)} else {favoriteIDs.insert(id)}
+        persistFavorites()
+    }
+
+    func exportFavorites() throws -> Data {
+        try FavoritesBackup(ids: favoriteIDs) { id in
+            if id.hasPrefix("native:"), let scene = Int(id.dropFirst(7)), sceneNames.indices.contains(scene) { return sceneNames[scene] }
+            return scenesByID[id].map { sceneNames[$0] }
+        }.encoded()
+    }
+
+    /// Merge installed favorites. Removed designs must not reappear from a backup
+    /// or silently favorite a replacement the listener never selected.
+    @discardableResult
+    func importFavorites(_ data: Data) throws -> (added: Int, unavailable: Int) {
+        let backup = try FavoritesBackup.read(data)
+        let restored = Set(backup.favorites.map(\.id))
+        let available = availableFavoriteIDs
+        let installed = restored.intersection(available)
+        let added = installed.subtracting(favoriteIDs).count
+        favoriteIDs.formUnion(installed)
+        persistFavorites()
+        return (added, restored.subtracting(available).count)
+    }
+
+    private func persistFavorites() {
         defaults.set(favoriteIDs.sorted(), forKey: favoritesKey)
+        backUpFavorites()
+    }
+
+    private func backUpFavorites() {
+        guard let directory = favoritesBackupDirectory else { return }
+        do {
+            try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+            let data = try exportFavorites()
+            let day = String(ISO8601DateFormatter().string(from: Date()).prefix(10))
+            try data.write(to: directory.appendingPathComponent("Favorites-\(backupEdition)-\(day).json"), options: .atomic)
+            try data.write(to: directory.appendingPathComponent("Favorites-\(backupEdition).json"), options: .atomic)
+            favoritesBackupError = nil
+        } catch { favoritesBackupError = "Automatic favorites backup failed: \(error.localizedDescription)" }
     }
     func category(for scene: Int) -> String {
         guard let preset = preset(for: scene) else {return "PulseCanvas"}
@@ -147,4 +213,49 @@ private struct RetiredPreset: Decodable { let id: String }
 private struct PresetNaming: Decodable {
     let icons: [String]
     init(root: URL) throws {self = try JSONDecoder().decode(Self.self,from:Data(contentsOf:root.appendingPathComponent("naming.json")))}
+}
+
+
+/// Portable stable identities survive renamed effects and catalog reordering.
+struct FavoritesBackup: Codable {
+    struct Favorite: Codable {
+        let id: String
+        let name: String?
+    }
+    let format: String
+    let version: Int
+    let savedAt: Date
+    let favorites: [Favorite]
+
+    init(ids: Set<String>, name: (String) -> String?) {
+        format = "PulseCanvas Favorites"
+        version = 1
+        savedAt = Date()
+        favorites = ids.sorted().map { Favorite(id: $0, name: name($0)) }
+    }
+
+    func encoded() throws -> Data {
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.prettyPrinted, .sortedKeys, .withoutEscapingSlashes]
+        encoder.dateEncodingStrategy = .iso8601
+        return try encoder.encode(self)
+    }
+
+    static func read(_ data: Data) throws -> Self {
+        guard data.count <= 10_000_000 else { throw invalid("The favorites backup is too large.") }
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        let backup = try decoder.decode(Self.self, from: data)
+        guard backup.format == "PulseCanvas Favorites", backup.version == 1 else {
+            throw invalid("Choose a supported PulseCanvas favorites backup.")
+        }
+        guard backup.favorites.count <= 100_000, backup.favorites.allSatisfy({
+            !$0.id.isEmpty && $0.id.utf8.count <= 4096 && !$0.id.unicodeScalars.contains(where: { CharacterSet.controlCharacters.contains($0) })
+        }) else { throw invalid("The backup contains invalid favorite identities.") }
+        return backup
+    }
+
+    private static func invalid(_ message: String) -> NSError {
+        NSError(domain: "PulseCanvas.FavoritesBackup", code: 1, userInfo: [NSLocalizedDescriptionKey: message])
+    }
 }

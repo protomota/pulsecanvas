@@ -983,5 +983,5 @@ float3 spectrumBore(Ctx c, constant NativeFrame &f) {
 // Gate facade at world position (X, Y) on its plane: rgb, opacity and additive lantern glow.
 
 
-#define TUNNEL_EFFECTS(X) X(plasmaBore) X(ledCorridor) X(prismShaft) X(hyperloop) X(barrelWave) X(magmaTube) X(dataConduit) X(helixStair)  X(laserBore) X(twistChecker) X(foamTube) X(polygonStack) X(gyroidCaverns) X(spectrumBore)  
+#define TUNNEL_EFFECTS(X) X(plasmaBore) X(ledCorridor) X(prismShaft) X(hyperloop) X(barrelWave) X(magmaTube) X(dataConduit) X(helixStair)  X(laserBore) X(twistChecker) X(foamTube) X(polygonStack) X(gyroidCaverns) X(spectrumBore)
 TUNNEL_EFFECTS(NATIVE_EFFECT)
