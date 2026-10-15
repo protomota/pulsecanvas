@@ -1,3 +1,30 @@
+## Radio track transitions — 1.1.3 (20), released 2026-10-15
+
+Changing Radio tracks now starts a different visualizer when the new audio is
+ready. The new schedule considers the outgoing visualizer, including during
+rapid skips. Favorites are still dealt once per song; a lone favorite already on
+screen follows a different opening design. Playing/paused transport, editor
+soundtrack, timeline and saved favorites remain preserved.
+
+Radio regression passed, including 800 cross-track favorite combinations,
+manual/paused/rapid skips, automatic next, failures and editor restoration. The
+archive and expanded distribution package both passed Store signing, sandbox,
+native catalog and resource exclusions: 270 Metal designs, no projectM/OpenGL or
+Sparkle. Apple processed build 20, and PulseCanvas Mac Beta shows **Testing**.
+Build ID: `07f1fefc-9d20-45b0-8655-f9497fc33970`.
+
+Creators is live at https://pulsecanvas.si/download/. Developer ID signing, Apple
+notarization, stapling, Gatekeeper, installer layout, pinned Sparkle signature,
+and full public DMG/source checksums passed. The website's 77 deployed files were
+verified; only feed, release metadata and release notes changed. All 8,167
+committed source files match revision `c92b2da6d421b8eab1c1649a125b1f499e9492a8`.
+Preset/texture provenance and embedded notices passed unchanged. No App Review
+submission was made. GPU and 15-song live audits were not repeated because the
+change does not touch shaders, catalogs, audio analysis or decoding.
+
+DMG SHA-256: `c7d18c2d4860fecddfac6b11bc19934b7d143f18f728c181a9773daa453099ca`.
+Source SHA-256: `d4e4fb4a00d3393a583de8ff66e729f8e4b41935e9593efd4b8b484a47ab8055`.
+
 ## Creators 1.1.2 (19) — update indicator released
 
 Published on 2026-10-15 at https://pulsecanvas.si/download/. Creators now shows a
