@@ -159,6 +159,8 @@ struct CreatorView: View {
     @State private var showCommunityInHelp = false
     @State private var showProjectSettings = false
     @State private var showRadio = false
+    /// The listener has just left the Radio session that reached the support milestone.
+    @State private var leftMilestoneRadio = false
     @StateObject private var engagement = CreatorEngagement()
     @Environment(\.requestReview) private var requestReview
     @State private var timelineSoundtrack: URL?
@@ -220,13 +222,18 @@ struct CreatorView: View {
                 do { try await Task.sleep(for: .seconds(1)) } catch { return }
             }
         }
-        .onChange(of: radio.isActive) { _, active in if active { engagement.radioStarted() } }
+        .onChange(of: radio.isActive) { _, active in
+            if active { engagement.radioStarted() }
+            leftMilestoneRadio = !active && engagement.pendingRadioThanks
+        }
         .task(id: canPresentRadioThanks) {
             guard canPresentRadioThanks else { return }
-            // Let the listener settle into the station before asking.
-            do { try await Task.sleep(for: .seconds(30)) } catch { return }
+            // Never interrupt listening: wait until Radio has closed and the editor (and any
+            // full-screen exit) has settled before asking.
+            do { try await Task.sleep(for: .seconds(4)) } catch { return }
             while canPresentRadioThanks {
                 if presentation.canPresentEditorSheet {
+                    leftMilestoneRadio = false
                     if engagement.presentRadioThanks() {
                         #if STORE_BUILD
                         requestReview()
@@ -249,7 +256,8 @@ struct CreatorView: View {
     }
 
     private var canPresentRadioThanks: Bool {
-        engagement.pendingRadioThanks && radio.isActive && !engagement.showsThanks && !exporter.isExporting && !showRadio
+        leftMilestoneRadio && engagement.pendingRadioThanks && !radio.isActive && !engagement.showsThanks && !exporter.isExporting
+            && !presentation.isPresented && !showVisualizerBrowser && !showProjectSettings && !showHelp && !showRadio
     }
 
     private var editor: some View {

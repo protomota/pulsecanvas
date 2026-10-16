@@ -136,8 +136,8 @@ final class CreatorEngagement: ObservableObject {
         #endif
     }
 
-    /// The fourth Radio session asks once. Store builds make the one Apple review request
-    /// unless an export already made it; direct builds show the styled reminder.
+    /// Leaving the fourth Radio session asks once. Store builds make the one Apple review
+    /// request unless an export already made it; direct builds show the styled reminder.
     func presentRadioThanks() -> Bool {
         guard pendingRadioThanks, !showsThanks else { return false }
         pendingRadioThanks = false
