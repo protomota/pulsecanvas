@@ -1,3 +1,22 @@
+## Demo song wording — 1.1.4 (21), released 2026-10-16
+
+The bundled demo song's verse-1 line "Open source on GitHub" contradicted the source-available license. Only the
+word "Open" was removed: 19.15–20.21 s of the 48 kHz 320 kbps MP3 was rebuilt from the song's own stems and spliced
+in; the rest of the track, its length and tags are unchanged. It now sings "Source on GitHub, no subscription
+attached." Bundled audio SHA-256: `7ec0ce80f622bd077e345a2ea203d4922b52226936f3fd32f9bebb52c4c5d12b`.
+
+Store: archive and expanded distribution package validated (270 native designs, no presets, projectM/OpenGL or
+Sparkle, new song inside). Uploaded, processed and added to **PulseCanvas Mac Beta**, which shows **Testing**. No App
+Review submission was made.
+
+Creators: Developer ID signed, Apple notarization Accepted, stapled, Gatekeeper accepted, Sparkle signature matches the
+pinned key. DMG and matching source are on R2 with full-download checksums verified; the website's release manifest,
+appcast and download notes are live (website commit `ef17755`). Source revision `cdbbfb3b54102352bef984460fba67d792159a7a`; the source archive's
+8,167 committed files match Git byte for byte.
+
+DMG SHA-256: `6fc67d59b3c7c3de32d057f78bd26e6e6062d76984dfdf7e869fd92c3a7b1d5f`.
+Source SHA-256: `46adbf165c23cf04593a8641158ff953a447cba738dce3137a40375e6e795a75`.
+
 ## Radio track transitions — 1.1.3 (20), released 2026-10-15
 
 Changing Radio tracks now starts a different visualizer when the new audio is
