@@ -3,7 +3,7 @@ import SwiftUI
 
 struct CreatorThanksView: View {
     @ObservedObject var engagement: CreatorEngagement
-    var isExportMilestone = false
+    var milestone: CreatorEngagement.Milestone? = nil
     let done: () -> Void
     @Environment(\.openURL) private var openURL
     @State private var shareAnchor = NSView()
@@ -11,6 +11,13 @@ struct CreatorThanksView: View {
     @State private var didReset = false
     private var offersWebsiteTip: Bool { engagement.offersWebsiteTip }
     private let peach = Color(red: 0.95, green: 0.68, blue: 0.55)
+    private var heading: String {
+        switch milestone {
+        case .export: "YOUR VIDEO, SAVED"
+        case .radio: "THANKS FOR LISTENING"
+        case nil: "RATINGS & SUPPORT"
+        }
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 22) {
@@ -21,7 +28,7 @@ struct CreatorThanksView: View {
                     .frame(width: 66, height: 66)
                     .background(peach.opacity(0.12), in: RoundedRectangle(cornerRadius: 18))
                 VStack(alignment: .leading, spacing: 7) {
-                    Text(isExportMilestone ? "YOUR VIDEO, SAVED" : "RATINGS & SUPPORT")
+                    Text(heading)
                         .font(.system(size: 11, weight: .bold)).tracking(1.4).foregroundStyle(peach)
                     Text("Free software.\nSupported by people.")
                         .font(.system(size: 25, weight: .semibold, design: .rounded))

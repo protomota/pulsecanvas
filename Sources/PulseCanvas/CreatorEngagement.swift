@@ -2,13 +2,19 @@ import Combine
 import Foundation
 import StoreKit
 
-/// Export milestones belong to the installation, independently of song/project settings.
+/// Export and Radio milestones belong to the installation, independently of song/project settings.
 @MainActor
 final class CreatorEngagement: ObservableObject {
     enum Action: String, CaseIterable { case review, tip, share, feedback }
+    enum Milestone { case export, radio }
+    /// Radio sessions before asking: by the fourth, the listener keeps coming back.
+    static let radioMilestone = 4
     @Published private(set) var clickedActions: Set<Action>
     @Published private(set) var pendingExportThanks: Bool
+    @Published private(set) var pendingRadioThanks: Bool
     @Published var showsThanks = false
+    /// What the thanks screen celebrates while a milestone shows it.
+    @Published private(set) var thanksMilestone = Milestone.export
     #if STORE_BUILD
     @Published private(set) var offersWebsiteTip = false
     #else
@@ -22,6 +28,8 @@ final class CreatorEngagement: ObservableObject {
     private let clicksKey = "PulseCanvas.engagement.clickedActions.v1"
     private let presentedSaveKey = "PulseCanvas.engagement.thanksPresentedSave.v2"
     private let lastSaveKey = "PulseCanvas.engagement.lastSuccessfulSaveID.v1"
+    private let radioSessionsKey = "PulseCanvas.engagement.radioSessions.v1"
+    private let radioShownKey = "PulseCanvas.engagement.radioThanksShown.v1"
 
     init(preferences: UserDefaults = .standard) {
         self.preferences = preferences
@@ -32,6 +40,7 @@ final class CreatorEngagement: ObservableObject {
             preferences.set(1, forKey: saveCountKey)
         }
         pendingExportThanks = false
+        pendingRadioThanks = false
         refreshPending()
     }
 
@@ -44,6 +53,12 @@ final class CreatorEngagement: ObservableObject {
         preferences.set(id.uuidString, forKey: lastSaveKey)
         let count = min(1_000_000_000, max(0, preferences.integer(forKey: saveCountKey))) + 1
         preferences.set(count, forKey: saveCountKey)
+        refreshPending()
+    }
+
+    func radioStarted() {
+        let count = min(1_000_000_000, max(0, preferences.integer(forKey: radioSessionsKey))) + 1
+        preferences.set(count, forKey: radioSessionsKey)
         refreshPending()
     }
 
@@ -82,6 +97,12 @@ final class CreatorEngagement: ObservableObject {
         pendingExportThanks = count >= 2 && count > preferences.integer(forKey: presentedSaveKey)
             && !availableActions.allSatisfy(hasClicked)
         #endif
+        let radioDue = preferences.integer(forKey: radioSessionsKey) >= Self.radioMilestone && !preferences.bool(forKey: radioShownKey)
+        #if STORE_BUILD
+        pendingRadioThanks = radioDue && !preferences.bool(forKey: reviewKey) && !hasClicked(.review)
+        #else
+        pendingRadioThanks = radioDue && !availableActions.allSatisfy(hasClicked)
+        #endif
     }
 
     func observeStorefront() async {
@@ -109,6 +130,25 @@ final class CreatorEngagement: ObservableObject {
         let count = preferences.integer(forKey: saveCountKey)
         guard count > preferences.integer(forKey: presentedSaveKey), !availableActions.allSatisfy(hasClicked) else { return false }
         preferences.set(count, forKey: presentedSaveKey)
+        thanksMilestone = .export
+        showsThanks = true
+        return false
+        #endif
+    }
+
+    /// The fourth Radio session asks once. Store builds make the one Apple review request
+    /// unless an export already made it; direct builds show the styled reminder.
+    func presentRadioThanks() -> Bool {
+        guard pendingRadioThanks, !showsThanks else { return false }
+        pendingRadioThanks = false
+        guard !preferences.bool(forKey: radioShownKey) else { return false }
+        preferences.set(true, forKey: radioShownKey)
+        #if STORE_BUILD
+        guard !preferences.bool(forKey: reviewKey) else { return false }
+        preferences.set(true, forKey: reviewKey)
+        return true
+        #else
+        thanksMilestone = .radio
         showsThanks = true
         return false
         #endif

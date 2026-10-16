@@ -110,6 +110,44 @@ import Foundation
         #else
         precondition(state.offersWebsiteTip && state.availableActions.count == 4)
         #endif
-        print("PASS: second-save eligibility, deduplicated exports, relaunch and concurrent windows; per-action clicks, completion, reset and upgrade; direct reminders repeat only on later exports; Apple request stays ungated and one-time; hidden tips excluded")
+
+        // The fourth Radio session asks once, sharing the one Apple request with exports.
+        preferences.removePersistentDomain(forName: suite)
+        state = CreatorEngagement(preferences: preferences)
+        for _ in 1..<CreatorEngagement.radioMilestone { state.radioStarted() }
+        precondition(!state.pendingRadioThanks && !state.presentRadioThanks())
+        state.radioStarted()
+        precondition(state.pendingRadioThanks)
+        let otherRadioWindow = CreatorEngagement(preferences: preferences)
+        #if STORE_BUILD
+        precondition(state.presentRadioThanks() && !state.showsThanks)
+        precondition(preferences.bool(forKey: "PulseCanvas.engagement.firstExportReviewRequested.v1"))
+        state.videoSaved(); state.videoSaved()
+        precondition(!state.presentExportThanks()) // Radio already made the Apple request.
+        #else
+        precondition(!state.presentRadioThanks() && state.showsThanks && state.thanksMilestone == .radio)
+        state.showsThanks = false
+        #endif
+        precondition(!otherRadioWindow.presentRadioThanks() && !otherRadioWindow.showsThanks)
+        state.radioStarted()
+        state = CreatorEngagement(preferences: preferences)
+        precondition(!state.pendingRadioThanks && !state.presentRadioThanks()) // Only once.
+        #if !STORE_BUILD
+        state.videoSaved(); state.videoSaved()
+        _ = state.presentExportThanks()
+        precondition(state.showsThanks && state.thanksMilestone == .export)
+        #endif
+        // An earlier Apple request (Store) or every action clicked (direct) skips the Radio ask.
+        preferences.removePersistentDomain(forName: suite)
+        state = CreatorEngagement(preferences: preferences)
+        #if STORE_BUILD
+        state.videoSaved(); state.videoSaved()
+        precondition(state.presentExportThanks())
+        #else
+        for action in state.availableActions { state.recordClick(action) }
+        #endif
+        for _ in 0..<CreatorEngagement.radioMilestone { state.radioStarted() }
+        precondition(!state.pendingRadioThanks && !state.presentRadioThanks())
+        print("PASS: second-save eligibility, deduplicated exports, relaunch and concurrent windows; per-action clicks, completion, reset and upgrade; direct reminders repeat only on later exports; Apple request stays ungated and one-time; hidden tips excluded; fourth Radio session asks once and shares the Apple request")
     }
 }

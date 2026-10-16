@@ -220,8 +220,25 @@ struct CreatorView: View {
                 do { try await Task.sleep(for: .seconds(1)) } catch { return }
             }
         }
+        .onChange(of: radio.isActive) { _, active in if active { engagement.radioStarted() } }
+        .task(id: canPresentRadioThanks) {
+            guard canPresentRadioThanks else { return }
+            // Let the listener settle into the station before asking.
+            do { try await Task.sleep(for: .seconds(30)) } catch { return }
+            while canPresentRadioThanks {
+                if presentation.canPresentEditorSheet {
+                    if engagement.presentRadioThanks() {
+                        #if STORE_BUILD
+                        requestReview()
+                        #endif
+                    }
+                    return
+                }
+                do { try await Task.sleep(for: .seconds(1)) } catch { return }
+            }
+        }
         .sheet(isPresented: $engagement.showsThanks) {
-            CreatorThanksView(engagement: engagement, isExportMilestone: true) { engagement.showsThanks = false }
+            CreatorThanksView(engagement: engagement, milestone: engagement.thanksMilestone) { engagement.showsThanks = false }
                 .dismissOnOutsideClick { engagement.showsThanks = false }
         }
     }
@@ -229,6 +246,10 @@ struct CreatorView: View {
     private var canPresentExportThanks: Bool {
         engagement.pendingExportThanks && !exporter.isExporting && !presentation.isPresented
             && !showVisualizerBrowser && !showProjectSettings && !showHelp && !showRadio
+    }
+
+    private var canPresentRadioThanks: Bool {
+        engagement.pendingRadioThanks && radio.isActive && !engagement.showsThanks && !exporter.isExporting && !showRadio
     }
 
     private var editor: some View {
