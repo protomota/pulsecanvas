@@ -1261,7 +1261,8 @@ float3 pulseArteries(Ctx c, constant NativeFrame &f) {
     }
     // Attack: a cluster of cells bursts out of a point ahead and spreads.
     if (c.hit > .001) {
-        float depth = 2.6;
+        // The Coaster version bursts nearer, so the cells stay in view as the tube bends away.
+        float depth = f.scene == 130 ? 2.6 : 1.2;
         float2 centreOffset = whCentre(zc, depth, bend, lens);
         float2 q = (c.uv - centreOffset) * depth / lens;
         float2 hub = .35 * vessel * float2(cos(c.t * .4), sin(c.t * .4));
@@ -1360,6 +1361,12 @@ float3 pixelTunnel(Ctx c, constant NativeFrame &f) {
     float zc = c.travel * 2.4 + c.m * 1.5;
     uv -= float2(sin(c.t * .31) * .08, cos(c.t * .23) * .05);
     uv = rot(uv, c.t * .04);
+    // The Coaster version rides the course at each chunky pixel's centre, so blocks stay square.
+    if (f.scene != 132) {
+        Ctx cell = c;
+        cell.uv = uv;
+        uv = coasterRide(cell, 132, true).uv;
+    }
     float m = max(fabs(uv.x), fabs(uv.y));
     float d = min(lens / max(m, 1e-3f), 60.f);
     float z = zc + d;
@@ -1506,3 +1513,17 @@ float3 geodePassage(Ctx c, constant NativeFrame &f) {
 
 #define WORMHOLE_EFFECTS(X) X(stormEye) X(sonarPipe) X(cubeHelix) X(phylloTube) X(teslaTube) X(foldTunnel) X(vectorTube) X(orbitalCorridor) X(mirrorballTunnel)  X(chromaPipe)  X(rainbowSlide) X(pulseArteries) X(zebraWarp) X(pixelTunnel) X(geodePassage)
 WORMHOLE_EFFECTS(NATIVE_EFFECT)
+
+// Coaster versions: the same designs riding the roller-coaster course.
+NATIVE_COASTER(stormEye, 117, false)
+NATIVE_COASTER(sonarPipe, 118, false)
+NATIVE_COASTER(phylloTube, 120, false)
+NATIVE_COASTER(teslaTube, 121, false)
+NATIVE_COASTER(foldTunnel, 122, false)
+NATIVE_COASTER(vectorTube, 123, false)
+NATIVE_COASTER(mirrorballTunnel, 125, false)
+NATIVE_COASTER(chromaPipe, 127, false)
+NATIVE_COASTER(rainbowSlide, 129, false)
+NATIVE_COASTER(pulseArteries, 130, false)
+NATIVE_COASTER(pixelTunnel, 132, true)
+NATIVE_COASTER(geodePassage, 133, false)

@@ -282,7 +282,5 @@ float4 ptlLace(float2 g, float yIn, float yOut, float aa) {
     return float4(saturate(opacity), glowLight, holeGlow, saturate(inside * cord + edges));
 }
 
-
-
-
-
+// Coaster versions: the same designs riding the roller-coaster course.
+NATIVE_COASTER(quiltedPipe, 314, false)

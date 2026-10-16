@@ -481,25 +481,96 @@ enum NativeEffects {
         .metal("Magnetosphere II", icon: "dot.radiowaves.left.and.right", "magnetosphereII", in: cosmosIIExpansion, size: "Structure scale", travels: false, look: L(palette: 3, speed: 1, zoomSpeed: 0, brightness: 1.35, fog: 0.25)),
         .metal("Nebular Filaments II", icon: "network", "cosmicWebII", in: cosmosIIExpansion, size: "Structure scale", travels: false, look: L(palette: 0, speed: 1, zoomSpeed: 0, brightness: 1.35, fog: 0.25)),
         .metal("Einstein Ring II", icon: "smallcircle.filled.circle", "einsteinRingII", in: cosmosIIExpansion, size: "Structure scale", travels: false, look: L(palette: 1, speed: 1, zoomSpeed: 0, brightness: 1.45, fog: 0.25)),
+        // Coaster versions (390–455): tunnels the owner picked to ride the roller-coaster course;
+        // the library lists each beside its original, which keeps its straight bore.
+        .metal("Plasma Bore Coaster", icon: "circle.dashed.inset.filled", "plasmaBoreCoaster", in: tunnels, size: "Plasma scale", look: L(palette: 1, speed: 1, zoomSpeed: 1.3, fog: 0.45)),
+        .metal("LED Corridor Coaster", icon: "square.grid.4x3.fill", "ledCorridorCoaster", in: tunnels, size: "Pixel size", look: L(palette: 1, speed: 1, zoomSpeed: 1.4, fog: 0.4)),
+        .metal("Magma Tube Coaster", icon: "flame.fill", "magmaTubeCoaster", in: tunnels, size: "Crust scale", look: L(palette: 2, speed: 0.8, zoomSpeed: 1, fog: 0.45)),
+        .metal("Data Conduit Coaster", icon: "memorychip", "dataConduitCoaster", in: tunnels, size: "Trace width", look: L(palette: 4, speed: 1, zoomSpeed: 1.5, fog: 0.4)),
+        .metal("Helix Stair Coaster", icon: "stairs", "helixStairCoaster", in: tunnels, size: "Step size", look: L(palette: 0, speed: 0.8, zoomSpeed: 1, fog: 0.5)),
+        .metal("Laser Bore Coaster", icon: "bolt.horizontal.fill", "laserBoreCoaster", in: tunnels, size: "Beam width", look: L(palette: 1, speed: 1.1, zoomSpeed: 1.4, fog: 0.35)),
+        .metal("Twist Checker Coaster", icon: "checkerboard.rectangle", "twistCheckerCoaster", in: tunnels, size: "Tile size", look: L(palette: 2, speed: 1, zoomSpeed: 1.3, fog: 0.4)),
+        .metal("Foam Tube Coaster", icon: "bubbles.and.sparkles.fill", "foamTubeCoaster", in: tunnels, size: "Bubble size", look: L(palette: 1, speed: 0.9, zoomSpeed: 1.1, fog: 0.45)),
+        .metal("Spectrum Bore Coaster", icon: "chart.bar.fill", "spectrumBoreCoaster", in: tunnels, size: "Bar width", look: L(palette: 1, speed: 1, zoomSpeed: 1.3, fog: 0.4)),
+        .metal("Storm Eye Coaster", icon: "cloud.bolt.fill", "stormEyeCoaster", in: wormholes, size: "Cloud scale", look: L(palette: 3, speed: 0.9, zoomSpeed: 1.2, fog: 0.4)),
+        .metal("Sonar Pipe Coaster", icon: "dot.radiowaves.forward", "sonarPipeCoaster", in: wormholes, size: "Ring spacing", look: L(palette: 3, speed: 0.9, zoomSpeed: 1.2, fog: 0.45)),
+        .metal("Phyllo Tube Coaster", icon: "camera.filters", "phylloTubeCoaster", in: wormholes, size: "Dot size", look: L(palette: 4, speed: 0.9, zoomSpeed: 1.1, fog: 0.4)),
+        .metal("Tesla Tube Coaster", icon: "bolt.fill", "teslaTubeCoaster", in: wormholes, size: "Arc width", look: L(palette: 4, speed: 1, zoomSpeed: 1.2, fog: 0.4)),
+        .metal("Fold Tunnel Coaster", icon: "paperplane.fill", "foldTunnelCoaster", in: wormholes, size: "Fold scale", look: L(palette: 4, speed: 0.9, zoomSpeed: 1.1, fog: 0.45)),
+        .metal("Vector Tube Coaster", icon: "cylinder.split.1x2", "vectorTubeCoaster", in: wormholes, size: "Line width", look: L(palette: 1, speed: 1.1, zoomSpeed: 1.5, fog: 0.35)),
+        .metal("Mirrorball Tunnel Coaster", icon: "square.grid.3x3.square", "mirrorballTunnelCoaster", in: wormholes, size: "Tile size", look: L(palette: 1, speed: 1, zoomSpeed: 1.3, fog: 0.4)),
+        .metal("Chroma Pipe Coaster", icon: "capsule.fill", "chromaPipeCoaster", in: wormholes, size: "Ring width", look: L(palette: 1, speed: 1, zoomSpeed: 1.3, fog: 0.35)),
+        .metal("Rainbow Slide Coaster", icon: "figure.pool.swim", "rainbowSlideCoaster", in: wormholes, size: "Slide width", look: L(palette: 1, speed: 1.1, zoomSpeed: 1.6, fog: 0.3)),
+        .metal("Pulse Arteries Coaster", icon: "heart.fill", "pulseArteriesCoaster", in: wormholes, size: "Vessel width", look: L(palette: 2, speed: 0.9, zoomSpeed: 1.2, fog: 0.45)),
+        .metal("Pixel Tunnel Coaster", icon: "square.grid.2x2.fill", "pixelTunnelCoaster", in: wormholes, size: "Pixel size", look: L(palette: 1, speed: 1, zoomSpeed: 1.4, fog: 0.35)),
+        .metal("Geode Passage Coaster", icon: "diamond.fill", "geodePassageCoaster", in: wormholes, size: "Crystal size", look: L(palette: 3, speed: 0.8, zoomSpeed: 1, fog: 0.5)),
+        .metal("Saffron Spindle Coaster", icon: "rays", "saffronSpindleCoaster", in: passageExpansion, size: "Structure scale", look: L(palette: 2, speed: 1, zoomSpeed: 1.3, brightness: 1.35, fog: 0.25)),
+        .metal("Opaline Iris Coaster", icon: "camera.aperture", "opalineIrisCoaster", in: passageExpansion, size: "Structure scale", look: L(palette: 1, speed: 1, zoomSpeed: 1.3, brightness: 1.35, fog: 0.25)),
+        .metal("Electric Helicoid Coaster", icon: "arrow.triangle.2.circlepath", "electricHelicoidCoaster", in: passageExpansion, size: "Structure scale", look: L(palette: 0, speed: 1, zoomSpeed: 1.3, brightness: 1.35, fog: 0.25)),
+        .metal("Ultramarine Arcade Coaster", icon: "building.columns", "ultramarineArcadeCoaster", in: passageExpansion, size: "Structure scale", look: L(palette: 3, speed: 1, zoomSpeed: 1.3, brightness: 1.35, fog: 0.25)),
+        .metal("Fuchsia Furnace Coaster", icon: "gearshape", "fuchsiaFurnaceCoaster", in: passageExpansion, size: "Structure scale", look: L(palette: 0, speed: 1, zoomSpeed: 1.3, brightness: 1.35, fog: 0.25)),
+        .metal("Aurora Corkscrew Coaster", icon: "tornado", "auroraCorkscrewCoaster", in: passageExpansion, size: "Structure scale", look: L(palette: 4, speed: 1, zoomSpeed: 1.3, brightness: 1.35, fog: 0.25)),
+        .metal("Magenta Conduit Coaster", icon: "cpu", "magentaConduitCoaster", in: passageExpansion, size: "Structure scale", look: L(palette: 0, speed: 1, zoomSpeed: 1.3, brightness: 1.35, fog: 0.25)),
+        .metal("Sapphire Cascade Coaster", icon: "water.waves", "sapphireCascadeCoaster", in: passageExpansion, size: "Structure scale", look: L(palette: 3, speed: 1, zoomSpeed: 1.3, brightness: 1.35, fog: 0.25)),
+        .metal("Luminous Nautilus Coaster", icon: "tornado", "luminousNautilusCoaster", in: passageExpansion, size: "Structure scale", look: L(palette: 1, speed: 1, zoomSpeed: 1.3, brightness: 1.35, fog: 0.25)),
+        .metal("Golden Gyre Coaster", icon: "sun.max.fill", "goldenGyreCoaster", in: passageExpansion, size: "Structure scale", look: L(palette: 2, speed: 1, zoomSpeed: 1.3, brightness: 1.35, fog: 0.25)),
+        .metal("Fluid Odyssey Coaster", icon: "drop.triangle", "liquidLabyrinthCoaster", in: passageExpansion, size: "Structure scale", look: L(palette: 0, speed: 1, zoomSpeed: 1.3, brightness: 1.35, fog: 0.25)),
+        .metal("Astral Torque Coaster", icon: "circle.dotted.circle", "celestialCoilCoaster", in: passageExpansion, size: "Structure scale", look: L(palette: 0, speed: 1, zoomSpeed: 1.3, brightness: 1.35, fog: 0.25)),
+        .metal("Chrome Comet Coaster", icon: "sparkle", "chromeCometCoaster", in: passageExpansion, size: "Structure scale", look: L(palette: 3, speed: 1, zoomSpeed: 1.3, brightness: 1.35, fog: 0.25)),
+        .metal("Candy Cathedral Coaster", icon: "building.columns.circle", "candyCathedralCoaster", in: passageExpansion, size: "Structure scale", look: L(palette: 1, speed: 1, zoomSpeed: 1.3, brightness: 1.35, fog: 0.25)),
+        .metal("Scarlet Siphon Coaster", icon: "drop.fill", "scarletSiphonCoaster", in: passageExpansion, size: "Structure scale", look: L(palette: 2, speed: 1, zoomSpeed: 1.3, brightness: 1.35, fog: 0.25)),
+        .metal("Arctic Raceway Coaster", icon: "snowflake", "arcticRacewayCoaster", in: passageExpansion, size: "Structure scale", look: L(palette: 3, speed: 1, zoomSpeed: 1.3, brightness: 1.35, fog: 0.25)),
+        .metal("Plasma Passage Coaster", icon: "allergens", "plasmaPassageCoaster", in: passageExpansion, size: "Structure scale", look: L(palette: 0, speed: 1, zoomSpeed: 1.3, brightness: 1.35, fog: 0.25)),
+        .metal("Violet Velocity Coaster", icon: "arrow.forward.square", "violetVelocityCoaster", in: passageExpansion, size: "Structure scale", look: L(palette: 0, speed: 1, zoomSpeed: 1.3, brightness: 1.35, fog: 0.25)),
+        .metal("Cerulean Shell Coaster", icon: "fossil.shell", "ceruleanShellCoaster", in: passageExpansion, size: "Structure scale", look: L(palette: 3, speed: 1, zoomSpeed: 1.3, brightness: 1.35, fog: 0.25)),
+        .metal("Disco Helix Coaster", icon: "hexagon.fill", "discoHelixCoaster", in: passageExpansion, size: "Structure scale", look: L(palette: 1, speed: 1, zoomSpeed: 1.3, brightness: 1.35, fog: 0.25)),
+        .metal("Iridescent Descent Coaster", icon: "square.3.layers.3d", "iridescentDescentCoaster", in: passageExpansion, size: "Structure scale", look: L(palette: 1, speed: 1, zoomSpeed: 1.3, brightness: 1.35, fog: 0.25)),
+        .metal("Solar Serpent Coaster", icon: "scribble.variable", "solarSerpentCoaster", in: passageExpansion, size: "Structure scale", look: L(palette: 2, speed: 1, zoomSpeed: 1.3, brightness: 1.35, fog: 0.25)),
+        .metal("Rainbow Reactor Coaster", icon: "atom", "rainbowReactorCoaster", in: passageExpansion, size: "Structure scale", look: L(palette: 1, speed: 1, zoomSpeed: 1.3, brightness: 1.35, fog: 0.25)),
+        .metal("Crystal Carousel Coaster", icon: "cube.transparent", "crystalCarouselCoaster", in: passageExpansion, size: "Structure scale", look: L(palette: 3, speed: 1, zoomSpeed: 1.3, brightness: 1.35, fog: 0.25)),
+        .metal("Neon Maelstrom Coaster", icon: "hurricane", "neonMaelstromCoaster", in: passageExpansion, size: "Structure scale", look: L(palette: 1, speed: 1, zoomSpeed: 1.3, brightness: 1.35, fog: 0.25)),
+        .metal("Ringworld Drift Coaster", icon: "circle.bottomhalf.filled", "ringworldDriftCoaster", in: boreExpansion, size: "Structure scale", look: L(palette: 3, speed: 1, zoomSpeed: 1.3, brightness: 1.35, fog: 0.25)),
+        .metal("Twin Bore Coaster", icon: "circle.circle", "twinBoreCoaster", in: boreExpansion, size: "Structure scale", look: L(palette: 0, speed: 1, zoomSpeed: 1.3, brightness: 1.35, fog: 0.25)),
+        .metal("Coil Run Coaster", icon: "rotate.3d", "coilRunCoaster", in: boreExpansion, size: "Structure scale", look: L(palette: 1, speed: 1, zoomSpeed: 1.3, brightness: 1.2, fog: 0.25)),
+        .metal("Bellows Passage Coaster", icon: "rectangle.compress.vertical", "bellowsPassageCoaster", in: boreExpansion, size: "Structure scale", look: L(palette: 2, speed: 1, zoomSpeed: 1.3, brightness: 1.35, fog: 0.25)),
+        .metal("Branching Bore Coaster", icon: "arrow.triangle.branch", "branchingBoreCoaster", in: boreExpansion, size: "Structure scale", look: L(palette: 2, speed: 1, zoomSpeed: 1.3, brightness: 1.5, fog: 0.25)),
+        .metal("Skyward Shaft Coaster", icon: "arrow.up.to.line", "skywardShaftCoaster", in: boreExpansion, size: "Structure scale", look: L(palette: 3, speed: 1, zoomSpeed: 1.3, brightness: 1.35, fog: 0.25)),
+        .metal("Veil Passage Coaster", icon: "curtains.open", "veilPassageCoaster", in: boreExpansion, size: "Structure scale", look: L(palette: 4, speed: 1, zoomSpeed: 1.3, brightness: 1.35, fog: 0.25)),
+        .metal("Chainmail Bore Coaster", icon: "link", "chainmailBoreCoaster", in: portalExpansion, size: "Structure scale", look: L(palette: 3, speed: 1, zoomSpeed: 1.3, brightness: 1.35, fog: 0.25)),
+        .metal("Feather Vault Coaster", icon: "leaf", "featherVaultCoaster", in: portalExpansion, size: "Structure scale", look: L(palette: 0, speed: 1, zoomSpeed: 1.3, brightness: 1.35, fog: 0.25)),
+        .metal("Tartan Tube Coaster", icon: "squareshape.split.3x3", "tartanTubeCoaster", in: portalExpansion, size: "Structure scale", look: L(palette: 1, speed: 1, zoomSpeed: 1.3, brightness: 1.35, fog: 0.25)),
+        .metal("Herringbone Hall Coaster", icon: "chevron.up.chevron.down", "herringboneHallCoaster", in: portalExpansion, size: "Structure scale", look: L(palette: 2, speed: 1, zoomSpeed: 1.3, brightness: 1.35, fog: 0.25)),
+        .metal("Quilted Pipe Coaster", icon: "square.grid.3x3.middle.filled", "quiltedPipeCoaster", in: portalIIExpansion, size: "Structure scale", look: L(palette: 0, speed: 1, zoomSpeed: 1.3, brightness: 1.35, fog: 0.25)),
+        .metal("Lace Funnel Coaster", icon: "seal.fill", "laceFunnelCoaster", in: portalExpansion, size: "Structure scale", look: L(palette: 4, speed: 1, zoomSpeed: 1.3, brightness: 1.35, fog: 0.25)),
+        .metal("Zipper Run Coaster", icon: "arrow.left.and.right", "zipperRunCoaster", in: portalExpansion, size: "Structure scale", look: L(palette: 1, speed: 1, zoomSpeed: 1.3, brightness: 1.35, fog: 0.25)),
+        .metal("Cable Knit Tube Coaster", icon: "line.3.crossed.swirl.circle", "cableKnitTubeCoaster", in: portalExpansion, size: "Structure scale", look: L(palette: 0, speed: 1, zoomSpeed: 1.3, brightness: 1.35, fog: 0.25)),
+        .metal("Basket Weave Burrow Coaster", icon: "basket", "basketWeaveBurrowCoaster", in: portalExpansion, size: "Structure scale", look: L(palette: 2, speed: 1, zoomSpeed: 1.3, brightness: 1.35, fog: 0.25)),
+        .metal("Louvre Tunnel Coaster", icon: "blinds.horizontal.open", "louvreTunnelCoaster", in: portalExpansion, size: "Structure scale", look: L(palette: 1, speed: 1, zoomSpeed: 1.3, brightness: 1.35, fog: 0.25)),
+        .metal("Mandelbrot Wormhole Coaster", icon: "circle.circle.fill", "mandelbrotWormholeCoaster", in: fractalTunnelExpansion, size: "Structure scale", look: L(palette: 1, speed: 1, zoomSpeed: 1.3, brightness: 1.35, fog: 0.25)),
+        .metal("Burning Ship Abyss Coaster", icon: "sailboat.circle", "burningShipAbyssCoaster", in: fractalTunnelExpansion, size: "Structure scale", look: L(palette: 2, speed: 1, zoomSpeed: 1.3, brightness: 1.35, fog: 0.25)),
+        .metal("Fractal Double Helix Coaster", icon: "point.forward.to.point.capsulepath", "fractalDoubleHelixCoaster", in: fractalTunnelExpansion, size: "Structure scale", look: L(palette: 0, speed: 1, zoomSpeed: 1.3, brightness: 1.35, fog: 0.25)),
     ]
 
     /// Studio's automatic timeline order: released and new designs interleaved so that
     /// neighbouring sections differ in family, composition and color.
     static let timelineOrder: [Int] = [
-        101, 201, 91, 300, 202, 100, 203, 370, 310, 184, 204, 33, 320, 205, 360, 206, 117, 330, 207, 84,
-        371, 208, 340, 118, 209, 210, 350, 185, 211, 212, 301, 98, 213, 372, 64, 311, 214, 215, 102, 321,
-        216, 361, 22, 218, 331, 220, 373, 119, 221, 341, 222, 223, 224, 351, 103, 225, 226, 302, 227, 374,
-        228, 229, 312, 120, 230, 187, 322, 231, 362, 232, 233, 332, 375, 104, 234, 18, 342, 235, 236, 237,
-        352, 238, 239, 61, 303, 376, 240, 121, 241, 313, 242, 188, 243, 323, 244, 363, 31, 105, 377, 333,
-        246, 74, 247, 343, 248, 249, 250, 353, 122, 251, 23, 378, 304, 252, 43, 253, 314, 189, 254, 255,
-        256, 364, 25, 257, 379, 334, 106, 258, 260, 344, 261, 123, 263, 354, 46, 264, 265, 380, 305, 266,
-        85, 267, 315, 268, 107, 269, 325, 270, 365, 17, 381, 271, 335, 272, 80, 273, 345, 92, 274, 275,
-        355, 276, 124, 382, 278, 306, 279, 141, 280, 316, 29, 281, 282, 326, 283, 366, 383, 284, 285, 336,
-        81, 286, 21, 346, 287, 125, 288, 356, 60, 384, 289, 192, 307, 290, 291, 292, 317, 28, 293, 109,
-        327, 294, 385, 367, 88, 295, 337, 176, 296, 297, 347, 298, 299, 193, 357, 386, 24, 42, 110, 308,
-        83, 127, 72, 318, 86, 111, 178, 328, 387, 26, 368, 16, 48, 338, 112, 179, 19, 348, 129, 12,
-        113, 388, 358, 180, 27, 130, 309, 197, 10, 114, 319, 15, 131, 79, 389, 329, 182, 369, 132, 20,
-        339, 47, 50, 183, 349, 32, 133, 245, 359, 259,
+        101, 425, 201, 91, 440, 300, 202, 100, 448, 426, 203, 427, 370, 310, 428, 184, 394, 453, 204, 33,
+        320, 205, 429, 360, 206, 430, 117, 330, 207, 431, 84, 432, 371, 433, 208, 340, 441, 118, 434, 449,
+        209, 435, 210, 350, 185, 211, 212, 301, 454, 98, 213, 372, 64, 311, 214, 215, 102, 321, 216, 361,
+        22, 218, 331, 220, 373, 119, 221, 442, 341, 222, 405, 450, 223, 224, 351, 103, 225, 226, 302, 455,
+        227, 374, 228, 229, 312, 120, 395, 230, 187, 322, 231, 362, 232, 233, 332, 375, 104, 234, 18, 342,
+        235, 236, 451, 237, 352, 238, 239, 396, 61, 303, 376, 406, 240, 121, 241, 397, 313, 242, 188, 243,
+        323, 244, 363, 31, 105, 377, 333, 246, 74, 247, 407, 343, 248, 249, 250, 353, 122, 251, 23, 408,
+        378, 452, 304, 252, 398, 43, 253, 314, 189, 254, 255, 256, 364, 409, 25, 257, 379, 334, 106, 258,
+        260, 344, 261, 123, 410, 411, 263, 354, 46, 264, 391, 265, 420, 380, 305, 266, 85, 390, 267, 315,
+        268, 107, 443, 269, 325, 270, 365, 17, 399, 381, 271, 335, 272, 80, 273, 345, 400, 92, 274, 275,
+        355, 276, 124, 382, 278, 306, 279, 141, 280, 316, 29, 281, 282, 436, 326, 283, 366, 383, 284, 285,
+        444, 336, 81, 286, 21, 346, 287, 125, 288, 356, 60, 384, 289, 192, 307, 290, 291, 292, 401, 317,
+        28, 293, 437, 109, 327, 294, 385, 367, 88, 445, 295, 337, 176, 296, 297, 347, 298, 299, 193, 357,
+        386, 24, 42, 110, 308, 83, 127, 402, 72, 318, 86, 111, 178, 438, 328, 387, 26, 368, 16, 392,
+        48, 446, 338, 412, 112, 413, 179, 19, 348, 414, 415, 129, 12, 113, 388, 416, 403, 358, 180, 27,
+        130, 309, 197, 417, 10, 114, 439, 319, 15, 418, 131, 447, 79, 389, 329, 419, 182, 369, 132, 20,
+        421, 393, 339, 47, 50, 183, 349, 422, 404, 32, 423, 133, 245, 424, 359, 259,
     ]
 
     static var names: [String] { all.map(\.name) }
@@ -509,6 +580,15 @@ enum NativeEffects {
     static func resolved(_ scene: Int) -> Int { effect(scene)?.replacement ?? scene }
     /// Native IDs offered in the library, timeline and random choices.
     static let activeIDs: [Int] = all.indices.filter { all[$0].replacement == nil }
+    /// Designs with a Coaster version; the Coaster of `coasterSources[i]` is scene `firstCoaster + i`.
+    static let firstCoaster = 390
+    static let coasterSources: [Int] = [100, 101, 105, 106, 107, 109, 110, 111, 114, 117, 118, 120, 121, 122, 123, 125, 127, 129, 130, 132, 133, 245, 246, 247, 248, 249, 251, 253, 255, 257, 259, 260, 263, 264, 265, 266, 268, 269, 270, 272, 273, 274, 275, 276, 278, 279, 301, 302, 303, 304, 305, 306, 307, 310, 311, 312, 313, 314, 315, 316, 317, 318, 319, 365, 366, 367]
+    /// Library order: offered designs by ID, each Coaster version right after its original.
+    static let libraryOrder: [Int] = {
+        let coasters = Dictionary(uniqueKeysWithValues: coasterSources.enumerated().map { ($0.element, firstCoaster + $0.offset) })
+        let coasterRange = firstCoaster..<(firstCoaster + coasterSources.count)
+        return activeIDs.filter { !coasterRange.contains($0) }.flatMap { [$0] + (coasters[$0].map { [$0] } ?? []) }
+    }()
     /// The design a new session opens with.
     static var defaultScene: Int { timelineOrder[0] }
 }

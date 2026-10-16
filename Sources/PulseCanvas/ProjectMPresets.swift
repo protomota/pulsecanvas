@@ -101,7 +101,7 @@ final class ProjectMPresets: ObservableObject {
     private func rebuildNames() {
         sceneNames = RenderState.nativeSceneNames + entries.map(\.title)
         scenesByID = Dictionary(uniqueKeysWithValues: entries.enumerated().map { ($0.element.id, $0.offset + nativeCount) })
-        availableScenes = NativeEffects.activeIDs + Array(nativeCount..<sceneNames.count)
+        availableScenes = NativeEffects.libraryOrder + Array(nativeCount..<sceneNames.count)
     }
     private var availableFavoriteIDs: Set<String> { Set(availableScenes.map { identity(for: $0) }) }
     func identity(for scene: Int) -> String {preset(for: scene)?.id ?? "native:\(scene)"}

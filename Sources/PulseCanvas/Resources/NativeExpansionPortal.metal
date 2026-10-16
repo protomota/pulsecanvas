@@ -654,3 +654,14 @@ float3 louvreTunnel(Ctx c, constant NativeFrame &f) {
     return mix(core, color, ptlFog(depth, c, .05));
 }
 NATIVE_EFFECT(louvreTunnel)
+
+// Coaster versions: the same designs riding the roller-coaster course.
+NATIVE_COASTER(chainmailBore, 310, false)
+NATIVE_COASTER(featherVault, 311, false)
+NATIVE_COASTER(tartanTube, 312, false)
+NATIVE_COASTER(herringboneHall, 313, false)
+NATIVE_COASTER(laceFunnel, 315, false)
+NATIVE_COASTER(zipperRun, 316, false)
+NATIVE_COASTER(cableKnitTube, 317, false)
+NATIVE_COASTER(basketWeaveBurrow, 318, false)
+NATIVE_COASTER(louvreTunnel, 319, false)

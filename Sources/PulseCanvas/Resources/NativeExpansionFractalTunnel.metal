@@ -362,3 +362,8 @@ float3 loxodromeFractal(Ctx c, constant NativeFrame &f) {
     return col;
 }
 NATIVE_EFFECT(loxodromeFractal)
+
+// Coaster versions: the same designs riding the roller-coaster course.
+NATIVE_COASTER(mandelbrotWormhole, 365, false)
+NATIVE_COASTER(burningShipAbyss, 366, false)
+NATIVE_COASTER(fractalDoubleHelix, 367, false)

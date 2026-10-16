@@ -547,3 +547,12 @@ float3 mobiusRide(Ctx c, constant NativeFrame &f) {
     return mix(sky, surface, exp(-t * (.03 + c.fog * .03)));
 }
 NATIVE_EFFECT(mobiusRide)
+
+// Coaster versions: the same designs riding the roller-coaster course.
+NATIVE_COASTER(ringworldDrift, 301, false)
+NATIVE_COASTER(twinBore, 302, false)
+NATIVE_COASTER(coilRun, 303, false)
+NATIVE_COASTER(bellowsPassage, 304, false)
+NATIVE_COASTER(branchingBore, 305, false)
+NATIVE_COASTER(skywardShaft, 306, false)
+NATIVE_COASTER(veilPassage, 307, false)

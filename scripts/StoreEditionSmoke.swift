@@ -7,7 +7,14 @@ import Foundation
         defer { defaults.removePersistentDomain(forName: suite) }
         defaults.set(["native:22", "native:3", "upstream-preset"], forKey: "PulseCanvas.effectFavorites.v1")
         let library = ProjectMPresets(defaults: defaults)
-        precondition(library.availableScenes == NativeEffects.activeIDs && library.entries.isEmpty)
+        // Every offered design once, each Coaster version right after its original.
+        precondition(library.availableScenes == NativeEffects.libraryOrder && library.entries.isEmpty)
+        precondition(library.availableScenes.count == NativeEffects.activeIDs.count && Set(library.availableScenes) == Set(NativeEffects.activeIDs))
+        for (offset, source) in NativeEffects.coasterSources.enumerated() {
+            let index = library.availableScenes.firstIndex(of: source)!
+            precondition(library.availableScenes[index + 1] == NativeEffects.firstCoaster + offset)
+            precondition(library.sceneNames[NativeEffects.firstCoaster + offset] == library.sceneNames[source] + " Coaster")
+        }
         let emptyStore = StudioStore(defaults: defaults), defaultRender = RenderState()
         for scene in NativeEffects.activeIDs {
             defaultRender.scene = scene; emptyStore.apply(to: defaultRender)

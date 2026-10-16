@@ -47,7 +47,10 @@ import AppKit
                 audioEnvelopes: audio.envelopes, audioSwell: audio.swell))
         }
         var minimumAttack = 255.0, minimumEdge = 255.0
-        for scene in NativeEffects.activeIDs where scene >= 200 {
+        // Integrated designs share the expansion prelude's beat motion (Coaster versions of the
+        // original tunnels 100–133 use the original prelude, like the designs they come from).
+        let integrated = NativeEffects.activeIDs.filter { NativeEffects.all[$0].file?.hasPrefix("NativeExpansion") == true }
+        for scene in integrated {
             state.scene = scene; VisualPreset.defaults(for: scene).apply(to: state)
             state.motionBlur = 0; state.strobeEnabled = false
             let idle = try render(99.2, .silence)
@@ -63,7 +66,7 @@ import AppKit
                 try require(difference(idle, active) > 0.75, "Disconnected band \(band): \(scene)")
             }
         }
-        print(String(format: "PASS %d integrated native shaders: direct attacks move shapes (minimum RGB %.2f/255, edge movement %.2f/255); integrated percussion clock and all four bands connected", NativeEffects.activeIDs.filter { $0 >= 200 }.count, minimumAttack, minimumEdge))
+        print(String(format: "PASS %d integrated native shaders: direct attacks move shapes (minimum RGB %.2f/255, edge movement %.2f/255); integrated percussion clock and all four bands connected", integrated.count, minimumAttack, minimumEdge))
         let analyzer = try SoundtrackAnalyzer(url: source)
         var features: [(Double, AudioFeatures)] = []
         for i in 0..<240 { let t = 99 + Double(i) / 60; features.append((t, try analyzer.frame(at: t, clipStart: 0, clipEnd: 10_000))) }

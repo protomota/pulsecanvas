@@ -1,7 +1,7 @@
 {
   "schema": 1,
-  "nativeCount": 390,
-  "activeCount": 270,
+  "nativeCount": 456,
+  "activeCount": 336,
   "effects": [
     {
       "id": "native:0",
@@ -2582,38 +2582,434 @@
       "scene": 389,
       "name": "Einstein Ring II",
       "icon": "smallcircle.filled.circle"
+    },
+    {
+      "id": "native:390",
+      "scene": 390,
+      "name": "Plasma Bore Coaster",
+      "icon": "circle.dashed.inset.filled"
+    },
+    {
+      "id": "native:391",
+      "scene": 391,
+      "name": "LED Corridor Coaster",
+      "icon": "square.grid.4x3.fill"
+    },
+    {
+      "id": "native:392",
+      "scene": 392,
+      "name": "Magma Tube Coaster",
+      "icon": "flame.fill"
+    },
+    {
+      "id": "native:393",
+      "scene": 393,
+      "name": "Data Conduit Coaster",
+      "icon": "memorychip"
+    },
+    {
+      "id": "native:394",
+      "scene": 394,
+      "name": "Helix Stair Coaster",
+      "icon": "stairs"
+    },
+    {
+      "id": "native:395",
+      "scene": 395,
+      "name": "Laser Bore Coaster",
+      "icon": "bolt.horizontal.fill"
+    },
+    {
+      "id": "native:396",
+      "scene": 396,
+      "name": "Twist Checker Coaster",
+      "icon": "checkerboard.rectangle"
+    },
+    {
+      "id": "native:397",
+      "scene": 397,
+      "name": "Foam Tube Coaster",
+      "icon": "bubbles.and.sparkles.fill"
+    },
+    {
+      "id": "native:398",
+      "scene": 398,
+      "name": "Spectrum Bore Coaster",
+      "icon": "chart.bar.fill"
+    },
+    {
+      "id": "native:399",
+      "scene": 399,
+      "name": "Storm Eye Coaster",
+      "icon": "cloud.bolt.fill"
+    },
+    {
+      "id": "native:400",
+      "scene": 400,
+      "name": "Sonar Pipe Coaster",
+      "icon": "dot.radiowaves.forward"
+    },
+    {
+      "id": "native:401",
+      "scene": 401,
+      "name": "Phyllo Tube Coaster",
+      "icon": "camera.filters"
+    },
+    {
+      "id": "native:402",
+      "scene": 402,
+      "name": "Tesla Tube Coaster",
+      "icon": "bolt.fill"
+    },
+    {
+      "id": "native:403",
+      "scene": 403,
+      "name": "Fold Tunnel Coaster",
+      "icon": "paperplane.fill"
+    },
+    {
+      "id": "native:404",
+      "scene": 404,
+      "name": "Vector Tube Coaster",
+      "icon": "cylinder.split.1x2"
+    },
+    {
+      "id": "native:405",
+      "scene": 405,
+      "name": "Mirrorball Tunnel Coaster",
+      "icon": "square.grid.3x3.square"
+    },
+    {
+      "id": "native:406",
+      "scene": 406,
+      "name": "Chroma Pipe Coaster",
+      "icon": "capsule.fill"
+    },
+    {
+      "id": "native:407",
+      "scene": 407,
+      "name": "Rainbow Slide Coaster",
+      "icon": "figure.pool.swim"
+    },
+    {
+      "id": "native:408",
+      "scene": 408,
+      "name": "Pulse Arteries Coaster",
+      "icon": "heart.fill"
+    },
+    {
+      "id": "native:409",
+      "scene": 409,
+      "name": "Pixel Tunnel Coaster",
+      "icon": "square.grid.2x2.fill"
+    },
+    {
+      "id": "native:410",
+      "scene": 410,
+      "name": "Geode Passage Coaster",
+      "icon": "diamond.fill"
+    },
+    {
+      "id": "native:411",
+      "scene": 411,
+      "name": "Saffron Spindle Coaster",
+      "icon": "rays"
+    },
+    {
+      "id": "native:412",
+      "scene": 412,
+      "name": "Opaline Iris Coaster",
+      "icon": "camera.aperture"
+    },
+    {
+      "id": "native:413",
+      "scene": 413,
+      "name": "Electric Helicoid Coaster",
+      "icon": "arrow.triangle.2.circlepath"
+    },
+    {
+      "id": "native:414",
+      "scene": 414,
+      "name": "Ultramarine Arcade Coaster",
+      "icon": "building.columns"
+    },
+    {
+      "id": "native:415",
+      "scene": 415,
+      "name": "Fuchsia Furnace Coaster",
+      "icon": "gearshape"
+    },
+    {
+      "id": "native:416",
+      "scene": 416,
+      "name": "Aurora Corkscrew Coaster",
+      "icon": "tornado"
+    },
+    {
+      "id": "native:417",
+      "scene": 417,
+      "name": "Magenta Conduit Coaster",
+      "icon": "cpu"
+    },
+    {
+      "id": "native:418",
+      "scene": 418,
+      "name": "Sapphire Cascade Coaster",
+      "icon": "water.waves"
+    },
+    {
+      "id": "native:419",
+      "scene": 419,
+      "name": "Luminous Nautilus Coaster",
+      "icon": "tornado"
+    },
+    {
+      "id": "native:420",
+      "scene": 420,
+      "name": "Golden Gyre Coaster",
+      "icon": "sun.max.fill"
+    },
+    {
+      "id": "native:421",
+      "scene": 421,
+      "name": "Fluid Odyssey Coaster",
+      "icon": "drop.triangle"
+    },
+    {
+      "id": "native:422",
+      "scene": 422,
+      "name": "Astral Torque Coaster",
+      "icon": "circle.dotted.circle"
+    },
+    {
+      "id": "native:423",
+      "scene": 423,
+      "name": "Chrome Comet Coaster",
+      "icon": "sparkle"
+    },
+    {
+      "id": "native:424",
+      "scene": 424,
+      "name": "Candy Cathedral Coaster",
+      "icon": "building.columns.circle"
+    },
+    {
+      "id": "native:425",
+      "scene": 425,
+      "name": "Scarlet Siphon Coaster",
+      "icon": "drop.fill"
+    },
+    {
+      "id": "native:426",
+      "scene": 426,
+      "name": "Arctic Raceway Coaster",
+      "icon": "snowflake"
+    },
+    {
+      "id": "native:427",
+      "scene": 427,
+      "name": "Plasma Passage Coaster",
+      "icon": "allergens"
+    },
+    {
+      "id": "native:428",
+      "scene": 428,
+      "name": "Violet Velocity Coaster",
+      "icon": "arrow.forward.square"
+    },
+    {
+      "id": "native:429",
+      "scene": 429,
+      "name": "Cerulean Shell Coaster",
+      "icon": "fossil.shell"
+    },
+    {
+      "id": "native:430",
+      "scene": 430,
+      "name": "Disco Helix Coaster",
+      "icon": "hexagon.fill"
+    },
+    {
+      "id": "native:431",
+      "scene": 431,
+      "name": "Iridescent Descent Coaster",
+      "icon": "square.3.layers.3d"
+    },
+    {
+      "id": "native:432",
+      "scene": 432,
+      "name": "Solar Serpent Coaster",
+      "icon": "scribble.variable"
+    },
+    {
+      "id": "native:433",
+      "scene": 433,
+      "name": "Rainbow Reactor Coaster",
+      "icon": "atom"
+    },
+    {
+      "id": "native:434",
+      "scene": 434,
+      "name": "Crystal Carousel Coaster",
+      "icon": "cube.transparent"
+    },
+    {
+      "id": "native:435",
+      "scene": 435,
+      "name": "Neon Maelstrom Coaster",
+      "icon": "hurricane"
+    },
+    {
+      "id": "native:436",
+      "scene": 436,
+      "name": "Ringworld Drift Coaster",
+      "icon": "circle.bottomhalf.filled"
+    },
+    {
+      "id": "native:437",
+      "scene": 437,
+      "name": "Twin Bore Coaster",
+      "icon": "circle.circle"
+    },
+    {
+      "id": "native:438",
+      "scene": 438,
+      "name": "Coil Run Coaster",
+      "icon": "rotate.3d"
+    },
+    {
+      "id": "native:439",
+      "scene": 439,
+      "name": "Bellows Passage Coaster",
+      "icon": "rectangle.compress.vertical"
+    },
+    {
+      "id": "native:440",
+      "scene": 440,
+      "name": "Branching Bore Coaster",
+      "icon": "arrow.triangle.branch"
+    },
+    {
+      "id": "native:441",
+      "scene": 441,
+      "name": "Skyward Shaft Coaster",
+      "icon": "arrow.up.to.line"
+    },
+    {
+      "id": "native:442",
+      "scene": 442,
+      "name": "Veil Passage Coaster",
+      "icon": "curtains.open"
+    },
+    {
+      "id": "native:443",
+      "scene": 443,
+      "name": "Chainmail Bore Coaster",
+      "icon": "link"
+    },
+    {
+      "id": "native:444",
+      "scene": 444,
+      "name": "Feather Vault Coaster",
+      "icon": "leaf"
+    },
+    {
+      "id": "native:445",
+      "scene": 445,
+      "name": "Tartan Tube Coaster",
+      "icon": "squareshape.split.3x3"
+    },
+    {
+      "id": "native:446",
+      "scene": 446,
+      "name": "Herringbone Hall Coaster",
+      "icon": "chevron.up.chevron.down"
+    },
+    {
+      "id": "native:447",
+      "scene": 447,
+      "name": "Quilted Pipe Coaster",
+      "icon": "square.grid.3x3.middle.filled"
+    },
+    {
+      "id": "native:448",
+      "scene": 448,
+      "name": "Lace Funnel Coaster",
+      "icon": "seal.fill"
+    },
+    {
+      "id": "native:449",
+      "scene": 449,
+      "name": "Zipper Run Coaster",
+      "icon": "arrow.left.and.right"
+    },
+    {
+      "id": "native:450",
+      "scene": 450,
+      "name": "Cable Knit Tube Coaster",
+      "icon": "line.3.crossed.swirl.circle"
+    },
+    {
+      "id": "native:451",
+      "scene": 451,
+      "name": "Basket Weave Burrow Coaster",
+      "icon": "basket"
+    },
+    {
+      "id": "native:452",
+      "scene": 452,
+      "name": "Louvre Tunnel Coaster",
+      "icon": "blinds.horizontal.open"
+    },
+    {
+      "id": "native:453",
+      "scene": 453,
+      "name": "Mandelbrot Wormhole Coaster",
+      "icon": "circle.circle.fill"
+    },
+    {
+      "id": "native:454",
+      "scene": 454,
+      "name": "Burning Ship Abyss Coaster",
+      "icon": "sailboat.circle"
+    },
+    {
+      "id": "native:455",
+      "scene": 455,
+      "name": "Fractal Double Helix Coaster",
+      "icon": "point.forward.to.point.capsulepath"
     }
   ],
   "shaders": {
     "Canvas.metal": "145623bb8bb2d5a839cf1025b361ab940ce3ef9bf74d64bc33095978788cb2cf",
     "SpatialVisuals.metal": "6eb425f941bad4a97d211b7bb95674500e34aa2a11547fcb0258ea95c290c950",
     "Strobe.metal": "9f891a5f4e0b2d1811c5f219448c1ef8ba7dacb8d41eb506dfc5727593a691c5",
-    "NativeCommon.metal": "5094b90e843f54b75c45ad4c7f1a420dd267b307c412047c2b79cb97c5ec38d7",
-    "NativeExpansionCommon.metal": "c72ef082289186a2d644e91dbbf036968afb9447211086a727986f652f401d0e",
+    "NativeCommon.metal": "d8eb192298fec7a914f5510c666484fd68a5b4fc2acd50a5d1668cc27717833f",
+    "NativeExpansionCommon.metal": "8acceda3a4b07376f4c5d5ed8055c32a4a81c5abc647039ed7e831a3a4d57381",
     "NativeFlow.metal": "3e9d58284642c91eebd877a48c38ab472095431d48b4ef1bf7cd0ef7618bfa9f",
     "NativeStructure.metal": "27d7b3a652cfef704a5a4c7862b043f981a6558e96f3b44421b7dcf34f90f05a",
     "NativeGeometry.metal": "e81ed306b078f242e830e6ecfcd781ab9edac58105aa4f5222bd96e62fbb1ef2",
     "NativeParticles.metal": "8f914965d4053b8841e3a133c9faef81b80666dd876113e4e782f9c73fb68160",
     "NativeNature.metal": "33dd1cf04610ed75af218d58ee9c6e73ad1ea51d90244484f6390cdb6bd575d2",
-    "NativeTunnels.metal": "184e6b453355d7ea1af71123e3538556376dfcb70e2f09c164dbbb80ff09afcf",
-    "NativeWormholes.metal": "4ca75cf0e6034f68877adb3e8f8f1e05e280efa7662fcd31e92964f5b5ca7e5f",
+    "NativeTunnels.metal": "209110260d3ca2aa4bd1b923575d3ef1f687249febf6272b500e1ab58df17fda",
+    "NativeWormholes.metal": "a2ca7d6dc3987d73e8e05cc01eea12602a7b4933f60a13e1b8bbf4e04d2ef981",
     "NativeDrive.metal": "095553d9280bbe9966cbe9c86f8848a14023dbc132116f5d2370d7c38c9b8f16",
     "NativeDance.metal": "8279266f6813d1901a45249995aa2bbb83b10e0baf2e37cb845597143675b776",
     "NativeRave.metal": "4de3cf188f4ccf41c8c3c3fb95d0c693353774a0f717a17c19ad35ff7940b9c9",
     "NativeExpansionDrive.metal": "db5dbcf999c259b4641a27ad45825f1fd29c5547452a26c658409f6d4fbd0cfc",
     "NativeExpansionDance.metal": "081237abdc7a0001c59fb6354005d3f81f30760a0dadf9a2205e1f2c002e6311",
     "NativeExpansionVoyage.metal": "4d2ba2e02d134c779c1adf2454ac002e782d1793b3859d817047a15a0030038c",
-    "NativeExpansionPassage.metal": "d9fa946301eac58a6d3a4cc4a7fb0ba6174063378dba6f4fd119e49447214a4c",
+    "NativeExpansionPassage.metal": "f17046f869e4fee37cb5b995c840ac36acefcdd6e27e82ef003cb6690a8f27e2",
     "NativeExpansionFestival.metal": "2a69125bc0bed10d9d9d8c1461cc788316f0a321a1d40ce8f1a7215ce37419df",
-    "NativeExpansionBore.metal": "055adc3bc52a4874c8d17915d44ddc03d970ab09e8a1d615be060ffb34c663a1",
-    "NativeExpansionPortal.metal": "7062514a2bc131a8fd3a1e95cf8addfc9e2bb9e1e4ae9948c74e6719c8f09e41",
+    "NativeExpansionBore.metal": "90e6f59d706ba2dccbcf0566e4401648e7d0141c557834cb526eb190135e995b",
+    "NativeExpansionPortal.metal": "dd2fd93c24f0039d88c604422cc85271aa2406d95dfeb6538f322508ea1db396",
     "NativeExpansionKinetic.metal": "7551a0a4af215256cabdcb9fa2f1b0b487f84240138698ac97a3b370459bf83c",
     "NativeExpansionFlight.metal": "8311797bf9ad6489555d98948ba2364dd36dddcb3aff8b59a8260bd268e4f355",
     "NativeExpansionMaterial.metal": "fd76b16ed77a3a6bcdcbe3af1163ab9e977f96f4cdfce69803f11220d8bacc15",
     "NativeExpansionCosmos.metal": "ceb35160c09cb8100ee01fe29c2c96610ae6516cea73f6fa76ea2838d0bb6181",
     "NativeExpansionFractal.metal": "1a403b7719cae31aafd840fbcab2793f409ba822aee10ecdf3a98a9f5d7629a1",
-    "NativeExpansionFractalTunnel.metal": "691d4841fcf34d2b4453d54dbcb0e63fb4cabbe40e692f541fcc3037ee60d749",
-    "NativeExpansionPortalII.metal": "78c8b62155edcf6edce67ef3c27a013f3babb2bb5e8f573bcaca7d081291800c",
+    "NativeExpansionFractalTunnel.metal": "9fee8fc5beac8f3755bf705d46d486e4a82b28b30fdb9c50b84987cc12ab3f2d",
+    "NativeExpansionPortalII.metal": "5ffea8f26ae62fb0a4a550bfa2b73350f879fe3bcfb20f1f5f5797452619e409",
     "NativeExpansionFlightII.metal": "ba7a8793733bc35250f243dc7521e4e7f0dd2976de45e1ee739f1fe1a32e3f8e",
     "NativeExpansionMaterialII.metal": "a31eb44dc79ded27fb67fe8f75ded4850d1d42d7f75071ef82fe2ef0ee1d4b25",
     "NativeExpansionCosmosII.metal": "46345e779376d29b287312f335c096cbb7ac135dc98e06e7d7f45a4f8d8d3743"

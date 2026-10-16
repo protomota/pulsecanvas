@@ -174,6 +174,62 @@ Ctx makeContext(float2 position, constant NativeFrame &f) {
     c.detail = clamp(f.camera.z, 0.f, 1.f);
     return c;
 }
+
+// ---------------------------------------------------------------- roller-coaster course
+// Coaster versions ride a real tube that winds through space instead of a straight bore. Each
+// pixel's ray is traced against a tube whose centreline bends away ahead of the camera; the design
+// is handed the wall's own coordinates (the angle around the tube and the depth along it) as
+// the uv a straight tunnel has there. The walls stay rigid: they sweep past while the far end
+// swings away around each bend and drops behind the wall on tight turns, the track climbs and
+// dives, and the camera banks into each turn. Mirrored in NativeExpansionCommon.metal.
+float2 coasterPath(float z, float seed) {
+    return float2(1.5 * sin(z * .3 + seed) + .6 * sin(z * .55 + seed * 2.3),
+                  1.1 * sin(z * .26 + seed * 1.7 + 1.1) + .5 * sin(z * .5 + seed * .6));
+}
+float2 coasterSlope(float z, float seed) {
+    return float2(.45 * cos(z * .3 + seed) + .33 * cos(z * .55 + seed * 2.3),
+                  .286 * cos(z * .26 + seed * 1.7 + 1.1) + .25 * cos(z * .5 + seed * .6));
+}
+// Distance from the tube's axis across its section: round, or square for box corridors.
+float coasterRadius(float2 q, bool square) { return square ? max(fabs(q.x), fabs(q.y)) : length(q); }
+// Where the ray is across the tube's section at depth z, relative to the bending centreline.
+float2 coasterLateral(float2 ray, float z, float along, float2 origin, float2 slope, float seed) {
+    return ray * z - (coasterPath(along + z, seed) - origin - slope * z);
+}
+Ctx coasterTube(Ctx c, float seed, float along, bool square) {
+    // The camera rides the centreline. Its view lags the track a little, so each turn swings
+    // the outer wall into view before the far end goes round it, and it banks into the turn.
+    float2 origin = coasterPath(along, seed), slope = coasterSlope(along - 1.2, seed);
+    float2 ray = rot(c.uv, -.3 * (coasterSlope(along + 4, seed).x - slope.x));
+    float spread = length(ray);
+    float z = .05, inside = .05, gap = 1;
+    float2 lateral = ray * z;
+    for (int i = 0; i < 40; ++i) {
+        lateral = coasterLateral(ray, z, along, origin, slope, seed);
+        gap = 1 - coasterRadius(lateral, square);
+        if (gap < 0) break;
+        inside = z;
+        if (gap < .002 || z > 60) break;
+        z += gap * .85 / (spread + min(2.f, .4f * z + .6f));
+    }
+    // A step can cross the wall: bisect between the last depth inside and the first outside.
+    if (gap < 0) {
+        float outside = z;
+        for (int i = 0; i < 6; ++i) {
+            z = .5 * (inside + outside);
+            lateral = coasterLateral(ray, z, along, origin, slope, seed);
+            if (coasterRadius(lateral, square) < 1) inside = z; else outside = z;
+        }
+    }
+    float2 uv = lateral / max(coasterRadius(lateral, square), 1e-4f) / z;
+    // Pixel footprint for anti-aliasing: walls bunch up on the inside of a turn.
+    c.px = clamp(max(length(dfdx(uv)), length(dfdy(uv))), c.px * .25f, c.px * 6);
+    c.uv = uv;
+    return c;
+}
+// The Coaster versions (390–455) ride the track of the design they come from.
+Ctx coasterRide(Ctx c, int source, bool box) { return coasterTube(c, float(source) * 1.37, c.travel * 2.4 + c.m * .8, box); }
+
 float4 finish(float3 color, float2 position, constant NativeFrame &f) {
     color = max(color, float3(0)) * max(0.f, f.style.x);
     color = 1 - exp(-color * 1.55);
@@ -186,6 +242,12 @@ float4 finish(float3 color, float2 position, constant NativeFrame &f) {
 #define NATIVE_EFFECT(name) \
 fragment float4 name##Fragment(float4 position [[position]], constant NativeFrame &f [[buffer(0)]]) { \
     Ctx c = makeContext(position.xy, f); \
+    return finish(name(c, f), position.xy, f); \
+}
+// A design's Coaster version: the same design riding the roller-coaster course (box: square tube).
+#define NATIVE_COASTER(name, source, box) \
+fragment float4 name##CoasterFragment(float4 position [[position]], constant NativeFrame &f [[buffer(0)]]) { \
+    Ctx c = coasterRide(makeContext(position.xy, f), source, box); \
     return finish(name(c, f), position.xy, f); \
 }
 

@@ -985,3 +985,14 @@ float3 spectrumBore(Ctx c, constant NativeFrame &f) {
 
 #define TUNNEL_EFFECTS(X) X(plasmaBore) X(ledCorridor) X(prismShaft) X(hyperloop) X(barrelWave) X(magmaTube) X(dataConduit) X(helixStair)  X(laserBore) X(twistChecker) X(foamTube) X(polygonStack) X(gyroidCaverns) X(spectrumBore)
 TUNNEL_EFFECTS(NATIVE_EFFECT)
+
+// Coaster versions: the same designs riding the roller-coaster course.
+NATIVE_COASTER(plasmaBore, 100, false)
+NATIVE_COASTER(ledCorridor, 101, true)
+NATIVE_COASTER(magmaTube, 105, false)
+NATIVE_COASTER(dataConduit, 106, false)
+NATIVE_COASTER(helixStair, 107, false)
+NATIVE_COASTER(laserBore, 109, false)
+NATIVE_COASTER(twistChecker, 110, false)
+NATIVE_COASTER(foamTube, 111, false)
+NATIVE_COASTER(spectrumBore, 114, false)

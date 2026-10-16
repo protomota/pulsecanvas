@@ -1,4 +1,4 @@
-# PulseCanvas native visualizers (270)
+# PulseCanvas native visualizers (336)
 
 The native catalog follows Brad’s red Finder labels from the Metal effect review. All 181 red-labeled selections are offered, together with 89 newer designs (IDs 300–369, and second versions at 370–389); unselected implementation functions have been removed. Permanent IDs remain reserved, and older projects resolve withdrawn styles to retained styles. Review videos and their labels are preserved.
 
@@ -278,6 +278,72 @@ The policy and exact selection are recorded in [METAL_REVIEW.md](METAL_REVIEW.md
 | 387 | Magnetosphere II |
 | 388 | Nebular Filaments II |
 | 389 | Einstein Ring II |
+| 390 | Plasma Bore Coaster |
+| 391 | LED Corridor Coaster |
+| 392 | Magma Tube Coaster |
+| 393 | Data Conduit Coaster |
+| 394 | Helix Stair Coaster |
+| 395 | Laser Bore Coaster |
+| 396 | Twist Checker Coaster |
+| 397 | Foam Tube Coaster |
+| 398 | Spectrum Bore Coaster |
+| 399 | Storm Eye Coaster |
+| 400 | Sonar Pipe Coaster |
+| 401 | Phyllo Tube Coaster |
+| 402 | Tesla Tube Coaster |
+| 403 | Fold Tunnel Coaster |
+| 404 | Vector Tube Coaster |
+| 405 | Mirrorball Tunnel Coaster |
+| 406 | Chroma Pipe Coaster |
+| 407 | Rainbow Slide Coaster |
+| 408 | Pulse Arteries Coaster |
+| 409 | Pixel Tunnel Coaster |
+| 410 | Geode Passage Coaster |
+| 411 | Saffron Spindle Coaster |
+| 412 | Opaline Iris Coaster |
+| 413 | Electric Helicoid Coaster |
+| 414 | Ultramarine Arcade Coaster |
+| 415 | Fuchsia Furnace Coaster |
+| 416 | Aurora Corkscrew Coaster |
+| 417 | Magenta Conduit Coaster |
+| 418 | Sapphire Cascade Coaster |
+| 419 | Luminous Nautilus Coaster |
+| 420 | Golden Gyre Coaster |
+| 421 | Fluid Odyssey Coaster |
+| 422 | Astral Torque Coaster |
+| 423 | Chrome Comet Coaster |
+| 424 | Candy Cathedral Coaster |
+| 425 | Scarlet Siphon Coaster |
+| 426 | Arctic Raceway Coaster |
+| 427 | Plasma Passage Coaster |
+| 428 | Violet Velocity Coaster |
+| 429 | Cerulean Shell Coaster |
+| 430 | Disco Helix Coaster |
+| 431 | Iridescent Descent Coaster |
+| 432 | Solar Serpent Coaster |
+| 433 | Rainbow Reactor Coaster |
+| 434 | Crystal Carousel Coaster |
+| 435 | Neon Maelstrom Coaster |
+| 436 | Ringworld Drift Coaster |
+| 437 | Twin Bore Coaster |
+| 438 | Coil Run Coaster |
+| 439 | Bellows Passage Coaster |
+| 440 | Branching Bore Coaster |
+| 441 | Skyward Shaft Coaster |
+| 442 | Veil Passage Coaster |
+| 443 | Chainmail Bore Coaster |
+| 444 | Feather Vault Coaster |
+| 445 | Tartan Tube Coaster |
+| 446 | Herringbone Hall Coaster |
+| 447 | Quilted Pipe Coaster |
+| 448 | Lace Funnel Coaster |
+| 449 | Zipper Run Coaster |
+| 450 | Cable Knit Tube Coaster |
+| 451 | Basket Weave Burrow Coaster |
+| 452 | Louvre Tunnel Coaster |
+| 453 | Mandelbrot Wormhole Coaster |
+| 454 | Burning Ship Abyss Coaster |
+| 455 | Fractal Double Helix Coaster |
 
 ## New designs (300–389)
 
@@ -314,7 +380,13 @@ Requested by the owner: mathematical fractals twisting into each other and fligh
 
 The owner red-tagged review clips of these designs; every red-tagged clip is a keeper. 350 Pulsar Beacon was tagged twice, but its two clips show the same code with different zoom settings, so it ships once. Where only the first clip was red the first version ships at its ID with the look it was reviewed in; where only the updated clip was red (300–309, 314) the updated version ships. Where both were red, the first version keeps the ID and the updated version is offered as a second design named "<Name> II" (370–389, sharing its source's beat warp). 324 Hanging Mobile was not tagged and is withdrawn; it opens 320 Pin Art. The mapping is recorded in `docs/metal-keeper-selection.json`.
 
+## Coaster versions (390–455)
+
+The owner red-labelled 66 tunnels to keep riding the roller-coaster course, alongside their originals, which keep their straight bores. Each Coaster version is the same design under the same name with "Coaster" added; the library lists it right after its original, and Studio's automatic order places it about half a timeline away. Each rides its original's own track (`NATIVE_COASTER` in each design file).
+
 ## Current visual fixes
+
+Coaster versions ride a roller-coaster course instead of a straight bore (`coasterTube`, mirrored in `NativeCommon.metal` and `NativeExpansionCommon.metal`). Each pixel's ray is traced against a tube whose centreline winds away ahead of the camera, and the design is handed the wall's own coordinates (the angle around the tube and the depth along it) as the uv a straight tunnel has there, so it keeps drawing its own walls, only on a tube that really bends. The walls stay rigid: they sweep past while the far end swings away around each bend and drops behind the wall on tight turns, the track climbs and dives, and the camera banks into each turn; its view lags the track slightly, so the outer wall swings into view as a turn begins. Each follows its own track at its forward speed (Zoom Speed and the music clock). LED Corridor Coaster and Pixel Tunnel Coaster trace a square tube; Pixel Tunnel Coaster rides at each chunky pixel's centre so its blocks stay square.
 
 Music motion of the expansion designs (200–389) moves their elements, not the picture as a whole, and each design gets one of three styles for its family so neighbouring designs move differently: tunnels wobble (the tube flexes in lobes that roll around it), twist (rings at different depths turn, so lines wind into spirals) or ripple (rings wave in and out as waves run down the bore); flights slither (lanes bend in an S that runs toward the viewer), swell (the ground rolls in waves) or churn; full-frame designs swirl in eddies, roll in waves or flow like liquid. A quarter-second attack swell keeps each beat moving, the music's momentum keeps everything moving between beats, and higher Chaos also raises the gain, so the motion becomes visibly more chaotic as the slider rises (`rhythmicSurface` in `NativeExpansionCommon.metal`). Zero Chaos and silence are unaffected.
 
