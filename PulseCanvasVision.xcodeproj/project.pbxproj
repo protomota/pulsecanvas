@@ -65,6 +65,24 @@
 			"path" = "Sources/PulseCanvas/RadioLibrary.swift";
 			"sourceTree" = "<group>";
 		};
+		"C2CBF2E084321F2ECA296112" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"path" = "Sources/PulseCanvas/StudioStore.swift";
+			"sourceTree" = "<group>";
+		};
+		"4C15E8BE8F01FC4E793E0EE1" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"path" = "Sources/PulseCanvas/SocialExportController.swift";
+			"sourceTree" = "<group>";
+		};
+		"CB8C52BD5C2A06B60EC6768B" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"path" = "Sources/PulseCanvas/SecurityScopedAccess.swift";
+			"sourceTree" = "<group>";
+		};
 		"AEB3E1F4EFCEE89846DDB6F1" = {
 			"isa" = "PBXFileReference";
 			"lastKnownFileType" = "sourcecode.swift";
@@ -95,6 +113,12 @@
 			"path" = "visionOS/VisionProject.swift";
 			"sourceTree" = "<group>";
 		};
+		"E382BFD990FD584F51A98000" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"path" = "visionOS/VisionProjectInterchange.swift";
+			"sourceTree" = "<group>";
+		};
 		"5CBC6EB79F154CE84C2F54E6" = {
 			"isa" = "PBXFileReference";
 			"lastKnownFileType" = "sourcecode.swift";
@@ -111,6 +135,12 @@
 			"isa" = "PBXFileReference";
 			"lastKnownFileType" = "sourcecode.swift";
 			"path" = "visionOS/VisionStudioView.swift";
+			"sourceTree" = "<group>";
+		};
+		"DFFC0D2FA6679F312F11941D" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"path" = "visionOS/VisionVideoExportView.swift";
 			"sourceTree" = "<group>";
 		};
 		"5DE058E997E17FB6E1C96D5F" = {
@@ -176,14 +206,19 @@
 				"3810E7AB9E8DF14917E34477",
 				"60524849AAB9510D72A785E5",
 				"A49A1847A6C656BBBFECDB8E",
+				"C2CBF2E084321F2ECA296112",
+				"4C15E8BE8F01FC4E793E0EE1",
+				"CB8C52BD5C2A06B60EC6768B",
 				"AEB3E1F4EFCEE89846DDB6F1",
 				"89C50894961A786737934E7B",
 				"CD0B7AD613C4E32D4FA778B6",
 				"423B784DC51F6993045C572F",
 				"8319DBF80F0A1AE2BD7EE172",
+				"E382BFD990FD584F51A98000",
 				"5CBC6EB79F154CE84C2F54E6",
 				"1074610367B0B6A094EA470C",
 				"EEFDDCD6F5AB50CA168FA1B8",
+				"DFFC0D2FA6679F312F11941D",
 				"5DE058E997E17FB6E1C96D5F",
 				"C2C9DC46EEABB4403C4F54B6",
 				"74BF9E81D47C493AB795ED7C",
@@ -249,6 +284,18 @@
 			"isa" = "PBXBuildFile";
 			"fileRef" = "A49A1847A6C656BBBFECDB8E";
 		};
+		"711C0F30FD1616D636AA2959" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "C2CBF2E084321F2ECA296112";
+		};
+		"31AACDF3704BA6FDA1C24B2F" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "4C15E8BE8F01FC4E793E0EE1";
+		};
+		"DE69E89DD3EEAAD604860B0B" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "CB8C52BD5C2A06B60EC6768B";
+		};
 		"751BBC7AFA2EC0105700402A" = {
 			"isa" = "PBXBuildFile";
 			"fileRef" = "AEB3E1F4EFCEE89846DDB6F1";
@@ -269,6 +316,10 @@
 			"isa" = "PBXBuildFile";
 			"fileRef" = "8319DBF80F0A1AE2BD7EE172";
 		};
+		"F9D5713DD3AAC240D75CBA9F" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "E382BFD990FD584F51A98000";
+		};
 		"1073493A205D84D7717D3DC3" = {
 			"isa" = "PBXBuildFile";
 			"fileRef" = "5CBC6EB79F154CE84C2F54E6";
@@ -280,6 +331,10 @@
 		"DCBFE6E73C2E763A7A3093F7" = {
 			"isa" = "PBXBuildFile";
 			"fileRef" = "EEFDDCD6F5AB50CA168FA1B8";
+		};
+		"B3C7BF0017EA13F33B0A3ECE" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "DFFC0D2FA6679F312F11941D";
 		};
 		"878A52FC5FF6A57D50B7B870" = {
 			"isa" = "PBXSourcesBuildPhase";
@@ -295,14 +350,19 @@
 				"1857C14A0B38C2D8BBE2A813",
 				"1E4F77C1404DCB61DFAB398B",
 				"437A5D46901E04F456D232F5",
+				"711C0F30FD1616D636AA2959",
+				"31AACDF3704BA6FDA1C24B2F",
+				"DE69E89DD3EEAAD604860B0B",
 				"751BBC7AFA2EC0105700402A",
 				"5D40AE704E511176C5DF5A8E",
 				"9B9C7F1384F6883379FC34D3",
 				"DB74D5BE500089E74A7764DD",
 				"EDD4738D4B7AD97BBAB17E54",
+				"F9D5713DD3AAC240D75CBA9F",
 				"1073493A205D84D7717D3DC3",
 				"D5EA31B0949757348F1FFD2B",
 				"DCBFE6E73C2E763A7A3093F7",
+				"B3C7BF0017EA13F33B0A3ECE",
 			);
 			"runOnlyForDeploymentPostprocessing" = 0;
 		};

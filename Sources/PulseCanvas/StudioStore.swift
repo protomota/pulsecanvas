@@ -81,6 +81,7 @@ struct CreatorProject: Codable {
     var bundledSoundtrack: String? = nil
     // Same-app access on this Mac; other Macs ask the user to locate the track.
     var soundtrackBookmark: Data? = nil
+    var loopPlayback: Bool? = nil
 }
 
 @MainActor

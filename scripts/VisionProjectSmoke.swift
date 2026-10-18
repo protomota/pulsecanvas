@@ -31,6 +31,33 @@ import Foundation
         precondition(segments[0].scene == segments[2].scene && loaded.looks[segments[2].scene]?.chaos == 0.82)
         project.beatBoundaries = nil; project.bpm = 120
         precondition(project.segments(duration: 11).map(\.end) == [8, 10, 11])
+        for bpm in [120.0, 150, 180] {
+            var timed = project
+            timed.bpm = bpm
+            timed.barBoundaries = (0...24).map { Double($0) * 240 / bpm }
+            timed.clips = [VisionClip(scene: scenes[0], bars: 4), VisionClip(scene: scenes[1], bars: 1)]
+            let ids = timed.clips.map(\.id)
+            timed.fitTimeline(duration: 24 * 240 / bpm)
+            precondition(abs(timed.segments(duration: 24 * 240 / bpm)[0].end - 960 / bpm) < 0.00001)
+            precondition(Array(timed.clips.prefix(2)).map(\.id) == ids)
+            for i in timed.clips.indices { timed.clips[i].bars = 1 }
+            timed.fitTimeline(duration: 24 * 240 / bpm)
+            let cuts = timed.segments(duration: 24 * 240 / bpm)
+            precondition(cuts.count == 24 && cuts.last?.end == 24 * 240 / bpm)
+            precondition(cuts.allSatisfy { abs(($0.end - $0.start) - 240 / bpm) < 0.00001 })
+            precondition(Set(timed.clips.map(\.id)).count == timed.clips.count)
+        }
+        var oldLook = try JSONSerialization.jsonObject(with: JSONEncoder().encode(VisionLook(scene: scenes[0]))) as! [String: Any]
+        for key in ["strobeEnabled", "strobeSensitivity", "strobeStrength", "rotation", "motionBlur", "haloCount"] { oldLook.removeValue(forKey: key) }
+        let migratedLook = try JSONDecoder().decode(VisionLook.self, from: JSONSerialization.data(withJSONObject: oldLook))
+        precondition(!migratedLook.strobeEnabled && migratedLook.strobeSensitivity == 1 && migratedLook.isValid)
+        print("PASS 120/150/180 BPM: four bars = 16 beats, one-bar retiming fills song, unique card IDs and appearance migration")
+        var padded = project
+        padded.barBoundaries = [0, 2, 4, 6, 8, 10]
+        padded.clips = [VisionClip(scene: scenes[0], bars: 1), VisionClip(scene: scenes[1], bars: 1)]
+        padded.fitTimeline(duration: 10.05)
+        precondition(padded.segments(duration: 10.05).last?.end == 10.05
+            && StudioTimeline.valid(padded.segments(duration: 10.05), sceneCount: NativeEffects.all.count))
         func rejects(_ mutate: (inout VisionProject) -> Void) {
             var invalid = project; mutate(&invalid)
             do { _ = try invalid.validated(); fatalError("Invalid project accepted") } catch {}
@@ -44,6 +71,7 @@ import Foundation
         rejects { $0.bpm = .nan }
         rejects { $0.beatBoundaries = [0, 1, 0.5] }
         rejects { $0.beatBoundaries = [1, 2] }
+        rejects { $0.barBoundaries = [0] }
         rejects { $0.looks[scenes[0]]?.speed = .infinity }
         rejects { $0.looks[scenes[0]]?.palette = 99 }
         for retired in NativeEffects.all.indices where !scenes.contains(retired) {

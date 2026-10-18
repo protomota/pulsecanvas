@@ -11,6 +11,9 @@ struct VisionStudioView: View {
     @State private var importAudio = false
     @State private var importProject = false
     @State private var exportProject = false
+    @State private var projectData = Data()
+    @State private var locateAudio = false
+    @State private var exportVideo = false
     @State private var changingSpace = false
     @State private var legal = false
 
@@ -33,6 +36,8 @@ struct VisionStudioView: View {
                                 Image(systemName: "visionpro").font(.largeTitle)
                                 Text("Immersive viewing is active").font(.title3)
                             }.frame(maxWidth: .infinity, maxHeight: .infinity)
+                        } else if exportVideo {
+                            Color.clear.frame(maxWidth: .infinity, maxHeight: .infinity)
                         } else { VisualizerView(state: studio.render).frame(maxWidth: .infinity, maxHeight: .infinity) }
                     }
                         .aspectRatio(16.0 / 9, contentMode: .fit)
@@ -41,6 +46,10 @@ struct VisionStudioView: View {
                             if let error = studio.render.errorMessage { Text(error).padding().background(.regularMaterial) }
                         }
                     VisionTransportView(studio: studio, transport: studio.transport, radio: session.radioMode ? session.radio : nil)
+                    if studio.needsSoundtrack {
+                        Button("Locate soundtrack", systemImage: "waveform.badge.plus") { locateAudio = true }
+                            .buttonStyle(.borderedProminent)
+                    }
                     VisionStyleControls(studio: studio)
                 }
             }
@@ -51,7 +60,14 @@ struct VisionStudioView: View {
                 ToolbarItemGroup(placement: .bottomOrnament) {
                     Button("Import audio", systemImage: "waveform.badge.plus") { importAudio = true }.disabled(studio.loading || session.radioMode)
                     Button("Open project", systemImage: "folder") { importProject = true }.disabled(studio.loading || session.radioMode)
-                    Button("Save project", systemImage: "square.and.arrow.up") { exportProject = true }.disabled(session.radioMode)
+                    Button("Save project", systemImage: "square.and.arrow.up") {
+                        do {
+                            projectData = try studio.project.portableData(duration: studio.transport.duration, scene: studio.selectedScene)
+                            exportProject = true
+                        } catch { studio.message = "Couldn't save project: \(error.localizedDescription)" }
+                    }.disabled(session.radioMode || studio.loading || studio.needsSoundtrack)
+                    Button("Export MP4", systemImage: "square.and.arrow.up.on.square") { exportVideo = true }
+                        .disabled(studio.loading || studio.audioURL == nil || session.radioMode)
                     Button("Legal & Credits", systemImage: "info.circle") { legal = true }
                     Spacer()
                     if studio.loading { ProgressView("Analyzing music…") }
@@ -76,6 +92,7 @@ struct VisionStudioView: View {
                     Button("Done") { legal = false }.buttonStyle(.borderedProminent)
                 }.padding(32).frame(width: 700, height: 620)
             }
+            .sheet(isPresented: $exportVideo) { VisionVideoExportView(studio: studio) { exportVideo = false } }
             .task { await session.editor.start() }
             .task(id: session.radioMode) { if session.radioMode { await session.radio.refreshStations() } }
             .onChange(of: phase) { _, phase in if phase == .background && !session.immersiveActive { session.suspend() } }
@@ -86,14 +103,20 @@ struct VisionStudioView: View {
                 }
             }
             .onOpenURL { openProject($0) }
-            .fileImporter(isPresented: $importProject, allowedContentTypes: [.pulseVision, .json]) { result in
+            .fileImporter(isPresented: $locateAudio, allowedContentTypes: [.audio]) { result in
+                switch result {
+                case .success(let url): Task { await studio.importAudio(url, generateTimeline: false) }
+                case .failure(let error): studio.message = error.localizedDescription
+                }
+            }
+            .fileImporter(isPresented: $importProject, allowedContentTypes: [.pulseCanvas, .pulseVision, .json]) { result in
                 switch result {
                 case .success(let url): openProject(url)
                 case .failure(let error): studio.message = error.localizedDescription
                 }
             }
-            .fileExporter(isPresented: $exportProject, document: VisionProjectDocument(project: studio.project),
-                contentType: .pulseVision, defaultFilename: "PulseCanvas Studio") { result in
+            .fileExporter(isPresented: $exportProject, document: VisionProjectDocument(data: projectData),
+                contentType: .pulseCanvas, defaultFilename: "PulseCanvas Studio") { result in
                     if case .failure(let error) = result { studio.message = error.localizedDescription }
                 }
             .alert("PulseCanvas Studio", isPresented: Binding(get: { studio.message != nil }, set: { if !$0 { studio.message = nil } })) {
@@ -133,7 +156,7 @@ struct VisionStudioView: View {
         do {
             guard (try url.resourceValues(forKeys: [.fileSizeKey]).fileSize ?? Int.max) < 4_000_000 else { throw CocoaError(.fileReadCorruptFile) }
             let data = try Data(contentsOf: url)
-            let project = try JSONDecoder().decode(VisionProject.self, from: data).validated()
+            let project = try VisionProject.openPortable(data)
             Task { await studio.replaceProject(project) }
         } catch { studio.message = error.localizedDescription }
     }
@@ -234,16 +257,18 @@ private struct VisionTransportView: View {
     var radio: VisionRadio?
     var body: some View {
         VStack(spacing: 8) {
+          Text(studio.project.audioTitle).font(.headline).lineLimit(1)
+              .frame(maxWidth: .infinity, alignment: .leading)
           HStack(spacing: 16) {
             Button { if let radio { radio.togglePlayback() } else { studio.togglePlayback() } } label: {
                 Image(systemName: transport.playing ? "pause.fill" : "play.fill").frame(width: 32, height: 32)
             }.buttonStyle(.borderedProminent).disabled(studio.loading || transport.duration <= 0)
-            VStack(alignment: .leading) {
-                Text(studio.project.audioTitle).font(.headline).lineLimit(1)
-                Slider(value: Binding(get: { transport.seconds }, set: { studio.seek($0) }),
-                    in: 0...max(1, transport.duration)).accessibilityLabel("Soundtrack position")
-            }
             Text(Duration.seconds(transport.seconds).formatted(.time(pattern: .minuteSecond)))
+                .monospacedDigit().frame(width: 60)
+            Slider(value: Binding(get: { transport.seconds }, set: { studio.seek($0) }),
+                in: 0...max(1, transport.duration)).accessibilityLabel("Soundtrack position")
+                .disabled(studio.loading || studio.needsSoundtrack || transport.duration <= 0)
+            Text(Duration.seconds(transport.duration).formatted(.time(pattern: .minuteSecond)))
                 .monospacedDigit().frame(width: 60)
             Image(systemName: studio.volume == 0 ? "speaker.slash.fill" : "speaker.wave.2.fill")
             Slider(value: $studio.volume, in: 0...1).frame(width: 110).accessibilityLabel("Volume")
@@ -280,6 +305,9 @@ private struct VisionStyleControls: View {
                 control("Zoom speed", binding: value(\.zoomSpeed), range: 0...3)
                 control("Motion speed", binding: value(\.speed), range: 0...3)
             }
+            Toggle("Hi-hat strobe", isOn: Binding(get: { look.strobeEnabled }, set: { enabled in
+                studio.updateLook(for: clipID) { $0.strobeEnabled = enabled }
+            }))
             if studio.immersiveActive && clipID == nil {
                 HStack(spacing: 24) {
                     control("Screen distance", binding: $studio.screenDistance, range: 2...5)
@@ -299,12 +327,15 @@ private struct VisionStyleControls: View {
 
 private struct VisionTimelineView: View {
     @ObservedObject var studio: VisionStudio
+    @State private var applying = false
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
                 Label("Studio", systemImage: "rectangle.split.3x1").font(.headline)
                 Text("\(studio.project.clips.count) sections · \(Int(studio.project.bpm)) BPM").foregroundStyle(.secondary)
                 Spacer()
+                Button("Apply to all", systemImage: "slider.horizontal.3") { applying = true }
+                    .disabled(studio.loading || studio.needsSoundtrack || studio.transport.duration <= 0)
             }
             ScrollView(.horizontal) {
                 LazyHStack(spacing: 12) {
@@ -313,6 +344,78 @@ private struct VisionTimelineView: View {
                     }
                 }
             }.frame(height: 160)
+        }.sheet(isPresented: $applying) { VisionApplySettings(studio: studio) { applying = false } }
+    }
+}
+
+private struct VisionApplySettings: View {
+    @ObservedObject var studio: VisionStudio
+    let close: () -> Void
+    @State private var includeBars = false
+    @State private var bars = 4
+    @State private var includeChaos = false
+    @State private var chaos: Float = 0.5
+    @State private var includeZoom = false
+    @State private var zoom: Float = 1.5
+    @State private var includeSpeed = false
+    @State private var speed: Float = 1
+    @State private var strobe = 0
+    @State private var sensitivity: Float = 1
+    @State private var strength: Float = 1
+    var body: some View {
+        VStack(alignment: .leading, spacing: 20) {
+            Label("Apply settings to all", systemImage: "slider.horizontal.3").font(.title2.bold())
+            Text("Apply selected settings to every visualizer and Studio section. Other settings stay unchanged.")
+                .foregroundStyle(.secondary)
+            ScrollView {
+                VStack(alignment: .leading, spacing: 22) {
+                    Toggle("Bars per section", isOn: $includeBars)
+                    Stepper("\(bars) \(bars == 1 ? "bar" : "bars")", value: $bars, in: 1...64).disabled(!includeBars)
+                    Divider()
+                    setting("Chaos", included: $includeChaos, value: $chaos, range: 0...1)
+                    setting("Zoom speed", included: $includeZoom, value: $zoom, range: 0...3)
+                    setting("Motion speed", included: $includeSpeed, value: $speed, range: 0.05...3)
+                    Divider()
+                    Text("Hi-hat strobe").font(.headline)
+                    Picker("Hi-hat strobe", selection: $strobe) {
+                        Text("Keep unchanged").tag(0); Text("Add to all").tag(1); Text("Remove from all").tag(2)
+                    }.pickerStyle(.segmented)
+                    VStack(alignment: .leading) {
+                        Text("Sensitivity · \(sensitivity, specifier: "%.2f")")
+                        Slider(value: $sensitivity, in: 0.25...4).accessibilityLabel("Strobe sensitivity")
+                        Text("Strength · \(strength, specifier: "%.2f")")
+                        Slider(value: $strength, in: 0.1...1).accessibilityLabel("Strobe strength")
+                    }.disabled(strobe != 1)
+                }.padding(.trailing, 12)
+            }.scrollIndicators(.visible)
+            HStack {
+                Button("Cancel", action: close)
+                Spacer()
+                Button("Apply selected settings") {
+                    studio.applyCommonSettings(VisionCommonSettings(bars: includeBars ? bars : nil,
+                        chaos: includeChaos ? chaos : nil, zoomSpeed: includeZoom ? zoom : nil,
+                        motionSpeed: includeSpeed ? speed : nil,
+                        strobeEnabled: strobe == 0 ? nil : strobe == 1,
+                        strobeSensitivity: strobe == 1 ? sensitivity : nil,
+                        strobeStrength: strobe == 1 ? strength : nil))
+                    close()
+                }.buttonStyle(.borderedProminent)
+                    .disabled(!includeBars && !includeChaos && !includeZoom && !includeSpeed && strobe == 0)
+            }
+        }.padding(28).frame(width: 660, height: 720)
+            .onAppear {
+                bars = studio.project.clips[studio.selectedIndex].bars
+                chaos = studio.look.chaos; zoom = studio.look.zoomSpeed; speed = studio.look.speed
+                sensitivity = studio.look.strobeSensitivity; strength = studio.look.strobeStrength
+            }
+    }
+    private func setting(_ title: String, included: Binding<Bool>, value: Binding<Float>, range: ClosedRange<Float>) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Toggle(title, isOn: included)
+            HStack {
+                Slider(value: value, in: range).accessibilityLabel(title)
+                Text(value.wrappedValue, format: .number.precision(.fractionLength(2))).monospacedDigit().frame(width: 50)
+            }.disabled(!included.wrappedValue)
         }
     }
 }

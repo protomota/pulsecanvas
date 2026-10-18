@@ -636,7 +636,7 @@ struct CreatorView: View {
         guard picker.runModal() == .OK, let url = picker.url else { return }
         studio.save(render)
         let bundledSoundtrack = BundledSoundtrack.identifier(for: audio.selectedURL)
-        let project = CreatorProject(soundtrack: bundledSoundtrack == nil ? audio.selectedURL : nil, scene: render.scene, appearance: studio.preset(render), aspect: exporter.aspect.rawValue, resolution: exporter.resolution, fps: exporter.fps, timeline: studio.segments, studioEnabled: studio.isStudio, visualPresets: studio.presets, barsPerSection: studio.barsPerSection, effectIdentities: presetLibrary.identities(for: Set(studio.presets.keys).union(studio.segments.map(\.scene)).union([render.scene])), bundledSoundtrack: bundledSoundtrack, soundtrackBookmark: audio.soundtrackBookmark)
+        let project = CreatorProject(soundtrack: bundledSoundtrack == nil ? audio.selectedURL : nil, scene: render.scene, appearance: studio.preset(render), aspect: exporter.aspect.rawValue, resolution: exporter.resolution, fps: exporter.fps, timeline: studio.segments, studioEnabled: studio.isStudio, visualPresets: studio.presets, barsPerSection: studio.barsPerSection, effectIdentities: presetLibrary.identities(for: Set(studio.presets.keys).union(studio.segments.map(\.scene)).union([render.scene])), bundledSoundtrack: bundledSoundtrack, soundtrackBookmark: audio.soundtrackBookmark, loopPlayback: audio.loopEnabled)
         do { let encoder = JSONEncoder(); encoder.outputFormatting = [.prettyPrinted, .sortedKeys]; try encoder.encode(project).write(to: url, options: .atomic); message = "Project saved" }
         catch { message = "Cannot save project: \(error.localizedDescription)" }
     }
@@ -673,6 +673,7 @@ struct CreatorView: View {
             studio.selectedSegment = 0
             studio.barsPerSection = project.barsPerSection ?? 4
             exporter.aspect = aspect; exporter.resolution = project.resolution; exporter.fps = project.fps
+            if let loop = project.loopPlayback { audio.loopEnabled = loop }
             studio.detectedBPM = audio.segmentPlan(beatsPerSection: studio.beatsPerSection)?.bpm
             studio.follow(time: audio.playbackSeconds, render: render)
             message = "Project opened"

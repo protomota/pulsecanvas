@@ -39,13 +39,35 @@ no projectM engine, community presets/textures or Sparkle updater.
   visualizer favorite, Radio next-track, and edge-smoothing controls.
 - Ordinary backgrounding pauses playback; hiding Studio for an active immersive
   view does not interrupt its audio.
-- Save/open `.pulsevision` project backups. The app also autosaves locally.
+- **Apply to all** in Studio changes selected common settings: bar lengths,
+  Chaos, zoom/motion speed, and hi-hat strobe enable/remove/sensitivity/strength.
+  Unselected fields keep their own values. Shortening sections fills the whole
+  song with additional cards; longer sections trim the tail.
+- Transport play, elapsed time, scrubber, duration and volume share one center line.
+- Save/open Mac-compatible `.pulsecanvas` projects. Older `.pulsevision` backups
+  still open. The app also autosaves locally.
+- **Export MP4** renders the complete Studio soundtrack/timeline, with wide,
+  landscape, portrait, phone or square framing, 720/1080/2160-pixel shorter edge and
+  24/30/60 fps. A progress preview, frame counter and time estimate appear while
+  rendering; **Save video** then opens Files to choose a destination. Cancelling
+  the save picker keeps the rendered file available until the export sheet closes.
 
 Audio imports are copied into this app's Documents directory. Project backups
 contain settings and a local audio reference, not the audio itself. Moving a
-project to another device requires importing the soundtrack there. Missing audio
-falls back to the demo with an explanation. The prototype's document format is
-separate from Mac `.pulsecanvas` projects.
+project to another device requires locating the soundtrack there using **Locate
+soundtrack**; the imported cuts/settings stay intact. The bundled demo resolves
+automatically on either device. Mac project imports preserve exact cuts, native
+effect identities, visual settings and export-format settings. Unsupported
+community effects are rejected with an explanation. Save again on Vision to
+produce the same Codable project format that Mac opens. A Mac security bookmark
+does not grant file access on another device. This is file exchange, not automatic
+cloud synchronization.
+
+Studio now uses `segmentPlan(beatsPerSection: 4)`, the same bar grid Mac uses for
+per-card and Apply-to-all timing. Four bars consume four bar-grid intervals
+(16 beats), rather than indexing a thinned one-beat plan. At 120 BPM that is about
+8 seconds; at 150 BPM it is about 6.4 seconds. Existing native Vision sessions
+re-analyze the audio and migrate their grid while preserving visualizer choices.
 
 ## Build and run locally
 
@@ -55,6 +77,7 @@ simulator runtime. The deployment target is visionOS 2.0; validation used Xcode
 
 ```sh
 bash scripts/test-vision-project.sh
+PULSECANVAS_VALIDATION_OUTPUT="/path/to/render-drive/vision-validation" bash scripts/test-vision-interchange-export.sh
 bash scripts/test-vision-transport.sh
 bash scripts/test-vision-presentation.sh
 bash scripts/build-visionos.sh xrsimulator
@@ -102,8 +125,8 @@ visible preview do not establish those results.
 
 This is an early test target, not a production App Store release. Distribution
 uses the existing PulseCanvas app record and bundle ID `com.protomota.pulsecanvas`. MP4
-export, Mac document interoperability and production store
-submission are not included. The native shaders currently
+export and Mac-native project exchange are included starting with build 4;
+production store submission is not included. The native shaders currently
 render a 2D screen in 3D space; they are not volumetric environments. The immersive
 screen renders at 1920×1080, attempting a new frame every 17 ms. The actual rate
 depends on the effect and GPU: at most one GPU frame is in flight, and busy frames

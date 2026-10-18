@@ -22,6 +22,7 @@ private struct VisionAnalysis: @unchecked Sendable { let value: SoundtrackAnalyz
     @Published private(set) var project = VisionProject() { didSet { timelineCache = nil } }
     @Published var selected: UUID?
     @Published private(set) var loading = false
+    @Published private(set) var needsSoundtrack = false
     @Published var message: String?
     @Published var immersiveActive = false
     @Published var screenDistance: Float = 3
@@ -30,6 +31,7 @@ private struct VisionAnalysis: @unchecked Sendable { let value: SoundtrackAnalyz
     let render = RenderState()
     let transport = VisionTransport()
     private var player: AVAudioPlayer?
+    private(set) var audioURL: URL?
     private var analyzer: SoundtrackAnalyzer?
     private var ticker: AnyCancellable?
     private var currentScene: Int?
@@ -87,13 +89,18 @@ private struct VisionAnalysis: @unchecked Sendable { let value: SoundtrackAnalyz
         guard force || !started else { return }; started = true
         if let file = project.audioFile, FileManager.default.fileExists(atPath: directory.appendingPathComponent(file).path) {
             await loadAudio(directory.appendingPathComponent(file), generateTimeline: false)
+        } else if project.externalAudioURL != nil || project.audioFile != nil {
+            player = nil; audioURL = nil
+            transport.duration = project.importedTimeline?.last?.end ?? project.barBoundaries?.last ?? project.beatBoundaries?.last ?? 0
+            transport.seconds = 0; timelineCache = nil; needsSoundtrack = true
         } else if let bundled = Bundle.main.url(forResource: "PulseCanvas", withExtension: "mp3", subdirectory: "NativeAssets/Audio") {
-            if project.audioFile != nil { message = "Import this project's soundtrack again. Audio files aren't embedded in project backups." }
-            await loadAudio(bundled, generateTimeline: project.clips.count == 1)
+            let newSession = project.clips.count == 1 && project.barBoundaries == nil && project.beatBoundaries == nil
+                && project.importedTimeline == nil && project.macProject == nil
+            await loadAudio(bundled, generateTimeline: newSession)
         }
     }
 
-    func importAudio(_ url: URL) async {
+    func importAudio(_ url: URL, generateTimeline: Bool = true) async {
         let access = url.startAccessingSecurityScopedResource()
         defer { if access { url.stopAccessingSecurityScopedResource() } }
         do {
@@ -101,10 +108,11 @@ private struct VisionAnalysis: @unchecked Sendable { let value: SoundtrackAnalyz
             let destination = directory.appendingPathComponent(name)
             try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
             try FileManager.default.copyItem(at: url, to: destination)
-            guard await loadAudio(destination, generateTimeline: true) else {
+            guard await loadAudio(destination, generateTimeline: generateTimeline) else {
                 try? FileManager.default.removeItem(at: destination); return
             }
-            project.audioFile = name; project.audioTitle = url.deletingPathExtension().lastPathComponent; save()
+            project.audioFile = name; project.audioTitle = url.deletingPathExtension().lastPathComponent
+            project.externalAudioURL = url; save()
         } catch { message = error.localizedDescription }
     }
 
@@ -116,22 +124,31 @@ private struct VisionAnalysis: @unchecked Sendable { let value: SoundtrackAnalyz
             guard revision == token else { return false }
             let next = try AVAudioPlayer(contentsOf: url)
             guard next.duration.isFinite, next.duration > 0 else { throw CocoaError(.fileReadCorruptFile) }
+            if !generateTimeline, let end = project.importedTimeline?.last?.end, next.duration + 0.05 < end {
+                throw ProjectMError("This soundtrack is shorter than the saved timeline. Locate the original song, or import new audio to start a new timeline.")
+            }
             next.numberOfLoops = audioLoopCount
             next.delegate = completion
             next.prepareToPlay(); next.volume = volume
-            player?.stop(); player = next; analyzer = prepared.value
+            player?.stop(); player = next; analyzer = prepared.value; audioURL = url; needsSoundtrack = false
             transport.duration = next.duration; timelineCache = nil; transport.seconds = 0; transport.playing = false
             let plan = prepared.value.segmentPlan()
-            project.beatBoundaries = prepared.value.segmentPlan(beatsPerSection: 1).boundaries
+            let barPlan = prepared.value.segmentPlan(beatsPerSection: 4)
+            project.barBoundaries = barPlan.boundaries
+            project.beatBoundaries = nil
+            project.bpm = min(300, max(20, barPlan.bpm ?? 120))
             let choices = self.library.pool.enabled ? self.library.eligibleScenes : NativeEffects.timelineOrder
-            if generateTimeline && !choices.isEmpty {
-                project.bpm = min(300, max(20, plan.bpm ?? 120))
+            if generateTimeline {
+                let sequence = choices.isEmpty ? [selectedScene] : choices
+                project.importedTimeline = nil
+                project.externalAudioURL = nil
                 project.clips = plan.boundaries.dropLast().enumerated().map {
-                    VisionClip(scene: choices[$0.offset % choices.count])
+                    VisionClip(scene: sequence[$0.offset % sequence.count])
                 }
                 if project.clips.isEmpty { project.clips = [VisionClip(scene: NativeEffects.defaultScene)] }
-                project.clips = Array(project.clips.prefix(500)); selected = project.clips.first?.id
+                selected = project.clips.first?.id
             }
+            if project.importedTimeline == nil { project.fitTimeline(duration: next.duration) }
             applyAppearance(); save(); tick(); return true
         } catch { if revision == token { message = error.localizedDescription }; return false }
     }
@@ -222,17 +239,46 @@ private struct VisionAnalysis: @unchecked Sendable { let value: SoundtrackAnalyz
     }
     func bars(_ value: Int, clip: UUID) {
         guard let i = project.clips.firstIndex(where: { $0.id == clip }), (1...64).contains(value) else { return }
-        project.clips[i].bars = value; save(); tick()
+        project.importedTimeline = nil
+        project.clips[i].bars = value; project.fitTimeline(duration: transport.duration)
+        followTimingChange(); save()
+    }
+    func applyCommonSettings(_ settings: VisionCommonSettings) {
+        guard settings.isValid else { return }
+        var next = project
+        if let bars = settings.bars {
+            next.importedTimeline = nil
+            for index in next.clips.indices { next.clips[index].bars = bars }
+            next.fitTimeline(duration: transport.duration)
+        }
+        for scene in NativeEffects.activeIDs {
+            var look = next.looks[scene] ?? VisionLook(scene: scene)
+            if let value = settings.chaos { look.chaos = value }
+            if let value = settings.zoomSpeed { look.zoomSpeed = value }
+            if let value = settings.motionSpeed { look.speed = value }
+            if let value = settings.strobeEnabled { look.strobeEnabled = value }
+            if let value = settings.strobeSensitivity { look.strobeSensitivity = value }
+            if let value = settings.strobeStrength { look.strobeStrength = value }
+            if look != (next.looks[scene] ?? VisionLook(scene: scene)) { next.looks[scene] = look }
+        }
+        project = next; followTimingChange(); applyAppearance(); save()
+    }
+    private func followTimingChange() {
+        if let index = StudioTimeline.index(at: transport.seconds, in: segments), project.clips.indices.contains(index) {
+            selected = project.clips[index].id; applyAppearance()
+        }
     }
     func addClip() {
-        guard project.clips.count < 500 else { return }
+        guard project.clips.count < 10_000 else { return }
         guard let next = self.library.eligibleScenes.first(where: { $0 != selectedScene }) ?? self.library.eligibleScenes.first else { return }
         let clip = VisionClip(scene: next); project.clips.insert(clip, at: selectedIndex + 1); selected = clip.id
+        project.importedTimeline = nil
         applyAppearance(); save()
     }
     func removeClip() {
         guard project.clips.count > 1 else { return }
         let index = selectedIndex; project.clips.remove(at: index)
+        project.importedTimeline = nil
         selected = project.clips[min(index, project.clips.count - 1)].id; applyAppearance(); save()
     }
     func moveClip(_ offset: Int) {
@@ -245,13 +291,20 @@ private struct VisionAnalysis: @unchecked Sendable { let value: SoundtrackAnalyz
         catch { message = error.localizedDescription }
     }
     func suspend() { player?.pause(); transport.playing = false; render.paused = true }
+    func saveExportFormat(aspect: String, resolution: Int, fps: Int) {
+        guard [720, 1080, 2160].contains(resolution), [24, 30, 60].contains(fps) else { return }
+        project.exportAspect = aspect; project.exportResolution = resolution; project.exportFPS = fps; save()
+    }
 
     private func applyAppearance() {
         let look = self.look
         render.scene = selectedScene; currentScene = selectedScene
         render.speed = look.speed; render.zoomSpeed = look.zoomSpeed; render.chaos = look.chaos
         render.brightness = look.brightness; render.particleSize = look.size; render.liquidDetail = look.detail
-        render.fog = look.fog; render.zoom = look.zoom; render.palette = look.palette; render.strobeEnabled = false
+        render.fog = look.fog; render.zoom = look.zoom; render.palette = look.palette
+        render.strobeEnabled = look.strobeEnabled; render.strobeSensitivity = look.strobeSensitivity
+        render.strobeStrength = look.strobeStrength
+        render.rotation = look.rotation; render.motionBlur = look.motionBlur; render.haloCount = look.haloCount
     }
     private func tick() {
         guard let player else { return }

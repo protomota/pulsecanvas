@@ -32,7 +32,13 @@ enum SocialAspect: String, CaseIterable, Identifiable {
 
 @MainActor
 final class SocialExportController: ObservableObject {
+    #if os(visionOS)
+    static let supportedFrameRates = [24, 30, 60]
+    private static let supportedResolutions = [720, 1080, 2160]
+    #else
     static let supportedFrameRates = [24, 30, 60, 120]
+    private static let supportedResolutions = [720, 1080, 2160]
+    #endif
     @Published var aspect: SocialAspect = .wide { didSet { persistSettings() } }
     @Published var resolution = 1080 { didSet { persistSettings() } }
     @Published var fps = 30 { didSet { persistSettings() } }
@@ -55,7 +61,7 @@ final class SocialExportController: ObservableObject {
     /// The app defaults to its sandbox temporary area, as required by NSSavePanel access.
     init(scratchDirectory: URL = FileManager.default.temporaryDirectory) {
         self.scratchDirectory = scratchDirectory
-        if let data = UserDefaults.standard.data(forKey: preferencesKey), let saved = try? JSONDecoder().decode(FormatSettings.self, from: data), let aspect = SocialAspect(rawValue: saved.aspect), [720, 1080, 2160].contains(saved.resolution), Self.supportedFrameRates.contains(saved.fps) {
+        if let data = UserDefaults.standard.data(forKey: preferencesKey), let saved = try? JSONDecoder().decode(FormatSettings.self, from: data), let aspect = SocialAspect(rawValue: saved.aspect), Self.supportedResolutions.contains(saved.resolution), Self.supportedFrameRates.contains(saved.fps) {
             self.aspect = aspect; self.resolution = saved.resolution; self.fps = saved.fps
         }
     }
@@ -91,8 +97,12 @@ final class SocialExportController: ObservableObject {
         do {
             await Task.yield()
             guard StudioTimeline.valid(segments, sceneCount: RenderState.sceneNames.count) else { throw ExportError("Studio timeline is invalid") }
-            guard Self.supportedFrameRates.contains(frameRate), [720, 1080, 2160].contains(resolution) else {
+            guard Self.supportedFrameRates.contains(frameRate), Self.supportedResolutions.contains(resolution) else {
+                #if os(visionOS)
+                throw ExportError("Choose 720p, 1080p, or 4K and 24, 30, or 60 fps")
+                #else
                 throw ExportError("Choose 720p, 1080p, or 4K and 24, 30, 60, or 120 fps (Experimental)")
+                #endif
             }
             guard audioURL?.standardizedFileURL != destination.standardizedFileURL else {
                 throw ExportError("The output file must differ from the soundtrack")
@@ -163,15 +173,19 @@ final class SocialExportController: ObservableObject {
                               duration: Double, dimensions: (width: Int, height: Int), fps: Int, to url: URL, segments: [StudioSegment], appearances: [Int: VisualPreset]) async throws {
         let writer = try AVAssetWriter(outputURL: url, fileType: .mp4)
         let bitrate = min(24_000_000, max(4_000_000, dimensions.width * dimensions.height * fps / 7))
-        let input = AVAssetWriterInput(mediaType: .video, outputSettings: [
+        var settings: [String: Any] = [
             AVVideoCodecKey: AVVideoCodecType.h264,
-            AVVideoEncoderSpecificationKey: [kVTVideoEncoderSpecification_EnableHardwareAcceleratedVideoEncoder as String: true],
             AVVideoWidthKey: dimensions.width, AVVideoHeightKey: dimensions.height,
             AVVideoCompressionPropertiesKey: [AVVideoAverageBitRateKey: bitrate,
                                                AVVideoExpectedSourceFrameRateKey: fps,
                                                AVVideoMaxKeyFrameIntervalKey: fps * 2,
                                                AVVideoProfileLevelKey: AVVideoProfileLevelH264HighAutoLevel]
-        ])
+        ]
+        #if os(macOS)
+        settings[AVVideoEncoderSpecificationKey] = [kVTVideoEncoderSpecification_EnableHardwareAcceleratedVideoEncoder as String: true]
+        #endif
+        // visionOS selects its encoder internally; the macOS specification key is unavailable there.
+        let input = AVAssetWriterInput(mediaType: .video, outputSettings: settings)
         input.expectsMediaDataInRealTime = false
         let adaptor = AVAssetWriterInputPixelBufferAdaptor(assetWriterInput: input, sourcePixelBufferAttributes: [
             kCVPixelBufferPixelFormatTypeKey as String: kCVPixelFormatType_32BGRA,

@@ -13,7 +13,40 @@ import CryptoKit
         studio.volume = 0
         await studio.importAudio(URL(fileURLWithPath: "Sources/PulseCanvas/Resources/Audio/PulseCanvas.mp3"))
         precondition(studio.message == nil && studio.transport.duration > 30 && !studio.loading)
-        precondition(studio.project.clips.count > 1 && studio.project.beatBoundaries != nil)
+        precondition(studio.project.clips.count > 1 && studio.project.barBoundaries != nil)
+        let analyzer = try SoundtrackAnalyzer(url: URL(fileURLWithPath: "Sources/PulseCanvas/Resources/Audio/PulseCanvas.mp3"))
+        let macGrid = analyzer.segmentPlan(beatsPerSection: 4)
+        precondition(studio.project.barBoundaries == macGrid.boundaries)
+        precondition(studio.segments[0].end == macGrid.boundaries[4])
+        let defaultMacCuts = Array(analyzer.segmentPlan().boundaries.dropFirst())
+        precondition(studio.segments.count == defaultMacCuts.count
+                     && zip(studio.segments.map(\.end), defaultMacCuts).allSatisfy { abs($0 - $1) < 0.001 },
+                     "The default four-bar timing must match Mac's 16-beat section plan")
+        let untouched = studio.project.looks
+        studio.applyCommonSettings(VisionCommonSettings(bars: 1))
+        precondition(studio.project.looks == untouched && studio.project.clips.allSatisfy { $0.bars == 1 })
+        precondition(studio.segments.map(\.end) == Array(macGrid.boundaries.dropFirst()))
+        studio.seek(macGrid.boundaries[1] - 0.1); studio.togglePlayback()
+        try await Task.sleep(for: .milliseconds(350))
+        precondition(studio.selectedIndex == 1 && studio.transport.playing)
+        studio.applyCommonSettings(VisionCommonSettings(chaos: 0.72, zoomSpeed: 2, motionSpeed: 1.2,
+            strobeEnabled: true, strobeSensitivity: 1.7, strobeStrength: 0.4))
+        precondition(studio.transport.playing && NativeEffects.activeIDs.allSatisfy {
+            let look = studio.project.looks[$0]!
+            return look.chaos == 0.72 && look.zoomSpeed == 2 && look.speed == 1.2 && look.strobeEnabled && look.strobeStrength == 0.4
+                && look.palette == VisionLook(scene: $0).palette
+        })
+        let beforeRemoval = studio.look
+        studio.applyCommonSettings(VisionCommonSettings(strobeEnabled: false))
+        precondition(!studio.render.strobeEnabled && studio.look.chaos == beforeRemoval.chaos && studio.look.strobeSensitivity == 1.7)
+        let beforeInvalid = studio.project.clips
+        studio.applyCommonSettings(VisionCommonSettings(bars: 0, chaos: .nan))
+        precondition(studio.project.clips == beforeInvalid)
+        studio.suspend()
+        studio.applyCommonSettings(VisionCommonSettings(bars: 4))
+        studio.seek(0); studio.select(studio.project.clips[0])
+        precondition(studio.segments.last?.end == studio.transport.duration)
+        print("PASS Mac timing parity: identical bar grid, one-bar live scene switch, four-bar refill, selective apply-all/strobe removal/invalid input")
         let first = studio.project.clips[0]
         studio.bars(2, clip: first.id)
         precondition(studio.project.clips[0].bars == 2)
@@ -143,6 +176,21 @@ import CryptoKit
         precondition(editorAfter == editorBefore,
                      "Radio must never overwrite the user's Studio session")
         print("PASS Vision Radio: station JSON, verified audio, autoplay next track, mode switching and independent Studio storage")
+        let portable = VisionStudio(directory: directory.appendingPathComponent("Portable"), library: presets)
+        portable.volume = 0
+        var incoming = VisionProject()
+        incoming.clips = [VisionClip(scene: 22, bars: 1), VisionClip(scene: otherScenes[1], bars: 4)]
+        incoming.looks[22] = VisionLook(scene: 22); incoming.looks[22]!.chaos = 0.37
+        incoming.externalAudioURL = URL(fileURLWithPath: "/Missing/Track.wav")
+        incoming.importedTimeline = [StudioSegment(start: 0, end: 1.5, scene: 22, bars: 1),
+            StudioSegment(start: 1.5, end: studio.transport.duration, scene: otherScenes[1], bars: 4)]
+        await portable.replaceProject(incoming)
+        precondition(portable.needsSoundtrack && portable.audioURL == nil && portable.project.clips == incoming.clips)
+        await portable.importAudio(URL(fileURLWithPath: "Sources/PulseCanvas/Resources/Audio/PulseCanvas.mp3"), generateTimeline: false)
+        precondition(!portable.needsSoundtrack && portable.audioURL != nil && portable.project.clips == incoming.clips)
+        precondition(portable.look(for: incoming.clips[0].id)?.chaos == 0.37
+            && portable.segments.map(\.end) == incoming.importedTimeline!.map(\.end))
+        print("PASS portable project audio relocation: missing audio waits without demo substitution; locating the song preserves exact cuts, card IDs and looks")
         print("PASS loop boundary/restart, loop persistence, category/favorites cascade, empty/single pools and independent style dice")
         print("PASS Vision transport: actual soundtrack import/analysis, per-scene bars, shared appearance, add/move/remove, seek, playback clock/audio bands, pause and autosave restoration")
     }
