@@ -7,7 +7,6 @@ struct CreatorThanksView: View {
     let done: () -> Void
     @Environment(\.openURL) private var openURL
     @State private var shareAnchor = NSView()
-    @State private var sharePicker: NSSharingServicePicker?
     @State private var didReset = false
     private var offersWebsiteTip: Bool { engagement.offersWebsiteTip }
     private let peach = Color(red: 0.95, green: 0.68, blue: 0.55)
@@ -51,10 +50,11 @@ struct CreatorThanksView: View {
                     }.buttonStyle(StudioButtonStyle())
                 }
                 Button {
+                    let anchor = shareAnchor.window?.sheetParent?.contentView ?? NSApp.mainWindow?.contentView ?? shareAnchor
                     engagement.recordClick(.share)
                     didReset = false
-                    sharePicker = NSSharingServicePicker(items: [PulseCanvasCommunity.website])
-                    sharePicker?.show(relativeTo: shareAnchor.bounds, of: shareAnchor, preferredEdge: .minY)
+                    done()
+                    CommunitySharePresenter.shared.show(from: anchor)
                 } label: {
                     action("Share PulseCanvas", detail: "Help another music lover find their next visual", icon: "square.and.arrow.up", kind: .share)
                 }.buttonStyle(StudioButtonStyle()).background(CommunityShareAnchor(view: shareAnchor))
@@ -90,6 +90,7 @@ struct CreatorThanksView: View {
         engagement.recordClick(kind)
         didReset = false
         openURL(url)
+        done()
     }
 
     private func action(_ title: String, detail: String, icon: String, kind: CreatorEngagement.Action, primary: Bool = false) -> some View {
@@ -111,4 +112,21 @@ private struct CommunityShareAnchor: NSViewRepresentable {
     let view: NSView
     func makeNSView(context: Context) -> NSView { view }
     func updateNSView(_ nsView: NSView, context: Context) {}
+}
+
+/// Keep the native share picker alive after the reminder sheet is dismissed.
+@MainActor private final class CommunitySharePresenter: NSObject, NSSharingServicePickerDelegate {
+    static let shared = CommunitySharePresenter()
+    private var picker: NSSharingServicePicker?
+    func show(from anchor: NSView) {
+        DispatchQueue.main.async { [self] in
+            let picker = NSSharingServicePicker(items: [PulseCanvasCommunity.website])
+            self.picker = picker
+            picker.delegate = self
+            picker.show(relativeTo: anchor.bounds, of: anchor, preferredEdge: .minY)
+        }
+    }
+    func sharingServicePicker(_ sharingServicePicker: NSSharingServicePicker, didChoose service: NSSharingService?) {
+        picker = nil
+    }
 }

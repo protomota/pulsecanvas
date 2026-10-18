@@ -48,7 +48,7 @@ import Foundation
         precondition(!state.hasClicked(.tip) && !state.hasClicked(.share) && !state.hasClicked(.feedback))
         state.videoSaved()
         #if !STORE_BUILD
-        precondition(state.pendingExportThanks) // One action doesn't finish all four.
+        precondition(!state.pendingExportThanks) // Any one action finishes the reminder.
         #endif
         for action in state.availableActions { state.recordClick(action) }
         state = CreatorEngagement(preferences: preferences)
@@ -81,7 +81,7 @@ import Foundation
         #if STORE_BUILD
         precondition(!state.pendingExportThanks && !state.presentExportThanks())
         #else
-        precondition(state.pendingExportThanks)
+        precondition(!state.pendingExportThanks)
         #endif
 
         // Migrate old save milestones without inventing click/completion history.
@@ -131,7 +131,14 @@ import Foundation
         precondition(!otherRadioWindow.presentRadioThanks() && !otherRadioWindow.showsThanks)
         state.radioStarted()
         state = CreatorEngagement(preferences: preferences)
-        precondition(!state.pendingRadioThanks && !state.presentRadioThanks()) // Only once.
+        #if STORE_BUILD
+        precondition(!state.pendingRadioThanks && !state.presentRadioThanks()) // One Apple request.
+        #else
+        precondition(state.pendingRadioThanks)
+        _ = state.presentRadioThanks()
+        precondition(state.showsThanks)
+        state.showsThanks = false
+        #endif
         #if !STORE_BUILD
         state.videoSaved(); state.videoSaved()
         _ = state.presentExportThanks()
@@ -148,6 +155,23 @@ import Foundation
         #endif
         for _ in 0..<CreatorEngagement.radioMilestone { state.radioStarted() }
         precondition(!state.pendingRadioThanks && !state.presentRadioThanks())
-        print("PASS: second-save eligibility, deduplicated exports, relaunch and concurrent windows; per-action clicks, completion, reset and upgrade; direct reminders repeat only on later exports; Apple request stays ungated and one-time; hidden tips excluded; fourth Radio session asks once and shares the Apple request")
+        #if !STORE_BUILD
+        for action in CreatorEngagement.Action.allCases {
+            preferences.removePersistentDomain(forName: suite)
+            state = CreatorEngagement(preferences: preferences)
+            state.videoSaved(); state.videoSaved(); _ = state.presentExportThanks()
+            precondition(state.showsThanks)
+            state.recordClick(action)
+            precondition(!state.showsThanks && state.hasClicked(action))
+            state = CreatorEngagement(preferences: preferences)
+            state.videoSaved()
+            for _ in 0..<6 { state.radioStarted() }
+            precondition(!state.pendingExportThanks && !state.pendingRadioThanks)
+            precondition(!state.presentExportThanks() && !state.presentRadioThanks())
+            // Manual About/More Information access stays available after acknowledgment.
+            state.showsThanks = true; precondition(state.showsThanks)
+        }
+        #endif
+        print("PASS: second-save eligibility, deduplicated exports, relaunch and concurrent windows; per-action clicks, completion, reset and upgrade; any one of Rate/Tip/Share/Feedback dismisses and persists; direct reminders repeat on later exports/Radio sessions until a click; Apple request stays ungated and one-time; hidden tips excluded; Radio reminders deduplicate each session and share the one Apple request")
     }
 }

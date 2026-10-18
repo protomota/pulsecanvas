@@ -30,6 +30,7 @@ final class CreatorEngagement: ObservableObject {
     private let lastSaveKey = "PulseCanvas.engagement.lastSuccessfulSaveID.v1"
     private let radioSessionsKey = "PulseCanvas.engagement.radioSessions.v1"
     private let radioShownKey = "PulseCanvas.engagement.radioThanksShown.v1"
+    private let presentedRadioKey = "PulseCanvas.engagement.thanksPresentedRadioSession.v2"
 
     init(preferences: UserDefaults = .standard) {
         self.preferences = preferences
@@ -38,6 +39,9 @@ final class CreatorEngagement: ObservableObject {
         // An old dismissal or StoreKit request is not evidence that an action was clicked.
         if preferences.object(forKey: saveCountKey) == nil, preferences.bool(forKey: legacySavedKey) {
             preferences.set(1, forKey: saveCountKey)
+        }
+        if preferences.object(forKey: presentedRadioKey) == nil, preferences.bool(forKey: radioShownKey) {
+            preferences.set(preferences.integer(forKey: radioSessionsKey), forKey: presentedRadioKey)
         }
         pendingExportThanks = false
         pendingRadioThanks = false
@@ -68,11 +72,15 @@ final class CreatorEngagement: ObservableObject {
 
     func hasClicked(_ action: Action) -> Bool { storedClicks.contains(action) }
 
+    /// Any button click acknowledges the reminder; it never claims the external action completed.
+    private var acknowledged: Bool { !storedClicks.isEmpty }
+
     func recordClick(_ action: Action) {
         var clicks = storedClicks
         clicks.insert(action)
         preferences.set(clicks.map(\.rawValue).sorted(), forKey: clicksKey)
         clickedActions = clicks
+        showsThanks = false
         refreshPending()
     }
 
@@ -82,6 +90,7 @@ final class CreatorEngagement: ObservableObject {
         clickedActions = []
         // Resume reminders after the next save, not immediately on closing this screen.
         preferences.set(preferences.integer(forKey: saveCountKey), forKey: presentedSaveKey)
+        preferences.set(preferences.integer(forKey: radioSessionsKey), forKey: presentedRadioKey)
         refreshPending()
     }
 
@@ -95,13 +104,14 @@ final class CreatorEngagement: ObservableObject {
         pendingExportThanks = count >= 2 && !preferences.bool(forKey: shownKey) && !hasClicked(.review)
         #else
         pendingExportThanks = count >= 2 && count > preferences.integer(forKey: presentedSaveKey)
-            && !availableActions.allSatisfy(hasClicked)
+            && !acknowledged
         #endif
         let radioDue = preferences.integer(forKey: radioSessionsKey) >= Self.radioMilestone && !preferences.bool(forKey: radioShownKey)
         #if STORE_BUILD
         pendingRadioThanks = radioDue && !preferences.bool(forKey: reviewKey) && !hasClicked(.review)
         #else
-        pendingRadioThanks = radioDue && !availableActions.allSatisfy(hasClicked)
+        let sessions = preferences.integer(forKey: radioSessionsKey)
+        pendingRadioThanks = sessions >= Self.radioMilestone && sessions > preferences.integer(forKey: presentedRadioKey) && !acknowledged
         #endif
     }
 
@@ -116,7 +126,7 @@ final class CreatorEngagement: ObservableObject {
     }
 
     /// Store builds make one ungated Apple review request; direct builds repeat their
-    /// styled reminder on later saves until all available buttons have been clicked.
+    /// styled reminder on later saves until any support button has been clicked.
     func presentExportThanks() -> Bool {
         guard pendingExportThanks, !showsThanks, preferences.integer(forKey: saveCountKey) >= 2 else { return false }
         pendingExportThanks = false
@@ -128,7 +138,7 @@ final class CreatorEngagement: ObservableObject {
         return true
         #else
         let count = preferences.integer(forKey: saveCountKey)
-        guard count > preferences.integer(forKey: presentedSaveKey), !availableActions.allSatisfy(hasClicked) else { return false }
+        guard count > preferences.integer(forKey: presentedSaveKey), !acknowledged else { return false }
         preferences.set(count, forKey: presentedSaveKey)
         thanksMilestone = .export
         showsThanks = true
@@ -136,18 +146,22 @@ final class CreatorEngagement: ObservableObject {
         #endif
     }
 
-    /// Leaving the fourth Radio session asks once. Store builds make the one Apple review
-    /// request unless an export already made it; direct builds show the styled reminder.
+    /// Store builds share the one Apple request with exports. Direct builds ask on leaving
+    /// the fourth and later Radio sessions until any support button has been clicked.
     func presentRadioThanks() -> Bool {
         guard pendingRadioThanks, !showsThanks else { return false }
         pendingRadioThanks = false
+        #if STORE_BUILD
         guard !preferences.bool(forKey: radioShownKey) else { return false }
         preferences.set(true, forKey: radioShownKey)
-        #if STORE_BUILD
         guard !preferences.bool(forKey: reviewKey) else { return false }
         preferences.set(true, forKey: reviewKey)
         return true
         #else
+        let sessions = preferences.integer(forKey: radioSessionsKey)
+        guard sessions > preferences.integer(forKey: presentedRadioKey), !acknowledged else { return false }
+        preferences.set(sessions, forKey: presentedRadioKey)
+        preferences.set(true, forKey: radioShownKey)
         thanksMilestone = .radio
         showsThanks = true
         return false
