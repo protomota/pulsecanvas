@@ -1,0 +1,44 @@
+[
+  {
+    "id": "dance-pop",
+    "title": "Dance Pop",
+    "genres": ["K-pop style dance pop", "Nu-disco dance pop", "Amapiano pop"],
+    "description": "K-pop, nu-disco and amapiano pop."
+  },
+  {
+    "id": "alternative-indie",
+    "title": "Alternative & Indie",
+    "genres": ["Experimental art pop", "Bedroom pop", "Dark trap-pop"],
+    "description": "Art pop, indie bedroom pop and darker pop."
+  },
+  {
+    "id": "electronic",
+    "title": "Electronic",
+    "genres": ["Hyperpop", "Liquid drum and bass", "80s synthwave"],
+    "description": "Hyperpop, liquid drum and bass, and synthwave."
+  },
+  {
+    "id": "latin",
+    "title": "Latin",
+    "genres": ["Bossa nova", "Mariachi ranchera (Spanish/English)"],
+    "description": "Bossa nova, mariachi and ranchera."
+  },
+  {
+    "id": "folk-shanties",
+    "title": "Folk & Sea Shanties",
+    "genres": ["Bluegrass", "Sea shanty"],
+    "description": "Bluegrass and sea shanties."
+  },
+  {
+    "id": "oldies",
+    "title": "Oldies",
+    "genres": ["1950s doo-wop"],
+    "description": "1950s doo-wop and classic vocal pop."
+  },
+  {
+    "id": "blues",
+    "title": "Blues",
+    "genres": ["Delta blues"],
+    "description": "Delta blues."
+  }
+]

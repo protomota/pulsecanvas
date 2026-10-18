@@ -162,7 +162,7 @@ The tips action opens https://pulsecanvas.si/tips in the browser. In Store build
 
 ## Radio and favorite songs
 
-Radio’s top bar shows the current visualizer with its own heart. The heart beside the song title saves that song separately. Both bars fade after three seconds of inactivity during playback and return when the mouse moves; paused playback keeps controls visible. The transport retains its requested Play/Pause state and fixed layout while preparing a skipped track. Skipping to another song also changes the visualizer when the new audio is ready. Automatic song transitions do the same. A new song opens with a different visualizer whenever the selected group contains an alternative.
+Radio’s top bar holds the current visualizer and its heart, Randomize, the visualizer-group dropdown, and bars per visualizer. The bottom toolbar holds song information, its separate heart, the music-station selector, music Library, transport and volume. Both bars fade after three seconds of inactivity during playback and return when the mouse moves; paused playback keeps controls visible. The transport retains its requested Play/Pause state and fixed layout while preparing a skipped track. Skipping to another song also changes the visualizer when the new audio is ready. Automatic song transitions do the same. A new song opens with a different visualizer whenever the selected group contains an alternative.
 
 Open **Library → Favorite songs** to browse saved songs and click a row to start it in Radio. Radio’s music dropdown includes Favorite songs, with separate hearts in the song list. Song favorites persist locally across launches with their source and station information. Opening the library while listening does not stop playback.
 
@@ -172,7 +172,7 @@ Radio starts with **All Music** and **Randomize all** on a fresh installation. T
 
 Radio deals visualizers from that group in shuffled rounds, avoiding consecutive repeats when there is another choice. Favorites are never automatically prioritized in All mode. A favorites-only group repeats its favorites to fill the song; with one favorite it holds that design, and with none it disables randomizing and explains the empty group rather than silently choosing other effects. Switching groups while listening replaces an out-of-group current design without restarting the music. If a group becomes empty during playback, the current design stays visible until another group or favorite is available.
 
-The separate music dropdown chooses **All Music**, **Favorite songs**, or one of the named stations. All Music shuffles all songs equally. Favorite songs restricts upcoming tracks to saved songs; an empty favorites selection does not fall back to other songs. The station choice and visualizer group are independent. Preferences persist across launches.
+The separate music dropdown in the bottom toolbar chooses **All Music**, **Favorite songs**, or a genre station. The online directory has eight stations total: All Music, Dance Pop, Alternative & Indie, Electronic, Latin, Folk & Sea Shanties, Oldies, and Blues. Favorite songs is an additional personal filter, not a ninth station. All Music shuffles all songs equally. Favorite songs restricts upcoming tracks to saved songs; an empty favorites selection does not fall back to other songs. The station choice and visualizer group are independent. Preferences persist across launches.
 
 
 ## Creators updates

@@ -4,7 +4,7 @@
 Credentials are read only from environment variables, never written into the catalog:
 R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_BUCKET.
 Use a token scoped to Object Read & Write on the radio bucket.
-Uploads immutable audio first, then publishes catalog.json last.
+Uploads immutable audio first, then catalogs, and publishes stations.json last.
 """
 import argparse
 from datetime import datetime, timezone
@@ -37,6 +37,15 @@ def upload(directory, prefix):
         if len(data) != track["byteCount"] or hashlib.sha256(data).hexdigest() != track["sha256"]:
             raise SystemExit("Audio integrity mismatch: " + track["title"])
         files.append((track["audio"], data, "audio/mp4", "public, max-age=31536000, immutable"))
+    if (directory / "stations.json").exists():
+        station_index = json.loads((directory / "stations.json").read_text())
+        for name in dict.fromkeys(station["catalog"] for station in station_index["stations"]):
+            if name == "catalog.json":
+                continue
+            if not re.fullmatch(r"station-[a-z0-9-]+\.json", name):
+                raise SystemExit("Invalid station catalog path")
+            path = directory / name
+            files.append((name, path.read_bytes(), "application/json; charset=utf-8", "public, max-age=60"))
     files.append(("catalog.json", (directory / "catalog.json").read_bytes(), "application/json; charset=utf-8", "public, max-age=60"))
     if (directory / "stations.json").exists():
         files.append(("stations.json", (directory / "stations.json").read_bytes(), "application/json; charset=utf-8", "public, max-age=60"))

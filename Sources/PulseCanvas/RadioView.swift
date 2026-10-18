@@ -223,6 +223,7 @@ struct RadioPlayerView: View {
     @State private var controlsVisible = true
     @State private var hideControls: Task<Void, Never>?
     @State private var showLibrary = false
+    @State private var trackingMenus = 0
 
     var body: some View {
         ZStack(alignment: .bottom) {
@@ -230,42 +231,7 @@ struct RadioPlayerView: View {
             VisualizerView(state: render).ignoresSafeArea()
             if controlsVisible || !radio.isPlaybackRequested || radio.isLoading {
             VStack(spacing: 0) {
-                HStack(spacing: 16) {
-                    Label("Radio", systemImage: "dot.radiowaves.left.and.right").font(.headline)
-                    RadioMusicGroupPicker(radio: radio).frame(width: 220)
-                    if !radio.sceneTitle.isEmpty {
-                        HStack(spacing: 8) {
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text("Visualizer").font(.caption2).foregroundStyle(.secondary)
-                                Text(radio.sceneTitle).font(.callout.weight(.medium))
-                                    .lineLimit(1).truncationMode(.tail)
-                            }
-                            .help(radio.sceneTitle)
-                            .accessibilityElement(children: .combine)
-                            Button {
-                                presets.toggleFavorite(render.scene)
-                                revealControls()
-                            } label: {
-                                Image(systemName: presets.isFavorite(render.scene) ? "heart.fill" : "heart")
-                            }
-                            .buttonStyle(StudioButtonStyle(compact: true, circular: true))
-                            .accessibilityLabel(presets.isFavorite(render.scene) ? "Unfavorite visualizer" : "Favorite visualizer")
-                            .help(presets.isFavorite(render.scene) ? "Remove \(radio.sceneTitle) from Favorites" : "Add \(radio.sceneTitle) to Favorites")
-                        }
-                        .frame(maxWidth: 320, alignment: .leading)
-                    }
-                    Spacer()
-                    Button { showLibrary = true; revealControls() } label: {
-                        Label("Library", systemImage: "music.note.list")
-                    }.buttonStyle(StudioButtonStyle(compact: true))
-                    Button {
-                        presentation.toggle(); revealControls()
-                    } label: {
-                        Label(presentation.isFullScreen ? "Exit full screen" : "Present",
-                              systemImage: presentation.isFullScreen ? "arrow.down.right.and.arrow.up.left" : "arrow.up.left.and.arrow.down.right")
-                    }.buttonStyle(StudioButtonStyle(compact: true))
-                    Button("Back to editor") { radio.leave() }.buttonStyle(StudioButtonStyle(compact: true))
-                }.padding(22).background(.black.opacity(0.45))
+                topBar
                 Spacer()
                 controls.padding(24)
             }
@@ -279,11 +245,97 @@ struct RadioPlayerView: View {
             .onChange(of: presentation.isFullScreen) { _, _ in revealControls() }
             .onChange(of: audio.isPlaying) { _, _ in revealControls() }
             .onChange(of: showLibrary) { _, _ in revealControls() }
+            .onReceive(NotificationCenter.default.publisher(for: NSMenu.didBeginTrackingNotification)) { _ in
+                trackingMenus += 1; hideControls?.cancel()
+            }
+            .onReceive(NotificationCenter.default.publisher(for: NSMenu.didEndTrackingNotification)) { _ in
+                trackingMenus = max(0, trackingMenus - 1)
+                if trackingMenus == 0 { revealControls() }
+            }
             .onDisappear { hideControls?.cancel(); presentation.restore() }
             .sheet(isPresented: $showLibrary) {
                 RadioLibraryView(radio: radio) { showLibrary = false }
                     .dismissOnOutsideClick { showLibrary = false }
             }
+    }
+
+    private var topBar: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: 16) {
+                    Label("Radio", systemImage: "dot.radiowaves.left.and.right").font(.headline)
+                    currentVisualizer
+                    visualizerControls
+                    Spacer(minLength: 8)
+                    presentationControls
+                }
+                VStack(alignment: .leading, spacing: 12) {
+                    HStack(spacing: 16) {
+                        Label("Radio", systemImage: "dot.radiowaves.left.and.right").font(.headline)
+                        currentVisualizer
+                        Spacer(minLength: 8)
+                        presentationControls
+                    }
+                    HStack { visualizerControls; Spacer(minLength: 0) }
+                }
+            }
+            if let message = radio.visualizerGroupMessage {
+                Text(message).font(.caption).foregroundStyle(.secondary)
+            }
+        }.padding(22).background(.black.opacity(0.45))
+    }
+
+    @ViewBuilder private var currentVisualizer: some View {
+        if !radio.sceneTitle.isEmpty {
+            HStack(spacing: 8) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Visualizer").font(.caption2).foregroundStyle(.secondary)
+                    Text(radio.sceneTitle).font(.callout.weight(.medium))
+                        .lineLimit(1).truncationMode(.tail)
+                }
+                .help(radio.sceneTitle)
+                .accessibilityElement(children: .combine)
+                Button {
+                    presets.toggleFavorite(render.scene)
+                    revealControls()
+                } label: {
+                    Image(systemName: presets.isFavorite(render.scene) ? "heart.fill" : "heart")
+                }
+                .buttonStyle(StudioButtonStyle(compact: true, circular: true))
+                .accessibilityLabel(presets.isFavorite(render.scene) ? "Unfavorite visualizer" : "Favorite visualizer")
+                .help(presets.isFavorite(render.scene) ? "Remove \(radio.sceneTitle) from Favorites" : "Add \(radio.sceneTitle) to Favorites")
+            }
+            .frame(maxWidth: 320, alignment: .leading)
+        }
+    }
+
+
+    private var visualizerControls: some View {
+        HStack(spacing: 12) {
+            Button { radio.randomizeCurrentVisualizer(); revealControls() } label: {
+                Label("Randomize", systemImage: "shuffle")
+            }.buttonStyle(StudioButtonStyle(compact: true))
+                .help("Choose another visualizer from the selected group without restarting the song")
+                .disabled(!radio.canRandomizeVisualizer)
+            VisualizerRandomizerPicker(compact: true)
+                .onChange(of: radio.visualizerGroup) { _, _ in revealControls() }
+            Picker("Bars per visualizer", selection: $radio.barsPerVisualizer) {
+                ForEach(RadioController.barChoices, id: \.self) { Text("\($0) \($0 == 1 ? "bar" : "bars")").tag($0) }
+            }.labelsHidden().frame(width: 96).controlSize(.large)
+                .help("How many bars each Radio visualizer plays")
+        }.fixedSize(horizontal: true, vertical: false)
+    }
+
+    private var presentationControls: some View {
+        HStack(spacing: 12) {
+            Button {
+                presentation.toggle(); revealControls()
+            } label: {
+                Label(presentation.isFullScreen ? "Exit full screen" : "Present",
+                      systemImage: presentation.isFullScreen ? "arrow.down.right.and.arrow.up.left" : "arrow.up.left.and.arrow.down.right")
+            }.buttonStyle(StudioButtonStyle(compact: true))
+            Button("Back to editor") { radio.leave() }.buttonStyle(StudioButtonStyle(compact: true))
+        }.fixedSize(horizontal: true, vertical: false)
     }
 
     private var controls: some View {
@@ -308,19 +360,11 @@ struct RadioPlayerView: View {
                         .font(.callout).foregroundStyle(.secondary).lineLimit(1).frame(height: 17)
                 }
                 Spacer()
-                Button { radio.randomizeCurrentVisualizer(); revealControls() } label: {
-                    Label("Randomize", systemImage: "shuffle")
+                RadioMusicGroupPicker(radio: radio).frame(width: 240)
+                    .onChange(of: radio.musicGroupID) { _, _ in revealControls() }
+                Button { showLibrary = true; revealControls() } label: {
+                    Label("Library", systemImage: "music.note.list")
                 }.buttonStyle(StudioButtonStyle(compact: true))
-                    .help("Choose another visualizer from the selected group without restarting the song")
-                    .disabled(!radio.canRandomizeVisualizer)
-                VisualizerRandomizerPicker(compact: true)
-                    .onChange(of: radio.visualizerGroup) { _, _ in revealControls() }
-                Picker("Bars per visualizer", selection: $radio.barsPerVisualizer) {
-                    ForEach(RadioController.barChoices, id: \.self) { Text("\($0) \($0 == 1 ? "bar" : "bars")").tag($0) }
-                }.frame(width: 225)
-            }
-            if let message = radio.visualizerGroupMessage {
-                Text(message).font(.caption).foregroundStyle(.secondary)
             }
             HStack(spacing: 18) {
                 Button { radio.togglePlayback() } label: {
@@ -348,7 +392,7 @@ struct RadioPlayerView: View {
         withAnimation(.easeOut(duration: 0.2)) { controlsVisible = true }
         hideControls = Task { @MainActor in
             do { try await Task.sleep(for: .seconds(3)) } catch { return }
-            guard audio.isPlaying, !radio.isLoading, !showLibrary else { return }
+            guard audio.isPlaying, !radio.isLoading, !showLibrary, trackingMenus == 0 else { return }
             withAnimation(.easeOut(duration: 0.3)) { controlsVisible = false }
         }
     }

@@ -69,9 +69,8 @@ def prepare(handoff, output, downloads):
     pending = output / "catalog.partial.json"
     pending.write_text(json.dumps(catalog, indent=2, ensure_ascii=False) + "\n")
     pending.replace(catalog_path)
-    stations = dict(version=1, stations=[dict(id="all-music", title="All Music",
-        description="Every genre, one station", catalog="catalog.json")])
-    (output / "stations.json").write_text(json.dumps(stations, indent=2) + "\n")
+    subprocess.run(["python3", str(Path(__file__).with_name("build-radio-stations.py")),
+                    "--catalog", str(catalog_path), "--output", str(output)], check=True)
     print(f"Ready: {len(tracks)} tracks, {sum(t['duration'] for t in tracks) / 60:.1f} minutes")
     print(catalog_path.resolve())
 
