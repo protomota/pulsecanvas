@@ -16,20 +16,55 @@ struct ProjectMPreset: Codable, Identifiable {
     var icon: String? = nil
 }
 
+/// The shared browsing and shuffle group never changes saved visual appearances.
+enum VisualizerRandomizerGroup: Hashable, Codable {
+    case all
+    case favorites
+    case category(String)
+    case custom
+
+    var title: String {
+        switch self {
+        case .all: return "Randomize all"
+        case .favorites: return "Randomize favorites"
+        case .category(let name): return "Randomize \(name)"
+        case .custom: return "Randomize pool"
+        }
+    }
+}
+
+struct VisualizerPool: Codable, Equatable, Sendable {
+    var enabled = false
+    var collection = ""
+    var category = ""
+    var favoritesOnly = false
+}
+
 @MainActor
 final class ProjectMPresets: ObservableObject {
     static let shared = ProjectMPresets()
+    @Published private(set) var pool = VisualizerPool()
+    @Published private(set) var poolRevision = 0
     @Published private(set) var entries: [ProjectMPreset] = []
     private(set) var sceneNames: [String] = []
     @Published private(set) var favoriteIDs: Set<String> = []
     @Published private(set) var favoritesBackupError: String?
     let favoritesBackupDirectory: URL?
-    #if STORE_BUILD
+    #if os(visionOS)
+    private let backupEdition = "Vision-Pro"
+    #elseif os(iOS)
+    private let backupEdition = "iPhone-iPad"
+    #elseif STORE_BUILD
     private let backupEdition = "Mac-App-Store"
     #elseif LOCAL_BUILD
     private let backupEdition = "Creators-Local"
     #else
     private let backupEdition = "Creators"
+    #endif
+    #if STORE_BUILD
+    private let poolKey = "PulseCanvas.metalVisualizerPool.v1"
+    #else
+    private let poolKey = "PulseCanvas.visualizerPool.v1"
     #endif
     private let defaults: UserDefaults
     #if STORE_BUILD
@@ -53,7 +88,11 @@ final class ProjectMPresets: ObservableObject {
 
     init(importedRoot: URL? = nil, defaults: UserDefaults = .standard, favoritesBackupDirectory: URL? = nil) {
         self.defaults = defaults
-        self.favoritesBackupDirectory = favoritesBackupDirectory ?? (defaults === UserDefaults.standard
+        if let data = defaults.data(forKey: poolKey), data.count < 4096,
+           let saved = try? JSONDecoder().decode(VisualizerPool.self, from: data),
+           saved.collection.count < 100, saved.category.count < 200 { pool = saved }
+        let isolatedQA = Bundle.main.object(forInfoDictionaryKey: "PulseCanvasIsolatedTesting") as? Bool == true
+        self.favoritesBackupDirectory = favoritesBackupDirectory ?? (defaults === UserDefaults.standard && !isolatedQA
             ? FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first?.appendingPathComponent("PulseCanvas/Favorites Backups", isDirectory: true) : nil)
         #if STORE_BUILD
         bundledRoot = Bundle.module.resourceURL ?? URL(fileURLWithPath: "/missing-resources")
@@ -102,6 +141,7 @@ final class ProjectMPresets: ObservableObject {
         sceneNames = RenderState.nativeSceneNames + entries.map(\.title)
         scenesByID = Dictionary(uniqueKeysWithValues: entries.enumerated().map { ($0.element.id, $0.offset + nativeCount) })
         availableScenes = NativeEffects.libraryOrder + Array(nativeCount..<sceneNames.count)
+        categories = categories(in: "")
     }
     private var availableFavoriteIDs: Set<String> { Set(availableScenes.map { identity(for: $0) }) }
     func identity(for scene: Int) -> String {preset(for: scene)?.id ?? "native:\(scene)"}
@@ -142,6 +182,7 @@ final class ProjectMPresets: ObservableObject {
     }
 
     private func persistFavorites() {
+        if pool.enabled && pool.favoritesOnly { poolRevision &+= 1 }
         defaults.set(favoriteIDs.sorted(), forKey: favoritesKey)
         backUpFavorites()
     }
@@ -158,10 +199,81 @@ final class ProjectMPresets: ObservableObject {
         } catch { favoritesBackupError = "Automatic favorites backup failed: \(error.localizedDescription)" }
     }
     func category(for scene: Int) -> String {
-        guard let preset = preset(for: scene) else {return "PulseCanvas"}
+        guard let preset = preset(for: scene) else {return NativeEffects.category(for: scene)}
         return preset.category.hasPrefix("Imported") ? "Imported" : String(preset.category.split(separator: "/").first ?? "ProjectM")
     }
-    var categories: [String] { ["PulseCanvas"] + Set(entries.map { $0.category.hasPrefix("Imported") ? "Imported" : String($0.category.split(separator: "/").first ?? "ProjectM") }).sorted() }
+    func collection(for scene: Int) -> String {
+        guard let preset = preset(for: scene) else { return "Native Metal" }
+        return importedIDs.contains(preset.id) ? "Imported" : "Cream of the Crop"
+    }
+    var collections: [String] {
+        ["Native Metal", "Cream of the Crop", "Imported"].filter { collection in
+            availableScenes.contains { self.collection(for: $0) == collection }
+        }
+    }
+    private(set) var categories: [String] = []
+    func categories(in collection: String) -> [String] {
+        Set(availableScenes.filter { collection.isEmpty || self.collection(for: $0) == collection }
+            .map { category(for: $0) }).sorted()
+    }
+    func folders(in category: String, collection: String = "") -> [String] {
+        guard !category.isEmpty else { return [] }
+        return Set(availableScenes.filter {
+            self.category(for: $0) == category && (collection.isEmpty || self.collection(for: $0) == collection)
+        }.compactMap { preset(for: $0)?.category }.filter { $0.contains("/") }).sorted()
+    }
+    /// The installed catalog remains intact for identities, migration and favorite backups.
+    /// This separate pool limits only discovery and new assignments.
+    var eligibleScenes: [Int] { scenes(in: pool) }
+    func scenes(in pool: VisualizerPool) -> [Int] {
+        guard pool.enabled else { return availableScenes }
+        return availableScenes.filter {
+            (pool.collection.isEmpty || collection(for: $0) == pool.collection)
+                && (pool.category.isEmpty || category(for: $0) == pool.category)
+                && (!pool.favoritesOnly || isFavorite($0))
+        }
+    }
+    var randomizerGroup: VisualizerRandomizerGroup {
+        guard pool.enabled else { return .all }
+        if pool.collection.isEmpty {
+            if pool.category.isEmpty { return pool.favoritesOnly ? .favorites : .all }
+            if !pool.favoritesOnly { return .category(pool.category) }
+        }
+        return .custom
+    }
+    func setRandomizerGroup(_ group: VisualizerRandomizerGroup) {
+        switch group {
+        case .all: setPool(VisualizerPool())
+        case .favorites: setPool(VisualizerPool(enabled: true, favoritesOnly: true))
+        case .category(let name): setPool(VisualizerPool(enabled: true, category: name))
+        case .custom: break
+        }
+    }
+    func setPool(_ value: VisualizerPool) {
+        guard value != pool, value.collection.count < 100, value.category.count < 200 else { return }
+        pool = value
+        poolRevision &+= 1
+        if let data = try? JSONEncoder().encode(value) { defaults.set(data, forKey: poolKey) }
+    }
+    var poolSummary: String {
+        guard pool.enabled else { return "All visualizers" }
+        let labels = [pool.collection, pool.category, pool.favoritesOnly ? "Favorites" : ""].filter { !$0.isEmpty }
+        return labels.isEmpty ? "All visualizers" : labels.joined(separator: " · ")
+    }
+    func filteredScenes(query: String = "", collection: String = "", category: String = "",
+                        folder: String = "", favoritesOnly: Bool = false) -> [Int] {
+        let text = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        return eligibleScenes.filter { scene in
+            (!favoritesOnly || isFavorite(scene))
+                && (collection.isEmpty || self.collection(for: scene) == collection)
+                && (category.isEmpty || self.category(for: scene) == category)
+                && (folder.isEmpty || preset(for: scene)?.category == folder)
+                && (text.isEmpty || sceneNames[scene].localizedCaseInsensitiveContains(text)
+                    || (preset(for: scene)?.originalTitle?.localizedCaseInsensitiveContains(text) ?? false)
+                    || (preset(for: scene)?.category.localizedCaseInsensitiveContains(text) ?? false)
+                    || self.category(for: scene).localizedCaseInsensitiveContains(text))
+        }
+    }
     func preset(for scene: Int) -> ProjectMPreset? {
         let index = scene - nativeCount
         return entries.indices.contains(index) ? entries[index] : nil

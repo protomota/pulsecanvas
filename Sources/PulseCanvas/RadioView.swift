@@ -7,16 +7,16 @@ struct RadioLibraryView: View {
     @ObservedObject var radio: RadioController
     let dismiss: () -> Void
     @State private var source = ""
-    @State private var favoritesOnly = false
+    @State private var opening = true
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 18) {
+        VStack(alignment: .leading, spacing: 14) {
             HStack {
                 Label("PulseCanvas Radio", systemImage: "dot.radiowaves.left.and.right").font(.title2)
                 Spacer()
                 Button("Done", action: dismiss)
             }
-            Text("Music and visuals on shuffle. Your favorites take the lead.")
+            Text("Music and visuals on shuffle. Choose all, favorites, or a station.")
                 .foregroundStyle(.secondary)
             if Bundle.main.object(forInfoDictionaryKey: "PulseCanvasRadioDeveloperMode") as? Bool == true {
             DisclosureGroup("Library source") {
@@ -36,6 +36,14 @@ struct RadioLibraryView: View {
             }
             }
             Divider()
+            if opening || radio.isCatalogLoading {
+                VStack(spacing: 16) {
+                    ProgressView().controlSize(.large).tint(Color(red: 0.95, green: 0.68, blue: 0.55))
+                    Text("Loading Radio…").font(.headline)
+                    Text("Getting stations and songs ready.").font(.callout).foregroundStyle(.secondary)
+                }.frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .accessibilityElement(children: .combine)
+            } else {
             HStack {
                 Text(radio.stationTitle).font(.headline)
                 Spacer()
@@ -50,18 +58,18 @@ struct RadioLibraryView: View {
                 .buttonStyle(StudioButtonStyle(treatment: .primary))
                 .disabled(!radio.canStart)
             }
-            if radio.stations.count > 1 {
-                Picker("Station", selection: Binding(get: { radio.stationID }, set: { radio.selectStation($0) })) {
-                    ForEach(radio.stations) { station in Text(station.title).tag(station.id) }
+            RadioMusicGroupPicker(radio: radio)
+            if let message = radio.visualizerGroupMessage {
+                HStack {
+                    Text(message).font(.caption).foregroundStyle(.secondary)
+                    Spacer()
+                    VisualizerRandomizerPicker(compact: true)
                 }
             }
-            HStack(spacing: 8) {
-                Button("All songs") { favoritesOnly = false }
-                    .buttonStyle(StudioButtonStyle(treatment: favoritesOnly ? .secondary : .accent, compact: true))
-                Button { favoritesOnly = true } label: { Label("Favorite songs", systemImage: "heart") }
-                    .buttonStyle(StudioButtonStyle(treatment: favoritesOnly ? .accent : .secondary, compact: true))
+            if let station = radio.stations.first(where: { $0.id == radio.stationID }), !radio.favoriteSongsOnly {
+                Text(station.description).font(.caption).foregroundStyle(.secondary)
             }
-            if favoritesOnly {
+            if radio.favoriteSongsOnly {
                 FavoriteSongsView(radio: radio) { song in
                     radio.playFavoriteSong(song)
                     if radio.isActive { dismiss() }
@@ -89,23 +97,24 @@ struct RadioLibraryView: View {
                     }.buttonStyle(.plain)
                         .accessibilityLabel("\(radio.isFavoriteSong(track) ? "Unfavorite" : "Favorite") song \(track.title)")
                     }
-                }.frame(minHeight: 220).disabled(radio.isCatalogLoading)
+                }.frame(minHeight: 160, maxHeight: .infinity).disabled(radio.isCatalogLoading)
             } else {
                 ContentUnavailableView("Choose a radio library", systemImage: "music.note.list",
                 description: Text("Your radio library will appear here when it finishes loading."))
                     .frame(height: 220)
             }
+            }
             HStack {
-                if radio.isLoading || radio.isCatalogLoading { ProgressView().controlSize(.small) }
-                Text(radio.status).font(.callout).foregroundStyle(.secondary).lineLimit(2)
+                if radio.isLoading { ProgressView().controlSize(.small) }
+                Text(radio.isCatalogLoading ? "" : radio.status).font(.callout).foregroundStyle(.secondary).lineLimit(2)
                 Spacer()
                 if radio.isActive { Button("Leave radio") { radio.leave(); dismiss() } }
             }
             Text("Radio downloads music to this Mac for playback and analysis. Your own soundtracks stay on your Mac.")
                 .font(.caption).foregroundStyle(.secondary)
-        }.padding(24).frame(width: 670, height: 590)
-            .onAppear { source = radio.sourceText; radio.loadSavedCatalogIfNeeded(refresh: !radio.isActive) }
-            .onChange(of: radio.isActive) { _, active in if active && favoritesOnly { dismiss() } }
+        }.padding(24).frame(width: 670, height: 650)
+            .onAppear { source = radio.sourceText; radio.loadSavedCatalogIfNeeded(refresh: !radio.isActive); opening = false }
+            .onChange(of: radio.isActive) { _, active in if active && radio.favoriteSongsOnly { dismiss() } }
     }
 
     private func openLocalLibrary() {
@@ -223,11 +232,7 @@ struct RadioPlayerView: View {
             VStack(spacing: 0) {
                 HStack(spacing: 16) {
                     Label("Radio", systemImage: "dot.radiowaves.left.and.right").font(.headline)
-                    if radio.stations.count > 1 {
-                        Picker("Station", selection: Binding(get: { radio.stationID }, set: { radio.selectStation($0) })) {
-                            ForEach(radio.stations) { station in Text(station.title).tag(station.id) }
-                        }.frame(width: 220)
-                    } else { Text(radio.stationTitle).foregroundStyle(.secondary) }
+                    RadioMusicGroupPicker(radio: radio).frame(width: 220)
                     if !radio.sceneTitle.isEmpty {
                         HStack(spacing: 8) {
                             VStack(alignment: .leading, spacing: 2) {
@@ -306,13 +311,16 @@ struct RadioPlayerView: View {
                 Button { radio.randomizeCurrentVisualizer(); revealControls() } label: {
                     Label("Randomize", systemImage: "shuffle")
                 }.buttonStyle(StudioButtonStyle(compact: true))
-                    .help("Show an unused favorite or a random non-favorite without restarting the song")
-                    .disabled(radio.isLoading)
-                Text(radio.usesFavorites ? "Favorites + random visuals" : "Shuffling the library")
-                    .font(.callout).foregroundStyle(.secondary)
+                    .help("Choose another visualizer from the selected group without restarting the song")
+                    .disabled(!radio.canRandomizeVisualizer)
+                VisualizerRandomizerPicker(compact: true)
+                    .onChange(of: radio.visualizerGroup) { _, _ in revealControls() }
                 Picker("Bars per visualizer", selection: $radio.barsPerVisualizer) {
                     ForEach(RadioController.barChoices, id: \.self) { Text("\($0) \($0 == 1 ? "bar" : "bars")").tag($0) }
                 }.frame(width: 225)
+            }
+            if let message = radio.visualizerGroupMessage {
+                Text(message).font(.caption).foregroundStyle(.secondary)
             }
             HStack(spacing: 18) {
                 Button { radio.togglePlayback() } label: {
@@ -320,7 +328,7 @@ struct RadioPlayerView: View {
                         .frame(width: 58)
                 }.buttonStyle(StudioButtonStyle(treatment: .primary, compact: true))
                 Button { radio.next() } label: { Label("Skip", systemImage: "forward.end.fill") }
-                    .buttonStyle(StudioButtonStyle(compact: true))
+                    .buttonStyle(StudioButtonStyle(compact: true)).disabled(!radio.canStart)
                 ProgressView(value: radio.isLoading ? 0 : audio.progress).tint(Color(red: 0.95, green: 0.68, blue: 0.55))
                 Text("\(format(audio.playbackSeconds)) / \(format(audio.duration))").monospacedDigit().font(.caption)
                     .frame(width: 112, alignment: .trailing)
@@ -343,6 +351,18 @@ struct RadioPlayerView: View {
             guard audio.isPlaying, !radio.isLoading, !showLibrary else { return }
             withAnimation(.easeOut(duration: 0.3)) { controlsVisible = false }
         }
+    }
+}
+
+@MainActor
+private struct RadioMusicGroupPicker: View {
+    @ObservedObject var radio: RadioController
+    var body: some View {
+        Picker("Music", selection: Binding(get: { radio.musicGroupID }, set: { radio.selectMusicGroup($0) })) {
+            ForEach(radio.stations) { station in Text(station.title).tag(station.id) }
+            Text("Favorite songs").tag("favorite-songs")
+        }.labelsHidden().pickerStyle(.menu).controlSize(.large)
+            .accessibilityLabel("Radio music station")
     }
 }
 

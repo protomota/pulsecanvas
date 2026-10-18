@@ -149,7 +149,9 @@ import Foundation
         let favorites = ProjectMPresets(defaults: defaults, favoritesBackupDirectory: temporary.appendingPathComponent("favorites"))
         favorites.toggleFavorite(NativeEffects.activeIDs[0]); favorites.toggleFavorite(NativeEffects.activeIDs[1])
         let radio = RadioController(library: library, defaults: defaults, presets: favorites)
-        precondition(radio.shuffle, "Radio should shuffle by default")
+        precondition(radio.shuffle && radio.visualizerGroup == .all && !radio.favoriteSongsOnly,
+            "New Radio sessions default to all songs and all visuals, not favorites-first")
+        precondition(radio.visualizerChoices == favorites.availableScenes)
         radio.shuffle = false // Preserve deterministic index assertions for the transport suite.
         precondition(abs(radio.volume - 0.7) < 0.001, "Radio defaults to 70%, independently of the muted editor")
         radio.volume = 0 // Keep the test tones silent; this is an isolated preference suite.
@@ -175,34 +177,52 @@ import Foundation
         print("PASS song favorites: save/remove, persisted metadata, independent identities and uninterrupted playback")
         precondition(StudioTimeline.valid(radio.segments, sceneCount: RenderState.sceneNames.count))
         precondition(abs(radio.segments.last!.end - audio.duration) < 0.001)
-        precondition(radio.usesFavorites && favorites.isFavorite(radio.visualizer.scene))
-        for scene in favorites.availableScenes where favorites.isFavorite(scene) {
-            precondition(radio.segments.filter { $0.scene == scene }.count <= 1)
-        }
+        precondition(!radio.usesFavorites && radio.segments.allSatisfy { favorites.availableScenes.contains($0.scene) })
         precondition(radio.segments.allSatisfy { $0.bars == 4 })
         radio.barsPerVisualizer = 1
         precondition(radio.segments.allSatisfy { $0.bars == 1 } && abs(radio.segments.last!.end - audio.duration) < 0.001)
-        let visualBefore = radio.visualizer.scene, timeBefore = audio.playbackSeconds
+        let category = favorites.category(for: NativeEffects.activeIDs[0])
+        let timeBefore = audio.playbackSeconds
         let timingBefore = radio.segments.map { [$0.start, $0.end] }
-        radio.randomizeCurrentVisualizer()
-        precondition(radio.visualizer.scene != visualBefore && favorites.isFavorite(radio.visualizer.scene))
+        radio.selectVisualizerGroup(.category(category))
+        precondition(favorites.randomizerGroup == .category(category))
+        for _ in 0..<40 {
+            let before = radio.visualizer.scene
+            radio.randomizeCurrentVisualizer()
+            precondition(favorites.category(for: radio.visualizer.scene) == category)
+            precondition(radio.visualizerChoices.count < 2 || before != radio.visualizer.scene)
+        }
         precondition(radio.segments.map { [$0.start, $0.end] } == timingBefore && audio.playbackSeconds == timeBefore && audio.isPlaying)
-        print("PASS Randomize: immediate favorite switch, unchanged song position and beat schedule")
-        precondition(studio.segments.map(\.scene) == originalTimeline.map(\.scene), "Radio must not modify the editor timeline")
-        print("PASS independent visuals: favorites once, radio bar control and unchanged editor timeline")
-        let keptOnScreen = radio.visualizer.scene
+        precondition(radio.segments.filter { $0.end > timeBefore }.allSatisfy { favorites.category(for: $0.scene) == category })
+        print("PASS category dropdown: shared pool, immediate scoped rerolls, scoped scheduled scenes, unchanged music position/boundaries")
+        radio.selectVisualizerGroup(.favorites)
+        precondition(radio.usesFavorites && radio.visualizerChoices.count == 2)
+        let persistent = ProjectMPresets(defaults: defaults, favoritesBackupDirectory: temporary.appendingPathComponent("favorites"))
+        precondition(persistent.randomizerGroup == .favorites, "The chosen group should persist across launches")
+        for _ in 0..<20 {
+            let before = radio.visualizer.scene
+            radio.randomizeCurrentVisualizer()
+            precondition(radio.visualizer.scene != before && favorites.isFavorite(radio.visualizer.scene))
+        }
+        precondition(radio.segments.filter { $0.end > timeBefore }.allSatisfy { favorites.isFavorite($0.scene) })
+        precondition(studio.segments.map(\.scene) == originalTimeline.map(\.scene), "Radio must not modify saved editor assignments")
+        favorites.toggleFavorite(NativeEffects.activeIDs[0])
+        try await wait("single favorite visualizer") { radio.visualizerChoices.count == 1 }
+        precondition(favorites.isFavorite(radio.visualizer.scene) && !radio.canRandomizeVisualizer)
+        let single = radio.visualizer.scene
+        radio.randomizeCurrentVisualizer(); precondition(radio.visualizer.scene == single)
+        favorites.toggleFavorite(NativeEffects.activeIDs[1])
+        try await wait("empty visual favorites") { radio.visualizerChoices.isEmpty }
+        precondition(!radio.canRandomizeVisualizer && radio.visualizerGroupMessage != nil && audio.isPlaying)
+        radio.randomizeCurrentVisualizer(); precondition(radio.visualizer.scene == single, "Empty favorites must not escape into all visuals")
         favorites.toggleFavorite(NativeEffects.activeIDs[0]); favorites.toggleFavorite(NativeEffects.activeIDs[1])
-        try await wait("visual favorites update") { !radio.usesFavorites }
-        precondition(radio.visualizer.scene == keptOnScreen && audio.isPlaying,
-            "Favoriting must preserve the current visual and music while updating subsequent scenes")
-        favorites.toggleFavorite(NativeEffects.activeIDs[0]); favorites.toggleFavorite(NativeEffects.activeIDs[1])
-        try await wait("visual favorites restored") { radio.usesFavorites }
-        precondition(radio.segments.dropFirst().allSatisfy { !favorites.isFavorite($0.scene) },
-            "Rebuilding preferences replayed a favorite already shown in this song")
-        print("PASS live visual favorites: next scenes refresh without changing the current visualizer or interrupting music")
+        try await wait("visual favorites restored") { radio.visualizerChoices.count == 2 }
+        print("PASS favorites dropdown: persistence, only favorites, one/zero favorite handling, live updates and no full-library fallback")
+        radio.selectVisualizerGroup(.all)
+        precondition(!radio.usesFavorites && radio.visualizerChoices == favorites.availableScenes)
+        print("PASS All restores the entire gallery and leaves Studio assignments and saved appearances unchanged")
         audio.seek(fraction: 0.98)
         try await wait("end advances even with soundtrack Loop on") { radio.currentIndex == 1 && !radio.isLoading }
-        precondition(favorites.isFavorite(radio.visualizer.scene), "A new song must reset its per-favorite quota")
         precondition(audio.title == tracks[1].title && audio.isPlaying)
         precondition(audio.volume == radio.volume, "Song changes must retain the user's radio volume")
         radio.togglePlayback(); precondition(!audio.isPlaying)
@@ -253,7 +273,30 @@ import Foundation
         radio.randomizeCurrentVisualizer()
         precondition(radio.visualizer.scene != fallbackScene && favorites.availableScenes.contains(radio.visualizer.scene))
         radio.leave()
-        print("PASS station architecture: distinct catalogs, stable directory, persisted station selection and full-library fallback")
+        print("PASS station architecture: distinct catalogs, stable directory, persisted station selection and All visualizers")
+
+        radio.selectMusicGroup("favorite-songs")
+        try await wait("favorite music group") { !radio.isCatalogLoading && radio.stationID == "all-music" }
+        precondition(radio.favoriteSongsOnly && radio.eligibleTrackIndices == [0])
+        defaults.set("future-genre", forKey: "PulseCanvas.radio.station")
+        let favoriteModeReopened = RadioController(library: library, defaults: defaults, presets: favorites)
+        favoriteModeReopened.loadSavedCatalogIfNeeded()
+        try await wait("restore favorite music group") { !favoriteModeReopened.isCatalogLoading && favoriteModeReopened.catalog != nil }
+        precondition(favoriteModeReopened.favoriteSongsOnly && favoriteModeReopened.stationID == "all-music"
+            && favoriteModeReopened.eligibleTrackIndices == [0], "Favorites mode must reopen against the whole music library")
+        radio.start()
+        try await wait("favorite-only song") { radio.isActive && !radio.isLoading && radio.currentIndex == 0 }
+        radio.next()
+        try await wait("favorite-only next") { !radio.isLoading }
+        precondition(radio.currentIndex == 0, "Favorite songs must never advance to a non-favorite")
+        radio.toggleFavoriteSong(tracks[0])
+        precondition(!radio.canStart && radio.eligibleTrackIndices.isEmpty)
+        radio.next(); precondition(radio.currentIndex == 0, "Empty song favorites must not fall back to all songs")
+        radio.toggleFavoriteSong(tracks[0])
+        radio.selectMusicGroup("all-music")
+        precondition(!radio.favoriteSongsOnly && radio.eligibleTrackIndices == [0, 1, 2])
+        radio.leave()
+        print("PASS music dropdown: explicit favorites-only queue, empty favorites, All restores every song")
 
         radio.playFavoriteSong(savedSong)
         try await wait("favorite from another station") { radio.isActive && !radio.isLoading && radio.currentTrack?.id == tracks[0].id }

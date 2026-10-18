@@ -12,10 +12,21 @@ struct StudioSegment: Codable, Identifiable, Sendable {
 enum StudioTimeline {
     /// Each scene is dealt once. Favorites lead; unused library scenes fill the tail.
     /// Return nil when uniqueness is impossible without changing the clip timing.
-    static func randomizedScenes(current: [Int], favorites: [Int], available: [Int]) -> [Int]? {
+    static func randomizedScenes(current: [Int], favorites: [Int], available: [Int], allowRepeats: Bool = false) -> [Int]? {
         let availableSet = Set(available)
         let preferred = Set(favorites).intersection(availableSet)
         var choices = preferred.shuffled() + availableSet.subtracting(preferred).shuffled()
+        guard !choices.isEmpty else { return nil }
+        if allowRepeats && current.count > choices.count {
+            var result: [Int] = [], bag = [Int]()
+            for previous in current {
+                if bag.isEmpty { bag = choices.shuffled() }
+                let candidate = bag.firstIndex { $0 != result.last && $0 != previous }
+                    ?? bag.firstIndex { $0 != result.last } ?? bag.startIndex
+                result.append(bag.remove(at: candidate))
+            }
+            return result
+        }
         guard current.count <= choices.count else { return nil }
         var result: [Int] = []
         for (index, previous) in current.enumerated() {

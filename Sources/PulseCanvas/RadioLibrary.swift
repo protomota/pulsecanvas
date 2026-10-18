@@ -207,11 +207,11 @@ struct RadioQueue {
 /// Deal favorites once per song, then fill with non-favorites. Studio is independent.
 enum RadioVisualSchedule {
     static func make(plan: SongSegmentation, pool: [Int], bars: Int,
-                     favorites: Set<Int> = [], played: Set<Int> = [], previous: Int? = nil) -> [StudioSegment] {
+                     favorites: Set<Int> = [], played: Set<Int> = [], previous: Int? = nil, repeatFavorites: Bool = false) -> [StudioSegment] {
         guard !pool.isEmpty else { return [] }
         let available = Array(Set(pool)).sorted()
         var preferred = available.filter { favorites.contains($0) && !played.contains($0) }.shuffled()
-        let fillers = available.filter { !favorites.contains($0) }
+        let fillers = repeatFavorites ? available : available.filter { !favorites.contains($0) }
         var bag: [Int] = [], previous = previous, result: [StudioSegment] = []
         for (start, end) in zip(plan.boundaries, plan.boundaries.dropFirst()) {
             let scene: Int

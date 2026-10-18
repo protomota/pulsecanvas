@@ -7,11 +7,12 @@ struct VisualizerPresetStrip: NSViewRepresentable, Equatable {
     @ObservedObject private var library = ProjectMPresets.shared
     let selected: Int
     var revealRequest = 0
+    var poolRevision = 0
     let accent: Color
     let background: Color
     let choose: (Int) -> Void
     nonisolated static func == (lhs: Self, rhs: Self) -> Bool {
-        lhs.selected == rhs.selected && lhs.revealRequest == rhs.revealRequest && lhs.accent == rhs.accent && lhs.background == rhs.background
+        lhs.selected == rhs.selected && lhs.poolRevision == rhs.poolRevision && lhs.revealRequest == rhs.revealRequest && lhs.accent == rhs.accent && lhs.background == rhs.background
     }
     func makeNSView(context: Context) -> PresetStripView { PresetStripView() }
     func updateNSView(_ view: PresetStripView, context: Context) {
@@ -59,7 +60,7 @@ final class PresetStripView: NSScrollView {
     }
     func update(library: ProjectMPresets, selected: Int, accent: NSColor, background: NSColor, isEnabled: Bool = true, revealRequest: Int = 0, choose: @escaping (Int) -> Void) {
         self.library = library; self.choose = choose
-        let available = library.availableScenes
+        let available = library.eligibleScenes
         let changedNames = scenes != available || names != available.map { library.sceneNames[$0] }
         let changedEnabled = controlsEnabled != isEnabled
         controlsEnabled = isEnabled
@@ -77,6 +78,8 @@ final class PresetStripView: NSScrollView {
             }
             rowWidth = max(0, position - 6)
             updateCanvasWidth()
+            // A newly filtered list starts at its own left edge; ordinary selections stay still.
+            contentView.scroll(to: .zero); reflectScrolledClipView(contentView)
             buttons.values.forEach { $0.removeFromSuperview() }; buttons.removeAll()
         }
         self.selected = selected; self.accent = accent; buttonBackground = background

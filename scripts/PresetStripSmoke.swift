@@ -4,7 +4,10 @@ import SwiftUI
 @main struct PresetStripSmoke {
     @MainActor static func main() {
         _ = NSApplication.shared
-        let library = ProjectMPresets.shared
+        let suite = "PulseCanvas.StripTests." + UUID().uuidString
+        let defaults = UserDefaults(suiteName: suite)!
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let library = ProjectMPresets(defaults: defaults)
         let strip = PresetStripView(frame: NSRect(x:0,y:0,width:1000,height:90))
         precondition(strip.hasHorizontalScroller && !strip.autohidesScrollers && strip.scrollerStyle == .legacy, "The library row needs a persistent scrollbar")
         var chosen = -1
@@ -44,6 +47,25 @@ import SwiftUI
         strip.update(library:library,selected:22,accent:.systemPink,background:.black,isEnabled:false,revealRequest:3) {chosen=$0}
         precondition(abs(strip.contentView.bounds.origin.x - beforeNormalSelection) < 1, "Normal selection after randomize must stay still")
         precondition(strip.documentView!.subviews.compactMap {$0 as? NSButton}.allSatisfy {!$0.isEnabled})
+        library.setRandomizerGroup(.favorites)
+        strip.update(library:library,selected:22,accent:.systemPink,background:.black) {chosen=$0}
+        strip.layoutSubtreeIfNeeded()
+        precondition(strip.contentView.bounds.minX == 0 && strip.documentView!.subviews.isEmpty,
+            "An empty filter must clear old controls and reset an out-of-range scroll offset")
+        library.toggleFavorite(10); library.toggleFavorite(22)
+        strip.update(library:library,selected:22,accent:.systemPink,background:.black) {chosen=$0}
+        strip.layoutSubtreeIfNeeded()
+        let filteredButtons = strip.documentView!.subviews.compactMap {$0 as? NSButton}
+        precondition(Set(filteredButtons.map(\.tag)) == [10, 22])
+        library.setRandomizerGroup(.category("Tunnels"))
+        strip.update(library:library,selected:22,accent:.systemPink,background:.black) {chosen=$0}
+        strip.layoutSubtreeIfNeeded()
+        precondition(strip.documentView!.subviews.compactMap {$0 as? NSButton}.allSatisfy { library.category(for: $0.tag) == "Tunnels" })
+        library.setRandomizerGroup(.all)
+        strip.update(library:library,selected:22,accent:.systemPink,background:.black) {chosen=$0}
+        strip.layoutSubtreeIfNeeded()
+        precondition(!strip.documentView!.subviews.isEmpty && strip.contentView.bounds.minX == 0)
+        print("PASS shared filter: favorites/category affect the top strip; empty and shortened lists clear stale controls and scroll offsets; All restores the gallery")
         print("PASS virtual preset row: persistent scrollbar; ordinary selection and resize stay still; randomizer reveal aligns left; fewer than 20 resident controls; full names; accessible whole-card actions")
     }
 }

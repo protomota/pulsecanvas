@@ -3,6 +3,7 @@ import Combine
 
 @MainActor
 struct StudioTimelineView: View {
+    @ObservedObject private var library = ProjectMPresets.shared
     @ObservedObject var studio: StudioStore
     @ObservedObject var render: RenderState
     @ObservedObject var audio: AudioController
@@ -83,7 +84,7 @@ struct StudioTimelineView: View {
             .alert("Not enough unique visualizers", isPresented: $randomizeCapacityError) {
                 Button("OK", role: .cancel) {}
             } message: {
-                Text("This timeline has \(studio.segments.count) sections and \(ProjectMPresets.shared.availableScenes.count) available visualizers. Use longer sections or add visualizers to randomize without repeats.")
+                Text("This timeline has \(studio.segments.count) sections and \(ProjectMPresets.shared.eligibleScenes.count) available visualizers. Use longer sections or add visualizers to randomize without repeats.")
             }
             .sheet(isPresented: Binding(get: {choosingSegment != nil}, set: {if !$0 {choosingSegment = nil}})) {
                 if let index = choosingSegment, studio.segments.indices.contains(index) {
@@ -129,7 +130,7 @@ struct StudioTimelineView: View {
                 VStack(alignment: .leading, spacing: 6) {
                     Toggle("Visualizers", isOn: $randomizeVisualizers).toggleStyle(StudioSwitchStyle())
                         .accessibilityLabel("Randomize timeline visualizers")
-                    Text("Use favorites first, then unused library visuals. Each visualizer appears once.")
+                    Text(library.pool.enabled ? "Use only your visualizer pool. Small pools repeat to fill the timeline." : "Use favorites first, then unused library visuals. Each visualizer appears once.")
                         .font(.system(size: 11)).foregroundStyle(.secondary)
                 }
                 VStack(alignment: .leading, spacing: 6) {
@@ -430,7 +431,7 @@ private struct StudioFavoritesPicker: View {
     let selected: Int
     let choose: (Int) -> Void
     private var favorites: [Int] {
-        library.availableScenes.filter {library.isFavorite($0)}
+        library.eligibleScenes.filter {library.isFavorite($0)}
     }
 
     var body: some View {

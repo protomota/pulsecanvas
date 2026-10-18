@@ -99,10 +99,11 @@ final class StudioStore: ObservableObject {
     #else
     private let key = "PulseCanvas.studio.v1"
     #endif
+    private let library: ProjectMPresets
     private let defaults: UserDefaults
     private struct Saved: Codable { var presets: [Int: VisualPreset]; var identities: [Int: String]? = nil }
-    init(defaults: UserDefaults = .standard) {
-        self.defaults = defaults
+    init(defaults: UserDefaults = .standard, library: ProjectMPresets? = nil) {
+        self.defaults = defaults; self.library = library ?? .shared
         #if STORE_BUILD
         let savedData = defaults.data(forKey: key) ?? defaults.data(forKey: "PulseCanvas.studio.v1")
         #else
@@ -114,22 +115,22 @@ final class StudioStore: ObservableObject {
             }
             #if STORE_BUILD
             var nativePresets: [Int: VisualPreset] = [:]
-            for scene in saved.presets.keys.sorted() where !ProjectMPresets.shared.isRetiredScene(scene, identities: saved.identities) {
-                if let native = try? ProjectMPresets.shared.migratedScene(scene, identities: saved.identities), nativePresets[native] == nil {
+            for scene in saved.presets.keys.sorted() where !self.library.isRetiredScene(scene, identities: saved.identities) {
+                if let native = try? self.library.migratedScene(scene, identities: saved.identities), nativePresets[native] == nil {
                     nativePresets[native] = saved.presets[scene]
                 }
             }
             presets = nativePresets
             #else
-            if let migrated = try? Self.migratedPresets(saved.presets, identities: saved.identities, library: .shared) {
+            if let migrated = try? Self.migratedPresets(saved.presets, identities: saved.identities, library: self.library) {
                 presets = migrated
             } else {
                 // Keep the complete original data when an unavailable import prevents
                 // migration. Never reinterpret an old external index as a new native ID.
                 defaults.set(data, forKey: key + ".unresolved")
                 var restored: [Int: VisualPreset] = [:]
-                for (scene, appearance) in saved.presets where !ProjectMPresets.shared.isRetiredScene(scene, identities: saved.identities) {
-                    if let resolved = try? ProjectMPresets.shared.migratedScene(scene, identities: saved.identities), restored[resolved] == nil {
+                for (scene, appearance) in saved.presets where !self.library.isRetiredScene(scene, identities: saved.identities) {
+                    if let resolved = try? self.library.migratedScene(scene, identities: saved.identities), restored[resolved] == nil {
                         restored[resolved] = appearance
                     }
                 }
@@ -164,7 +165,7 @@ final class StudioStore: ObservableObject {
         guard chaos != nil || zoomSpeed != nil || motionSpeed != nil || strobeEnabled != nil || strobeSensitivity != nil || strobeStrength != nil else { return }
         var updated = presets
         updated[render.scene] = preset(render)
-        for scene in ProjectMPresets.shared.availableScenes {
+        for scene in self.library.availableScenes {
             var appearance = updated[scene] ?? defaultPreset(for: scene)
             if let chaos { appearance.chaos = min(1, max(0, chaos)) }
             if let zoomSpeed { appearance.zoomSpeed = min(3, max(0, zoomSpeed)) }
@@ -179,11 +180,13 @@ final class StudioStore: ObservableObject {
     }
     func makeTimeline(_ plan: SongSegmentation, render: RenderState) {
         save(render)
-        let sequence = NativeEffects.timelineOrder
+        let eligible = self.library.eligibleScenes
+        let sequence = self.library.pool.enabled ? eligible : NativeEffects.timelineOrder
+        guard !sequence.isEmpty else { segments = []; selectedSegment = 0; return }
         let previous = segments
         segments = zip(plan.boundaries, plan.boundaries.dropFirst()).enumerated().map { index, pair in
             StudioSegment(start: pair.0, end: pair.1,
-                scene: previous.first(where: { abs($0.start - pair.0) < 0.05 })?.scene ?? sequence[index % sequence.count], bars: barsPerSection)
+                scene: previous.first(where: { abs($0.start - pair.0) < 0.05 && (!self.library.pool.enabled || eligible.contains($0.scene)) })?.scene ?? sequence[index % sequence.count], bars: barsPerSection)
         }
         detectedBPM = plan.bpm; selectedSegment = 0
     }
@@ -269,9 +272,9 @@ final class StudioStore: ObservableObject {
     }
     @discardableResult
     func randomizeTimeline(_ render: RenderState) -> Bool {
-        let library = ProjectMPresets.shared
+        let library = self.library
         guard !segments.isEmpty, let scenes = StudioTimeline.randomizedScenes(current: segments.map(\.scene),
-            favorites: library.availableScenes.filter { library.isFavorite($0) }, available: library.availableScenes) else { return false }
+            favorites: [], available: library.eligibleScenes, allowRepeats: library.pool.enabled) else { return false }
         save(render)
         for index in segments.indices { segments[index].scene = scenes[index] }
         if segments.indices.contains(selectedSegment) {
@@ -283,10 +286,12 @@ final class StudioStore: ObservableObject {
     func randomizeSegment(at index: Int, render: RenderState) {
         guard segments.indices.contains(index) else { return }
         save(render)
-        let library = ProjectMPresets.shared, occupied = Set(segments.map(\.scene))
-        let choices = library.availableScenes.filter { !occupied.contains($0) }
-        let favorites = choices.filter { library.isFavorite($0) }
-        guard let scene = (favorites.isEmpty ? choices : favorites).randomElement() else { return }
+        let library = self.library, occupied = Set(segments.map(\.scene))
+        var choices = library.eligibleScenes.filter { !occupied.contains($0) }
+        if choices.isEmpty && library.pool.enabled {
+            choices = library.eligibleScenes.filter { $0 != segments[index].scene }
+        }
+        guard let scene = choices.randomElement() else { return }
         segments[index].scene = scene
         if selectedSegment == index { render.scene = scene; apply(to: render) }
     }
@@ -309,7 +314,7 @@ final class StudioStore: ObservableObject {
             requestVisualizerReveal()
             return
         }
-        let candidates = ProjectMPresets.shared.availableScenes.filter { $0 != render.scene }
+        let candidates = self.library.eligibleScenes.filter { $0 != render.scene }
         guard let scene = candidates.randomElement() else { return }
         selectScene(scene, render: render)
         requestVisualizerReveal()
@@ -344,7 +349,7 @@ final class StudioStore: ObservableObject {
     }
     func apply(_ saved: VisualPreset, to render: RenderState) { saved.apply(to: render) }
     private func persist() {
-        if let data = try? JSONEncoder().encode(Saved(presets: presets, identities: ProjectMPresets.shared.identities(for: Set(presets.keys)))) { defaults.set(data, forKey: key) }
+        if let data = try? JSONEncoder().encode(Saved(presets: presets, identities: self.library.identities(for: Set(presets.keys)))) { defaults.set(data, forKey: key) }
     }
 }
 

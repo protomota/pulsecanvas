@@ -574,6 +574,33 @@ enum NativeEffects {
     ]
 
     static var names: [String] { all.map(\.name) }
+    /// Theme metadata for the shared filter. Permanent IDs and catalog order stay unchanged.
+    static func category(for scene: Int) -> String {
+        guard let effect = effect(resolved(scene)) else { return "Other native" }
+        switch effect.file {
+        case flow, materialExpansion, materialIIExpansion: return "Liquid & flow"
+        case structure: return "Geometric"
+        case geometry:
+            return effect.shader.map { ["mandelBloom", "mengerNave"].contains($0) } == true ? "Fractal" : "Geometric"
+        case particles: return "Particles"
+        case nature, cosmosExpansion, cosmosIIExpansion: return "Nature & space"
+        case tunnels, wormholes, voyageExpansion, passageExpansion, boreExpansion,
+             portalExpansion, portalIIExpansion, fractalTunnelExpansion: return "Tunnels"
+        case drive, driveExpansion, flightExpansion, flightIIExpansion: return "Drive & flight"
+        case dance, rave, danceExpansion, festivalExpansion, kineticExpansion: return "Dancer"
+        case fractalExpansion: return "Fractal"
+        default:
+            switch resolved(scene) {
+            case 10, 23: return "Liquid & flow"
+            case 12, 16: return "Nature & space"
+            case 15, 20, 21: return "Geometric"
+            case 17, 18, 24: return "Waveform"
+            case 19, 26, 28: return "Particles"
+            case 22, 25, 27, 29: return "Tunnels"
+            default: return "Other native"
+            }
+        }
+    }
     static func effect(_ scene: Int) -> NativeEffect? { all.indices.contains(scene) ? all[scene] : nil }
     static func isRetired(_ scene: Int) -> Bool { effect(scene)?.replacement != nil }
     /// The design shown for a scene ID: retired designs open their replacement.

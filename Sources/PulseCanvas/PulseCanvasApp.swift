@@ -133,8 +133,9 @@ struct PulseCanvasApp: App {
     }
     private func choose(_ direction: Int) {
         guard !exporter.isExporting else { return }
-        let choices = ProjectMPresets.shared.availableScenes
-        guard let position = choices.firstIndex(of: render.scene), !choices.isEmpty else { return }
+        let choices = ProjectMPresets.shared.eligibleScenes
+        guard !choices.isEmpty else { return }
+        let position = choices.firstIndex(of: render.scene) ?? (direction > 0 ? -1 : 0)
         studio.selectScene(choices[(position + direction + choices.count) % choices.count], render: render)
     }
 }
@@ -288,7 +289,7 @@ struct CreatorView: View {
                     Text(message.isEmpty ? (radio.isActive ? radio.status : audio.status) : message).lineLimit(1)
                     Spacer()
                     if !exporter.status.isEmpty { Text(exporter.status).lineLimit(1).foregroundStyle(exporter.status.contains("failed") ? .red : .secondary) }
-                    Text("\(ProjectMPresets.shared.availableScenes.count) visualizers").foregroundStyle(.secondary)
+                    Text(presetLibrary.pool.enabled ? "\(presetLibrary.eligibleScenes.count) of \(presetLibrary.availableScenes.count) visualizers" : "\(presetLibrary.availableScenes.count) visualizers").foregroundStyle(.secondary)
                 }.font(.system(size: 11)).padding(.horizontal, 20).padding(.vertical, 9)
             }
         }
@@ -340,6 +341,8 @@ struct CreatorView: View {
                 Label("Random visualizer", systemImage: "shuffle")
             }.buttonStyle(StudioButtonStyle(treatment: .accent))
                 .help("Pick another visualizer with its saved settings")
+                .disabled(!presetLibrary.eligibleScenes.contains { $0 != render.scene })
+            VisualizerRandomizerPicker()
             #if DIRECT_BUILD && canImport(Sparkle) && !LOCAL_BUILD
             AppUpdateButton(updater: updater)
             #endif
@@ -347,7 +350,7 @@ struct CreatorView: View {
             Button { showVisualizerBrowser = true } label: { Label("Library", systemImage: "square.grid.2x2") }
                 .help("Browse categories and save favorites")
             Button { showRadio = true } label: { Label("Radio", systemImage: "dot.radiowaves.left.and.right") }
-                .help("Listen with a beat-aligned shuffle of your favorite visualizers")
+                .help("Listen with beat-aligned visuals from all, favorites, or a category")
             Button { openProject() } label: { Label("Open project", systemImage: "folder") }
             Button { saveProject() } label: { Label("Save project", systemImage: "square.and.arrow.down") }
             Button { showProjectSettings = true } label: { Label("Project settings", systemImage: "gearshape") }
@@ -377,7 +380,7 @@ struct CreatorView: View {
                 .background(.black.opacity(0.18), in: RoundedRectangle(cornerRadius: 8))
                 .overlay(RoundedRectangle(cornerRadius: 8).strokeBorder(.white.opacity(0.12)))
                 .disabled(exporter.isExporting)
-            VisualizerPresetStrip(selected:render.scene, revealRequest: studio.visualizerRevealRequest, accent:accent, background:background, choose:choose)
+            VisualizerPresetStrip(selected:render.scene, revealRequest: studio.visualizerRevealRequest, poolRevision: presetLibrary.poolRevision, accent:accent, background:background, choose:choose)
                 .equatable().frame(height: 90)
                 .overlay {
                     HStack(spacing: 0) {

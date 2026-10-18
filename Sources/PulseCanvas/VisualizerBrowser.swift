@@ -9,6 +9,7 @@ struct VisualizerBrowser: View {
     var heading: String? = nil
     let choose: (Int) -> Void
     @State private var query = ""
+    @State private var collection = ""
     @State private var category = ""
     @State private var folder = ""
     @State private var favoritesOnly = false
@@ -17,27 +18,18 @@ struct VisualizerBrowser: View {
     @FocusState private var searchFocused: Bool
     private let accent = Color(red: 0.95, green: 0.68, blue: 0.55)
     private var matches: [Int] {
-        let text = query.trimmingCharacters(in: .whitespacesAndNewlines)
-        return library.availableScenes.filter { scene in
-            (!favoritesOnly || library.isFavorite(scene))
-                && (category.isEmpty || library.category(for: scene) == category)
-                && (folder.isEmpty || library.preset(for: scene)?.category == folder)
-                && (text.isEmpty || RenderState.sceneNames[scene].localizedCaseInsensitiveContains(text)
-                    || (library.preset(for:scene)?.originalTitle?.localizedCaseInsensitiveContains(text) ?? false)
-                    || (library.preset(for: scene)?.category.localizedCaseInsensitiveContains(text) ?? false))
-        }
+        library.filteredScenes(query: query, collection: collection, category: category,
+            folder: folder, favoritesOnly: favoritesOnly)
     }
     private var folders: [String] {
-        guard !category.isEmpty else {return []}
-        return Set(library.entries.filter {preset in
-            (preset.category.hasPrefix("Imported") ? "Imported" : String(preset.category.split(separator: "/").first ?? "ProjectM")) == category
-        }.map(\.category)).sorted()
+        library.folders(in: category, collection: collection)
     }
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
                 Text(heading ?? "Library").font(.headline)
                 Spacer()
+                VisualizerPoolButton(compact: true)
                 Text("\(matches.count.formatted()) \(matches.count == 1 ? "effect" : "effects")").font(.caption).foregroundStyle(.secondary)
             }
             HStack(spacing: 8) {
@@ -58,8 +50,11 @@ struct VisualizerBrowser: View {
                     .accessibilityLabel(favoritesOnly ? "Show all effects" : "Show favorite effects")
             }
             HStack {
-                filterMenu("Category", selection: $category, options: library.categories, emptyTitle: "All categories")
-                if !folders.isEmpty {
+                filterMenu("Collection", selection: $collection, options: library.collections, emptyTitle: "All collections")
+                filterMenu("Category", selection: $category, options: library.categories(in: collection), emptyTitle: "All categories")
+            }
+            if !folders.isEmpty {
+                HStack {
                     filterMenu("Folder", selection: $folder, options: folders, emptyTitle: "All folders", prefix: category + "/")
                 }
             }
@@ -72,7 +67,7 @@ struct VisualizerBrowser: View {
                                     Image(systemName: library.icon(for:scene)).font(.system(size:18, weight:.light)).frame(width: 28, height:32).foregroundStyle(.orange.opacity(0.85))
                                     VStack(alignment: .leading, spacing: 3) {
                                         Text(RenderState.sceneNames[scene]).font(.system(size: 12, weight: .medium)).lineLimit(1)
-                                        Text(library.preset(for: scene)?.category ?? "PulseCanvas").font(.system(size: 10)).foregroundStyle(.secondary).lineLimit(1)
+                                        Text(library.preset(for: scene)?.category ?? "Native Metal · \(library.category(for: scene))").font(.system(size: 10)).foregroundStyle(.secondary).lineLimit(1)
                                     }
                                     Spacer()
                                     if selected == scene { Image(systemName: "checkmark").foregroundStyle(.orange) }
@@ -91,7 +86,7 @@ struct VisualizerBrowser: View {
                     }
                 }
             }.frame(height: 430)
-            if matches.isEmpty {Text(favoritesOnly ? "Tap an effect’s heart to add it to Favorites." : "No matching visualizers").foregroundStyle(.secondary).font(.caption)}
+            if matches.isEmpty {Text(favoritesOnly ? "Tap an effect’s heart to add it to Favorites." : (library.pool.enabled ? "No matches in your visualizer pool. Change the pool or turn its limit off." : "No matching visualizers")).foregroundStyle(.secondary).font(.caption)}
             HStack {
                 Menu {
                     Button("Export favorites…", systemImage: "square.and.arrow.up", action: exportFavorites)
@@ -116,6 +111,7 @@ struct VisualizerBrowser: View {
             }
         }.padding(18).frame(width: 680)
             .onChange(of: category) {_,_ in folder = ""}
+            .onChange(of: collection) {_,_ in category = ""; folder = ""}
     }
 
     private func exportFavorites() {

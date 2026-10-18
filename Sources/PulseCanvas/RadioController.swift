@@ -12,7 +12,23 @@ final class RadioController: ObservableObject {
     @Published private(set) var isLoading = false
     @Published private(set) var isCatalogLoading = false
     @Published private(set) var status = "Choose a radio library to begin"
-    @Published private(set) var usesFavorites = false
+    var visualizerGroup: VisualizerRandomizerGroup { presets.randomizerGroup }
+    @Published private(set) var favoriteSongsOnly = false
+    @Published private(set) var visualizerChoices: [Int] = []
+    var usesFavorites: Bool { visualizerGroup == .favorites && !visualizerChoices.isEmpty }
+    var canRandomizeVisualizer: Bool { !isLoading && visualizerChoices.contains { $0 != visualizer.scene } }
+    var visualizerGroupMessage: String? {
+        guard visualizerChoices.isEmpty else { return nil }
+        return visualizerGroup == .favorites
+            ? "No favorite visualizers in this pool. Add a heart or choose another group."
+            : "No visualizers in this group. Choose another group or change the visualizer pool."
+    }
+    var musicGroupID: String { favoriteSongsOnly ? "favorite-songs" : stationID }
+    var eligibleTrackIndices: [Int] {
+        guard let catalog else { return [] }
+        let favorites = Set(favoriteSongs.map(\.id))
+        return catalog.tracks.indices.filter { !favoriteSongsOnly || favorites.contains(catalog.tracks[$0].id) }
+    }
     @Published private(set) var sceneTitle = ""
     @Published private(set) var favoriteSongs: [FavoriteRadioSong] = []
     @Published private(set) var favoritePlaybackError: String?
@@ -37,7 +53,7 @@ final class RadioController: ObservableObject {
     let soundtrackInstalled = PassthroughSubject<Void, Never>()
     var currentTrack: RadioTrack? { currentIndex.flatMap { catalog?.tracks.indices.contains($0) == true ? catalog?.tracks[$0] : nil } }
     var stationTitle: String { stations.first { $0.id == stationID }?.title ?? catalog?.title ?? "All Music" }
-    var canStart: Bool { catalog?.tracks.isEmpty == false && !isCatalogLoading }
+    var canStart: Bool { !eligibleTrackIndices.isEmpty && !visualizerChoices.isEmpty && !isCatalogLoading }
     private let library: RadioLibrary
     private let defaults: UserDefaults
     private let presets: ProjectMPresets
@@ -55,6 +71,8 @@ final class RadioController: ObservableObject {
     private var hasRadioAudio = false
     private var refreshingFavorites = false
     private var visualFavoritesObserver: AnyCancellable?
+    private var visualPoolObserver: AnyCancellable?
+    private var visualCatalogObserver: AnyCancellable?
     private var playedVisualizers = Set<Int>()
     private weak var audio: AudioController?
     private var snapshot: Snapshot?
@@ -77,6 +95,8 @@ final class RadioController: ObservableObject {
             var seen = Set<String>()
             favoriteSongs = saved.filter { $0.isValid && seen.insert($0.id).inserted }
         }
+        visualizerChoices = self.presets.eligibleScenes
+        favoriteSongsOnly = defaults.bool(forKey: "PulseCanvas.radio.favoriteSongsOnly.v1")
         let bars = defaults.integer(forKey: "PulseCanvas.radio.bars")
         barsPerVisualizer = Self.barChoices.contains(bars) ? bars : 4
         if let savedVolume = defaults.object(forKey: "PulseCanvas.radio.volume") as? NSNumber {
@@ -86,9 +106,51 @@ final class RadioController: ObservableObject {
         visualFavoritesObserver = self.presets.$favoriteIDs.dropFirst().sink { [weak self] _ in
             // @Published sends before storing the new set; read it on the next turn.
             Task { @MainActor [weak self] in
-                guard let self, self.isActive, !self.isLoading else { return }
-                self.rebuildVisuals(keepingCurrent: true)
+                guard let self, self.presets.pool.enabled, self.presets.pool.favoritesOnly else { return }
+                self.refreshVisualizerGroup()
             }
+        }
+        visualPoolObserver = self.presets.$pool.dropFirst().sink { [weak self] _ in
+            Task { @MainActor [weak self] in
+                guard let self else { return }
+                self.refreshVisualizerGroup()
+            }
+        }
+        visualCatalogObserver = self.presets.$entries.dropFirst().sink { [weak self] _ in
+            Task { @MainActor [weak self] in self?.refreshVisualizerGroup() }
+        }
+    }
+
+    func selectVisualizerGroup(_ group: VisualizerRandomizerGroup) {
+        presets.setRandomizerGroup(group)
+        refreshVisualizerGroup()
+    }
+
+    /// Keep transport and bar boundaries intact; replace an out-of-group current look immediately.
+    private func refreshVisualizerGroup() {
+        visualizerChoices = presets.eligibleScenes
+        guard isActive, !isLoading, let audio else { return }
+        let available = visualizerChoices
+        if !available.isEmpty, !available.contains(visualizer.scene),
+           let index = StudioTimeline.index(at: audio.playbackSeconds, in: segments),
+           let scene = available.randomElement() {
+            segments[index].scene = scene
+            sceneTitle = ""
+            follow(time: audio.playbackSeconds)
+        }
+        rebuildVisuals(keepingCurrent: true)
+    }
+
+    func selectMusicGroup(_ id: String) {
+        let favorites = id == "favorite-songs"
+        favoriteSongsOnly = favorites
+        defaults.set(favorites, forKey: "PulseCanvas.radio.favoriteSongsOnly.v1")
+        queue.reset(); discardPrefetch()
+        let station = favorites ? "all-music" : id
+        defaults.set(station, forKey: "PulseCanvas.radio.station")
+        selectStation(station)
+        if isActive, !isCatalogLoading, let currentIndex, let catalog, let catalogURL {
+            prepareNextTrack(after: currentIndex, catalog: catalog, catalogURL: catalogURL)
         }
     }
 
@@ -178,7 +240,7 @@ final class RadioController: ObservableObject {
                 if url.lastPathComponent == "stations.json" {
                     let directory = try await library.stations(at: url)
                     stationList = directory.stations
-                    let savedID = preferredStationID ?? self?.defaults.string(forKey: "PulseCanvas.radio.station")
+                    let savedID = preferredStationID ?? (self?.favoriteSongsOnly == true ? "all-music" : self?.defaults.string(forKey: "PulseCanvas.radio.station"))
                     let selected = stationList.first { $0.id == savedID } ?? stationList[0]
                     stationURL = try selected.resolvedURL(relativeTo: url)
                 } else {
@@ -238,7 +300,7 @@ final class RadioController: ObservableObject {
     }
 
     func start(at index: Int? = nil) {
-        guard canStart, let audio, let catalog else { return }
+        guard canStart, let audio else { return }
         if !isActive {
             hasRadioAudio = false
             snapshot = Snapshot(url: audio.selectedURL, bookmark: audio.soundtrackBookmark, progress: audio.progress,
@@ -248,8 +310,8 @@ final class RadioController: ObservableObject {
         }
         wantsPlayback = true
         audio.onSoundtrackFinished = { [weak self] in self?.next() }
-        let selected = index.flatMap { catalog.tracks.indices.contains($0) ? $0 : nil }
-            ?? queuedTrack(after: currentIndex) ?? 0
+        guard let selected = index.flatMap({ eligibleTrackIndices.contains($0) ? $0 : nil })
+            ?? queuedTrack(after: currentIndex) else { return }
         loadTrack(at: selected)
     }
 
@@ -259,10 +321,9 @@ final class RadioController: ObservableObject {
     }
 
     private func queuedTrack(after current: Int?) -> Int? {
-        guard let catalog else { return nil }
-        let favorites = Set(favoriteSongs.map(\.id))
-        let preferred = Set(catalog.tracks.indices.filter { favorites.contains(catalog.tracks[$0].id) })
-        return queue.next(count: catalog.tracks.count, current: current, shuffle: shuffle, prioritized: preferred)
+        let choices = eligibleTrackIndices
+        guard let next = queue.next(count: choices.count, current: current.flatMap { choices.firstIndex(of: $0) }, shuffle: shuffle) else { return nil }
+        return choices[next]
     }
 
     func togglePlayback() {
@@ -272,16 +333,13 @@ final class RadioController: ObservableObject {
         else { if audio.isPlaying { audio.pause() } else { audio.playFullSoundtrack() }; wantsPlayback = audio.isPlaying }
     }
 
-    /// Reroll the current visual without restarting music or reusing a spent favorite.
+    /// Reroll only within the selected group, without restarting the music.
     func randomizeCurrentVisualizer() {
         guard isActive, !isLoading, let audio,
               let index = StudioTimeline.index(at: audio.playbackSeconds, in: segments) else { return }
-        let available = presets.availableScenes
-        let favorites = available.filter { presets.isFavorite($0) }
-        usesFavorites = !favorites.isEmpty
-        let unheardFavorites = favorites.filter { !playedVisualizers.contains($0) }
-        let pool = unheardFavorites.isEmpty ? available.filter { !presets.isFavorite($0) } : unheardFavorites
-        guard let scene = pool.filter({ $0 != visualizer.scene }).randomElement() else { return }
+        let alternatives = visualizerChoices.filter { $0 != visualizer.scene }
+        let unheard = alternatives.filter { !playedVisualizers.contains($0) }
+        guard let scene = (unheard.isEmpty ? alternatives : unheard).randomElement() else { return }
         segments[index].scene = scene
         follow(time: audio.playbackSeconds)
         rebuildVisuals(keepingCurrent: true)
@@ -335,9 +393,8 @@ final class RadioController: ObservableObject {
 
     private func rebuildVisuals(keepingCurrent: Bool = false, previousScene: Int? = nil) {
         guard let audio, let plan = audio.segmentPlan(beatsPerSection: barsPerVisualizer * 4) else { return }
-        let available = presets.availableScenes
-        let favorites = available.filter { presets.isFavorite($0) }
-        usesFavorites = !favorites.isEmpty
+        visualizerChoices = presets.eligibleScenes
+        let available = visualizerChoices
         if !sceneTitle.isEmpty, let index = StudioTimeline.index(at: audio.playbackSeconds, in: segments) {
             var retained = Array(segments.prefix(index + 1))
             let last = retained.removeLast()
@@ -345,7 +402,7 @@ final class RadioController: ObservableObject {
             retained.append(StudioSegment(start: last.start, end: end, scene: visualizer.scene, bars: barsPerVisualizer))
             let remaining = SongSegmentation(boundaries: [end] + plan.boundaries.filter { $0 > end }, bpm: plan.bpm)
             let future = RadioVisualSchedule.make(plan: remaining, pool: available, bars: barsPerVisualizer,
-                favorites: Set(favorites), played: playedVisualizers, previous: visualizer.scene)
+                previous: visualizer.scene)
             if future.isEmpty, end < audio.duration {
                 let held = retained.removeLast()
                 retained.append(StudioSegment(start: held.start, end: audio.duration, scene: held.scene, bars: held.bars))
@@ -353,7 +410,7 @@ final class RadioController: ObservableObject {
             segments = retained + future
         } else {
             segments = RadioVisualSchedule.make(plan: plan, pool: available, bars: barsPerVisualizer,
-                favorites: Set(favorites), played: playedVisualizers, previous: previousScene)
+                previous: previousScene)
         }
         sceneTitle = ""; follow(time: audio.playbackSeconds)
     }
@@ -363,7 +420,8 @@ final class RadioController: ObservableObject {
     }
 
     private func loadTrack(at first: Int) {
-        guard let audio, let catalog, let catalogURL else { return }
+        guard let audio, let catalog, let catalogURL, eligibleTrackIndices.contains(first) else { return }
+        let choices = eligibleTrackIndices
         let ready = preparedNext?.index == first ? preparedNext?.audio : nil
         task?.cancel(); discardPrefetch(); revision = UUID(); let token = revision
         requestedIndex = first
@@ -396,7 +454,8 @@ final class RadioController: ObservableObject {
                 } catch {
                     guard let self, self.revision == token, !Task.isCancelled else { return }
                     self.status = "Skipping \(catalog.tracks[index].title): \(error.localizedDescription)"
-                    index = (index + 1) % catalog.tracks.count
+                    guard let position = choices.firstIndex(of: index) else { break }
+                    index = choices[(position + 1) % choices.count]
                 }
             }
             guard let self, self.revision == token else { return }
