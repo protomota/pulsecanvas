@@ -41,6 +41,26 @@ struct VisionProject: Codable {
     var audioTitle = "Demo soundtrack"
     var bpm = 120.0
     var beatBoundaries: [Double]? = nil
+    var loopPlayback = true
+
+    init() {}
+
+    private enum CodingKeys: String, CodingKey {
+        case version, clips, looks, audioFile, audioTitle, bpm, beatBoundaries, loopPlayback
+    }
+
+    init(from decoder: Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        version = try values.decode(Int.self, forKey: .version)
+        clips = try values.decode([VisionClip].self, forKey: .clips)
+        looks = try values.decode([Int: VisionLook].self, forKey: .looks)
+        audioFile = try values.decodeIfPresent(String.self, forKey: .audioFile)
+        audioTitle = try values.decode(String.self, forKey: .audioTitle)
+        bpm = try values.decode(Double.self, forKey: .bpm)
+        beatBoundaries = try values.decodeIfPresent([Double].self, forKey: .beatBoundaries)
+        // Existing Studio projects gain looping without losing their scenes or looks.
+        loopPlayback = try values.decodeIfPresent(Bool.self, forKey: .loopPlayback) ?? true
+    }
 
     func validated() throws -> Self {
         guard version == 1, (1...500).contains(clips.count), Set(clips.map(\.id)).count == clips.count,

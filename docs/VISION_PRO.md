@@ -8,15 +8,33 @@ no projectM engine, community presets/textures or Sparkle updater.
 ## Editing and viewing
 
 - Import audio through Files, or start with the bundled demo soundtrack.
-- Browse native categories, search and favorite effects using gaze and tap.
-- Assign effects to scenes, set independent 1–64 bar lengths, and add, remove or
-  reorder scenes. Music analysis supplies the beat grid.
+- The wider left column uses compact row insets and wrapping titles. The shared
+  **Randomize all / favorites / category** menu filters the list and randomizer
+  together; its custom pool supports combined category/favorite choices.
+- **Random visualizer** replaces the selected section's visualizer without changing
+  saved looks. The adjacent dice randomizes only that visualizer's style.
+- Select a timeline section, assign its visualizer on the left, and set independent
+  1–64 bar lengths. Music analysis supplies the beat grid. The experimental add,
+  remove and reorder buttons have been removed from the interface.
 - Edit palette, Chaos, zoom speed and motion speed. An effect shares its look
   across scenes, as on the Mac; Reset restores its native defaults.
-- Play, pause, seek and adjust volume. Playback drives the same audio features
-  used by the Mac renderer and follows the scene timeline. Backgrounding pauses.
-- Open **Immersive view** to watch a curved screen in mixed immersion, retaining
-  the surrounding room and editable window. Distance and height remain adjustable.
+- Play, pause, seek and adjust volume. **Loop soundtrack** defaults on, repeats the
+  whole soundtrack and timeline, and saves with the project. Older projects default
+  to looping without changing their saved sections or styles.
+- Choose **Radio** in the left column, select a station and play. Station names,
+  membership and audio come from the same HTTPS R2 JSON directory as the Mac.
+  Loading and retry states are visible. Radio shuffles tracks and advances at the
+  end of each song instead of looping one track. Its cache and transport are
+  independent of the editable Studio project; switching modes pauses the old one.
+- **Watch full screen** opens an immersive space and hides the Studio window.
+  **Full immersion** (on by default) hides passthrough and uses a larger curved
+  canvas; switch it off before opening to retain the room. Pinch the visual to
+  show/hide its floating controls, or use **Back to Studio** to reopen the editor.
+  Controls hide after five seconds during playback. Closing immersion through the
+  system also restores Studio. The immersive panel includes playback, shuffle,
+  visualizer favorite, Radio next-track, and edge-smoothing controls.
+- Ordinary backgrounding pauses playback; hiding Studio for an active immersive
+  view does not interrupt its audio.
 - Save/open `.pulsevision` project backups. The app also autosaves locally.
 
 Audio imports are copied into this app's Documents directory. Project backups
@@ -34,6 +52,7 @@ simulator runtime. The deployment target is visionOS 2.0; validation used Xcode
 ```sh
 bash scripts/test-vision-project.sh
 bash scripts/test-vision-transport.sh
+bash scripts/test-vision-presentation.sh
 bash scripts/build-visionos.sh xrsimulator
 # Unsigned device-target compilation, not a distributable package:
 bash scripts/build-visionos.sh xros
@@ -58,6 +77,12 @@ Project tests cover defaults for all 336 effects, stable IDs, mixed bar timing,
 shared looks, round-trip serialization, retirement migration and malformed input.
 Transport tests exercise the actual demo audio, analysis, seek/play/pause,
 timeline editing and autosave restoration in an isolated temporary directory.
+They also cross a real audio loop boundary, verify loop-off completion and
+persistence, category/favorite/empty/single-item pools, independent style dice,
+Radio station/catalog fixtures, automatic song advancement, category-limited
+Radio sections and preservation of the user's Studio file. Legacy project
+decoding is covered separately. A Metal test verifies the presentation filter's
+diagonal edge coverage, flat colors, exact smoothing-off output, bounds and alpha.
 Mac Store regressions exercise all 336 shaders' beat response and zero-Chaos
 behavior. Both visionOS simulator and device-target compilation pass. A simulator
 installation launches successfully and displays the native Metal Studio preview.
@@ -70,16 +95,26 @@ visible preview do not establish those results.
 
 This is an early test target, not a production App Store release. Distribution
 uses the existing PulseCanvas app record and bundle ID `com.protomota.pulsecanvas`. MP4
-export, Radio, Mac document interoperability, production store
-submission are not included in this first target. The native shaders currently
+export, Mac document interoperability and production store
+submission are not included. The native shaders currently
 render a 2D screen in 3D space; they are not volumetric environments. The immersive
-screen renders at 1536×864/30 fps with bounded GPU work in flight.
+screen renders at 1920×1080, attempting a new frame every 17 ms. The actual rate
+depends on the effect and GPU: at most one GPU frame is in flight, and busy frames
+are skipped instead of building a stale queue. The Studio preview is removed
+while immersion is active, screen geometry is reused rather than rebuilt on
+each appearance update, and the audio feature clock runs at 60 Hz on visionOS.
+The edge-aware presentation pass is enabled by default and can be disabled for
+comparison; it is not temporal supersampling and cannot guarantee removal of all
+shader shimmer. Headset frame-rate and visual-quality comparisons remain unrun.
 
 The bundled Legal & Credits screen identifies Protomota, LLC, links the source
 repository, and displays the first-party license. Existing music/asset terms
 continue to apply separately.
 
-Layered app icons now use the existing PulseCanvas mark. For TestFlight, archive
+The layered icon uses the existing full-bleed PulseCanvas image in its background
+layer and a transparent front layer. Apple's circular mask now crops the whole
+image, rather than revealing an inset opaque square. The original brand image and
+the TV icon package remain unchanged. For TestFlight, archive
 the PulseCanvasVision scheme and export with an App Store distribution profile
 for the existing bundle ID. `verify-platform-bundle.py vision PATH_TO_EXPORTED_APP`
 checks the actual signed payload, icons, native-only resources, privacy and legal

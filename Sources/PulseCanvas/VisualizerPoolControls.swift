@@ -26,6 +26,7 @@ struct VisualizerPoolButton: View {
 struct VisualizerRandomizerPicker: View {
     @ObservedObject private var library = ProjectMPresets.shared
     var compact = false
+    var fillsWidth = false
     @State private var showSettings = false
     var body: some View {
         Menu {
@@ -44,7 +45,9 @@ struct VisualizerRandomizerPicker: View {
             Button("Customize visualizer pool…") { showSettings = true }
         } label: {
             HStack(spacing: 10) {
-                Text(library.randomizerGroup == .custom ? "Randomize \(library.poolSummary)" : library.randomizerGroup.title).lineLimit(1)
+                Text(library.randomizerGroup == .custom ? "Randomize \(library.poolSummary)" : library.randomizerGroup.title)
+                    .lineLimit(fillsWidth ? 2 : 1)
+                if fillsWidth { Spacer(minLength: 0) }
                 Image(systemName: "chevron.down").font(.caption.weight(.semibold))
             }
         }
@@ -54,7 +57,8 @@ struct VisualizerRandomizerPicker: View {
         #else
         .buttonStyle(.bordered)
         #endif
-        .fixedSize(horizontal: true, vertical: false)
+        .fixedSize(horizontal: !fillsWidth, vertical: false)
+        .frame(maxWidth: fillsWidth ? .infinity : nil, alignment: .leading)
         .accessibilityLabel("Randomize visualizer group")
         .accessibilityValue(library.randomizerGroup.title)
         .help("Choose all visualizers, favorites, or a category for browsing, Studio and Radio. Saved visual settings stay unchanged.")

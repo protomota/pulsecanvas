@@ -17,6 +17,14 @@ import Foundation
         let saved = try JSONEncoder().encode(project.validated())
         let loaded = try JSONDecoder().decode(VisionProject.self, from: saved).validated()
         precondition(loaded.clips == project.clips && loaded.looks == project.looks)
+        precondition(loaded.loopPlayback)
+        var legacy = try JSONSerialization.jsonObject(with: saved) as! [String: Any]
+        legacy.removeValue(forKey: "loopPlayback")
+        let migrated = try JSONDecoder().decode(VisionProject.self, from: JSONSerialization.data(withJSONObject: legacy)).validated()
+        precondition(migrated.loopPlayback && migrated.clips == project.clips && migrated.looks == project.looks)
+        project.loopPlayback = false
+        let nonlooping = try JSONDecoder().decode(VisionProject.self, from: JSONEncoder().encode(project))
+        precondition(!nonlooping.loopPlayback)
         let segments = loaded.segments(duration: 24)
         precondition(segments.map(\.start) == [0, 8, 10] && segments.map(\.end) == [8, 10, 14])
         precondition(StudioTimeline.valid(segments, sceneCount: NativeEffects.all.count))

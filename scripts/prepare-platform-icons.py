@@ -20,7 +20,12 @@ vision=root/'visionOS/Assets.xcassets';write(vision,{'info':info})
 stack=vision/'AppIcon.solidimagestack';write(stack,{'info':info,'layers':[{'filename':n+'.solidimagestacklayer'} for n in ['Front','Back']]})
 for name in ['Front','Back']:
  layer=stack/(name+'.solidimagestacklayer');write(layer,{'info':info});content=layer/'Content.imageset'
- write(content,{'info':info,'images':[{'idiom':'vision','scale':'2x','filename':'icon.png'}]});image(content,'icon.png',(1024,1024),name=='Front')
+ write(content,{'info':info,'images':[{'idiom':'vision','scale':'2x','filename':'icon.png'}]})
+ # Let visionOS apply its circular mask to a full-bleed brand image. Placing an
+ # opaque square in the foreground creates a smaller black box inside that mask.
+ canvas=Image.new('RGBA',(1024,1024),(0,0,0,0))
+ if name=='Back':canvas=mark.resize((1024,1024),Image.Resampling.LANCZOS)
+ canvas.save(content/'icon.png')
 tv=root/'tvOS/Assets.xcassets';write(tv,{'info':info});brand=tv/'AppIcon.brandassets'
 write(brand,{'info':info,'assets':[{'filename':'Small.imagestack','idiom':'tv','size':'400x240','role':'primary-app-icon'},{'filename':'Large.imagestack','idiom':'tv','size':'1280x768','role':'primary-app-icon'},{'filename':'TopShelf.imageset','idiom':'tv','size':'1920x720','role':'top-shelf-image'},{'filename':'TopShelfWide.imageset','idiom':'tv','size':'2320x720','role':'top-shelf-image-wide'}]})
 for name,size,scales in [('Small',(400,240),[1,2]),('Large',(1280,768),[1])]:

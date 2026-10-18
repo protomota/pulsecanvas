@@ -11,8 +11,15 @@ import Foundation
 /// Constructed off the main actor, then transferred once; analysis is read only on the main actor thereafter.
 private struct VisionAnalysis: @unchecked Sendable { let value: SoundtrackAnalyzer }
 
+@MainActor private final class VisionPlaybackCompletion: NSObject, AVAudioPlayerDelegate {
+    var finished: (() -> Void)?
+    nonisolated func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
+        Task { @MainActor [weak self] in if flag { self?.finished?() } }
+    }
+}
+
 @MainActor final class VisionStudio: ObservableObject {
-    @Published private(set) var project = VisionProject()
+    @Published private(set) var project = VisionProject() { didSet { timelineCache = nil } }
     @Published var selected: UUID?
     @Published private(set) var loading = false
     @Published var message: String?
@@ -29,12 +36,36 @@ private struct VisionAnalysis: @unchecked Sendable { let value: SoundtrackAnalyz
     private var revision = UUID()
     private var loadingCount = 0
     private var started = false
+    private var timelineCache: [StudioSegment]?
+    private let completion = VisionPlaybackCompletion()
+    var onPlaybackFinished: (() -> Void)?
     private let library: ProjectMPresets
     private let directory: URL
     var selectedIndex: Int { project.clips.firstIndex { $0.id == selected } ?? 0 }
     var selectedScene: Int { project.clips[selectedIndex].scene }
     var look: VisionLook { project.looks[selectedScene] ?? VisionLook(scene: selectedScene) }
-    var segments: [StudioSegment] { project.segments(duration: transport.duration) }
+    var segments: [StudioSegment] {
+        if let timelineCache { return timelineCache }
+        let result = project.segments(duration: transport.duration)
+        timelineCache = result
+        return result
+    }
+    var loopPlayback: Bool {
+        get { project.loopPlayback }
+        set {
+            project.loopPlayback = newValue
+            player?.numberOfLoops = audioLoopCount
+            save()
+        }
+    }
+    private var audioLoopCount: Int {
+        #if os(tvOS)
+        // Radio advances tracks at the end; the Vision Pro loop preference must not block it.
+        return 0
+        #else
+        return project.loopPlayback ? -1 : 0
+        #endif
+    }
 
     init(directory: URL? = nil, library: ProjectMPresets? = nil) {
         self.library = library ?? .shared
@@ -42,8 +73,14 @@ private struct VisionAnalysis: @unchecked Sendable { let value: SoundtrackAnalyz
         if let data = try? Data(contentsOf: self.directory.appendingPathComponent("Studio-autosave.json")),
            let saved = try? JSONDecoder().decode(VisionProject.self, from: data).validated() { project = saved }
         selected = project.clips.first?.id
+        completion.finished = { [weak self] in self?.onPlaybackFinished?() }
         applyAppearance()
-        ticker = Timer.publish(every: 1.0 / 30, on: .main, in: .common).autoconnect().sink { [weak self] _ in self?.tick() }
+        #if os(visionOS)
+        let tickInterval = 1.0 / 60
+        #else
+        let tickInterval = 1.0 / 30
+        #endif
+        ticker = Timer.publish(every: tickInterval, on: .main, in: .common).autoconnect().sink { [weak self] _ in self?.tick() }
     }
 
     func start(force: Bool = false) async {
@@ -79,9 +116,11 @@ private struct VisionAnalysis: @unchecked Sendable { let value: SoundtrackAnalyz
             guard revision == token else { return false }
             let next = try AVAudioPlayer(contentsOf: url)
             guard next.duration.isFinite, next.duration > 0 else { throw CocoaError(.fileReadCorruptFile) }
+            next.numberOfLoops = audioLoopCount
+            next.delegate = completion
             next.prepareToPlay(); next.volume = volume
             player?.stop(); player = next; analyzer = prepared.value
-            transport.duration = next.duration; transport.seconds = 0; transport.playing = false
+            transport.duration = next.duration; timelineCache = nil; transport.seconds = 0; transport.playing = false
             let plan = prepared.value.segmentPlan()
             project.beatBoundaries = prepared.value.segmentPlan(beatsPerSection: 1).boundaries
             let choices = self.library.pool.enabled ? self.library.eligibleScenes : NativeEffects.timelineOrder
@@ -130,6 +169,27 @@ private struct VisionAnalysis: @unchecked Sendable { let value: SoundtrackAnalyz
     func assign(_ scene: Int) {
         guard self.library.eligibleScenes.contains(scene) else { return }
         project.clips[selectedIndex].scene = scene; applyAppearance(); save()
+    }
+    /// Match the Mac randomizer: change the assignment, keeping every saved style intact.
+    @discardableResult func randomizeVisualizer() -> Bool {
+        let eligible = library.eligibleScenes
+        let different = eligible.filter { $0 != selectedScene }
+        guard let next = (different.isEmpty ? eligible : different).randomElement() else { return false }
+        assign(next)
+        return true
+    }
+    func randomizeLook() {
+        updateLook {
+            $0.palette = VisualPalette.allCases.randomElement()?.rawValue ?? $0.palette
+            $0.speed = Float.random(in: 0.6...1.8)
+            $0.zoomSpeed = Float.random(in: 0...2.5)
+            $0.chaos = Float.random(in: 0.3...1)
+            $0.zoom = Float.random(in: 0.65...1.4)
+            $0.brightness = Float.random(in: 0.8...1.5)
+            $0.size = Float.random(in: 0.5...1.8)
+            $0.detail = Float.random(in: 0.2...1)
+            $0.fog = Float.random(in: 0...0.6)
+        }
     }
     func updateLook(_ body: (inout VisionLook) -> Void) {
         var value = look; body(&value)
