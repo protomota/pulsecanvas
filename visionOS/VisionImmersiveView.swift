@@ -180,7 +180,6 @@ private struct VisionImmersiveControls: View {
                 Button("Back to Studio", action: returnToStudio)
             }
             Toggle("Edge smoothing", isOn: $session.edgeSmoothing).toggleStyle(.button)
-            Text("Pinch the visual to hide or show controls.").font(.caption2).foregroundStyle(.secondary)
         }.frame(width: 620)
     }
 }

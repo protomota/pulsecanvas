@@ -48,6 +48,39 @@ import CryptoKit
         try await Task.sleep(for: .milliseconds(350))
         precondition(studio.transport.playing && (studio.render.playbackTime ?? 0) > 8.1)
         studio.suspend(); precondition(!studio.transport.playing && studio.render.paused)
+        let editing = studio.project.clips[0].id
+        let following = studio.project.clips[1].id
+        let otherScenes = NativeEffects.activeIDs.filter { $0 != 22 }
+        studio.assign(22, to: editing)
+        studio.assign(otherScenes[1], to: following)
+        studio.seek(studio.segments[0].end - 0.1)
+        studio.togglePlayback()
+        try await Task.sleep(for: .milliseconds(350))
+        precondition(studio.selected == following && studio.transport.playing)
+        let playheadBeforeEdit = studio.transport.seconds
+        studio.assign(otherScenes[0], to: editing)
+        precondition(studio.project.clips.first(where: { $0.id == editing })?.scene == otherScenes[0])
+        precondition(studio.selected == following && studio.render.scene == otherScenes[1])
+        precondition(studio.transport.seconds == playheadBeforeEdit && studio.transport.playing,
+                     "A card picker must edit its original clip without moving playback to a different section")
+        studio.updateLook(for: editing) { $0.chaos = 0.13 }
+        precondition(studio.look(for: editing)?.chaos == 0.13 && studio.render.chaos != 0.13)
+        studio.resetLook(for: editing)
+        precondition(studio.look(for: editing) == VisionLook(scene: otherScenes[0]))
+        let pickerLooks = studio.project.looks
+        precondition(studio.randomizeVisualizer(for: editing))
+        precondition(studio.project.looks == pickerLooks && studio.selected == following)
+        studio.randomizeLook(for: editing)
+        precondition(studio.look(for: editing)?.isValid == true && studio.selected == following)
+        let missingClip = UUID()
+        let beforeMissing = studio.project.clips
+        studio.assign(22, to: missingClip); studio.updateLook(for: missingClip) { $0.chaos = 0.2 }
+        studio.resetLook(for: missingClip)
+        precondition(!studio.randomizeVisualizer(for: missingClip) && studio.project.clips == beforeMissing)
+        studio.suspend()
+        // Restore the appearance used by the independent autosave assertions below.
+        studio.assign(22, to: editing); studio.updateLook(for: editing) { $0.chaos = 0.91; $0.palette = 3 }
+        print("PASS card picker: stable clip targeting during playback, no seek, shared style edits/reset, randomizers and missing-clip safety")
         var completions = 0
         studio.onPlaybackFinished = { completions += 1 }
         studio.loopPlayback = true

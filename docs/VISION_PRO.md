@@ -13,8 +13,11 @@ no projectM engine, community presets/textures or Sparkle updater.
   together; its custom pool supports combined category/favorite choices.
 - **Random visualizer** replaces the selected section's visualizer without changing
   saved looks. The adjacent dice randomizes only that visualizer's style.
-- Select a timeline section, assign its visualizer on the left, and set independent
-  1–64 bar lengths. Music analysis supplies the beat grid. The experimental add,
+- Tap a timeline card's visualizer heading to open its popover: search the library,
+  filter categories/favorites, shuffle visualizers, favorite an effect, or adjust
+  its palette, Chaos, zoom and motion. Picker edits target that card even if
+  playback advances to another section. Styles remain shared by visualizer.
+  Set independent 1–64 bar lengths. Music analysis supplies the beat grid. The experimental add,
   remove and reorder buttons have been removed from the interface.
 - Edit palette, Chaos, zoom speed and motion speed. An effect shares its look
   across scenes, as on the Mac; Reset restores its native defaults.
@@ -26,8 +29,9 @@ no projectM engine, community presets/textures or Sparkle updater.
   Loading and retry states are visible. Radio shuffles tracks and advances at the
   end of each song instead of looping one track. Its cache and transport are
   independent of the editable Studio project; switching modes pauses the old one.
-- **Watch full screen** opens an immersive space and hides the Studio window.
-  **Full immersion** (on by default) hides passthrough and uses a larger curved
+- The **goggles icon** in the bottom ornament opens an immersive space and hides
+  the Studio window. The adjacent, visibly labeled **Hide room** switch (on by
+  default) hides passthrough and uses a larger curved
   canvas; switch it off before opening to retain the room. Pinch the visual to
   show/hide its floating controls, or use **Back to Studio** to reopen the editor.
   Controls hide after five seconds during playback. Closing immersion through the
@@ -83,6 +87,9 @@ Radio station/catalog fixtures, automatic song advancement, category-limited
 Radio sections and preservation of the user's Studio file. Legacy project
 decoding is covered separately. A Metal test verifies the presentation filter's
 diagonal edge coverage, flat colors, exact smoothing-off output, bounds and alpha.
+Card-picker tests advance actual audio into the next section, then verify edits,
+style/reset and randomizers stay on the original card, never seek the playhead,
+and safely ignore missing clip IDs.
 Mac Store regressions exercise all 336 shaders' beat response and zero-Chaos
 behavior. Both visionOS simulator and device-target compilation pass. A simulator
 installation launches successfully and displays the native Metal Studio preview.

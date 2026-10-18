@@ -24,20 +24,14 @@ struct VisionStudioView: View {
                     }.pickerStyle(.segmented).disabled(session.immersiveActive)
                     if session.radioMode { VisionRadioControls(radio: session.radio) }
                     VisionLibrary(studio: studio)
-                    immersiveButton
                 }.frame(width: 340)
                 VStack(alignment: .leading, spacing: 12) {
-                    HStack {
-                        Text(NativeEffects.names[studio.selectedScene]).font(.title2.bold()).lineLimit(1)
-                        Spacer()
-                        Label("Native Metal", systemImage: "sparkles").foregroundStyle(.secondary)
-                    }
+                    Text(NativeEffects.names[studio.selectedScene]).font(.title2.bold()).lineLimit(1)
                     Group {
                         if session.immersiveActive {
                             VStack(spacing: 16) {
                                 Image(systemName: "visionpro").font(.largeTitle)
                                 Text("Immersive viewing is active").font(.title3)
-                                Text("The window preview pauses to give the immersive view the GPU.").foregroundStyle(.secondary)
                             }.frame(maxWidth: .infinity, maxHeight: .infinity)
                         } else { VisualizerView(state: studio.render).frame(maxWidth: .infinity, maxHeight: .infinity) }
                     }
@@ -48,16 +42,6 @@ struct VisionStudioView: View {
                         }
                     VisionTransportView(studio: studio, transport: studio.transport, radio: session.radioMode ? session.radio : nil)
                     VisionStyleControls(studio: studio)
-                    Toggle("Full immersion · hide the room", isOn: $session.fullImmersion)
-                        .disabled(session.immersiveActive)
-                    if session.immersiveActive {
-                        Button("Hide Studio window", systemImage: "eye.slash") {
-                            session.studioWindowHidden = true; dismissWindow(id: "studio")
-                        }
-                    } else {
-                        Text("Immersive viewing hides the Studio window. Pinch the visual to show controls and return.")
-                            .font(.caption).foregroundStyle(.secondary)
-                    }
                 }
             }
             if !session.radioMode { VisionTimelineView(studio: studio) }
@@ -71,6 +55,12 @@ struct VisionStudioView: View {
                     Button("Legal & Credits", systemImage: "info.circle") { legal = true }
                     Spacer()
                     if studio.loading { ProgressView("Analyzing music…") }
+                    HStack(spacing: 8) {
+                        Text("Hide room").font(.callout)
+                        Toggle("Hide room", isOn: $session.fullImmersion).labelsHidden()
+                            .toggleStyle(.switch).disabled(session.immersiveActive)
+                    }.fixedSize()
+                    immersiveButton
                 }
             }
             .sheet(isPresented: $legal) {
@@ -130,10 +120,11 @@ struct VisionStudioView: View {
                 }
             }
         } label: {
-            Label(session.immersiveActive ? "Leave immersive view" : "Watch full screen",
-                  systemImage: "arrow.up.left.and.arrow.down.right")
-                .frame(maxWidth: .infinity, minHeight: 32)
-        }.buttonStyle(.borderedProminent).disabled(changingSpace)
+            Image(systemName: "visionpro").font(.title3)
+                .frame(minWidth: 44, minHeight: 44)
+        }.disabled(changingSpace)
+            .accessibilityLabel(session.immersiveActive ? "Leave full screen" : "Enter full screen")
+            .help(session.immersiveActive ? "Leave full screen" : "Enter full screen")
     }
 
     private func openProject(_ url: URL) {
@@ -227,8 +218,6 @@ private struct VisionLibrary: View {
                         VStack(spacing: 8) {
                             Image(systemName: "line.3.horizontal.decrease.circle").font(.title)
                             Text("No matching visualizers").font(.headline)
-                            Text("Choose another group, add favorites, or clear your search.")
-                                .font(.callout).foregroundStyle(.secondary)
                         }.multilineTextAlignment(.center).padding(.vertical, 28).padding(.horizontal, 8)
                     }
                 }.padding(.trailing, 6)
@@ -271,23 +260,27 @@ private struct VisionTransportView: View {
 
 private struct VisionStyleControls: View {
     @ObservedObject var studio: VisionStudio
+    var clipID: UUID? = nil
+    private var look: VisionLook {
+        clipID.flatMap { studio.look(for: $0) } ?? studio.look
+    }
     private func value(_ key: WritableKeyPath<VisionLook, Float>) -> Binding<Float> {
-        Binding(get: { studio.look[keyPath: key] }, set: { value in studio.updateLook { $0[keyPath: key] = value } })
+        Binding(get: { look[keyPath: key] }, set: { value in studio.updateLook(for: clipID) { $0[keyPath: key] = value } })
     }
     var body: some View {
         VStack(spacing: 14) {
             HStack {
-                Picker("Palette", selection: Binding(get: { studio.look.palette }, set: { value in studio.updateLook { $0.palette = value } })) {
+                Picker("Palette", selection: Binding(get: { look.palette }, set: { value in studio.updateLook(for: clipID) { $0.palette = value } })) {
                     ForEach(VisualPalette.allCases, id: \.rawValue) { Text($0.title).tag($0.rawValue) }
                 }
-                Button("Reset") { studio.resetLook() }
+                Button("Reset") { studio.resetLook(for: clipID) }
             }
             HStack(spacing: 24) {
                 control("Chaos", binding: value(\.chaos), range: 0...1)
                 control("Zoom speed", binding: value(\.zoomSpeed), range: 0...3)
                 control("Motion speed", binding: value(\.speed), range: 0...3)
             }
-            if studio.immersiveActive {
+            if studio.immersiveActive && clipID == nil {
                 HStack(spacing: 24) {
                     control("Screen distance", binding: $studio.screenDistance, range: 2...5)
                     control("Screen height", binding: $studio.screenHeight, range: 0.8...2)
@@ -313,24 +306,112 @@ private struct VisionTimelineView: View {
                 Text("\(studio.project.clips.count) sections · \(Int(studio.project.bpm)) BPM").foregroundStyle(.secondary)
                 Spacer()
             }
-            Text("Select a section, choose its visualizer on the left, and set how many bars it plays.")
-                .font(.caption).foregroundStyle(.secondary)
             ScrollView(.horizontal) {
                 LazyHStack(spacing: 12) {
                     ForEach(studio.project.clips) { clip in
-                        VStack(alignment: .leading, spacing: 12) {
-                            Button { studio.select(clip) } label: {
-                                Label(NativeEffects.names[clip.scene], systemImage: NativeEffects.all[clip.scene].icon)
-                                    .font(.headline).lineLimit(1).frame(maxWidth: .infinity, minHeight: 48, alignment: .leading)
-                                    .contentShape(Rectangle())
-                            }.buttonStyle(.plain).hoverEffect(.highlight)
-                            Stepper("\(clip.bars) \(clip.bars == 1 ? "bar" : "bars")", value: Binding(get: { clip.bars }, set: { studio.bars($0, clip: clip.id) }), in: 1...64)
-                                .accessibilityLabel("Bars for \(NativeEffects.names[clip.scene])")
-                        }.padding(16).frame(width: 260)
-                            .background(studio.selected == clip.id ? Color.orange.opacity(0.2) : Color.white.opacity(0.06), in: RoundedRectangle(cornerRadius: 20))
+                        VisionTimelineCard(studio: studio, clip: clip)
                     }
                 }
-            }.frame(height: 145)
+            }.frame(height: 160)
         }
+    }
+}
+
+private struct VisionTimelineCard: View {
+    @ObservedObject var studio: VisionStudio
+    let clip: VisionClip
+    @State private var choosing = false
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Button { studio.select(clip); choosing = true } label: {
+                HStack(spacing: 10) {
+                    Image(systemName: NativeEffects.all[clip.scene].icon).foregroundStyle(.tint)
+                    Text(NativeEffects.names[clip.scene]).font(.headline).lineLimit(2)
+                        .multilineTextAlignment(.leading)
+                    Spacer(minLength: 0)
+                    Image(systemName: "chevron.down").font(.caption.weight(.semibold))
+                }.frame(maxWidth: .infinity, minHeight: 52, alignment: .leading).contentShape(Rectangle())
+            }.buttonStyle(.plain).hoverEffect(.highlight)
+                .accessibilityLabel("Choose visualizer for \(NativeEffects.names[clip.scene]) section")
+                .popover(isPresented: $choosing, arrowEdge: .bottom) {
+                    VisionClipPicker(studio: studio, clipID: clip.id) { choosing = false }
+                        .presentationCompactAdaptation(.popover)
+                }
+            Stepper("\(clip.bars) \(clip.bars == 1 ? "bar" : "bars")",
+                    value: Binding(get: { clip.bars }, set: { studio.bars($0, clip: clip.id) }), in: 1...64)
+                .accessibilityLabel("Bars for \(NativeEffects.names[clip.scene])")
+        }.padding(16).frame(width: 300)
+            .background(studio.selected == clip.id ? Color.orange.opacity(0.2) : Color.white.opacity(0.06),
+                        in: RoundedRectangle(cornerRadius: 20))
+    }
+}
+
+private struct VisionClipPicker: View {
+    @ObservedObject var studio: VisionStudio
+    @ObservedObject private var library = ProjectMPresets.shared
+    let clipID: UUID
+    let close: () -> Void
+    @State private var query = ""
+    @State private var favoritesOnly = false
+    private var clip: VisionClip? { studio.project.clips.first { $0.id == clipID } }
+    private var scenes: [Int] { library.filteredScenes(query: query, favoritesOnly: favoritesOnly) }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            HStack {
+                Text("Choose visualizer").font(.title2.bold())
+                Spacer()
+                Button("Done", action: close).buttonStyle(.borderedProminent)
+            }
+            if let clip {
+                HStack(spacing: 12) {
+                    TextField("Search visualizers", text: $query).textFieldStyle(.roundedBorder)
+                    Toggle(isOn: $favoritesOnly) { Label("Favorites", systemImage: "heart.fill") }
+                        .toggleStyle(.button)
+                }
+                VisualizerRandomizerPicker(compact: true, fillsWidth: true)
+                ScrollView {
+                    LazyVStack(spacing: 6) {
+                        ForEach(scenes, id: \.self) { scene in
+                            HStack(spacing: 8) {
+                                Button {
+                                    studio.assign(scene, to: clipID)
+                                } label: {
+                                    HStack(spacing: 12) {
+                                        Image(systemName: library.icon(for: scene)).frame(width: 28).foregroundStyle(.tint)
+                                        Text(NativeEffects.names[scene]).multilineTextAlignment(.leading)
+                                        Spacer(minLength: 0)
+                                        if scene == clip.scene { Image(systemName: "checkmark").foregroundStyle(.tint) }
+                                    }.frame(maxWidth: .infinity, minHeight: 48, alignment: .leading)
+                                        .contentShape(Rectangle())
+                                }.buttonStyle(.plain).hoverEffect(.highlight)
+                                Button { library.toggleFavorite(scene) } label: {
+                                    Image(systemName: library.isFavorite(scene) ? "heart.fill" : "heart")
+                                        .frame(width: 44, height: 48)
+                                }.buttonStyle(.plain).hoverEffect(.highlight)
+                                    .accessibilityLabel("\(library.isFavorite(scene) ? "Unfavorite" : "Favorite") \(NativeEffects.names[scene])")
+                            }.padding(.horizontal, 10)
+                                .background(scene == clip.scene ? Color.orange.opacity(0.15) : Color.white.opacity(0.04),
+                                            in: RoundedRectangle(cornerRadius: 12))
+                        }
+                        if scenes.isEmpty { Text("No matching visualizers").foregroundStyle(.secondary).padding(24) }
+                    }.padding(.trailing, 6)
+                }.frame(maxHeight: .infinity).scrollIndicators(.visible)
+                Divider()
+                HStack {
+                    Label(NativeEffects.names[clip.scene], systemImage: NativeEffects.all[clip.scene].icon)
+                        .font(.headline).lineLimit(2)
+                    Spacer()
+                    Button("Random visualizer", systemImage: "shuffle") { studio.randomizeVisualizer(for: clipID) }
+                        .labelStyle(.iconOnly).disabled(library.eligibleScenes.isEmpty)
+                    Button("Randomize style", systemImage: "dice.fill") { studio.randomizeLook(for: clipID) }
+                        .labelStyle(.iconOnly)
+                    Button("Favorite current visualizer", systemImage: library.isFavorite(clip.scene) ? "heart.fill" : "heart") {
+                        library.toggleFavorite(clip.scene)
+                    }.labelStyle(.iconOnly)
+                }
+                VisionStyleControls(studio: studio, clipID: clipID)
+            } else { Text("Section unavailable"); Spacer() }
+        }.padding(24).frame(width: 680, height: 680)
     }
 }

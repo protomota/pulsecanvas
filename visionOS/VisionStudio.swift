@@ -167,19 +167,34 @@ private struct VisionAnalysis: @unchecked Sendable { let value: SoundtrackAnalyz
         applyAppearance()
     }
     func assign(_ scene: Int) {
-        guard self.library.eligibleScenes.contains(scene) else { return }
-        project.clips[selectedIndex].scene = scene; applyAppearance(); save()
+        assign(scene, to: project.clips[selectedIndex].id)
+    }
+    /// Picker edits target a stable clip ID even after playback follows a later section.
+    func assign(_ scene: Int, to clipID: UUID) {
+        guard library.eligibleScenes.contains(scene), let index = project.clips.firstIndex(where: { $0.id == clipID }) else { return }
+        project.clips[index].scene = scene
+        if project.clips[index].id == selected { applyAppearance() }
+        save()
+    }
+    func look(for clipID: UUID) -> VisionLook? {
+        guard let scene = project.clips.first(where: { $0.id == clipID })?.scene else { return nil }
+        return project.looks[scene] ?? VisionLook(scene: scene)
+    }
+    private func targetScene(for clipID: UUID?) -> Int? {
+        if let clipID { return project.clips.first(where: { $0.id == clipID })?.scene }
+        return selectedScene
     }
     /// Match the Mac randomizer: change the assignment, keeping every saved style intact.
-    @discardableResult func randomizeVisualizer() -> Bool {
+    @discardableResult func randomizeVisualizer(for clipID: UUID? = nil) -> Bool {
+        guard let scene = targetScene(for: clipID) else { return false }
         let eligible = library.eligibleScenes
-        let different = eligible.filter { $0 != selectedScene }
+        let different = eligible.filter { $0 != scene }
         guard let next = (different.isEmpty ? eligible : different).randomElement() else { return false }
-        assign(next)
+        assign(next, to: clipID ?? project.clips[selectedIndex].id)
         return true
     }
-    func randomizeLook() {
-        updateLook {
+    func randomizeLook(for clipID: UUID? = nil) {
+        updateLook(for: clipID) {
             $0.palette = VisualPalette.allCases.randomElement()?.rawValue ?? $0.palette
             $0.speed = Float.random(in: 0.6...1.8)
             $0.zoomSpeed = Float.random(in: 0...2.5)
@@ -191,12 +206,20 @@ private struct VisionAnalysis: @unchecked Sendable { let value: SoundtrackAnalyz
             $0.fog = Float.random(in: 0...0.6)
         }
     }
-    func updateLook(_ body: (inout VisionLook) -> Void) {
-        var value = look; body(&value)
+    func updateLook(for clipID: UUID? = nil, _ body: (inout VisionLook) -> Void) {
+        guard let scene = targetScene(for: clipID) else { return }
+        var value = project.looks[scene] ?? VisionLook(scene: scene); body(&value)
         guard value.isValid else { return }
-        project.looks[selectedScene] = value; applyAppearance(); save()
+        project.looks[scene] = value
+        if scene == selectedScene { applyAppearance() }
+        save()
     }
-    func resetLook() { project.looks.removeValue(forKey: selectedScene); applyAppearance(); save() }
+    func resetLook(for clipID: UUID? = nil) {
+        guard let scene = targetScene(for: clipID) else { return }
+        project.looks.removeValue(forKey: scene)
+        if scene == selectedScene { applyAppearance() }
+        save()
+    }
     func bars(_ value: Int, clip: UUID) {
         guard let i = project.clips.firstIndex(where: { $0.id == clip }), (1...64).contains(value) else { return }
         project.clips[i].bars = value; save(); tick()
