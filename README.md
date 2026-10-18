@@ -190,6 +190,20 @@ The exact credit and link also appear in the app’s **Legal & Credits** window.
 
 [Official projectM licensing guidance](https://github.com/projectM-visualizer/projectm/wiki/projectM-Licensing#apple-store-compatibility) explicitly states incompatibility with Apple’s stores, including macOS, and recommends standalone distribution subject to LGPL terms. This remains an unresolved Apple-store blocker for a package containing that engine. The Metal Store package excludes it entirely. Dynamic linking, a wrapper license, and a matching source archive do not resolve the warning for the full-library package. Existing engine-source and rebuild-compliance work is preserved; the full status is in [rights and release blockers](docs/app-store/RIGHTS-RESOLUTION.md).
 
+## Vision Pro development
+
+A native visionOS prototype now pairs an editable Studio timeline with a curved
+immersive screen, sharing the 336 native Metal effects and audio analysis.
+See [Vision Pro setup and current limits](docs/VISION_PRO.md). This is an early
+TestFlight target; no production Vision Pro App Store release has been submitted.
+
 The latest [community-library audit](docs/LIBRARY_REFRESH.md) accounts for every
 upstream preset and preserves all completed owner reviews. Collection, category
 and folder filters live in Library; the top preset strip stays flat.
+
+## Apple TV development
+
+A native tvOS target brings the Metal visualizers, favorites, visual controls and
+server-driven Radio to a full-screen, remote-friendly player. See
+[Apple TV setup and current limits](docs/APPLE_TV.md). TestFlight delivery is
+recorded separately from the Mac release; no Mac App Review submission is replaced.

@@ -8,7 +8,7 @@ trap 'rm -rf "$staging_root"' EXIT
 stage="$staging_root/PulseCanvas-source"
 mkdir -p "$stage"
 # Package only committed release sources; omit unrelated in-progress assets.
-git archive HEAD Sources scripts radio macOS PulseCanvas.xcodeproj third_party assets packaging Package.swift LICENSE README.md AGENTS.md docs | tar -x -C "$stage"
+git archive HEAD Sources scripts radio macOS PulseCanvas.xcodeproj PulseCanvasVision.xcodeproj PulseCanvasTV.xcodeproj visionOS tvOS third_party assets packaging Package.swift LICENSE README.md AGENTS.md docs | tar -x -C "$stage"
 # Remove generated Python caches if local checks created them.
 find "$stage/scripts" -type d -name __pycache__ -prune -exec rm -rf {} +
 release_version="$(awk '/^MARKETING_VERSION = / {print $3}' "$stage/macOS/Release.xcconfig")"

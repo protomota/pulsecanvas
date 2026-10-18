@@ -52,6 +52,8 @@ final class ProjectMPresets: ObservableObject {
     let favoritesBackupDirectory: URL?
     #if os(visionOS)
     private let backupEdition = "Vision-Pro"
+    #elseif os(tvOS)
+    private let backupEdition = "Apple-TV"
     #elseif os(iOS)
     private let backupEdition = "iPhone-iPad"
     #elseif STORE_BUILD
