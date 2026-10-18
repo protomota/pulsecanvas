@@ -295,9 +295,7 @@ def verify_source(path, revision=None):
             require((root / 'REVISION.txt').read_text().strip() == revision, 'Source revision differs')
             # Verify the entire committed build input set, not just the manifests.
             inputs = ['Sources', 'scripts', 'radio', 'macOS', 'PulseCanvas.xcodeproj',
-                      'third_party', 'assets', 'Package.swift', 'LICENSE', 'README.md',
-                      'docs/licensing.md', 'docs/app-store', 'docs/unused-code-audit.md',
-                      'docs/DISTRIBUTION.md', 'docs/LIBRARY_REFRESH.md', 'docs/cream-library-audit.json']
+                      'third_party', 'assets', 'packaging', 'Package.swift', 'LICENSE', 'README.md', 'AGENTS.md', 'docs']
             snapshot = subprocess.check_output(['git', '-C', str(REPO), 'archive', revision, *inputs])
             with tarfile.open(fileobj=io.BytesIO(snapshot)) as committed:
                 expected = set()
