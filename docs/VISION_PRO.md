@@ -44,13 +44,21 @@ no projectM engine, community presets/textures or Sparkle updater.
   Unselected fields keep their own values. Shortening sections fills the whole
   song with additional cards; longer sections trim the tail.
 - Transport play, elapsed time, scrubber, duration and volume share one center line.
+- **Hi-hat strobe** keeps its label and switch together. Enabling it reveals
+  sensitivity and strength controls in both the main style controls and card picker.
+  These edit the same shared visualizer settings as Apply to all and Mac projects.
 - Save/open Mac-compatible `.pulsecanvas` projects. Older `.pulsevision` backups
   still open. The app also autosaves locally.
 - **Export MP4** renders the complete Studio soundtrack/timeline, with wide,
   landscape, portrait, phone or square framing, 720/1080/2160-pixel shorter edge and
   24/30/60 fps. A progress preview, frame counter and time estimate appear while
   rendering; **Save video** then opens Files to choose a destination. Cancelling
-  the save picker keeps the rendered file available until the export sheet closes.
+  the save picker keeps the rendered file available for retry. The most recent
+  completed MP4 is cached across sheet dismissal/relaunch; it is replaced only
+  after another render completes. Build 5 also attempts to recover the completed
+  MP4 left by build 4's save-picker crash. It uses `UIDocumentPickerViewController`
+  to export the existing file directly, avoiding the crashing SwiftUI Transferable
+  conversion. Import audio uses a tray/down-arrow icon; export uses a filmstrip.
 
 Audio imports are copied into this app's Documents directory. Project backups
 contain settings and a local audio reference, not the audio itself. Moving a
@@ -77,6 +85,7 @@ simulator runtime. The deployment target is visionOS 2.0; validation used Xcode
 
 ```sh
 bash scripts/test-vision-project.sh
+bash scripts/test-vision-video-save.sh
 PULSECANVAS_VALIDATION_OUTPUT="/path/to/render-drive/vision-validation" bash scripts/test-vision-interchange-export.sh
 bash scripts/test-vision-transport.sh
 bash scripts/test-vision-presentation.sh

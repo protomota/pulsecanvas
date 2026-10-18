@@ -58,7 +58,7 @@ struct VisionStudioView: View {
             .frame(minWidth: 1100, minHeight: 780)
             .toolbar {
                 ToolbarItemGroup(placement: .bottomOrnament) {
-                    Button("Import audio", systemImage: "waveform.badge.plus") { importAudio = true }.disabled(studio.loading || session.radioMode)
+                    Button("Import audio", systemImage: "tray.and.arrow.down") { importAudio = true }.disabled(studio.loading || session.radioMode)
                     Button("Open project", systemImage: "folder") { importProject = true }.disabled(studio.loading || session.radioMode)
                     Button("Save project", systemImage: "square.and.arrow.up") {
                         do {
@@ -66,8 +66,8 @@ struct VisionStudioView: View {
                             exportProject = true
                         } catch { studio.message = "Couldn't save project: \(error.localizedDescription)" }
                     }.disabled(session.radioMode || studio.loading || studio.needsSoundtrack)
-                    Button("Export MP4", systemImage: "square.and.arrow.up.on.square") { exportVideo = true }
-                        .disabled(studio.loading || studio.audioURL == nil || session.radioMode)
+                    Button("Export MP4", systemImage: "film") { exportVideo = true }
+                        .disabled(studio.loading || session.radioMode)
                     Button("Legal & Credits", systemImage: "info.circle") { legal = true }
                     Spacer()
                     if studio.loading { ProgressView("Analyzing music…") }
@@ -305,9 +305,20 @@ private struct VisionStyleControls: View {
                 control("Zoom speed", binding: value(\.zoomSpeed), range: 0...3)
                 control("Motion speed", binding: value(\.speed), range: 0...3)
             }
-            Toggle("Hi-hat strobe", isOn: Binding(get: { look.strobeEnabled }, set: { enabled in
-                studio.updateLook(for: clipID) { $0.strobeEnabled = enabled }
-            }))
+            VStack(alignment: .leading, spacing: 12) {
+                HStack(spacing: 12) {
+                    Label("Hi-hat strobe", systemImage: "bolt.fill")
+                    Toggle("Hi-hat strobe", isOn: Binding(get: { look.strobeEnabled }, set: { enabled in
+                        studio.updateLook(for: clipID) { $0.strobeEnabled = enabled }
+                    })).labelsHidden().toggleStyle(.switch).fixedSize()
+                }.frame(maxWidth: .infinity, alignment: .leading)
+                if look.strobeEnabled {
+                    HStack(spacing: 24) {
+                        control("Sensitivity", binding: value(\.strobeSensitivity), range: 0.25...4)
+                        control("Strength", binding: value(\.strobeStrength), range: 0.1...1)
+                    }
+                }
+            }
             if studio.immersiveActive && clipID == nil {
                 HStack(spacing: 24) {
                     control("Screen distance", binding: $studio.screenDistance, range: 2...5)
@@ -515,6 +526,6 @@ private struct VisionClipPicker: View {
                 }
                 VisionStyleControls(studio: studio, clipID: clipID)
             } else { Text("Section unavailable"); Spacer() }
-        }.padding(24).frame(width: 680, height: 680)
+        }.padding(24).frame(width: 680, height: 760)
     }
 }

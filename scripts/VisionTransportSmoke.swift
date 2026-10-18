@@ -98,6 +98,13 @@ import CryptoKit
                      "A card picker must edit its original clip without moving playback to a different section")
         studio.updateLook(for: editing) { $0.chaos = 0.13 }
         precondition(studio.look(for: editing)?.chaos == 0.13 && studio.render.chaos != 0.13)
+        studio.updateLook(for: editing) {
+            $0.strobeEnabled = true; $0.strobeSensitivity = 2.3; $0.strobeStrength = 0.65
+        }
+        let strobeLook = studio.look(for: editing)!
+        precondition(strobeLook.strobeEnabled && strobeLook.strobeSensitivity == 2.3 && strobeLook.strobeStrength == 0.65)
+        let strobeRoundTrip = try JSONDecoder().decode(VisionProject.self, from: JSONEncoder().encode(studio.project))
+        precondition(strobeRoundTrip.looks[otherScenes[0]] == strobeLook && studio.selected == following)
         studio.resetLook(for: editing)
         precondition(studio.look(for: editing) == VisionLook(scene: otherScenes[0]))
         let pickerLooks = studio.project.looks

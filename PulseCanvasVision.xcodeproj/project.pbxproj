@@ -143,6 +143,18 @@
 			"path" = "visionOS/VisionVideoExportView.swift";
 			"sourceTree" = "<group>";
 		};
+		"0DA04F35AB86E5951F47166B" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"path" = "visionOS/VisionVideoFile.swift";
+			"sourceTree" = "<group>";
+		};
+		"0C8CC87581FC28D19B7207E0" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"path" = "visionOS/VisionVideoSavePicker.swift";
+			"sourceTree" = "<group>";
+		};
 		"5DE058E997E17FB6E1C96D5F" = {
 			"isa" = "PBXFileReference";
 			"lastKnownFileType" = "folder.assetcatalog";
@@ -219,6 +231,8 @@
 				"1074610367B0B6A094EA470C",
 				"EEFDDCD6F5AB50CA168FA1B8",
 				"DFFC0D2FA6679F312F11941D",
+				"0DA04F35AB86E5951F47166B",
+				"0C8CC87581FC28D19B7207E0",
 				"5DE058E997E17FB6E1C96D5F",
 				"C2C9DC46EEABB4403C4F54B6",
 				"74BF9E81D47C493AB795ED7C",
@@ -336,6 +350,14 @@
 			"isa" = "PBXBuildFile";
 			"fileRef" = "DFFC0D2FA6679F312F11941D";
 		};
+		"B3AE542D97F29FA6604969E7" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "0DA04F35AB86E5951F47166B";
+		};
+		"EC23EF1C46289A7151FA3E28" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "0C8CC87581FC28D19B7207E0";
+		};
 		"878A52FC5FF6A57D50B7B870" = {
 			"isa" = "PBXSourcesBuildPhase";
 			"buildActionMask" = 2147483647;
@@ -363,6 +385,8 @@
 				"D5EA31B0949757348F1FFD2B",
 				"DCBFE6E73C2E763A7A3093F7",
 				"B3C7BF0017EA13F33B0A3ECE",
+				"B3AE542D97F29FA6604969E7",
+				"EC23EF1C46289A7151FA3E28",
 			);
 			"runOnlyForDeploymentPostprocessing" = 0;
 		};
