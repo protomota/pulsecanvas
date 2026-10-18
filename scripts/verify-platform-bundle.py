@@ -1,12 +1,18 @@
 #!/usr/bin/env python3
 """Verify actual flat tvOS/visionOS native-only distribution bundles."""
-import argparse,hashlib,json,plistlib,subprocess
+import argparse,hashlib,json,plistlib,re,subprocess
 from pathlib import Path
 p=argparse.ArgumentParser(description=__doc__);p.add_argument('platform',choices=['tv','vision']);p.add_argument('app',type=Path);args=p.parse_args()
 root=Path(__file__).resolve().parents[1];app=args.app;info=plistlib.loads((app/'Info.plist').read_bytes())
 assert info['CFBundleIdentifier']=='com.protomota.pulsecanvas'
 assert info['UIDeviceFamily']==([3] if args.platform=='tv' else [7])
-assert info['CFBundleShortVersionString']=='0.1.0' and info['CFBundleVersion']==('2' if args.platform=='tv' else '1')
+config=(root/('tvOS' if args.platform=='tv' else 'visionOS')/'Release.xcconfig').read_text()
+def setting(name):
+ match=re.search(r'^'+re.escape(name)+r'\s*=\s*(\S+)',config,re.MULTILINE)
+ assert match, name
+ return match.group(1)
+assert info['CFBundleShortVersionString']==setting('MARKETING_VERSION')
+assert info['CFBundleVersion']==setting('CURRENT_PROJECT_VERSION')
 assert info['ITSAppUsesNonExemptEncryption'] is False
 assert (app/'Assets.car').is_file() and info.get('CFBundleIcons'), 'Compiled icon required'
 payload=app/'NativeAssets';source=root/'Sources/PulseCanvas/Resources'
@@ -28,4 +34,4 @@ assert 'Authority=Apple Distribution: Protomota, LLC (22HV69L32T)' in signature
 profile=plistlib.loads(subprocess.check_output(['security','cms','-D','-i',str(app/'embedded.mobileprovision')]))
 assert profile['TeamIdentifier']==['22HV69L32T'] and not profile['Entitlements']['get-task-allow']
 assert profile['Entitlements']['application-identifier']=='22HV69L32T.com.protomota.pulsecanvas'
-print(json.dumps({'platform':args.platform,'version':'0.1.0','build':int(info['CFBundleVersion']),'nativeEffects':336,'exactNativeResources':True,'icons':True,'signedDistribution':True,'noExternalEngineOrCatalogs':True,'executableSHA256':hashlib.sha256(exe.read_bytes()).hexdigest()},indent=2))
+print(json.dumps({'platform':args.platform,'version':info['CFBundleShortVersionString'],'build':int(info['CFBundleVersion']),'nativeEffects':336,'exactNativeResources':True,'icons':True,'signedDistribution':True,'noExternalEngineOrCatalogs':True,'executableSHA256':hashlib.sha256(exe.read_bytes()).hexdigest()},indent=2))
