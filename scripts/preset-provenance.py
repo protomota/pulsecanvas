@@ -6,7 +6,6 @@ import io
 import json
 import pathlib
 import plistlib
-import plistlib
 import re
 import subprocess
 import tarfile
@@ -25,6 +24,36 @@ NOTICE_PATTERN = re.compile(
     r'commercial|https?://|www\.|©|created by|written by', re.IGNORECASE)
 MANIFESTS = ['preset-manifest.json', 'preset-notices.json', 'texture-manifest.json']
 CURATION_FILE = 'preset-curation.json'
+ADMISSIONS_FILE = 'preset-admissions.json'
+
+
+def receipt_files(root):
+    return [name for name in [CURATION_FILE, ADMISSIONS_FILE] if (root / name).exists()]
+
+
+def verify_admissions(root, manifest, current, removed, retired):
+    path = root / ADMISSIONS_FILE
+    if not path.exists():
+        require('admissionsSHA256' not in manifest, 'Missing admissions receipt')
+        return 0
+    require(manifest.get('admissionsSHA256') == digest(path.read_bytes()), 'Admissions receipt differs')
+    receipt = json.loads(path.read_text())
+    require(receipt['schemaVersion'] == 1 and receipt['upstreamCommit'] == PRESET_COMMIT, 'Wrong admissions pin')
+    admitted = receipt['presets']
+    ids = {x['id'] for x in admitted}
+    require(len(ids) == len(admitted), 'Duplicate admitted identity')
+    require(ids <= current and ids.isdisjoint(removed | retired), 'Admissions conflict with curation or retirement')
+    for entry in admitted:
+        require(entry['id'] == 'projectm:' + entry['path'], 'Admitted upstream identity changed')
+        path = pathlib.PurePosixPath(entry['path'])
+        require(not path.is_absolute() and '..' not in path.parts, 'Unsafe admission path')
+        require(entry.get('visualInspectionApproved') is True, 'Missing visual admission inspection')
+        checks = entry['checks']
+        require(all(x['id'] == entry['id'] for x in checks), 'Admission check identity differs')
+        require({(x['width'], x['height']) for x in checks}.issuperset({(1920, 1080), (1080, 1920)}), 'Missing full-HD admission checks')
+        require(all(x['passed'] is True and x['frames'] >= 360 and x['soundtrackPCM'] is True for x in checks), 'Unverified admitted preset')
+        require(digest((root / 'Presets' / entry['path']).read_bytes()) == entry['sha256'], 'Admitted bytes changed')
+    return len(ids)
 
 
 def digest(data):
@@ -99,6 +128,10 @@ def verify_resource(root):
         current = {x['id'] for x in presets['presets']}
         require(current.isdisjoint(removed) and retained <= current, 'Curation does not match bundled subset')
         expected_count -= len(removed)
+    current = {x['id'] for x in presets['presets']}
+    removed = removed if curation_path.exists() else set()
+    retired = {x['id'] for x in json.loads((root / 'retired-presets.json').read_text())} if (root / 'retired-presets.json').exists() else set()
+    expected_count += verify_admissions(root, presets, current, removed, retired)
     require(presets['bundledCount'] == len(presets['presets']) == expected_count, 'Wrong bundled count')
     require(presets['credit'] == CREDIT and presets['creditURL'] == CREDIT_URL, 'Missing curator credit')
     verify_files(root / 'Presets', presets['presets'])
@@ -175,6 +208,8 @@ def generate(preset_checkout, texture_checkout):
             'presets': entries}
         if (root / CURATION_FILE).exists():
             preset_manifest['curationSHA256'] = digest((root / CURATION_FILE).read_bytes())
+        if (root / ADMISSIONS_FILE).exists():
+            preset_manifest['admissionsSHA256'] = digest((root / ADMISSIONS_FILE).read_bytes())
         texture_entries = []
         for path in sorted((root / 'Textures').rglob('*')):
             if not path.is_file():
@@ -211,7 +246,7 @@ def verify_app(app):
     verify_resource(root)
     require(set(resources.rglob('*.milk')) == set((root / 'Presets').rglob('*.milk')),
             'Unexpected presets outside the intended bundled subset')
-    curation_files = [CURATION_FILE] if (REPO / RESOURCE / CURATION_FILE).exists() else []
+    curation_files = receipt_files(REPO / RESOURCE)
     for name in MANIFESTS + ['Preset-README.md', 'Preset-notice.md', 'Provenance.md', 'catalog.json'] + curation_files:
         require((root / name).read_bytes() == (REPO / RESOURCE / name).read_bytes(), f'App differs from checkout: {name}')
     legal = resources / 'Legal'
@@ -246,7 +281,7 @@ def verify_source(path, revision=None):
         verify_resource(root / RESOURCE)
         require(set(root.rglob('*.milk')) == set((root / RESOURCE / 'Presets').rglob('*.milk')),
                 'Unexpected presets outside the source subset')
-        curation_files = [CURATION_FILE] if (REPO / RESOURCE / CURATION_FILE).exists() else []
+        curation_files = receipt_files(REPO / RESOURCE)
         for name in MANIFESTS + ['Preset-README.md', 'Preset-notice.md', 'Provenance.md', 'catalog.json'] + curation_files:
             require((root / RESOURCE / name).read_bytes() == (REPO / RESOURCE / name).read_bytes(), f'Source differs: {name}')
         for name in ['LICENSE', 'macOS/Release.xcconfig', 'third_party/projectm-source.tar.gz',
@@ -259,9 +294,10 @@ def verify_source(path, revision=None):
         if revision:
             require((root / 'REVISION.txt').read_text().strip() == revision, 'Source revision differs')
             # Verify the entire committed build input set, not just the manifests.
-            inputs = ['Sources', 'scripts', 'radio', 'macOS', 'PulseCanvas.xcodeproj', 'third_party',
-                      'assets', 'Package.swift', 'LICENSE', 'README.md', 'docs/licensing.md',
-                      'docs/app-store', 'docs/unused-code-audit.md']
+            inputs = ['Sources', 'scripts', 'radio', 'macOS', 'PulseCanvas.xcodeproj',
+                      'third_party', 'assets', 'Package.swift', 'LICENSE', 'README.md',
+                      'docs/licensing.md', 'docs/app-store', 'docs/unused-code-audit.md',
+                      'docs/DISTRIBUTION.md', 'docs/LIBRARY_REFRESH.md', 'docs/cream-library-audit.json']
             snapshot = subprocess.check_output(['git', '-C', str(REPO), 'archive', revision, *inputs])
             with tarfile.open(fileobj=io.BytesIO(snapshot)) as committed:
                 expected = set()

@@ -3,9 +3,9 @@
   "gpuRenderChecked": 8790,
   "familySkippedAfterConfirmation": 993,
   "userReportedRemovals": 45,
-  "retained": 7758,
-  "removed": 2025,
-  "nativeVisualizers": 31,
+  "retained": 7766,
+  "removed": 2029,
+  "nativeVisualizers": 336,
   "maximumFramesPerPreset": 90,
   "minimumVisualCheckSeconds": 2,
   "earlyExitForSlowEffects": true,
@@ -33,5 +33,24 @@
   "ownerCuration": {
     "source": "preset-curation.json",
     "withdrawn": 80
+  },
+  "refresh": {
+    "date": "2026-10-18",
+    "upstreamPresetCount": 9795,
+    "screened": 186,
+    "restored": 8,
+    "unaccountedLoadFailures": 12,
+    "receipt": "preset-admissions.json",
+    "visuallyRejectedAfterTechnicalPass": [
+      "Dreaming Nova",
+      "Fierce Echo",
+      "Midnight Compass",
+      "Nightfall Globe",
+      "Rhythm Galaxy"
+    ],
+    "rejectedByDecodedStudioExport": [
+      "Bloom Core",
+      "Rolling Gate"
+    ]
   }
 }

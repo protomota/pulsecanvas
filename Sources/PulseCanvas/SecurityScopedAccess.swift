@@ -20,13 +20,22 @@ final class SecurityScopedAccess {
         var stale = false
         // A stale bookmark can still resolve. The audio controller refreshes
         // the bookmark while the resolved resource is accessible.
-        return (try? URL(resolvingBookmarkData: bookmark,
-                         options: [.withSecurityScope, .withoutUI],
+        #if os(macOS)
+        let options: URL.BookmarkResolutionOptions = [.withSecurityScope, .withoutUI]
+        #else
+        let options: URL.BookmarkResolutionOptions = [.withoutUI]
+        #endif
+        return (try? URL(resolvingBookmarkData: bookmark, options: options,
                          relativeTo: nil, bookmarkDataIsStale: &stale)) ?? fallback
     }
 
     func readOnlyBookmark() throws -> Data {
-        try url.bookmarkData(options: [.withSecurityScope, .securityScopeAllowOnlyReadAccess],
+        #if os(macOS)
+        let options: URL.BookmarkCreationOptions = [.withSecurityScope, .securityScopeAllowOnlyReadAccess]
+        #else
+        let options: URL.BookmarkCreationOptions = []
+        #endif
+        return try url.bookmarkData(options: options,
                              includingResourceValuesForKeys: nil, relativeTo: nil)
     }
 }

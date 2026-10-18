@@ -2,20 +2,20 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 # Never package local preferences, bookmarks, profiles, signing keys or export videos.
-mkdir -p .build/store-source build/app-store
+mkdir -p .build/store-source "${PULSECANVAS_SOURCE_OUTPUT_DIR:-build/app-store}"
 staging_root="$(mktemp -d .build/store-source/package.XXXXXX)"
 trap 'rm -rf "$staging_root"' EXIT
 stage="$staging_root/PulseCanvas-source"
 mkdir -p "$stage"
 # Package only committed release sources; omit unrelated in-progress assets.
-git archive HEAD Sources scripts radio macOS PulseCanvas.xcodeproj third_party assets Package.swift LICENSE README.md docs/licensing.md docs/app-store docs/unused-code-audit.md docs/DISTRIBUTION.md | tar -x -C "$stage"
+git archive HEAD Sources scripts radio macOS PulseCanvas.xcodeproj third_party assets Package.swift LICENSE README.md docs/licensing.md docs/app-store docs/unused-code-audit.md docs/DISTRIBUTION.md docs/LIBRARY_REFRESH.md docs/cream-library-audit.json | tar -x -C "$stage"
 # Remove generated Python caches if local checks created them.
 find "$stage/scripts" -type d -name __pycache__ -prune -exec rm -rf {} +
 release_version="$(awk '/^MARKETING_VERSION = / {print $3}' "$stage/macOS/Release.xcconfig")"
 release_build="$(awk '/^CURRENT_PROJECT_VERSION = / {print $3}' "$stage/macOS/Release.xcconfig")"
 revision="$(git rev-parse HEAD)"
 # Do not overwrite a source archive previously matched to a submitted build.
-archive="build/app-store/PulseCanvas-${release_version}-${release_build}-${revision:0:12}-source.tar.gz"
+archive="${PULSECANVAS_SOURCE_OUTPUT_DIR:-build/app-store}/PulseCanvas-${release_version}-${release_build}-${revision:0:12}-source.tar.gz"
 cat > "$stage/BUILD.txt" <<'TXT'
 PulseCanvas Studio release source. Version/build are recorded in macOS/Release.xcconfig.
 Apple silicon, macOS 14+, Xcode 27.0, CMake required.
@@ -36,5 +36,5 @@ printf '%s\n' "$revision" > "$stage/REVISION.txt"
 python3 "$stage/scripts/preset-provenance.py"
 COPYFILE_DISABLE=1 tar -czf "$archive" -C "$staging_root" PulseCanvas-source
 python3 scripts/preset-provenance.py --source "$archive" --revision "$revision"
-shasum -a 256 third_party/projectm-source.tar.gz "$archive" > "build/app-store/source-${release_version}-${release_build}-${revision:0:12}-SHA256.txt"
+shasum -a 256 third_party/projectm-source.tar.gz "$archive" > "${PULSECANVAS_SOURCE_OUTPUT_DIR:-build/app-store}/source-${release_version}-${release_build}-${revision:0:12}-SHA256.txt"
 printf 'Verified source archive: %s\n' "$archive"

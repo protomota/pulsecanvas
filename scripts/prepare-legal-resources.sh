@@ -15,7 +15,9 @@ cp .build/projectm/source/vendor/stb_image/*.[ch] "$legal/"
 for name in Preset-README.md Preset-notice.md Provenance.md preset-manifest.json preset-notices.json texture-manifest.json; do
     cp "Sources/PulseCanvas/Resources/ProjectM/$name" "$legal/"
 done
-if [[ -f Sources/PulseCanvas/Resources/ProjectM/preset-curation.json ]]; then
-    cp Sources/PulseCanvas/Resources/ProjectM/preset-curation.json "$legal/"
-fi
+for receipt in preset-curation.json preset-admissions.json; do
+    if [[ -f "Sources/PulseCanvas/Resources/ProjectM/$receipt" ]]; then
+        cp "Sources/PulseCanvas/Resources/ProjectM/$receipt" "$legal/"
+    fi
+done
 cp Sources/PulseCanvas/Resources/ProjectM/Textures/README.md "$legal/Texture-provenance.md"

@@ -1,4 +1,4 @@
-import AppKit
+import Foundation
 import AVFoundation
 import Combine
 
@@ -77,7 +77,9 @@ final class AudioController: ObservableObject {
             engine.disconnectNodeOutput(player)
             engine.connect(player, to: engine.mainMixerNode, format: opened.processingFormat)
             engine.prepare()
+            #if os(macOS)
             try engine.start()
+            #endif
             soundtrackAccess = prepared.access
             soundtrackBookmark = BundledSoundtrack.identifier(for: url) == nil ? try? prepared.access.readOnlyBookmark() : nil
             selectedURL = url
@@ -98,8 +100,19 @@ final class AudioController: ObservableObject {
 
     func segmentPlan(beatsPerSection: Int = 16) -> SongSegmentation? { analyzer?.segmentPlan(beatsPerSection: beatsPerSection) }
 
+    private func startPlaybackEngine() -> Bool {
+        do {
+            #if !os(macOS)
+            try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default)
+            try AVAudioSession.sharedInstance().setActive(true)
+            #endif
+            if !engine.isRunning { try engine.start() }
+            return true
+        } catch { status = "Audio playback couldn't start: \(error.localizedDescription)"; return false }
+    }
     func playPause() {
         guard file != nil else { return }
+        if !isPlaying && !startPlaybackEngine() { return }
         if isPlaying { updateProgress(); player.pause(); isPlaying = false; status = "Paused" }
         else {
             if progress >= 0.9999 { schedule(from: 0, playing: true) }
@@ -195,6 +208,7 @@ final class AudioController: ObservableObject {
 
     private func schedule(from start: AVAudioFramePosition, playing: Bool, end: AVAudioFramePosition? = nil) {
         guard let file else { return }
+        if playing && !startPlaybackEngine() { return }
         if end == nil { previewSectionStart = nil; previewSectionEnd = nil }
         generation = UUID(); let token = generation
         player.stop(); segmentStart = start

@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "scannedFiles": 7758,
+  "scannedFiles": 7766,
   "method": "Case-insensitive notice/credit/license/URL keyword scan of every file; candidate lines are evidence, not license classifications. Complete original bytes, including unmatched comments, are preserved and verified by the preset manifest.",
-  "pattern": "copyright|\\blicen[cs]e\\b|\\bpermission\\b|\\battribution\\b|\\bauthor\\b|\\bcreator\\b|\\bcredits?\\b|all rights reserved|public domain|\\b(?:MIT|BSD|LGPL|GPL|SPDX|CC-BY)\\b|creative commons|redistribut|commercial|https?://|www\\.|©|created by|written by",
+  "pattern": "copyright|\\blicen[cs]e\\b|\\bpermission\\b|\\battribution\\b|\\bauthor\\b|\\bcreator\\b|\\bcredits?\\b|all rights reserved|public domain|\\b(?:MIT|BSD|LGPL|GPL|SPDX|CC-BY)\\b|creative commons|redistribut|commercial|https?://|www\\.|\u00a9|created by|written by",
   "filesWithCandidates": 141,
   "presets": [
     {

@@ -155,6 +155,12 @@
 			"path" = "Sources/PulseCanvas/VisualizerBrowser.swift";
 			"sourceTree" = "<group>";
 		};
+		"60524849AAB9510D72A785E5" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"path" = "Sources/PulseCanvas/VisualizerPoolControls.swift";
+			"sourceTree" = "<group>";
+		};
 		"708BBBB95AD63DC7E6DBA5CE" = {
 			"isa" = "PBXFileReference";
 			"lastKnownFileType" = "sourcecode.swift";
@@ -258,6 +264,7 @@
 				"E8D8D27BF7F9E2754340E1A3",
 				"5209D7B8FE7DB3E851C09177",
 				"2DC8FA731B0E69EFBE8C5F23",
+				"60524849AAB9510D72A785E5",
 				"708BBBB95AD63DC7E6DBA5CE",
 				"7958DCE0804231A319D26CD8",
 				"AEB3E1F4EFCEE89846DDB6F1",
@@ -387,6 +394,10 @@
 			"isa" = "PBXBuildFile";
 			"fileRef" = "2DC8FA731B0E69EFBE8C5F23";
 		};
+		"1E4F77C1404DCB61DFAB398B" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "60524849AAB9510D72A785E5";
+		};
 		"3B47F2807476B0478D4672B9" = {
 			"isa" = "PBXBuildFile";
 			"fileRef" = "708BBBB95AD63DC7E6DBA5CE";
@@ -428,6 +439,7 @@
 				"E13F13A9C228F2084DE33225",
 				"59F9215D16187F2AAD43D7B8",
 				"69442A0AA42CCF182DE4D40C",
+				"1E4F77C1404DCB61DFAB398B",
 				"3B47F2807476B0478D4672B9",
 				"80C0D081FE8F82B6B5025265",
 				"751BBC7AFA2EC0105700402A",

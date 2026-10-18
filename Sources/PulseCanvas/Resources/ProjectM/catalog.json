@@ -62062,5 +62062,69 @@
     "category": "Waveform/Wire Tunnel",
     "originalTitle": "suksma - pi apart",
     "icon": "sparkles"
+  },
+  {
+    "id": "projectm:Geometric/Wire Circles/Serge circles003b.milk",
+    "path": "Geometric/Wire Circles/Serge circles003b.milk",
+    "title": "Volcanic Corona",
+    "category": "Geometric/Wire Circles",
+    "originalTitle": "Serge circles003b",
+    "icon": "waveform.path"
+  },
+  {
+    "id": "projectm:Reaction/Liquid Gradient/bdrv - monster wave [flexis color bleeding ivories].milk",
+    "path": "Reaction/Liquid Gradient/bdrv - monster wave [flexis color bleeding ivories].milk",
+    "title": "Volcanic Garden",
+    "category": "Reaction/Liquid Gradient",
+    "originalTitle": "bdrv - monster wave [flexis color bleeding ivories]",
+    "icon": "hurricane"
+  },
+  {
+    "id": "projectm:Sparkle/Mass Circles/suksma - shape instance exp 3 - bulloxain roam3.milk",
+    "path": "Sparkle/Mass Circles/suksma - shape instance exp 3 - bulloxain roam3.milk",
+    "title": "Fractal Lattice",
+    "category": "Sparkle/Mass Circles",
+    "originalTitle": "suksma - shape instance exp 3 - bulloxain roam3",
+    "icon": "circle.dotted"
+  },
+  {
+    "id": "projectm:Waveform/Wire Tangle/suksma - at the root of.milk",
+    "path": "Waveform/Wire Tangle/suksma - at the root of.milk",
+    "title": "Kaleido Fold",
+    "category": "Waveform/Wire Tangle",
+    "originalTitle": "suksma - at the root of",
+    "icon": "square.grid.3x3"
+  },
+  {
+    "id": "projectm:Dancer/Blobby Mirror/Flexi, Geiss and Rovastar - mindless tokamak color pox [end of the world mix] nickle'.milk",
+    "path": "Dancer/Blobby Mirror/Flexi, Geiss and Rovastar - mindless tokamak color pox [end of the world mix] nickle'.milk",
+    "title": "Lucid Array",
+    "category": "Dancer/Blobby Mirror",
+    "originalTitle": "Flexi, Geiss and Rovastar - mindless tokamak color pox [end of the world mix] nickle'",
+    "icon": "atom"
+  },
+  {
+    "id": "projectm:Dancer/Blobby/suksma - bounce shape exp 4 2 - cross teacher name on board punish.milk",
+    "path": "Dancer/Blobby/suksma - bounce shape exp 4 2 - cross teacher name on board punish.milk",
+    "title": "Astral Night",
+    "category": "Dancer/Blobby",
+    "originalTitle": "suksma - bounce shape exp 4 2 - cross teacher name on board punish",
+    "icon": "moon.stars"
+  },
+  {
+    "id": "projectm:Dancer/Comet/EoS + Phat - chasers 09 sentinel nz+ all is tradeoff.milk",
+    "path": "Dancer/Comet/EoS + Phat - chasers 09 sentinel nz+ all is tradeoff.milk",
+    "title": "Sublime Cavern",
+    "category": "Dancer/Comet",
+    "originalTitle": "EoS + Phat - chasers 09 sentinel nz+ all is tradeoff",
+    "icon": "diamond"
+  },
+  {
+    "id": "projectm:Dancer/Serpent/The NG + Flexi + AdamFX + shifter + LuxXx + Many Others - +80.milk",
+    "path": "Dancer/Serpent/The NG + Flexi + AdamFX + shifter + LuxXx + Many Others - +80.milk",
+    "title": "Scattered Drift",
+    "category": "Dancer/Serpent",
+    "originalTitle": "The NG + Flexi + AdamFX + shifter + LuxXx + Many Others - +80",
+    "icon": "cube.transparent"
   }
 ]

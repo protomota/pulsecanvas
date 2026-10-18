@@ -3,7 +3,7 @@
   "upstreamRepository": "https://github.com/projectM-visualizer/presets-cream-of-the-crop",
   "upstreamCommit": "0180df21f5e0bd39b9060cc5de420ed2f1f9e509",
   "upstreamMilkCount": 9795,
-  "bundledCount": 7758,
+  "bundledCount": 7766,
   "credit": "Cream of the Crop pack curated by ISOSCELES",
   "creditURL": "https://www.patreon.com/posts/pack-nestdrop-91682111",
   "rightsStatus": "Unresolved individual author permissions; upstream public-domain assumption is not documented permission from every author. No MIT/BSD/clearance claim.",
@@ -155,6 +155,14 @@
       "id": "projectm:Dancer/Blobby Mirror/CantStop AdamFX 2 Stahlregen & Bmelgren + EoS + Geiss + Krash + Rocke + Rovastar - Glowstick Heart (MashUp 7) .milk",
       "originalTitle": "CantStop AdamFX 2 Stahlregen & Bmelgren + EoS + Geiss + Krash + Rocke + Rovastar - Glowstick Heart (MashUp 7) ",
       "displayTitle": "Blooming Lantern"
+    },
+    {
+      "path": "Dancer/Blobby Mirror/Flexi, Geiss and Rovastar - mindless tokamak color pox [end of the world mix] nickle'.milk",
+      "upstreamPath": "Dancer/Blobby Mirror/Flexi, Geiss and Rovastar - mindless tokamak color pox [end of the world mix] nickle'.milk",
+      "sha256": "7ca7101f5f521c1a3e8c9340d56c4bb07c2b350a254ee512e517d8c3c32ca7bb",
+      "id": "projectm:Dancer/Blobby Mirror/Flexi, Geiss and Rovastar - mindless tokamak color pox [end of the world mix] nickle'.milk",
+      "originalTitle": "Flexi, Geiss and Rovastar - mindless tokamak color pox [end of the world mix] nickle'",
+      "displayTitle": "Lucid Array"
     },
     {
       "path": "Dancer/Blobby Mirror/LuxXx - Absinthe with MC Escher.milk",
@@ -659,6 +667,14 @@
       "id": "projectm:Dancer/Blobby/suksma - assheadish lice.milk",
       "originalTitle": "suksma - assheadish lice",
       "displayTitle": "Orbital Lens"
+    },
+    {
+      "path": "Dancer/Blobby/suksma - bounce shape exp 4 2 - cross teacher name on board punish.milk",
+      "upstreamPath": "Dancer/Blobby/suksma - bounce shape exp 4 2 - cross teacher name on board punish.milk",
+      "sha256": "52559c88709ec09469f0ffd7c82ddbbe43a19ac3c00653a3363329310bd9b698",
+      "id": "projectm:Dancer/Blobby/suksma - bounce shape exp 4 2 - cross teacher name on board punish.milk",
+      "originalTitle": "suksma - bounce shape exp 4 2 - cross teacher name on board punish",
+      "displayTitle": "Astral Night"
     },
     {
       "path": "Dancer/Blobby/suksma - breaking the beam only to hump the tower --- Isosceles edit.milk",
@@ -1443,6 +1459,14 @@
       "id": "projectm:Dancer/Comet/EoS + Phat - chasers 09 sentinel - mash0000 - she flies against the wall of pain.milk",
       "originalTitle": "EoS + Phat - chasers 09 sentinel - mash0000 - she flies against the wall of pain",
       "displayTitle": "Rolling Spray"
+    },
+    {
+      "path": "Dancer/Comet/EoS + Phat - chasers 09 sentinel nz+ all is tradeoff.milk",
+      "upstreamPath": "Dancer/Comet/EoS + Phat - chasers 09 sentinel nz+ all is tradeoff.milk",
+      "sha256": "d46553102cce59a58b461c1aa0dd57f66f23e6cfe79633ce39892ffe228fca86",
+      "id": "projectm:Dancer/Comet/EoS + Phat - chasers 09 sentinel nz+ all is tradeoff.milk",
+      "originalTitle": "EoS + Phat - chasers 09 sentinel nz+ all is tradeoff",
+      "displayTitle": "Sublime Cavern"
     },
     {
       "path": "Dancer/Comet/EoS + Phat - chasers 09 sentinel.milk",
@@ -6899,6 +6923,14 @@
       "id": "projectm:Dancer/Serpent/Halfbreak + Cope + GreatWho - Mandalla Flow (triangular happy).milk",
       "originalTitle": "Halfbreak + Cope + GreatWho - Mandalla Flow (triangular happy)",
       "displayTitle": "Scattered Star"
+    },
+    {
+      "path": "Dancer/Serpent/The NG + Flexi + AdamFX + shifter + LuxXx + Many Others - +80.milk",
+      "upstreamPath": "Dancer/Serpent/The NG + Flexi + AdamFX + shifter + LuxXx + Many Others - +80.milk",
+      "sha256": "8e5a0db5dd408539098459ac229407a5cb09794fc715734cc14d6ec1e61b8b77",
+      "id": "projectm:Dancer/Serpent/The NG + Flexi + AdamFX + shifter + LuxXx + Many Others - +80.milk",
+      "originalTitle": "The NG + Flexi + AdamFX + shifter + LuxXx + Many Others - +80",
+      "displayTitle": "Scattered Drift"
     },
     {
       "path": "Dancer/Shapes/EoS - dark side of the moon (plus a few more hits).milk",
@@ -23789,6 +23821,14 @@
       "displayTitle": "Vapor Rose"
     },
     {
+      "path": "Geometric/Wire Circles/Serge circles003b.milk",
+      "upstreamPath": "Geometric/Wire Circles/Serge circles003b.milk",
+      "sha256": "9722c51639a5da8a70702e87e43d234c9e656ad6e669ea02a67bf6ecdcfdfc92",
+      "id": "projectm:Geometric/Wire Circles/Serge circles003b.milk",
+      "originalTitle": "Serge circles003b",
+      "displayTitle": "Volcanic Corona"
+    },
+    {
       "path": "Geometric/Wire Circles/Serge circles004.milk",
       "upstreamPath": "Geometric/Wire Circles/Serge circles004.milk",
       "sha256": "54000ba742f35ec05fb2b4d68a99202453aea64ef21dc2d847f04633287228f4",
@@ -36211,6 +36251,14 @@
       "id": "projectm:Reaction/Liquid Gradient/bdrv - comet5fhk pasta2g framespace invader .milk",
       "originalTitle": "bdrv - comet5fhk pasta2g framespace invader ",
       "displayTitle": "Electric Wake"
+    },
+    {
+      "path": "Reaction/Liquid Gradient/bdrv - monster wave [flexis color bleeding ivories].milk",
+      "upstreamPath": "Reaction/Liquid Gradient/bdrv - monster wave [flexis color bleeding ivories].milk",
+      "sha256": "fca2feb5fc754c4bc4d510a1d4a74f54605d5820b9204a193d9bab5892029699",
+      "id": "projectm:Reaction/Liquid Gradient/bdrv - monster wave [flexis color bleeding ivories].milk",
+      "originalTitle": "bdrv - monster wave [flexis color bleeding ivories]",
+      "displayTitle": "Volcanic Garden"
     },
     {
       "path": "Reaction/Liquid Gradient/bdrv - monster wave.milk",
@@ -48861,6 +48909,14 @@
       "displayTitle": "Neon Jewel"
     },
     {
+      "path": "Sparkle/Mass Circles/suksma - shape instance exp 3 - bulloxain roam3.milk",
+      "upstreamPath": "Sparkle/Mass Circles/suksma - shape instance exp 3 - bulloxain roam3.milk",
+      "sha256": "d4f50f310a8090cd0689074136541922c5acca0e870a360cbf1ebfc38e908b75",
+      "id": "projectm:Sparkle/Mass Circles/suksma - shape instance exp 3 - bulloxain roam3.milk",
+      "originalTitle": "suksma - shape instance exp 3 - bulloxain roam3",
+      "displayTitle": "Fractal Lattice"
+    },
+    {
       "path": "Sparkle/Mass Circles/suksma - shape instance exp 3 - bulloxain.milk",
       "upstreamPath": "Sparkle/Mass Circles/suksma - shape instance exp 3 - bulloxain.milk",
       "sha256": "202036097fd76fa0666b0774b9560654e211b383b3aaa3de248ed29544919978",
@@ -61429,6 +61485,14 @@
       "displayTitle": "Celestial Cyclone"
     },
     {
+      "path": "Waveform/Wire Tangle/suksma - at the root of.milk",
+      "upstreamPath": "Waveform/Wire Tangle/suksma - at the root of.milk",
+      "sha256": "840b0615679441e4d30ef42624bd84d4ab1d64f651db45351bb1d6a6ca366617",
+      "id": "projectm:Waveform/Wire Tangle/suksma - at the root of.milk",
+      "originalTitle": "suksma - at the root of",
+      "displayTitle": "Kaleido Fold"
+    },
+    {
       "path": "Waveform/Wire Tangle/suksma - atmosblistering queefficience banalysistern lanhuff - log smell 2.milk",
       "upstreamPath": "Waveform/Wire Tangle/suksma - atmosblistering queefficience banalysistern lanhuff - log smell 2.milk",
       "sha256": "4516a7c00dc74dd1f03276f601701f6f6ce9a3e28ed3baeb557a2aa250bd6aad",
@@ -62077,5 +62141,6 @@
       "displayTitle": "Opaline Infinity"
     }
   ],
-  "curationSHA256": "2fde8debe5f24c12d83bf093a50b8ab8bf322ff07f96770b04b22af7d362af45"
+  "curationSHA256": "2fde8debe5f24c12d83bf093a50b8ab8bf322ff07f96770b04b22af7d362af45",
+  "admissionsSHA256": "176e8c9d602455fe3a8a2dfc4db7ba05196f2786ae16ab6bef3373ed11405e6f"
 }

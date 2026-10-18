@@ -1,4 +1,8 @@
+#if canImport(UIKit)
+import UIKit
+#else
 import AppKit
+#endif
 import Combine
 import Foundation
 @preconcurrency import Metal
@@ -49,6 +53,26 @@ final class RenderState: ObservableObject {
     @Published var errorMessage: String?
 }
 
+#if canImport(UIKit)
+@MainActor
+struct VisualizerView: UIViewRepresentable {
+    @ObservedObject var state: RenderState
+    func makeCoordinator() -> VisualizerRenderer { VisualizerRenderer(state: state) }
+    func makeUIView(context: Context) -> MTKView {
+        let view = MTKView(frame: .zero, device: MTLCreateSystemDefaultDevice())
+        view.colorPixelFormat = .bgra8Unorm
+        view.framebufferOnly = false
+        view.preferredFramesPerSecond = 30
+        view.delegate = context.coordinator
+        context.coordinator.attach(view)
+        return view
+    }
+    func updateUIView(_ view: MTKView, context: Context) { context.coordinator.state = state }
+    static func dismantleUIView(_ view: MTKView, coordinator: VisualizerRenderer) {
+        view.isPaused = true; view.delegate = nil
+    }
+}
+#else
 @MainActor
 struct VisualizerView: NSViewRepresentable {
     @ObservedObject var state: RenderState
@@ -72,6 +96,7 @@ struct VisualizerView: NSViewRepresentable {
         context.coordinator.state = state
     }
 }
+#endif
 
 private struct VisualVertex {
     var position: SIMD3<Float>
@@ -182,7 +207,7 @@ final class VisualizerRenderer: NSObject, MTKViewDelegate {
                 throw RenderError("Metal is unavailable on this Mac")
             }
             self.device = device; self.queue = queue
-            let effectCandidates = [Bundle.module.url(forResource: "Strobe", withExtension: "metal", subdirectory: "Resources"), Bundle.module.url(forResource: "Strobe", withExtension: "metal"), URL(fileURLWithPath: FileManager.default.currentDirectoryPath).appendingPathComponent("Sources/PulseCanvas/Resources/Strobe.metal")]
+            let effectCandidates = [Bundle.module.url(forResource: "Strobe", withExtension: "metal", subdirectory: "NativeAssets"), Bundle.module.url(forResource: "Strobe", withExtension: "metal", subdirectory: "Resources"), Bundle.module.url(forResource: "Strobe", withExtension: "metal"), URL(fileURLWithPath: FileManager.default.currentDirectoryPath).appendingPathComponent("Sources/PulseCanvas/Resources/Strobe.metal")]
             guard let effectURL = effectCandidates.compactMap({ $0 }).first(where: { FileManager.default.fileExists(atPath: $0.path) }) else { throw RenderError("White flash shader is missing") }
             let effects = try device.makeLibrary(source: String(contentsOf: effectURL, encoding: .utf8), options: nil)
             let effect = MTLRenderPipelineDescriptor()
@@ -346,7 +371,7 @@ final class VisualizerRenderer: NSObject, MTKViewDelegate {
             throw RenderError("Export dimensions must be between 1 and 8192 pixels")
         }
         if device == nil {
-            let view = MTKView(frame: NSRect(x: 0, y: 0, width: width, height: height), device: MTLCreateSystemDefaultDevice())
+            let view = MTKView(frame: CGRect(x: 0, y: 0, width: width, height: height), device: MTLCreateSystemDefaultDevice())
             attach(view)
         }
         if let error = state.errorMessage { throw RenderError(error) }
@@ -367,6 +392,16 @@ final class VisualizerRenderer: NSObject, MTKViewDelegate {
     }
 
     var offscreenDevice: MTLDevice? { device }
+
+    #if os(visionOS)
+    /// RealityKit owns presentation; it supplies a LowLevelTexture and tracks this command buffer.
+    func encodeImmersive(into target: MTLTexture, command: MTLCommandBuffer, time: Double) throws {
+        guard time.isFinite, time >= 0 else { throw RenderError("Invalid immersive timestamp") }
+        timelineTime = time; offscreenFrame = false
+        self.time = animationTime(at: time)
+        try encodeFrame(command: command, target: target)
+    }
+    #endif
 
     /// Render directly into the encoder's IOSurface, yielding the UI while the GPU works.
     func renderOffscreen(into target: MTLTexture, time absoluteTime: Double, audioBands: [Float], audioPulse: Float = 0, audioMomentum: Float = 0, audioBeatMotionTime: Double = 0, audioTreblePulse: Float? = nil, audioTrebleAttackTime: Double? = nil, audioEnvelopes: SIMD4<Float> = .zero, audioSwell: Float = 0) async throws {

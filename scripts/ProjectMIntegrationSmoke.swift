@@ -7,7 +7,18 @@ import AppKit
 private struct StoredStylesFixture: Codable { let presets: [Int:VisualPreset]; let identities: [Int:String]? }
 @main struct ProjectMIntegrationSmoke {
     @MainActor static func main() async throws {
-        let root = URL(fileURLWithPath:".build/validation/projectm-integration-"+UUID().uuidString)
+        // Prevent the singleton fixture from reading or pruning an installed app's backups.
+        let favoriteKeys = ["PulseCanvas.effectFavorites.v1", "PulseCanvas.metalEffectFavorites.v1"]
+        let savedFavorites = favoriteKeys.map { UserDefaults.standard.object(forKey: $0) }
+        for key in favoriteKeys { UserDefaults.standard.set([String](), forKey: key) }
+        defer {
+            for (key, saved) in zip(favoriteKeys, savedFavorites) {
+                if let saved { UserDefaults.standard.set(saved, forKey: key) }
+                else { UserDefaults.standard.removeObject(forKey: key) }
+            }
+        }
+        let base = ProcessInfo.processInfo.environment["PULSECANVAS_VALIDATION_DIR"] ?? ".build/validation"
+        let root = URL(fileURLWithPath: base).appendingPathComponent("projectm-integration-"+UUID().uuidString)
         try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
         let suiteName = "PulseCanvas.ProjectM.tests.\(UUID().uuidString)"
         let defaults = UserDefaults(suiteName:suiteName)!
@@ -32,6 +43,26 @@ private struct StoredStylesFixture: Codable { let presets: [Int:VisualPreset]; l
         precondition(NativeEffects.activeIDs.allSatisfy { library.icon(for: $0) == NativeEffects.all[$0].icon }, "Native visualizers must use their registered icons")
         precondition(library.categories.contains("Fractal") && library.categories.contains("Waveform"))
         precondition(!library.categories.contains("Transitions") && !library.categories.contains("! Transition"))
+        let offered = library.availableScenes
+        precondition(library.collections == ["Native Metal", "Cream of the Crop"])
+        precondition(library.filteredScenes() == offered, "Filters must preserve the strip's original order")
+        precondition(!NativeEffects.activeIDs.contains { NativeEffects.category(for: $0) == "Other native" })
+        for collection in library.collections {
+            let all = library.filteredScenes(collection: collection)
+            precondition(!all.isEmpty && all.allSatisfy { library.collection(for: $0) == collection })
+            for category in library.categories(in: collection) {
+                let scenes = library.filteredScenes(collection: collection, category: category)
+                precondition(!scenes.isEmpty && scenes.allSatisfy { library.category(for: $0) == category })
+                for folder in library.folders(in: category, collection: collection) {
+                    precondition(library.filteredScenes(collection: collection, category: category, folder: folder)
+                        .allSatisfy { library.preset(for: $0)?.category == folder })
+                }
+            }
+        }
+        precondition(library.filteredScenes(collection: "Native Metal", category: "Tunnels").contains(22))
+        precondition(library.filteredScenes(query: "Nested Spiral", collection: "Cream of the Crop")
+            .allSatisfy { library.preset(for: $0)?.category.localizedCaseInsensitiveContains("Nested Spiral") == true })
+        print("PASS Library filters: native themes, upstream categories/subfolders, collection and search intersection, unchanged order")
         library.toggleFavorite(fixtureScene); library.toggleFavorite(22)
         let restored = ProjectMPresets(importedRoot:root.appendingPathComponent("Imported"), defaults:defaults)
         precondition(restored.isFavorite(fixtureScene) && restored.isFavorite(22))
@@ -194,6 +225,49 @@ private struct StoredStylesFixture: Codable { let presets: [Int:VisualPreset]; l
             precondition(visible > 128 * 72 / 100, "4K section \(index + 1), \(library.sceneNames[section.scene]), must contain visible graphics")
         }
         print("PASS 4K/60 export: decoded Tangled Weave, Crimson Spark, Temporal Flame and Spiral Helix after consecutive ProjectM switches")
+        if ProcessInfo.processInfo.environment["PULSECANVAS_ADMISSION_EXPORT"] == "1" {
+            let receipt = try JSONSerialization.jsonObject(with: Data(contentsOf: library.bundledRoot.appendingPathComponent("preset-admissions.json"))) as! [String: Any]
+            let admissions = receipt["presets"] as! [[String: Any]]
+            let scenes = admissions.map { library.scene(for: $0["id"] as! String)! }
+            let demo = try AVAudioFile(forReading: URL(fileURLWithPath: "Sources/PulseCanvas/Resources/Audio/PulseCanvas.mp3"))
+            let rate = demo.processingFormat.sampleRate
+            demo.framePosition = AVAudioFramePosition(42 * rate)
+            let length = AVAudioFrameCount(Double(scenes.count * 4) * rate)
+            let music = AVAudioPCMBuffer(pcmFormat: demo.processingFormat, frameCapacity: length)!
+            try demo.read(into: music)
+            precondition(music.frameLength == length)
+            let realMusic = root.appendingPathComponent("admissions-soundtrack.wav")
+            do { let file = try AVAudioFile(forWriting: realMusic, settings: demo.processingFormat.settings); try file.write(from: music) }
+            let sections = scenes.enumerated().map { StudioSegment(start: Double($0.offset * 4), end: Double(($0.offset + 1) * 4), scene: $0.element) }
+            export.resolution = 1080; export.fps = 30; export.aspect = .wide
+            let movie = root.appendingPathComponent("admissions-full-hd.mp4")
+            await export.export(audioURL: realMusic, render: state, to: movie, segments: sections,
+                appearances: Dictionary(uniqueKeysWithValues: scenes.map { ($0, appearance) }))
+            precondition(export.exportedURL == movie, export.status)
+            let asset = AVURLAsset(url: movie)
+            let audio = try await asset.loadTracks(withMediaType: .audio)
+            let movieDuration = try await asset.load(.duration).seconds
+            precondition(!audio.isEmpty && abs(movieDuration - Double(scenes.count * 4)) < 0.05)
+            let generator = AVAssetImageGenerator(asset: asset)
+            generator.requestedTimeToleranceBefore = .zero; generator.requestedTimeToleranceAfter = .zero
+            for section in sections {
+                for offset in [2.5, 3.8] {
+                    let image = try await generator.image(at: CMTime(seconds: section.start + offset, preferredTimescale: 600)).image
+                    precondition(image.width == 1920 && image.height == 1080)
+                    var pixels = [UInt8](repeating: 0, count: 160 * 90 * 4)
+                    pixels.withUnsafeMutableBytes {
+                        let context = CGContext(data: $0.baseAddress, width: 160, height: 90, bitsPerComponent: 8,
+                            bytesPerRow: 640, space: CGColorSpaceCreateDeviceRGB(), bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)!
+                        context.draw(image, in: CGRect(x: 0, y: 0, width: 160, height: 90))
+                    }
+                    let visible = stride(from: 0, to: pixels.count, by: 4).filter { max(pixels[$0], pixels[$0+1], pixels[$0+2]) > 24 }.count
+                    print("Admission \(library.sceneNames[section.scene]) @ \(offset): \(visible)/14400 pixels"); fflush(stdout)
+                    precondition(visible > 144, "Admission export black: \(library.sceneNames[section.scene])")
+                }
+            }
+            print("PASS admission export: \(scenes.count) restored presets, actual music, consecutive Studio switches, full-HD MP4 decoded at two times each; soundtrack and duration verified: \(movie.path)")
+        }
+
     }
     @MainActor private static func legacyPresetID(_ library: ProjectMPresets) -> String {
         library.entries[0].id

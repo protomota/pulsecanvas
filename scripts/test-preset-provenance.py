@@ -109,6 +109,49 @@ class ProvenanceTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'Removed IDs missing retirement'):
             provenance.verify_resource(self.root)
 
+    def admissions_fixture(self, change=None):
+        entry = dict(id='projectm:Creator - Title.milk', path='Creator - Title.milk',
+                     sha256=provenance.digest(self.original), visualInspectionApproved=True, checks=[
+            dict(id='projectm:Creator - Title.milk', width=w, height=h, frames=360, passed=True, soundtrackPCM=True)
+            for w, h in [(1920, 1080), (1080, 1920)]])
+        if change: change(entry)
+        receipt = dict(schemaVersion=1, upstreamCommit=provenance.PRESET_COMMIT, presets=[entry])
+        raw = json.dumps(receipt).encode()
+        (self.root / 'preset-admissions.json').write_bytes(raw)
+        (self.root / 'Presets').mkdir()
+        (self.root / 'Presets/Creator - Title.milk').write_bytes(self.original)
+        return dict(admissionsSHA256=provenance.digest(raw)), {entry['id']}
+
+    def test_verified_admission(self):
+        manifest, current = self.admissions_fixture()
+        self.assertEqual(provenance.verify_admissions(self.root, manifest, current, set(), set()), 1)
+
+    def test_admission_cannot_restore_owner_rejection(self):
+        manifest, current = self.admissions_fixture()
+        with self.assertRaisesRegex(ValueError, 'Admissions conflict'):
+            provenance.verify_admissions(self.root, manifest, current, current, set())
+
+    def test_admission_requires_both_orientations(self):
+        manifest, current = self.admissions_fixture(lambda e: e['checks'].pop())
+        with self.assertRaisesRegex(ValueError, 'Missing full-HD'):
+            provenance.verify_admissions(self.root, manifest, current, set(), set())
+
+    def test_admission_rejects_failed_render(self):
+        manifest, current = self.admissions_fixture(lambda e: e['checks'][0].update(passed=False))
+        with self.assertRaisesRegex(ValueError, 'Unverified admitted'):
+            provenance.verify_admissions(self.root, manifest, current, set(), set())
+
+    def test_admission_rejects_wrong_check_identity(self):
+        manifest, current = self.admissions_fixture(lambda e: e['checks'][0].update(id='other'))
+        with self.assertRaisesRegex(ValueError, 'identity differs'):
+            provenance.verify_admissions(self.root, manifest, current, set(), set())
+
+    def test_changed_admission_receipt_rejected(self):
+        manifest, current = self.admissions_fixture()
+        manifest['admissionsSHA256'] = 'wrong'
+        with self.assertRaisesRegex(ValueError, 'Admissions receipt differs'):
+            provenance.verify_admissions(self.root, manifest, current, set(), set())
+
     def assert_unsafe_archive(self, name, kind):
         data = io.BytesIO()
         with tarfile.open(fileobj=data, mode='w') as archive:

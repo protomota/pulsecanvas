@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "upstreamCommit": "0180df21f5e0bd39b9060cc5de420ed2f1f9e509",
+  "upstreamMilkCount": 9795,
+  "bundledCount": 7766,
+  "retiredCount": 2029,
+  "missingCount": 0,
+  "exactUpstreamBlobMatches": 7766,
+  "upstreamNoticesUnchanged": true,
+  "ownerReviewedRejectionsPreserved": 80,
+  "restoredCount": 8,
+  "restoredReceipt": "Sources/PulseCanvas/Resources/ProjectM/preset-admissions.json",
+  "exclusionsByReason": {
+    "Blank or almost invisible output": 129,
+    "High-instance custom-shape family exceeds interactive playback budget": 1693,
+    "No visible motion": 26,
+    "Not selected with a red Finder label in completed OpenGL review Batch 001": 38,
+    "Not selected with a red Finder label in completed OpenGL review Batch 002": 22,
+    "Not selected with a red Finder label in completed OpenGL review Batch 003": 20,
+    "Repeated user-reported defects in the Core Mirror family": 60,
+    "Reported unsuitable by the user": 21,
+    "Sustained solid white output": 3,
+    "Transition-only family does not provide a standalone visualization": 4,
+    "Verified black across 900 GPU frames with soundtrack PCM": 1,
+    "Verified upstream preset load/render failure in 2026-10-18 refresh": 12
+  },
+  "rightsStatus": "Technical compatibility evidence only; individual preset and texture permissions remain unresolved."
+}

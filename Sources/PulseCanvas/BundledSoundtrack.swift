@@ -5,6 +5,7 @@ enum BundledSoundtrack {
 
     static var url: URL? {
         let candidates = [
+            Bundle.module.url(forResource: "PulseCanvas", withExtension: "mp3", subdirectory: "NativeAssets/Audio"),
             Bundle.module.url(forResource: "PulseCanvas", withExtension: "mp3", subdirectory: "Resources/Audio"),
             URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
                 .appendingPathComponent("Sources/PulseCanvas/Resources/Audio/PulseCanvas.mp3")
