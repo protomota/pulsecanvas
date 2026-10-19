@@ -10,6 +10,10 @@ Radio, favorite-settings and video-export models used by the Mac app.
 - Radio uses the server's station directory, category/favorites music queues,
   saved song hearts and the shared visualizer filters. Saved songs are reconciled
   at launch after a successful full-catalog fetch.
+- Radio has Play/Pause, elapsed/duration and a seekable song timeline. An empty
+  visualizer-favorites selection falls back to random visuals with a status
+  message; saved category/collection limits still apply. Retry is shown only
+  after a catalog-loading failure.
 - Full-screen viewing includes playback, randomization and aspect fit. Controls
   hide after four seconds while playing; tap to reveal them.
 - Export offers 720p, 1080p and 4K, at 24/30/60 fps with audio, progress, ETA,

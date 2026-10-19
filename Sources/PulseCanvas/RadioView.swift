@@ -378,7 +378,8 @@ struct RadioPlayerView: View {
                 }.buttonStyle(StudioButtonStyle(treatment: .primary, compact: true))
                 Button { radio.next() } label: { Label("Skip", systemImage: "forward.end.fill") }
                     .buttonStyle(StudioButtonStyle(compact: true)).disabled(!radio.canStart)
-                ProgressView(value: radio.isLoading ? 0 : audio.progress).tint(Color(red: 0.95, green: 0.68, blue: 0.55))
+                Slider(value: Binding(get: { radio.canSeek ? audio.progress : 0 }, set: { radio.seek(fraction: $0) }), in: 0...1)
+                    .disabled(!radio.canSeek).accessibilityLabel("Radio song position")
                 Text("\(format(audio.playbackSeconds)) / \(format(audio.duration))").monospacedDigit().font(.caption)
                     .frame(width: 112, alignment: .trailing)
                 Image(systemName: "speaker.wave.2")

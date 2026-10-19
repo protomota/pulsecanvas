@@ -257,6 +257,7 @@ private struct VisionRadioVisualizerControls: View {
     @ObservedObject var studio: VisionStudio
     @ObservedObject private var library = ProjectMPresets.shared
     var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
         HStack(spacing: 12) {
             HStack(spacing: 8) {
                 VStack(alignment: .leading, spacing: 2) {
@@ -277,6 +278,10 @@ private struct VisionRadioVisualizerControls: View {
                 .buttonStyle(.borderedProminent).disabled(library.eligibleScenes.isEmpty)
                 .accessibilityIdentifier("randomVisualizerButton")
             VisualizerRandomizerPicker(compact: true)
+        }
+        if let message = library.favoritesFallbackMessage {
+            Text(message).font(.caption).foregroundStyle(.secondary)
+        }
         }
     }
 }

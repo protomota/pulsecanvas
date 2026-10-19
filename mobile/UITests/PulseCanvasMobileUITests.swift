@@ -2,6 +2,44 @@ import XCTest
 
 final class PulseCanvasMobileUITests: XCTestCase {
     override func setUp() { continueAfterFailure = false }
+    @MainActor func testRadioEmptyFavoritesAndScrubbing() throws {
+        let app = XCUIApplication()
+        XCUIDevice.shared.orientation = ProcessInfo.processInfo.environment["PC_MOBILE_LANDSCAPE"] == "1" ? .landscapeLeft : .portrait
+        app.launchArguments = ["-PCMobileQA", "-PCMobileRadioQA"]
+        app.launch()
+        let library = app.buttons["mobileLibraryButton"]
+        XCTAssertTrue(library.waitForExistence(timeout: 30))
+        expectation(for: NSPredicate(format: "enabled == true"), evaluatedWith: library)
+        waitForExpectations(timeout: 90)
+        app.buttons["Radio"].tap()
+        let play = app.buttons["radioPlaybackButton"]
+        XCTAssertTrue(play.waitForExistence(timeout: 20))
+        expectation(for: NSPredicate(format: "enabled == true"), evaluatedWith: play)
+        waitForExpectations(timeout: 30)
+        app.buttons["Randomize visualizer group"].tap()
+        app.buttons["Randomize favorites"].tap()
+        let fallback = app.staticTexts["No saved favorite visualizers yet. Playing random visualizers from the full library."]
+        XCTAssertTrue(fallback.waitForExistence(timeout: 10))
+        XCTAssertFalse(app.buttons["retryRadioButton"].exists)
+        XCTAssertTrue(play.isEnabled)
+        play.tap()
+        expectation(for: NSPredicate(format: "label == %@", "Pause"), evaluatedWith: play)
+        waitForExpectations(timeout: 30)
+        let position = app.sliders["radioSongPosition"]
+        expectation(for: NSPredicate(format: "enabled == true"), evaluatedWith: position)
+        waitForExpectations(timeout: 30)
+        play.tap(); XCTAssertEqual(play.label, "Play")
+        position.adjust(toNormalizedSliderPosition: 0.35)
+        XCTAssertEqual(play.label, "Play", "Scrubbing while paused must stay paused")
+        play.tap()
+        expectation(for: NSPredicate(format: "label == %@", "Pause"), evaluatedWith: play)
+        waitForExpectations(timeout: 15)
+        app.buttons["Random radio visualizer"].tap()
+        XCTAssertEqual(play.label, "Pause", "Randomizing empty favorites must not stop Radio")
+        XCTAssertFalse(app.buttons["retryRadioButton"].exists)
+        let screenshot = XCTAttachment(screenshot: app.screenshot()); screenshot.name = "Radio empty favorites fallback"; screenshot.lifetime = .keepAlways; add(screenshot)
+        play.tap()
+    }
     @MainActor func testStudioAndCompactControls() throws {
         let app = XCUIApplication()
         XCUIDevice.shared.orientation = ProcessInfo.processInfo.environment["PC_MOBILE_LANDSCAPE"] == "1" ? .landscapeLeft : .portrait

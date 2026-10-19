@@ -269,13 +269,25 @@ final class ProjectMPresets: ObservableObject {
     /// The installed catalog remains intact for identities, migration and favorite backups.
     /// This separate pool limits only discovery and new assignments.
     var eligibleScenes: [Int] { scenes(in: pool) }
+    var favoritesFallbackMessage: String? {
+        guard pool.enabled, pool.favoritesOnly else { return nil }
+        let choices = scenes(in: pool)
+        guard !choices.isEmpty, !choices.contains(where: { isFavorite($0) }) else { return nil }
+        return pool.collection.isEmpty && pool.category.isEmpty
+            ? "No saved favorite visualizers yet. Playing random visualizers from the full library."
+            : "No favorite visualizers in this group. Playing random visualizers from the group."
+    }
     func scenes(in pool: VisualizerPool) -> [Int] {
         guard pool.enabled else { return availableScenes }
-        return availableScenes.filter {
+        let group = availableScenes.filter {
             (pool.collection.isEmpty || collection(for: $0) == pool.collection)
                 && (pool.category.isEmpty || category(for: $0) == pool.category)
-                && (!pool.favoritesOnly || isFavorite($0))
         }
+        guard pool.favoritesOnly else { return group }
+        let favorites = group.filter { isFavorite($0) }
+        // A discovery preference must not disable playback or Studio when no
+        // favorites exist. Keep category/collection limits and the saved choice.
+        return favorites.isEmpty ? group : favorites
     }
     var randomizerGroup: VisualizerRandomizerGroup {
         guard pool.enabled else { return .all }

@@ -11,13 +11,15 @@ final class RadioController: ObservableObject {
     @Published private(set) var isActive = false
     @Published private(set) var isLoading = false
     @Published private(set) var isCatalogLoading = false
+    @Published private(set) var catalogError: String?
     @Published private(set) var status = "Choose a radio library to begin"
     var visualizerGroup: VisualizerRandomizerGroup { presets.randomizerGroup }
     @Published private(set) var favoriteSongsOnly = false
     @Published private(set) var visualizerChoices: [Int] = []
-    var usesFavorites: Bool { visualizerGroup == .favorites && !visualizerChoices.isEmpty }
+    var usesFavorites: Bool { visualizerGroup == .favorites && visualizerChoices.contains { presets.isFavorite($0) } }
     var canRandomizeVisualizer: Bool { !isLoading && visualizerChoices.contains { $0 != visualizer.scene } }
     var visualizerGroupMessage: String? {
+        if let message = presets.favoritesFallbackMessage { return message }
         guard visualizerChoices.isEmpty else { return nil }
         return visualizerGroup == .favorites
             ? "No favorite visualizers in this pool. Add a heart or choose another group."
@@ -54,6 +56,7 @@ final class RadioController: ObservableObject {
     var currentTrack: RadioTrack? { currentIndex.flatMap { catalog?.tracks.indices.contains($0) == true ? catalog?.tracks[$0] : nil } }
     var stationTitle: String { stations.first { $0.id == stationID }?.title ?? catalog?.title ?? "All Music" }
     var canStart: Bool { !eligibleTrackIndices.isEmpty && !visualizerChoices.isEmpty && !isCatalogLoading }
+    var canSeek: Bool { isActive && hasRadioAudio && !isLoading }
     private let library: RadioLibrary
     private let defaults: UserDefaults
     private let presets: ProjectMPresets
@@ -234,7 +237,7 @@ final class RadioController: ObservableObject {
     func loadCatalog(at url: URL, access: SecurityScopedAccess? = nil, preferredStationID: String? = nil, playTrackID: String? = nil) {
         leave()
         task?.cancel(); revision = UUID(); let token = revision
-        isCatalogLoading = true; status = "Loading radio library…"
+        catalogError = nil; isCatalogLoading = true; status = "Loading radio library…"
         task = Task { [weak self, library] in
             let lease = access
             do {
@@ -273,7 +276,7 @@ final class RadioController: ObservableObject {
                 }
             } catch {
                 guard let self, self.revision == token else { return }
-                self.isCatalogLoading = false; self.status = error.localizedDescription
+                self.isCatalogLoading = false; self.status = error.localizedDescription; self.catalogError = self.status
                 if playTrackID != nil { self.favoritePlaybackError = self.status }
             }
         }
@@ -284,7 +287,7 @@ final class RadioController: ObservableObject {
               let url = try? station.resolvedURL(relativeTo: directoryURL) else { return }
         let resume = isActive || startPlayback
         leave(); revision = UUID(); let token = revision
-        isCatalogLoading = true; status = "Loading \(station.title)…"
+        catalogError = nil; isCatalogLoading = true; status = "Loading \(station.title)…"
         task = Task { [weak self, library] in
             do {
                 let loaded = try await library.catalog(at: url)
@@ -297,7 +300,7 @@ final class RadioController: ObservableObject {
                 if resume { self.start() }
             } catch {
                 guard let self, self.revision == token else { return }
-                self.isCatalogLoading = false; self.status = error.localizedDescription
+                self.isCatalogLoading = false; self.status = error.localizedDescription; self.catalogError = self.status
             }
         }
     }
@@ -334,6 +337,12 @@ final class RadioController: ObservableObject {
         if !isLoading && !hasRadioAudio { start(at: currentIndex); return }
         if isLoading { wantsPlayback.toggle(); status = wantsPlayback ? "Preparing next song…" : "Next song will start paused" }
         else { if audio.isPlaying { audio.pause() } else { audio.playFullSoundtrack() }; wantsPlayback = audio.isPlaying }
+    }
+
+    func seek(fraction: Double) {
+        guard canSeek, fraction.isFinite, let audio else { return }
+        audio.seek(fraction: fraction)
+        follow(time: audio.playbackSeconds)
     }
 
     /// Reroll only within the selected group, without restarting the music.

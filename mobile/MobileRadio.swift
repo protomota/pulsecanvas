@@ -1,4 +1,5 @@
 import SwiftUI
+import Combine
 
 struct MobileRadio: View {
     @ObservedObject var editor: MobileEditor
@@ -41,15 +42,13 @@ struct MobileRadio: View {
                         }
                     } label: { Label(radio.favoriteSongsOnly ? "Favorite songs" : radio.stationTitle, systemImage: "antenna.radiowaves.left.and.right") }
                     Spacer()
-                    Button { if radio.isActive { radio.togglePlayback() } else { radio.start() } } label: {
-                        Label(radio.isPlaybackRequested ? "Pause" : "Play radio", systemImage: radio.isPlaybackRequested ? "pause.fill" : "play.fill")
-                    }.buttonStyle(MobileButton(prominent: true)).disabled(!radio.canStart || radio.isLoading)
                     Button { radio.next() } label: { Image(systemName: "forward.end.fill") }.disabled(!radio.isActive || radio.isLoading).accessibilityLabel("Next song")
                 }.buttonStyle(MobileButton())
+                MobileRadioTransport(radio: radio, audio: audio)
                 if radio.isCatalogLoading || radio.isLoading { ProgressView(radio.status).frame(maxWidth: .infinity) }
                 else { Text(radio.status).font(.caption).foregroundStyle(.secondary) }
                 if radio.favoriteSongsOnly && radio.favoriteSongs.isEmpty { Text("No favorite songs yet. Choose All music, then save songs with the heart.").foregroundStyle(.secondary) }
-                if !radio.canStart && !radio.isCatalogLoading && !radio.favoriteSongsOnly { Button("Retry radio") { radio.loadSavedCatalogIfNeeded(refresh: true) }.buttonStyle(MobileButton()) }
+                if radio.catalogError != nil && !radio.isCatalogLoading { Button("Retry radio") { radio.loadSavedCatalogIfNeeded(refresh: true) }.buttonStyle(MobileButton()).accessibilityIdentifier("retryRadioButton") }
                 HStack { Image(systemName: "speaker.fill"); Slider(value: $radio.volume, in: 0...1).accessibilityLabel("Radio volume"); Image(systemName: "speaker.wave.3.fill") }
                 if let error = radio.visualizerGroupMessage { Text(error).font(.caption).foregroundStyle(.secondary) }
             }.padding(16)
@@ -67,6 +66,36 @@ struct MobileRadio: View {
                     if radio.favoriteSongs.isEmpty { Text("Save songs with the heart while listening to Radio.").foregroundStyle(.secondary) }
                 }.navigationTitle("Favorite songs").toolbar { Button("Done") { favorites = false } }
             }.task { await radio.refreshFavoriteSongs() }
+        }
+    }
+}
+
+/// Observe only the small transport at playback cadence, not the Metal preview
+/// and catalog. Seeking commits on release and preserves play/pause state.
+private struct MobileRadioTransport: View {
+    @ObservedObject var radio: RadioController
+    @ObservedObject var audio: AudioController
+    @State private var fraction = 0.0
+    @State private var seeking = false
+    var body: some View {
+        HStack(spacing: 10) {
+            Button { if radio.isActive { radio.togglePlayback() } else { radio.start() } } label: {
+                Image(systemName: radio.isActive && radio.isPlaybackRequested ? "pause.fill" : "play.fill")
+                    .frame(width: 22)
+            }.buttonStyle(MobileButton(prominent: true))
+                .accessibilityLabel(radio.isActive && radio.isPlaybackRequested ? "Pause" : "Play")
+                .accessibilityIdentifier("radioPlaybackButton")
+                .disabled(!radio.isActive && !radio.canStart)
+            Text(MobileTransport.time(radio.canSeek ? (seeking ? fraction * audio.duration : audio.playbackSeconds) : 0))
+                .monospacedDigit().font(.caption).frame(minWidth: 34)
+            Slider(value: $fraction, in: 0...1, onEditingChanged: { editing in
+                seeking = editing
+                if !editing { radio.seek(fraction: fraction) }
+            }).disabled(!radio.canSeek).accessibilityLabel("Radio song position")
+                .accessibilityIdentifier("radioSongPosition")
+            Text(MobileTransport.time(radio.canSeek ? audio.duration : 0)).monospacedDigit().font(.caption)
+        }.onReceive(audio.visualizationUpdated.throttle(for: .milliseconds(100), scheduler: RunLoop.main, latest: true)) { _ in
+            if !seeking { fraction = radio.canSeek ? audio.progress : 0 }
         }
     }
 }

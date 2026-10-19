@@ -4,6 +4,7 @@ import Combine
 
 @main struct VisionTransportSmoke {
     @MainActor static func main() async throws {
+        setbuf(stdout, nil)
         let directory = FileManager.default.temporaryDirectory.appendingPathComponent("VisionStudio-test-" + UUID().uuidString)
         defer { try? FileManager.default.removeItem(at: directory) }
         let suite = "VisionStudio-test-" + UUID().uuidString
@@ -63,7 +64,8 @@ import Combine
             precondition(studio.look.isValid && studio.look != savedLooks[studio.selectedScene], "New non-favorite selections get fresh looks")
         }
         presets.setRandomizerGroup(.favorites)
-        precondition(presets.filteredScenes().isEmpty && !studio.randomizeVisualizer())
+        precondition(presets.filteredScenes().count == NativeEffects.activeCount && studio.randomizeVisualizer())
+        precondition(presets.favoritesFallbackMessage != nil)
         presets.toggleFavorite(22, appearance: savedLooks[22]?.preset)
         precondition(presets.filteredScenes() == [22] && studio.randomizeVisualizer() && studio.selectedScene == 22)
         precondition(studio.look.preset == presets.favoriteAppearance(for: 22))
@@ -323,6 +325,10 @@ import Combine
         let encoder = JSONEncoder(); encoder.outputFormatting = .sortedKeys
         for scene in NativeEffects.activeIDs where presets.isFavorite(scene) { presets.toggleFavorite(scene) }
         presets.setRandomizerGroup(.favorites)
+        precondition(portable.randomizeTimeline(barLengths: true, chooseLength: { 4 })
+                     && presets.favoritesFallbackMessage != nil,
+                     "An empty favorites selection must still randomize the full timeline")
+        presets.setRandomizerGroup(.category("Missing category"))
         let beforeEmptyPool = try encoder.encode(portable.project)
         precondition(!portable.randomizeTimeline(barLengths: true, chooseLength: { 8 }))
         let afterEmptyPool = try encoder.encode(portable.project)
@@ -332,6 +338,7 @@ import Combine
         precondition(portable.randomizeTimeline(visualizers: false, barLengths: true, chooseLength: { 8 }))
         precondition(zip(portable.project.clips.map(\.scene), orderedScenes).allSatisfy { $0.0 == $0.1 }
                      && portable.project.looks == barsOnlyLooks, "Bars-only must preserve visualizer order and shared looks")
+        presets.setRandomizerGroup(.favorites)
         presets.toggleFavorite(22)
         precondition(portable.randomizeTimeline(barLengths: true, chooseLength: { 1 }))
         precondition(portable.project.clips.allSatisfy { $0.scene == 22 && $0.bars == 1 }

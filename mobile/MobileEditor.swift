@@ -1,6 +1,9 @@
 import AVFoundation
 import Combine
 import Foundation
+#if DEBUG
+import CryptoKit
+#endif
 
 /// The iPhone/iPad UI uses the production Mac audio, Studio, Radio and export models.
 @MainActor final class MobileEditor: ObservableObject {
@@ -59,9 +62,19 @@ import Foundation
                     try FileManager.default.createDirectory(at: documents, withIntermediateDirectories: true)
                     let sample = documents.appendingPathComponent("Demo.m4a")
                     guard let export = AVAssetExportSession(asset: AVURLAsset(url: demo), presetName: AVAssetExportPresetAppleM4A) else { throw CocoaError(.fileReadCorruptFile) }
-                    export.timeRange = CMTimeRange(start: .zero, duration: CMTime(seconds: 8, preferredTimescale: 600))
+                    let radioQA = ProcessInfo.processInfo.arguments.contains("-PCMobileRadioQA")
+                    let seconds = radioQA ? 30.0 : 8.0
+                    export.timeRange = CMTimeRange(start: .zero, duration: CMTime(seconds: seconds, preferredTimescale: 600))
                     try await export.export(to: sample, as: .m4a)
                     await load(sample, copy: false)
+                    if radioQA {
+                        let data = try Data(contentsOf: sample)
+                        let track = RadioTrack(id: "mobile-radio-qa", title: "Radio test soundtrack", genre: "Electronic", duration: seconds,
+                            audio: sample.lastPathComponent, sha256: SHA256.hash(data: data).map { String(format: "%02x", $0) }.joined(), byteCount: data.count)
+                        let url = documents.appendingPathComponent("catalog.json")
+                        try JSONEncoder().encode(RadioCatalog(version: 1, title: "Test Radio", tracks: [track])).write(to: url)
+                        radio.loadCatalog(at: url)
+                    }
                     return
                 } catch { message = error.localizedDescription; return }
             }

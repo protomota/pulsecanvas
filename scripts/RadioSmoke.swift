@@ -158,6 +158,7 @@ import Foundation
         radio.attach(audio: audio)
         radio.loadCatalog(at: stationsURL)
         try await wait("catalog") { radio.canStart }
+        precondition(radio.catalogError == nil && !radio.canSeek)
         precondition(radio.stations.count == 2 && radio.stationID == "all-music")
         radio.start(at: 0)
         try await wait("first song") { radio.currentIndex == 0 && !radio.isLoading }
@@ -212,12 +213,18 @@ import Foundation
         let single = radio.visualizer.scene
         radio.randomizeCurrentVisualizer(); precondition(radio.visualizer.scene == single)
         favorites.toggleFavorite(NativeEffects.activeIDs[1])
-        try await wait("empty visual favorites") { radio.visualizerChoices.isEmpty }
-        precondition(!radio.canRandomizeVisualizer && radio.visualizerGroupMessage != nil && audio.isPlaying)
-        radio.randomizeCurrentVisualizer(); precondition(radio.visualizer.scene == single, "Empty favorites must not escape into all visuals")
+        try await wait("empty visual favorites fallback") { radio.visualizerChoices == favorites.availableScenes }
+        precondition(radio.canStart && !radio.usesFavorites && radio.canRandomizeVisualizer && radio.visualizerGroupMessage != nil && audio.isPlaying)
+        radio.randomizeCurrentVisualizer(); precondition(radio.visualizer.scene != single)
+        precondition(favorites.availableScenes.contains(radio.visualizer.scene) && radio.canSeek)
+        radio.togglePlayback(); precondition(!audio.isPlaying)
+        radio.seek(fraction: 0.4)
+        precondition(abs(audio.progress - 0.4) < 0.001 && !audio.isPlaying)
+        radio.togglePlayback(); radio.seek(fraction: 0.2)
+        precondition(audio.isPlaying && abs(audio.progress - 0.2) < 0.001)
         favorites.toggleFavorite(NativeEffects.activeIDs[0]); favorites.toggleFavorite(NativeEffects.activeIDs[1])
         try await wait("visual favorites restored") { radio.visualizerChoices.count == 2 }
-        print("PASS favorites dropdown: persistence, only favorites, one/zero favorite handling, live updates and no full-library fallback")
+        print("PASS favorites dropdown: persistence, saved favorites only, empty-favorites fallback, live updates, pause/resume and seeking")
         radio.selectVisualizerGroup(.all)
         precondition(!radio.usesFavorites && radio.visualizerChoices == favorites.availableScenes)
         print("PASS All restores the entire gallery and leaves Studio assignments and saved appearances unchanged")
@@ -266,13 +273,16 @@ import Foundation
         try await wait("future station") { !radio.isCatalogLoading && radio.stationID == "future-genre" }
         precondition(radio.catalog?.tracks.count == 1 && radio.sourceText == stationsURL.absoluteString)
         favorites.toggleFavorite(NativeEffects.activeIDs[0]); favorites.toggleFavorite(NativeEffects.activeIDs[1])
+        radio.selectVisualizerGroup(.favorites)
+        precondition(radio.canStart && radio.visualizerGroupMessage != nil)
         radio.start()
-        try await wait("no favorites fallback") { !radio.isLoading }
+        try await wait("no favorites fallback") { radio.isActive && !radio.isLoading && audio.isPlaying }
         precondition(!radio.usesFavorites && radio.segments.allSatisfy { favorites.availableScenes.contains($0.scene) })
         let fallbackScene = radio.visualizer.scene
         radio.randomizeCurrentVisualizer()
         precondition(radio.visualizer.scene != fallbackScene && favorites.availableScenes.contains(radio.visualizer.scene))
         radio.leave()
+        radio.selectVisualizerGroup(.all)
         print("PASS station architecture: distinct catalogs, stable directory, persisted station selection and All visualizers")
 
         radio.selectMusicGroup("favorite-songs")
@@ -354,8 +364,14 @@ import Foundation
         precondition(radio.favoriteSongs.isEmpty, "An empty complete library must remove its remaining favorites")
         radio.loadCatalog(at: catalogURL)
         try await wait("empty catalog") { !radio.isCatalogLoading }
-        precondition(!radio.canStart)
+        precondition(!radio.canStart && radio.catalogError == nil)
         radio.start(); precondition(!radio.isActive, "An empty library must not start playback")
+        radio.loadCatalog(at: temporary.appendingPathComponent("missing-catalog.json"))
+        try await wait("catalog failure") { !radio.isCatalogLoading && radio.catalogError != nil }
+        radio.loadCatalog(at: catalogURL)
+        precondition(radio.catalogError == nil, "Retry clears the old loading error immediately")
+        try await wait("catalog recovery") { !radio.isCatalogLoading }
+        precondition(radio.catalogError == nil && !radio.canStart, "An empty successful load is not a retry-worthy error")
         print("PASS favorite removal: missing songs are pruned and persisted, genre/offline reads preserve valid picks, empty libraries are safe")
 
         // Every entry passes integrity but contains undecodable audio: retry must be bounded.
