@@ -101,6 +101,12 @@
 			"path" = "visionOS/VisionImmersiveView.swift";
 			"sourceTree" = "<group>";
 		};
+		"FEE1896A5C756DFF96389CC6" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"path" = "visionOS/VisionLaunchOptions.swift";
+			"sourceTree" = "<group>";
+		};
 		"423B784DC51F6993045C572F" = {
 			"isa" = "PBXFileReference";
 			"lastKnownFileType" = "sourcecode.swift";
@@ -197,10 +203,23 @@
 			"path" = "PulseCanvas Vision.app";
 			"sourceTree" = "BUILT_PRODUCTS_DIR";
 		};
+		"0938440A5586EF11FC09A444" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"path" = "visionOS/UITests/PulseCanvasVisionUITests.swift";
+			"sourceTree" = "<group>";
+		};
+		"9F63878049D400944738EB5F" = {
+			"isa" = "PBXFileReference";
+			"explicitFileType" = "wrapper.cfbundle";
+			"path" = "PulseCanvasVisionUITests.xctest";
+			"sourceTree" = "BUILT_PRODUCTS_DIR";
+		};
 		"0A3E27B8CA818264D75C8D81" = {
 			"isa" = "PBXGroup";
 			"children" = (
 				"A8792157CB4F27FB949C035F",
+				"9F63878049D400944738EB5F",
 			);
 			"name" = "Products";
 			"sourceTree" = "<group>";
@@ -224,6 +243,7 @@
 				"AEB3E1F4EFCEE89846DDB6F1",
 				"89C50894961A786737934E7B",
 				"CD0B7AD613C4E32D4FA778B6",
+				"FEE1896A5C756DFF96389CC6",
 				"423B784DC51F6993045C572F",
 				"8319DBF80F0A1AE2BD7EE172",
 				"E382BFD990FD584F51A98000",
@@ -233,6 +253,7 @@
 				"DFFC0D2FA6679F312F11941D",
 				"0DA04F35AB86E5951F47166B",
 				"0C8CC87581FC28D19B7207E0",
+				"0938440A5586EF11FC09A444",
 				"5DE058E997E17FB6E1C96D5F",
 				"C2C9DC46EEABB4403C4F54B6",
 				"74BF9E81D47C493AB795ED7C",
@@ -322,6 +343,10 @@
 			"isa" = "PBXBuildFile";
 			"fileRef" = "CD0B7AD613C4E32D4FA778B6";
 		};
+		"C9BA7F277F3D1631A6F76FBA" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "FEE1896A5C756DFF96389CC6";
+		};
 		"DB74D5BE500089E74A7764DD" = {
 			"isa" = "PBXBuildFile";
 			"fileRef" = "423B784DC51F6993045C572F";
@@ -378,6 +403,7 @@
 				"751BBC7AFA2EC0105700402A",
 				"5D40AE704E511176C5DF5A8E",
 				"9B9C7F1384F6883379FC34D3",
+				"C9BA7F277F3D1631A6F76FBA",
 				"DB74D5BE500089E74A7764DD",
 				"EDD4738D4B7AD97BBAB17E54",
 				"F9D5713DD3AAC240D75CBA9F",
@@ -473,6 +499,109 @@
 			"productReference" = "A8792157CB4F27FB949C035F";
 			"productType" = "com.apple.product-type.application";
 		};
+		"35B7C0CC0F21DA3F0F098A64" = {
+			"isa" = "PBXContainerItemProxy";
+			"containerPortal" = "244210E48437B6556980A702";
+			"proxyType" = 1;
+			"remoteGlobalIDString" = "34A04005BCAF206EEC990BD9";
+			"remoteInfo" = "PulseCanvasVision";
+		};
+		"292AEBA4095B45D3A6BCF782" = {
+			"isa" = "XCBuildConfiguration";
+			"buildSettings" = {
+				"SDKROOT" = "xros";
+				"SUPPORTED_PLATFORMS" = "xros xrsimulator";
+				"TARGETED_DEVICE_FAMILY" = "7";
+				"XROS_DEPLOYMENT_TARGET" = "2.0";
+				"SWIFT_VERSION" = "5.0";
+				"CLANG_ENABLE_MODULES" = "YES";
+				"GENERATE_INFOPLIST_FILE" = "YES";
+				"CODE_SIGN_STYLE" = "Automatic";
+				"DEVELOPMENT_TEAM" = "22HV69L32T";
+				"PRODUCT_BUNDLE_IDENTIFIER" = "com.protomota.pulsecanvas.uitests";
+				"PRODUCT_NAME" = "PulseCanvasVisionUITests";
+				"TEST_TARGET_NAME" = "PulseCanvasVision";
+				"SWIFT_OPTIMIZATION_LEVEL" = "-Onone";
+			};
+			"name" = "Debug";
+		};
+		"830D981C3E358C225481E7AF" = {
+			"isa" = "XCBuildConfiguration";
+			"buildSettings" = {
+				"SDKROOT" = "xros";
+				"SUPPORTED_PLATFORMS" = "xros xrsimulator";
+				"TARGETED_DEVICE_FAMILY" = "7";
+				"XROS_DEPLOYMENT_TARGET" = "2.0";
+				"SWIFT_VERSION" = "5.0";
+				"CLANG_ENABLE_MODULES" = "YES";
+				"GENERATE_INFOPLIST_FILE" = "YES";
+				"CODE_SIGN_STYLE" = "Automatic";
+				"DEVELOPMENT_TEAM" = "22HV69L32T";
+				"PRODUCT_BUNDLE_IDENTIFIER" = "com.protomota.pulsecanvas.uitests";
+				"PRODUCT_NAME" = "PulseCanvasVisionUITests";
+				"TEST_TARGET_NAME" = "PulseCanvasVision";
+				"SWIFT_OPTIMIZATION_LEVEL" = "-O";
+			};
+			"name" = "Release";
+		};
+		"B8C2E164F3D09CAB62B28174" = {
+			"isa" = "XCConfigurationList";
+			"buildConfigurations" = (
+				"292AEBA4095B45D3A6BCF782",
+				"830D981C3E358C225481E7AF",
+			);
+			"defaultConfigurationIsVisible" = 0;
+			"defaultConfigurationName" = "Debug";
+		};
+		"F4F165C86664D0DF903FF23B" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "0938440A5586EF11FC09A444";
+		};
+		"B0DA16B5A57B77452D9B6EB5" = {
+			"isa" = "PBXSourcesBuildPhase";
+			"buildActionMask" = 2147483647;
+			"files" = (
+				"F4F165C86664D0DF903FF23B",
+			);
+			"runOnlyForDeploymentPostprocessing" = 0;
+		};
+		"14601C0A5E377A66092CCC2E" = {
+			"isa" = "PBXFrameworksBuildPhase";
+			"buildActionMask" = 2147483647;
+			"files" = (
+			);
+			"runOnlyForDeploymentPostprocessing" = 0;
+		};
+		"299D5CFB3FD7410E61F5107B" = {
+			"isa" = "PBXResourcesBuildPhase";
+			"buildActionMask" = 2147483647;
+			"files" = (
+			);
+			"runOnlyForDeploymentPostprocessing" = 0;
+		};
+		"8157BA2106F6223041554826" = {
+			"isa" = "PBXTargetDependency";
+			"target" = "34A04005BCAF206EEC990BD9";
+			"targetProxy" = "35B7C0CC0F21DA3F0F098A64";
+		};
+		"9E53AA71467D2DE08E504D40" = {
+			"isa" = "PBXNativeTarget";
+			"buildConfigurationList" = "B8C2E164F3D09CAB62B28174";
+			"buildPhases" = (
+				"B0DA16B5A57B77452D9B6EB5",
+				"14601C0A5E377A66092CCC2E",
+				"299D5CFB3FD7410E61F5107B",
+			);
+			"buildRules" = (
+			);
+			"dependencies" = (
+				"8157BA2106F6223041554826",
+			);
+			"name" = "PulseCanvasVisionUITests";
+			"productName" = "PulseCanvasVisionUITests";
+			"productReference" = "9F63878049D400944738EB5F";
+			"productType" = "com.apple.product-type.bundle.ui-testing";
+		};
 		"E2EDCD14762CC2F70971BC55" = {
 			"isa" = "XCBuildConfiguration";
 			"buildSettings" = {
@@ -502,6 +631,11 @@
 			"isa" = "PBXProject";
 			"attributes" = {
 				"LastUpgradeCheck" = "2700";
+				"TargetAttributes" = {
+					"9E53AA71467D2DE08E504D40" = {
+						"TestTargetID" = "34A04005BCAF206EEC990BD9";
+					};
+				};
 			};
 			"buildConfigurationList" = "54972615C880599A4265A739";
 			"compatibilityVersion" = "Xcode 14.0";
@@ -517,6 +651,7 @@
 			"projectRoot" = "";
 			"targets" = (
 				"34A04005BCAF206EEC990BD9",
+				"9E53AA71467D2DE08E504D40",
 			);
 		};
 	};

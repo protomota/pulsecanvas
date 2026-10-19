@@ -178,6 +178,7 @@ private struct VisionImmersiveControls: View {
                 }
                 Button("Hide controls", systemImage: "eye.slash", action: hide).labelStyle(.iconOnly)
                 Button("Back to Studio", action: returnToStudio)
+                    .accessibilityIdentifier("backToStudioButton")
             }
             Toggle("Edge smoothing", isOn: $session.edgeSmoothing).toggleStyle(.button)
         }.frame(width: 620)
@@ -192,5 +193,6 @@ private struct VisionImmersivePlayback: View {
         Button(transport.playing ? "Pause" : "Play", systemImage: transport.playing ? "pause.fill" : "play.fill") {
             if session.radioMode { session.radio.togglePlayback() } else { studio.togglePlayback() }
         }.labelStyle(.iconOnly).disabled(studio.loading)
+            .accessibilityIdentifier("immersivePlayPauseButton")
     }
 }

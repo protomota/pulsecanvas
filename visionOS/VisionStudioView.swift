@@ -16,6 +16,7 @@ struct VisionStudioView: View {
     @State private var exportVideo = false
     @State private var changingSpace = false
     @State private var legal = false
+    @State private var launchApplied = false
 
     var body: some View {
         VStack(spacing: 16) {
@@ -25,11 +26,13 @@ struct VisionStudioView: View {
                         Label("Studio", systemImage: "rectangle.split.3x1").tag(false)
                         Label("Radio", systemImage: "radio").tag(true)
                     }.pickerStyle(.segmented).disabled(session.immersiveActive)
+                        .accessibilityIdentifier("workspacePicker")
                     if session.radioMode { VisionRadioControls(radio: session.radio) }
                     VisionLibrary(studio: studio)
                 }.frame(width: 340)
                 VStack(alignment: .leading, spacing: 12) {
                     Text(NativeEffects.names[studio.selectedScene]).font(.title2.bold()).lineLimit(1)
+                        .accessibilityIdentifier("selectedVisualizerName")
                     Group {
                         if session.immersiveActive {
                             VStack(spacing: 16) {
@@ -59,6 +62,7 @@ struct VisionStudioView: View {
             .toolbar {
                 ToolbarItemGroup(placement: .bottomOrnament) {
                     Button("Import audio", systemImage: "tray.and.arrow.down") { importAudio = true }.disabled(studio.loading || session.radioMode)
+                        .accessibilityIdentifier("importAudioButton")
                     Button("Open project", systemImage: "folder") { importProject = true }.disabled(studio.loading || session.radioMode)
                     Button("Save project", systemImage: "square.and.arrow.up") {
                         do {
@@ -68,6 +72,7 @@ struct VisionStudioView: View {
                     }.disabled(session.radioMode || studio.loading || studio.needsSoundtrack)
                     Button("Export MP4", systemImage: "film") { exportVideo = true }
                         .disabled(studio.loading || session.radioMode)
+                        .accessibilityIdentifier("exportMP4Button")
                     Button("Legal & Credits", systemImage: "info.circle") { legal = true }
                     Spacer()
                     if studio.loading { ProgressView("Analyzing music…") }
@@ -75,6 +80,7 @@ struct VisionStudioView: View {
                         Text("Hide room").font(.callout)
                         Toggle("Hide room", isOn: $session.fullImmersion).labelsHidden()
                             .toggleStyle(.switch).disabled(session.immersiveActive)
+                            .accessibilityIdentifier("hideRoomToggle")
                     }.fixedSize()
                     immersiveButton
                 }
@@ -93,7 +99,7 @@ struct VisionStudioView: View {
                 }.padding(32).frame(width: 700, height: 620)
             }
             .sheet(isPresented: $exportVideo) { VisionVideoExportView(studio: studio) { exportVideo = false } }
-            .task { await session.editor.start() }
+            .task { await session.editor.start(); await applyLaunchOptions() }
             .task(id: session.radioMode) { if session.radioMode { await session.radio.refreshStations() } }
             .onChange(of: phase) { _, phase in if phase == .background && !session.immersiveActive { session.suspend() } }
             .fileImporter(isPresented: $importAudio, allowedContentTypes: [.audio]) { result in
@@ -126,28 +132,56 @@ struct VisionStudioView: View {
 
     private var immersiveButton: some View {
         Button {
-            Task {
-                changingSpace = true
-                defer { changingSpace = false }
-                if session.immersiveActive { await dismissSpace() }
-                else {
-                    switch await openSpace(id: "visualizer-stage") {
-                    case .opened:
-                        session.immersiveActive = true
-                        session.studioWindowHidden = true
-                        dismissWindow(id: "studio")
-                    case .userCancelled: break
-                    case .error: studio.message = "Immersive viewing couldn't open. Your Studio remains available."
-                    @unknown default: break
-                    }
-                }
-            }
+            Task { await toggleImmersive() }
         } label: {
             Image(systemName: "visionpro").font(.title3)
                 .frame(minWidth: 44, minHeight: 44)
         }.disabled(changingSpace)
+            .accessibilityIdentifier("immersiveButton")
             .accessibilityLabel(session.immersiveActive ? "Leave full screen" : "Enter full screen")
             .help(session.immersiveActive ? "Leave full screen" : "Enter full screen")
+    }
+
+    private func toggleImmersive() async {
+        changingSpace = true
+        defer { changingSpace = false }
+        if session.immersiveActive { await dismissSpace() }
+        else {
+            switch await openSpace(id: "visualizer-stage") {
+            case .opened:
+                session.immersiveActive = true
+                session.studioWindowHidden = true
+                dismissWindow(id: "studio")
+            case .userCancelled: break
+            case .error: studio.message = "Immersive viewing couldn't open. Your Studio remains available."
+            @unknown default: break
+            }
+        }
+    }
+
+    /// Launch hooks for UI tests and recorded demos (see `VisionLaunchOptions`); applied once, after the soundtrack loads.
+    private func applyLaunchOptions() async {
+        let launch = VisionLaunchOptions.current
+        guard !launchApplied, launch != VisionLaunchOptions(arguments: []) else { return }
+        launchApplied = true
+        let editor = session.editor
+        if let hide = launch.hideRoom { session.fullImmersion = hide }
+        if launch.visualizer != nil, let first = editor.project.clips.first {
+            if let index = launch.visualizerIndex(in: NativeEffects.names) {
+                editor.assign(index, to: first.id); editor.select(first)
+            }
+            if editor.project.clips.first?.scene != launch.visualizerIndex(in: NativeEffects.names) {
+                NSLog("PulseCanvas launch hook: -PCVisualizer %@ is not an available visualizer in this build", launch.visualizer ?? "")
+            }
+        }
+        if let seconds = launch.seek { editor.seek(seconds) }
+        if launch.radio {
+            session.setRadioMode(true)
+            if launch.autoplay { session.radio.nextSong(); await session.radio.waitForTrack() }
+        } else if launch.autoplay, !editor.transport.playing, editor.transport.duration > 0 {
+            editor.togglePlayback()
+        }
+        if launch.openImmersive { await toggleImmersive() }
     }
 
     private func openProject(_ url: URL) {
@@ -204,14 +238,17 @@ private struct VisionLibrary: View {
                     Label("Random visualizer", systemImage: "shuffle")
                         .frame(maxWidth: .infinity, minHeight: 32)
                 }.buttonStyle(.borderedProminent).disabled(library.eligibleScenes.isEmpty)
+                    .accessibilityIdentifier("randomVisualizerButton")
                     .help("Choose another visualizer from the selected group. Saved visual settings stay unchanged.")
                 Button { studio.randomizeLook() } label: {
                     Image(systemName: "dice.fill").font(.title3).frame(width: 32, height: 32)
                 }.buttonStyle(.bordered)
                     .accessibilityLabel("Randomize current visual style")
+                    .accessibilityIdentifier("randomizeStyleButton")
                     .help("Randomize the current visualizer's colors and motion settings")
             }
             TextField("Search visualizers", text: $query).textFieldStyle(.roundedBorder)
+                .accessibilityIdentifier("visualizerSearchField")
             ScrollView {
                 LazyVStack(spacing: 6) {
                     ForEach(scenes, id: \.self) { scene in
@@ -263,8 +300,11 @@ private struct VisionTransportView: View {
             Button { if let radio { radio.togglePlayback() } else { studio.togglePlayback() } } label: {
                 Image(systemName: transport.playing ? "pause.fill" : "play.fill").frame(width: 32, height: 32)
             }.buttonStyle(.borderedProminent).disabled(studio.loading || transport.duration <= 0)
+                .accessibilityLabel(transport.playing ? "Pause" : "Play")
+                .accessibilityIdentifier("playPauseButton")
             Text(Duration.seconds(transport.seconds).formatted(.time(pattern: .minuteSecond)))
                 .monospacedDigit().frame(width: 60)
+                .accessibilityIdentifier("elapsedTime")
             Slider(value: Binding(get: { transport.seconds }, set: { studio.seek($0) }),
                 in: 0...max(1, transport.duration)).accessibilityLabel("Soundtrack position")
                 .disabled(studio.loading || studio.needsSoundtrack || transport.duration <= 0)
@@ -276,6 +316,7 @@ private struct VisionTransportView: View {
           if radio == nil { Toggle(isOn: Binding(get: { studio.loopPlayback }, set: { studio.loopPlayback = $0 })) {
               Label("Loop soundtrack", systemImage: "repeat")
           }.toggleStyle(.button)
+              .accessibilityIdentifier("loopSoundtrackToggle")
               .help("Repeat the soundtrack and Studio timeline from the beginning")
               .frame(maxWidth: .infinity, alignment: .leading)
           }

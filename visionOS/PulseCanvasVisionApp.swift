@@ -1,7 +1,7 @@
 import SwiftUI
 
 @main struct PulseCanvasVisionApp: App {
-    @StateObject private var session = VisionSession()
+    @StateObject private var session = VisionSession.forLaunch()
     var body: some Scene {
         WindowGroup(id: "studio") {
             VisionStudioView(studio: session.activeStudio, session: session)

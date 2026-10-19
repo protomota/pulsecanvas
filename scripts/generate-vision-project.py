@@ -24,8 +24,12 @@ resources = [ref('visionOS/Assets.xcassets', 'folder.assetcatalog'), ref('.build
 config = ref('visionOS/Release.xcconfig', 'text.xcconfig')
 info = ref('visionOS/Info.plist', 'text.plist.xml')
 product = obj('product', 'PBXFileReference', explicitFileType='wrapper.application', path='PulseCanvas Vision.app', sourceTree='BUILT_PRODUCTS_DIR')
-products = obj('products', 'PBXGroup', children=[product], name='Products', sourceTree='<group>')
-group = obj('main', 'PBXGroup', children=source_refs + resources + [config, info, products], sourceTree='<group>')
+# UI tests (visionOS/UITests): a separate bundle that drives the real app through its launch hooks (VisionLaunchOptions)
+ui_sources = sorted(str(p.relative_to(root)) for p in (root / 'visionOS/UITests').glob('*.swift'))
+ui_refs = [ref(p, 'sourcecode.swift') for p in ui_sources]
+ui_product = obj('uitests-product', 'PBXFileReference', explicitFileType='wrapper.cfbundle', path='PulseCanvasVisionUITests.xctest', sourceTree='BUILT_PRODUCTS_DIR')
+products = obj('products', 'PBXGroup', children=[product, ui_product], name='Products', sourceTree='<group>')
+group = obj('main', 'PBXGroup', children=source_refs + ui_refs + resources + [config, info, products], sourceTree='<group>')
 prepare = obj('prepare', 'PBXShellScriptBuildPhase', buildActionMask=2147483647, files=[], inputPaths=[], outputPaths=[],
     runOnlyForDeploymentPostprocessing=0, shellPath='/bin/bash', shellScript='"$SRCROOT/scripts/prepare-vision-resources.sh"\n',
     name='Prepare native Metal resources only', alwaysOutOfDate=1)
@@ -43,9 +47,28 @@ def configurations(label, target=False):
 target = obj('target', 'PBXNativeTarget', buildConfigurationList=configurations('targetConfig', True), buildPhases=phases,
     buildRules=[], dependencies=[], name='PulseCanvasVision', productName='PulseCanvas Vision', productReference=product,
     productType='com.apple.product-type.application')
-project = obj('project', 'PBXProject', attributes={'LastUpgradeCheck': '2700'}, buildConfigurationList=configurations('projectConfig'),
+def ui_configurations():
+    keys = []
+    for name in ['Debug', 'Release']:
+        values = dict(SDKROOT='xros', SUPPORTED_PLATFORMS='xros xrsimulator', TARGETED_DEVICE_FAMILY='7', XROS_DEPLOYMENT_TARGET='2.0',
+                      SWIFT_VERSION='5.0', CLANG_ENABLE_MODULES='YES', GENERATE_INFOPLIST_FILE='YES', CODE_SIGN_STYLE='Automatic',
+                      DEVELOPMENT_TEAM='22HV69L32T', PRODUCT_BUNDLE_IDENTIFIER='com.protomota.pulsecanvas.uitests',
+                      PRODUCT_NAME='PulseCanvasVisionUITests', TEST_TARGET_NAME='PulseCanvasVision',
+                      SWIFT_OPTIMIZATION_LEVEL='-Onone' if name == 'Debug' else '-O')
+        keys.append(obj('uitestsConfig' + name, 'XCBuildConfiguration', buildSettings=values, name=name))
+    return obj('uitestsConfiglist', 'XCConfigurationList', buildConfigurations=keys, defaultConfigurationIsVisible=0, defaultConfigurationName='Debug')
+project_key = hashlib.sha256(b'project').hexdigest()[:24].upper()  # obj('project', ...) below gets this key
+proxy = obj('uitests-proxy', 'PBXContainerItemProxy', containerPortal=project_key, proxyType=1, remoteGlobalIDString=target, remoteInfo='PulseCanvasVision')
+ui_target = obj('uitests-target', 'PBXNativeTarget', buildConfigurationList=ui_configurations(),
+    buildPhases=[phase('uitests-sources', 'PBXSourcesBuildPhase', [build(k) for k in ui_refs]),
+                 phase('uitests-frameworks', 'PBXFrameworksBuildPhase', []), phase('uitests-resources', 'PBXResourcesBuildPhase', [])],
+    buildRules=[], dependencies=[obj('uitests-dependency', 'PBXTargetDependency', target=target, targetProxy=proxy)],
+    name='PulseCanvasVisionUITests', productName='PulseCanvasVisionUITests', productReference=ui_product,
+    productType='com.apple.product-type.bundle.ui-testing')
+project = obj('project', 'PBXProject', attributes={'LastUpgradeCheck': '2700', 'TargetAttributes': {ui_target: {'TestTargetID': target}}}, buildConfigurationList=configurations('projectConfig'),
     compatibilityVersion='Xcode 14.0', developmentRegion='en', hasScannedForEncodings=0, knownRegions=['en', 'Base'],
-    mainGroup=group, productRefGroup=products, projectDirPath='', projectRoot='', targets=[target])
+    mainGroup=group, productRefGroup=products, projectDirPath='', projectRoot='', targets=[target, ui_target])
+assert project == project_key
 def encode(value, level=0):
     if isinstance(value, dict):
         return '{\n' + ''.join('\t' * (level + 1) + json.dumps(k) + ' = ' + encode(v, level + 1) + ';\n' for k, v in value.items()) + '\t' * level + '}'
@@ -57,10 +80,11 @@ folder.mkdir(exist_ok=True)
 scheme = folder / 'xcshareddata/xcschemes/PulseCanvasVision.xcscheme'
 scheme.parent.mkdir(parents=True, exist_ok=True)
 reference = f'<BuildableReference BuildableIdentifier="primary" BlueprintIdentifier="{target}" BuildableName="PulseCanvas Vision.app" BlueprintName="PulseCanvasVision" ReferencedContainer="container:PulseCanvasVision.xcodeproj"/>'
+ui_reference = f'<BuildableReference BuildableIdentifier="primary" BlueprintIdentifier="{ui_target}" BuildableName="PulseCanvasVisionUITests.xctest" BlueprintName="PulseCanvasVisionUITests" ReferencedContainer="container:PulseCanvasVision.xcodeproj"/>'
 scheme.write_text(f'''<?xml version="1.0" encoding="UTF-8"?>
 <Scheme LastUpgradeVersion="2700" version="1.3">
  <BuildAction parallelizeBuildables="YES" buildImplicitDependencies="YES"><BuildActionEntries><BuildActionEntry buildForTesting="YES" buildForRunning="YES" buildForProfiling="YES" buildForArchiving="YES" buildForAnalyzing="YES">{reference}</BuildActionEntry></BuildActionEntries></BuildAction>
- <TestAction buildConfiguration="Debug"/>
+ <TestAction buildConfiguration="Debug" selectedDebuggerIdentifier="Xcode.DebuggerFoundation.Debugger.LLDB" selectedLauncherIdentifier="Xcode.DebuggerFoundation.Launcher.LLDB" shouldUseLaunchSchemeArgsEnv="YES"><Testables><TestableReference skipped="NO">{ui_reference}</TestableReference></Testables></TestAction>
  <LaunchAction buildConfiguration="Debug" selectedDebuggerIdentifier="Xcode.DebuggerFoundation.Debugger.LLDB" selectedLauncherIdentifier="Xcode.IDEFoundation.Launcher.LLDB" launchStyle="0" useCustomWorkingDirectory="NO" ignoresPersistentStateOnLaunch="NO" debugDocumentVersioning="YES" allowLocationSimulation="YES"><BuildableProductRunnable runnableDebuggingMode="0">{reference}</BuildableProductRunnable></LaunchAction>
  <ProfileAction buildConfiguration="Release"><BuildableProductRunnable runnableDebuggingMode="0">{reference}</BuildableProductRunnable></ProfileAction>
  <AnalyzeAction buildConfiguration="Debug"/>

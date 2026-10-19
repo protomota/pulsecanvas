@@ -107,6 +107,42 @@ resource payload under `NativeAssets`. A top-level folder called `Resources`
 must not be used in this flat app bundle: it caused simulator installation to
 misidentify the bundle layout.
 
+## Launch hooks and UI tests
+
+`visionOS/VisionLaunchOptions.swift` adds opt-in launch arguments for UI tests and recorded demos. An ordinary launch
+(App Store, TestFlight, Xcode Run) is unchanged.
+
+| Argument | Effect |
+| --- | --- |
+| `-PCUITesting` | Fresh Studio and Radio storage in a per-launch temporary folder: no autosave restore, bundled demo soundtrack, new timeline. The user's projects are never read or written. |
+| `-PCAutoplay` | Start playback once the soundtrack is analysed. |
+| `-PCOpenImmersive` | Open the immersive space once playback starts (implies `-PCAutoplay`). |
+| `-PCHideRoom YES\|NO` | Set **Hide room** before opening. |
+| `-PCRadio` | Start in Radio mode (needs the network); with `-PCAutoplay`, play a station. |
+| `-PCVisualizer <name\|index>` | Put this visualizer on the first timeline card (an available visualizer; others are logged and ignored). |
+| `-PCSeek <seconds>` | Seek the soundtrack before playing. |
+
+Key controls carry accessibility identifiers, for example `playPauseButton`, `elapsedTime`, `immersiveButton`,
+`randomVisualizerButton`, `randomizeStyleButton`, `selectedVisualizerName`, `hideRoomToggle`, `backToStudioButton` and
+`immersivePlayPauseButton`.
+
+`visionOS/UITests` is the **PulseCanvasVisionUITests** target, generated with the app by
+`scripts/generate-vision-project.py`. Its tests cover:
+- the Studio opening with the bundled demo;
+- play/pause advancing and holding time;
+- `-PCAutoplay` and `-PCVisualizer`;
+- Random visualizer;
+- opening immersive viewing and returning to Studio.
+
+Every test launches with `-PCUITesting`. `testCaptureDemoTour` is a paced demo for screen recordings. It is skipped
+unless `TEST_RUNNER_PULSECANVAS_CAPTURE_DEMO=1` is set, and writes `CAPTURE-MARK` timestamps to
+`TEST_RUNNER_PULSECANVAS_CAPTURE_MARKS`.
+
+```sh
+bash scripts/test-vision-ui.sh                      # "Apple Vision Pro" simulator
+bash scripts/test-vision-ui.sh <simulator UDID> -only-testing:PulseCanvasVisionUITests/PulseCanvasVisionUITests/testAutoplayLaunchHookStartsPlayback
+```
+
 ## Validation and remaining device work
 
 Project tests cover defaults for all 336 effects, stable IDs, mixed bar timing,
