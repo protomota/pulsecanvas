@@ -14,7 +14,7 @@ cp -R .build/release/PulseCanvas_PulseCanvas.bundle "$APP/Contents/Resources/"
 rm -f "$APP/Contents/Resources/PulseCanvas-MIT-LICENSE.txt"
 cp LICENSE "$APP/Contents/Resources/PulseCanvas-LICENSE.txt"
 ./scripts/prepare-legal-resources.sh "$APP/Contents/Resources/Legal"
-release_version="$(awk '/^MARKETING_VERSION = / {print $3}' macOS/Release.xcconfig)"
+release_version="$(awk '/^MARKETING_VERSION = / {print $3}' Version.xcconfig)"
 release_build="$(awk '/^CURRENT_PROJECT_VERSION = / {print $3}' macOS/Release.xcconfig)"
 cat > "$APP/Contents/Info.plist" <<PLIST
 <?xml version="1.0" encoding="UTF-8"?>

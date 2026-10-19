@@ -232,7 +232,7 @@ def generate(preset_checkout, texture_checkout):
 
 def verify_app(app):
     info = plistlib.loads((app / 'Contents/Info.plist').read_bytes())
-    config = (REPO / 'macOS/Release.xcconfig').read_text()
+    config = ((REPO / 'Version.xcconfig').read_text() + '\n' + (REPO / 'macOS/Release.xcconfig').read_text())
     for field, key in [('CFBundleShortVersionString', 'MARKETING_VERSION'),
                        ('CFBundleVersion', 'CURRENT_PROJECT_VERSION')]:
         expected = re.search(r'^' + key + r'\s*=\s*(\S+)', config, re.MULTILINE).group(1)
@@ -264,7 +264,7 @@ def verify_app(app):
         if source.suffix in ['.c', '.h']:
             require((legal / source.name).read_bytes() == source.read_bytes(), f'Embedded vendor notices differ: {source.name}')
     info = plistlib.loads((app / 'Contents/Info.plist').read_bytes())
-    config = (REPO / 'macOS/Release.xcconfig').read_text()
+    config = ((REPO / 'Version.xcconfig').read_text() + '\n' + (REPO / 'macOS/Release.xcconfig').read_text())
     version = re.search(r'^MARKETING_VERSION\s*=\s*(\S+)', config, re.M).group(1)
     build = re.search(r'^CURRENT_PROJECT_VERSION\s*=\s*(\S+)', config, re.M).group(1)
     # Portable development bundles use their existing development version.
@@ -284,7 +284,7 @@ def verify_source(path, revision=None):
         curation_files = receipt_files(REPO / RESOURCE)
         for name in MANIFESTS + ['Preset-README.md', 'Preset-notice.md', 'Provenance.md', 'catalog.json'] + curation_files:
             require((root / RESOURCE / name).read_bytes() == (REPO / RESOURCE / name).read_bytes(), f'Source differs: {name}')
-        for name in ['LICENSE', 'macOS/Release.xcconfig', 'third_party/projectm-source.tar.gz',
+        for name in ['LICENSE', 'Version.xcconfig', 'macOS/Release.xcconfig', 'third_party/projectm-source.tar.gz',
                      'third_party/PROJECTM.md', 'Sources/PulseCanvas/PulseCanvasApp.swift',
                      'scripts/build-projectm.sh', 'scripts/build-app.sh', 'scripts/store-release.sh',
                      'scripts/preset-provenance.py']:

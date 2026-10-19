@@ -253,3 +253,11 @@ Current source now contains 7,800 OpenGL presets after the completed first revie
 Completed OpenGL Batch 002 on 2026-10-14: kept 78 picks and withdrew 22 unselected presets. Current source/local testing library is 7,778 OpenGL presets; published website builds retain their original inventory. The curation partition, preset hashes and full notice scan were updated, and saved-project migration records retained. Batch 003 uses the original frozen catalog cursor.
 
 Completed OpenGL Batch 003 on 2026-10-14: kept 80 picks and withdrew 20 unselected presets. Current source/local library has 7,758 OpenGL effects. Preset provenance, notices and retirement migration records are updated; website builds remain unchanged. Batch 004 uses the original frozen catalog cursor.
+
+## Release version numbers
+
+Mac and Vision Pro read `MARKETING_VERSION` from the root `Version.xcconfig`.
+Change that shared value for a new release. Each platform keeps its own
+`CURRENT_PROJECT_VERSION` in its `Release.xcconfig` and increments it for new
+uploads. Existing uploaded TestFlight versions keep their original version label.
+Creators packaging and source-package verification read the same shared version.

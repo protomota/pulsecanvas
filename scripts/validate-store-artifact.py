@@ -5,7 +5,8 @@ p=argparse.ArgumentParser();m=p.add_mutually_exclusive_group();m.add_argument('-
 root=a.app.resolve();info=plistlib.loads((root/'Contents/Info.plist').read_bytes())
 exe=root/'Contents/MacOS'/info['CFBundleExecutable']
 assert info['LSMinimumSystemVersion']=='14.0'
-release_config=(pathlib.Path(__file__).resolve().parent.parent/'macOS/Release.xcconfig').read_text()
+config_root=pathlib.Path(__file__).resolve().parent.parent
+release_config=(config_root/'Version.xcconfig').read_text()+'\n'+(config_root/'macOS/Release.xcconfig').read_text()
 expected_version=re.search(r'^MARKETING_VERSION\s*=\s*(\S+)',release_config,re.M).group(1)
 expected_build=re.search(r'^CURRENT_PROJECT_VERSION\s*=\s*(\S+)',release_config,re.M).group(1)
 assert info['CFBundleShortVersionString']==expected_version

@@ -2,7 +2,7 @@
 DEVELOPMENT_TEAM = 22HV69L32T
 // Proposed release values. Verify identifier availability before registration.
 PRODUCT_BUNDLE_IDENTIFIER = com.protomota.pulsecanvas
-MARKETING_VERSION = 1.1.5
+#include "../Version.xcconfig"
 CURRENT_PROJECT_VERSION = 24
 MACOSX_DEPLOYMENT_TARGET = 14.0
 ARCHS = arm64

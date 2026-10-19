@@ -29,7 +29,7 @@ ui_sources = sorted(str(p.relative_to(root)) for p in (root / 'visionOS/UITests'
 ui_refs = [ref(p, 'sourcecode.swift') for p in ui_sources]
 ui_product = obj('uitests-product', 'PBXFileReference', explicitFileType='wrapper.cfbundle', path='PulseCanvasVisionUITests.xctest', sourceTree='BUILT_PRODUCTS_DIR')
 products = obj('products', 'PBXGroup', children=[product, ui_product], name='Products', sourceTree='<group>')
-group = obj('main', 'PBXGroup', children=source_refs + ui_refs + resources + [config, info, products], sourceTree='<group>')
+group = obj('main', 'PBXGroup', children=source_refs + ui_refs + resources + [ref('Version.xcconfig', 'text.xcconfig'), config, info, products], sourceTree='<group>')
 prepare = obj('prepare', 'PBXShellScriptBuildPhase', buildActionMask=2147483647, files=[], inputPaths=[], outputPaths=[],
     runOnlyForDeploymentPostprocessing=0, shellPath='/bin/bash', shellScript='"$SRCROOT/scripts/prepare-vision-resources.sh"\n',
     name='Prepare native Metal resources only', alwaysOutOfDate=1)

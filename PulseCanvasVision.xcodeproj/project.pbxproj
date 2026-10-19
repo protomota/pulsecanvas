@@ -248,6 +248,12 @@
 			"name" = "Products";
 			"sourceTree" = "<group>";
 		};
+		"46F0CB8365F54D638291EBCD" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "text.xcconfig";
+			"path" = "Version.xcconfig";
+			"sourceTree" = "<group>";
+		};
 		"0D6E4079E36703EBD37C0072" = {
 			"isa" = "PBXGroup";
 			"children" = (
@@ -286,6 +292,7 @@
 				"C2C9DC46EEABB4403C4F54B6",
 				"74BF9E81D47C493AB795ED7C",
 				"0A5282C4EC48041B28F6D173",
+				"46F0CB8365F54D638291EBCD",
 				"98C8D67F698DEFBBE6078282",
 				"5AF284F2C7145EF8CEDAC41B",
 				"0A3E27B8CA818264D75C8D81",

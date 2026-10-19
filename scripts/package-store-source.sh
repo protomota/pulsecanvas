@@ -8,16 +8,16 @@ trap 'rm -rf "$staging_root"' EXIT
 stage="$staging_root/PulseCanvas-source"
 mkdir -p "$stage"
 # Package only committed release sources; omit unrelated in-progress assets.
-git archive HEAD Sources scripts radio macOS PulseCanvas.xcodeproj PulseCanvasVision.xcodeproj PulseCanvasTV.xcodeproj visionOS tvOS third_party assets packaging Package.swift LICENSE README.md AGENTS.md docs | tar -x -C "$stage"
+git archive HEAD Version.xcconfig Sources scripts radio macOS PulseCanvas.xcodeproj PulseCanvasVision.xcodeproj PulseCanvasTV.xcodeproj visionOS tvOS third_party assets packaging Package.swift LICENSE README.md AGENTS.md docs | tar -x -C "$stage"
 # Remove generated Python caches if local checks created them.
 find "$stage/scripts" -type d -name __pycache__ -prune -exec rm -rf {} +
-release_version="$(awk '/^MARKETING_VERSION = / {print $3}' "$stage/macOS/Release.xcconfig")"
+release_version="$(awk '/^MARKETING_VERSION = / {print $3}' "$stage/Version.xcconfig")"
 release_build="$(awk '/^CURRENT_PROJECT_VERSION = / {print $3}' "$stage/macOS/Release.xcconfig")"
 revision="$(git rev-parse HEAD)"
 # Do not overwrite a source archive previously matched to a submitted build.
 archive="${PULSECANVAS_SOURCE_OUTPUT_DIR:-build/app-store}/PulseCanvas-${release_version}-${release_build}-${revision:0:12}-source.tar.gz"
 cat > "$stage/BUILD.txt" <<'TXT'
-PulseCanvas Studio release source. Version/build are recorded in macOS/Release.xcconfig.
+PulseCanvas Studio release source. The shared version is in Version.xcconfig; Mac build number is in macOS/Release.xcconfig.
 Apple silicon, macOS 14+, Xcode 27.0, CMake required.
 Read LICENSE and docs/app-store/LICENSES.md. Individual assets retain their terms.
 Read Sources/PulseCanvas/Resources/ProjectM/Provenance.md for the ISOSCELES credit,

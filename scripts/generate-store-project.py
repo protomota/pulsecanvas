@@ -20,7 +20,7 @@ sources = sorted(str(p.relative_to(root)) for p in (root/'Sources/PulseCanvas').
 source_refs = [ref(p,'sourcecode.swift') for p in sources]
 resources = [ref('.build/store-resources/Resources','folder'),ref('.build/store-resources/AppIcon.icns','image.icns'),ref('.build/store-resources/Legal','folder'),ref('macOS/PrivacyInfo.xcprivacy','text.xml')]
 config = ref('macOS/Release.xcconfig','text.xcconfig')
-other_refs = [config, ref('macOS/Info.plist','text.plist.xml'),ref('macOS/PulseCanvas.entitlements','text.plist.entitlements')]
+other_refs = [ref('Version.xcconfig','text.xcconfig'), config, ref('macOS/Info.plist','text.plist.xml'),ref('macOS/PulseCanvas.entitlements','text.plist.entitlements')]
 product = obj('product','PBXFileReference',explicitFileType='wrapper.application',path='PulseCanvas Studio.app',sourceTree='BUILT_PRODUCTS_DIR',includeInIndex=0)
 products = obj('products','PBXGroup',children=[product],name='Products',sourceTree='<group>')
 group = obj('main','PBXGroup',children=source_refs+resources+other_refs+[products],sourceTree='<group>')

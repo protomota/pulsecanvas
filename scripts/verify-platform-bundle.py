@@ -7,6 +7,7 @@ root=Path(__file__).resolve().parents[1];app=args.app;info=plistlib.loads((app/'
 assert info['CFBundleIdentifier']=='com.protomota.pulsecanvas'
 assert info['UIDeviceFamily']==([3] if args.platform=='tv' else [7])
 config=(root/('tvOS' if args.platform=='tv' else 'visionOS')/'Release.xcconfig').read_text()
+if args.platform=='vision': config=(root/'Version.xcconfig').read_text()+'\n'+config
 def setting(name):
  match=re.search(r'^'+re.escape(name)+r'\s*=\s*(\S+)',config,re.MULTILINE)
  assert match, name

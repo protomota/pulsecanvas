@@ -24,7 +24,7 @@ python3 - "$app" <<'PY'
 import json, plistlib, re, sys
 from pathlib import Path
 app = Path(sys.argv[1]); config = json.loads(Path('macOS/DirectRelease.json').read_text())
-settings = dict(re.findall(r'^(\w+) = (.+)$', Path('macOS/Release.xcconfig').read_text(), re.M))
+settings = dict(re.findall(r'^(\w+) = (.+)$', (Path('Version.xcconfig').read_text() + '\n' + Path('macOS/Release.xcconfig').read_text()), re.M))
 info = plistlib.loads(Path('macOS/Info.plist').read_bytes())
 info.update(CFBundleExecutable='PulseCanvas', CFBundleIdentifier=config['bundleIdentifier'],
             CFBundleShortVersionString=settings['MARKETING_VERSION'], CFBundleVersion=settings['CURRENT_PROJECT_VERSION'],

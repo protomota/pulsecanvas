@@ -215,6 +215,12 @@
 			"path" = "macOS/Release.xcconfig";
 			"sourceTree" = "<group>";
 		};
+		"46F0CB8365F54D638291EBCD" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "text.xcconfig";
+			"path" = "Version.xcconfig";
+			"sourceTree" = "<group>";
+		};
 		"84D683A1A8B69C07FFB2CC3E" = {
 			"isa" = "PBXFileReference";
 			"lastKnownFileType" = "text.plist.xml";
@@ -279,6 +285,7 @@
 				"5CEB2FADE0103A495626491F",
 				"9CF1AB3B18887D6A6C066E75",
 				"0A5282C4EC48041B28F6D173",
+				"46F0CB8365F54D638291EBCD",
 				"17EF7EA6E4B2C028C8FFD997",
 				"84D683A1A8B69C07FFB2CC3E",
 				"C5CE7949C1B69A9E51043058",

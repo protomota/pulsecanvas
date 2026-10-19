@@ -22,7 +22,7 @@ xcrun iconutil -c icns .build/AppIcon.iconset -o "$app/Contents/Resources/AppIco
 python3 - "$app" <<'PY'
 import json,plistlib,re,sys
 from pathlib import Path
-app=Path(sys.argv[1]);settings=dict(re.findall(r'^(\w+) = (.+)$',Path('macOS/Release.xcconfig').read_text(),re.M))
+app=Path(sys.argv[1]);settings=dict(re.findall(r'^(\w+) = (.+)$',(Path('Version.xcconfig').read_text() + '\n' + Path('macOS/Release.xcconfig').read_text()),re.M))
 info=plistlib.loads(Path('macOS/Info.plist').read_bytes())
 info.update(CFBundleExecutable='PulseCanvas',CFBundleIdentifier='com.protomota.pulsecanvas.creators-local',CFBundleName='PulseCanvas Studio Creators Local',CFBundleDisplayName='PulseCanvas Studio Creators Local',CFBundleShortVersionString=settings['MARKETING_VERSION'],CFBundleVersion=settings['CURRENT_PROJECT_VERSION'],LSMinimumSystemVersion='14.0',PulseCanvasLocalTesting=True,SUEnableAutomaticChecks=False)
 for key in ['SUFeedURL','SUPublicEDKey']:info.pop(key,None)
