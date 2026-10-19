@@ -207,8 +207,12 @@ private struct VisionRadioControls: View {
                     ForEach(radio.stations) { Text($0.title).tag($0.id) }
                 }.pickerStyle(.menu).disabled(radio.stations.isEmpty || radio.loading)
                 HStack {
-                    Button("Play Radio", systemImage: "radio") { if !radio.studio.transport.playing { radio.togglePlayback() } }
-                        .buttonStyle(.borderedProminent)
+                    Button { if !radio.studio.transport.playing { radio.togglePlayback() } } label: {
+                        HStack(alignment: .center, spacing: 10) {
+                            Image(systemName: "radio").frame(width: 24, height: 24)
+                            Text("Play Radio")
+                        }.font(.body.weight(.semibold)).frame(minHeight: 32, alignment: .center)
+                    }.buttonStyle(.borderedProminent)
                     Button("Next song", systemImage: "forward.end.fill") { radio.nextSong() }
                         .labelStyle(.iconOnly)
                 }.disabled(radio.loading || radio.stations.isEmpty)
@@ -297,11 +301,17 @@ private struct VisionTransportView: View {
           Text(studio.project.audioTitle).font(.headline).lineLimit(1)
               .frame(maxWidth: .infinity, alignment: .leading)
           HStack(spacing: 16) {
-            Button { if let radio { radio.togglePlayback() } else { studio.togglePlayback() } } label: {
-                Image(systemName: transport.playing ? "pause.fill" : "play.fill").frame(width: 32, height: 32)
-            }.buttonStyle(.borderedProminent).disabled(studio.loading || transport.duration <= 0)
-                .accessibilityLabel(transport.playing ? "Pause" : "Play")
-                .accessibilityIdentifier("playPauseButton")
+            if let radio {
+                VisionRadioPlaybackButton(radio: radio, transport: transport)
+                    .buttonStyle(.borderedProminent)
+                    .accessibilityIdentifier("playPauseButton")
+            } else {
+                Button { studio.togglePlayback() } label: {
+                    Image(systemName: transport.playing ? "pause.fill" : "play.fill").frame(width: 32, height: 32)
+                }.buttonStyle(.borderedProminent).disabled(studio.loading || transport.duration <= 0)
+                    .accessibilityLabel(transport.playing ? "Pause" : "Play")
+                    .accessibilityIdentifier("playPauseButton")
+            }
             Text(Duration.seconds(transport.seconds).formatted(.time(pattern: .minuteSecond)))
                 .monospacedDigit().frame(width: 60)
                 .accessibilityIdentifier("elapsedTime")
@@ -321,6 +331,21 @@ private struct VisionTransportView: View {
               .frame(maxWidth: .infinity, alignment: .leading)
           }
         }
+    }
+}
+
+/// Radio can start before audio exists; only an in-progress song request blocks another tap.
+struct VisionRadioPlaybackButton: View {
+    @ObservedObject var radio: VisionRadio
+    @ObservedObject var transport: VisionTransport
+    var body: some View {
+        Button { radio.togglePlayback() } label: {
+            ZStack {
+                if radio.loading { ProgressView().controlSize(.small) }
+                else { Image(systemName: transport.playing ? "pause.fill" : "play.fill") }
+            }.frame(width: 32, height: 32)
+        }.disabled(radio.loading)
+            .accessibilityLabel(radio.loading ? "Preparing Radio" : transport.playing ? "Pause Radio" : "Play Radio")
     }
 }
 
@@ -488,6 +513,7 @@ private struct VisionTimelineCard: View {
                 }.frame(maxWidth: .infinity, minHeight: 52, alignment: .leading).contentShape(Rectangle())
             }.buttonStyle(.plain).hoverEffect(.highlight)
                 .accessibilityLabel("Choose visualizer for \(NativeEffects.names[clip.scene]) section")
+                .accessibilityIdentifier("chooseVisualizer-\(clip.id)")
                 .popover(isPresented: $choosing, arrowEdge: .bottom) {
                     VisionClipPicker(studio: studio, clipID: clip.id) { choosing = false }
                         .presentationCompactAdaptation(.popover)
@@ -531,6 +557,7 @@ private struct VisionClipPicker: View {
                             HStack(spacing: 8) {
                                 Button {
                                     studio.assign(scene, to: clipID)
+                                    close()
                                 } label: {
                                     HStack(spacing: 12) {
                                         Image(systemName: library.icon(for: scene)).frame(width: 28).foregroundStyle(.tint)
@@ -552,21 +579,19 @@ private struct VisionClipPicker: View {
                         if scenes.isEmpty { Text("No matching visualizers").foregroundStyle(.secondary).padding(24) }
                     }.padding(.trailing, 6)
                 }.frame(maxHeight: .infinity).scrollIndicators(.visible)
-                Divider()
-                HStack {
-                    Label(NativeEffects.names[clip.scene], systemImage: NativeEffects.all[clip.scene].icon)
-                        .font(.headline).lineLimit(2)
-                    Spacer()
-                    Button("Random visualizer", systemImage: "shuffle") { studio.randomizeVisualizer(for: clipID) }
-                        .labelStyle(.iconOnly).disabled(library.eligibleScenes.isEmpty)
-                    Button("Randomize style", systemImage: "dice.fill") { studio.randomizeLook(for: clipID) }
-                        .labelStyle(.iconOnly)
-                    Button("Favorite current visualizer", systemImage: library.isFavorite(clip.scene) ? "heart.fill" : "heart") {
-                        library.toggleFavorite(clip.scene)
-                    }.labelStyle(.iconOnly)
-                }
-                VisionStyleControls(studio: studio, clipID: clipID)
+                Button("Surprise me", systemImage: "shuffle") {
+                    let candidates = scenes.filter { $0 != clip.scene }
+                    if let next = (candidates.isEmpty ? scenes : candidates).randomElement() {
+                        studio.assign(next, to: clipID)
+                        close()
+                    }
+                }.buttonStyle(.borderedProminent).disabled(scenes.isEmpty)
+                    .accessibilityLabel("Surprise me")
+                    .accessibilityIdentifier("surpriseClipVisualizerButton")
+                    .frame(maxWidth: .infinity, alignment: .trailing)
             } else { Text("Section unavailable"); Spacer() }
-        }.padding(24).frame(width: 680, height: 760)
+        }.padding(24).frame(width: 680, height: 680)
+            .accessibilityElement(children: .contain)
+            .accessibilityIdentifier("clipVisualizerPicker")
     }
 }

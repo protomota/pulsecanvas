@@ -60,6 +60,34 @@ final class PulseCanvasVisionUITests: XCTestCase {
         XCTAssertTrue(waitForLabel(play, "Pause", timeout: 90), "-PCAutoplay did not start playback")
     }
 
+    @MainActor func testRadioTransportStartsBeforeAnySongIsLoaded() {
+        let app = launch(["-PCRadio"])
+        let play = app.buttons["playPauseButton"]
+        XCTAssertTrue(play.waitForExistence(timeout: 90))
+        XCTAssertTrue(waitForLabel(play, "Play Radio", timeout: 90))
+        XCTAssertTrue(play.isEnabled, "Radio Play must be enabled without a loaded song")
+        play.tap()
+        XCTAssertTrue(waitForLabel(play, "Pause Radio", timeout: 120), "First Play did not load and play the station")
+        play.tap()
+        XCTAssertTrue(waitForLabel(play, "Play Radio"), "Radio did not pause")
+    }
+
+    @MainActor func testClipPickerOnlyOffersSelectionAndSurprise() {
+        let app = launch()
+        waitForSoundtrack(app)
+        let card = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@", "chooseVisualizer-")).firstMatch
+        XCTAssertTrue(card.waitForExistence(timeout: 30))
+        card.tap()
+        let picker = app.otherElements["clipVisualizerPicker"]
+        XCTAssertTrue(picker.waitForExistence(timeout: 10))
+        let surprise = app.buttons["surpriseClipVisualizerButton"]
+        XCTAssertTrue(surprise.waitForExistence(timeout: 10))
+        XCTAssertFalse(picker.sliders.firstMatch.exists, "Style controls must not appear in the clip picker")
+        XCTAssertFalse(picker.buttons["Randomize style"].exists)
+        surprise.tap()
+        XCTAssertTrue(picker.waitForNonExistence(timeout: 10), "Choosing a random visualizer must dismiss the picker")
+    }
+
     @MainActor func testVisualizerLaunchHookChoosesTheFirstCard() {
         // Take a visualizer the app itself can use (from Random visualizer), then relaunch asking for it by name.
         let first = launch()

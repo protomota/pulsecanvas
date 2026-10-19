@@ -190,9 +190,14 @@ private struct VisionImmersivePlayback: View {
     @ObservedObject var transport: VisionTransport
     @ObservedObject var session: VisionSession
     var body: some View {
-        Button(transport.playing ? "Pause" : "Play", systemImage: transport.playing ? "pause.fill" : "play.fill") {
-            if session.radioMode { session.radio.togglePlayback() } else { studio.togglePlayback() }
-        }.labelStyle(.iconOnly).disabled(studio.loading)
-            .accessibilityIdentifier("immersivePlayPauseButton")
+        if session.radioMode {
+            VisionRadioPlaybackButton(radio: session.radio, transport: transport)
+                .accessibilityIdentifier("immersivePlayPauseButton")
+        } else {
+            Button(transport.playing ? "Pause" : "Play", systemImage: transport.playing ? "pause.fill" : "play.fill") {
+                studio.togglePlayback()
+            }.labelStyle(.iconOnly).disabled(studio.loading)
+                .accessibilityIdentifier("immersivePlayPauseButton")
+        }
     }
 }

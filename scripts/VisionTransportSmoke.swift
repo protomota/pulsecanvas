@@ -1,5 +1,6 @@
 import Foundation
 import CryptoKit
+import Combine
 
 @main struct VisionTransportSmoke {
     @MainActor static func main() async throws {
@@ -166,10 +167,19 @@ import CryptoKit
         let editorBefore = try Data(contentsOf: directory.appendingPathComponent("Studio-autosave.json"))
         session.setRadioMode(true)
         precondition(session.activeStudio === radio.studio && session.activeStudio !== restored)
-        await radio.refreshStations()
-        precondition(radio.stations.map(\.title) == ["All Music"] && !radio.loadingStations)
-        radio.nextSong(); await radio.waitForTrack()
+        precondition(radio.stations.isEmpty && radio.studio.transport.duration == 0)
+        radio.togglePlayback()
+        precondition(radio.loading, "First Play must immediately queue a song without preloaded stations or audio")
+        radio.togglePlayback() // Ignore repeated taps while preparing the first song.
+        await radio.waitForTrack()
+        precondition(radio.stations.map(\.title) == ["All Music"] && !radio.loadingStations && !radio.loading)
         precondition(radio.error == nil && radio.studio.transport.playing && !radio.studio.loopPlayback)
+        let firstTitle = radio.studio.project.audioTitle
+        radio.togglePlayback()
+        precondition(!radio.studio.transport.playing)
+        radio.togglePlayback()
+        precondition(radio.studio.transport.playing && radio.studio.project.audioTitle == firstTitle,
+                     "After cold-start playback, Play must resume the same song rather than choosing another")
         precondition(radio.studio.project.clips.allSatisfy { eligible.contains($0.scene) },
                      "Radio's generated timeline must use the same selected category as the library and randomizer")
         let title = radio.studio.project.audioTitle
@@ -183,6 +193,21 @@ import CryptoKit
         precondition(editorAfter == editorBefore,
                      "Radio must never overwrite the user's Studio session")
         print("PASS Vision Radio: station JSON, verified audio, autoplay next track, mode switching and independent Studio storage")
+        let loadingRadio = VisionRadio(directory: directory.appendingPathComponent("LoadingRadioCache"),
+            source: fixtures.appendingPathComponent("stations.json"), presets: presets)
+        loadingRadio.studio.volume = 0
+        // Request Play as soon as the UI observes loading, before the directory can finish.
+        let startOnLoading = loadingRadio.$loadingStations.filter { $0 }.prefix(1).sink { _ in
+            loadingRadio.togglePlayback()
+        }
+        await loadingRadio.refreshStations()
+        await loadingRadio.waitForTrack()
+        withExtendedLifetime(startOnLoading) {}
+        precondition(loadingRadio.error == nil && loadingRadio.studio.transport.playing
+                     && !loadingRadio.loading && !loadingRadio.loadingStations,
+                     "Play must await the in-flight station directory and start a track")
+        loadingRadio.suspend()
+        print("PASS Radio first Play: cold start, repeated taps, pause/resume and Play during initial station loading")
         let portable = VisionStudio(directory: directory.appendingPathComponent("Portable"), library: presets)
         portable.volume = 0
         var incoming = VisionProject()
