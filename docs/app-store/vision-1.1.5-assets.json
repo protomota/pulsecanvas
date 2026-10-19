@@ -1,0 +1,78 @@
+{
+  "screenshots": [
+    {
+      "path": "screenshots/01-immersive.png",
+      "dimensions": [
+        3840,
+        2160
+      ],
+      "mode": "RGB",
+      "sha256": "addf90f96aae3a1a61177d237be926474a2cebc811dcab69019467ac7826d55f"
+    },
+    {
+      "path": "screenshots/02-studio.png",
+      "dimensions": [
+        3840,
+        2160
+      ],
+      "mode": "RGB",
+      "sha256": "9a835c1eae2b05b405d6be226c7763d15f0890973effb93abecaf2f384b95d81"
+    },
+    {
+      "path": "screenshots/03-choose-a-visualizer.png",
+      "dimensions": [
+        3840,
+        2160
+      ],
+      "mode": "RGB",
+      "sha256": "045cc64324d1611e3346b8758095e5bfc34503455442211487874354624f87a0"
+    },
+    {
+      "path": "screenshots/04-export.png",
+      "dimensions": [
+        3840,
+        2160
+      ],
+      "mode": "RGB",
+      "sha256": "61f0f2be7f967e79966a7e5520c2eb928c2f5d41db4e453c44ab9c5ff124bcb0"
+    },
+    {
+      "path": "screenshots/05-radio-favorites.png",
+      "dimensions": [
+        3840,
+        2160
+      ],
+      "mode": "RGB",
+      "sha256": "4cc943759600791528c2d1b21256fe9760509e11019cc48a74f03bce2270fb18"
+    },
+    {
+      "path": "screenshots/06-radio.png",
+      "dimensions": [
+        3840,
+        2160
+      ],
+      "mode": "RGB",
+      "sha256": "09291344fb786281510ac5ba0d48e57ed66d80360bcc526c3f40d100efb3779b"
+    }
+  ],
+  "previews": [
+    {
+      "fileName": "01-PulseCanvas-VisionPro-Immersion-4K30-v2.mp4",
+      "sha256": "eec393304da9cbb0f98d83fc34bb459ba30cc5179cd61a65d38f80e0170213ce",
+      "bytes": 160116230,
+      "processingState": "COMPLETE"
+    },
+    {
+      "fileName": "02-PulseCanvas-VisionPro-Studio-4K30-v3.mp4",
+      "sha256": "b305fea9d56746836df78fa2df155a15a18df823636767e95929c39e4643c79d",
+      "bytes": 58364791,
+      "processingState": "COMPLETE"
+    },
+    {
+      "fileName": "03-PulseCanvas-VisionPro-Radio-4K30-v2.mp4",
+      "sha256": "6ebdde8afd55e06745e64353cb3786354dd7c5cb53dca8ce4993e02ff28fa71a",
+      "bytes": 113025152,
+      "processingState": "COMPLETE"
+    }
+  ]
+}

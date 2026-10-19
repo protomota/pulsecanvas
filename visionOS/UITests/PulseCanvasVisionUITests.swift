@@ -241,6 +241,11 @@ final class PulseCanvasVisionUITests: XCTestCase {
     private func appStoreCaptureMark(_ name: String) {
         let line = String(format: "APPSTORE-MARK %@ %.3f\n", name, Date().timeIntervalSince1970)
         print(line, terminator: "")
+        // Opt-in still-capture hold gives Device Hub time to save a native 4K screenshot.
+        if let raw = ProcessInfo.processInfo.environment["PULSECANVAS_CAPTURE_STILL_HOLD"],
+           let seconds = Double(raw), seconds > 0, seconds <= 60 {
+            Thread.sleep(forTimeInterval: seconds)
+        }
         guard let path = ProcessInfo.processInfo.environment["PULSECANVAS_CAPTURE_MARKS"] else { return }
         if let handle = FileHandle(forWritingAtPath: path) {
             handle.seekToEndOfFile(); handle.write(Data(line.utf8)); try? handle.close()
