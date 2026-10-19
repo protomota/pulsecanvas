@@ -221,6 +221,56 @@ final class PulseCanvasVisionUITests: XCTestCase {
         appStoreCaptureMark("end")
     }
 
+    @MainActor func testInfoOffersRatingsSharingFeedbackAndCredits() throws {
+        let app = launch()
+        _ = waitForSoundtrack(app)
+        app.buttons["visionInfoButton"].tap()
+        for action in ["visionSupportReview", "visionSupportShare", "visionSupportFeedback"] {
+            XCTAssertTrue(app.buttons[action].waitForExistence(timeout: 10), "Missing support action: \(action)")
+            XCTAssertTrue(app.buttons[action].isHittable)
+        }
+        XCTAssertTrue(app.staticTexts["Free software.\nSupported by people."].exists)
+        if ProcessInfo.processInfo.environment["PULSECANVAS_CAPTURE_APPSTORE"] == "1" {
+            appStoreCaptureMark("vision-support"); Thread.sleep(forTimeInterval: 25)
+        }
+        app.buttons["Legal & Credits"].tap()
+        XCTAssertTrue(app.staticTexts["Copyright © 2026 Protomota, LLC"].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.links["Source code on GitHub"].exists)
+        app.buttons["closeVisionInfoButton"].tap()
+        XCTAssertTrue(app.buttons["playPauseButton"].waitForExistence(timeout: 10))
+    }
+
+    @MainActor func testCaptureAppStoreExportAndSave() throws {
+        guard ProcessInfo.processInfo.environment["PULSECANVAS_CAPTURE_APPSTORE"] == "1",
+              let audio = ProcessInfo.processInfo.environment["PULSECANVAS_CAPTURE_AUDIO"] else {
+            throw XCTSkip("Export capture requires an explicit isolated soundtrack fixture")
+        }
+        let app = launch(["-PCCaptureAudio", audio, "-PCCaptureScenes", "402,425,341,334,326,325"])
+        let play = waitForSoundtrack(app)
+        XCTAssertTrue(app.staticTexts["Studio demo"].waitForExistence(timeout: 60))
+        play.tap()
+        appStoreCaptureMark("save-tour-studio"); Thread.sleep(forTimeInterval: 5)
+        app.buttons["exportMP4Button"].tap()
+        if app.buttons["Render another video"].waitForExistence(timeout: 1) {
+            app.buttons["Render another video"].tap()
+        }
+        XCTAssertTrue(app.buttons["Render video"].waitForExistence(timeout: 10))
+        app.buttons["30 fps"].tap()
+        appStoreCaptureMark("save-tour-settings"); Thread.sleep(forTimeInterval: 5)
+        app.buttons["Render video"].tap()
+        appStoreCaptureMark("save-tour-render-start")
+        XCTAssertTrue(app.buttons["Save video"].waitForExistence(timeout: 240))
+        appStoreCaptureMark("save-tour-ready"); Thread.sleep(forTimeInterval: 4)
+        app.buttons["Save video"].tap()
+        appStoreCaptureMark("save-tour-files"); Thread.sleep(forTimeInterval: 5)
+        let save = app.buttons["Save"]
+        XCTAssertTrue(save.waitForExistence(timeout: 20))
+        save.tap()
+        XCTAssertTrue(app.staticTexts["Video saved"].waitForExistence(timeout: 30))
+        appStoreCaptureMark("save-tour-saved"); Thread.sleep(forTimeInterval: 5)
+        appStoreCaptureMark("save-tour-end")
+    }
+
     @MainActor func testCaptureAppStoreRadio() throws {
         guard ProcessInfo.processInfo.environment["PULSECANVAS_CAPTURE_APPSTORE"] == "1" else {
             throw XCTSkip("App Store capture runs only when requested")

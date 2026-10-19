@@ -83,6 +83,12 @@
 			"path" = "Sources/PulseCanvas/SecurityScopedAccess.swift";
 			"sourceTree" = "<group>";
 		};
+		"E55D030A48044A68741CD7E3" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"path" = "Sources/PulseCanvas/CreatorEngagement.swift";
+			"sourceTree" = "<group>";
+		};
 		"AEB3E1F4EFCEE89846DDB6F1" = {
 			"isa" = "PBXFileReference";
 			"lastKnownFileType" = "sourcecode.swift";
@@ -99,6 +105,12 @@
 			"isa" = "PBXFileReference";
 			"lastKnownFileType" = "sourcecode.swift";
 			"path" = "visionOS/VisionImmersiveView.swift";
+			"sourceTree" = "<group>";
+		};
+		"1854CD73DE41430109C5A268" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"path" = "visionOS/VisionInfoView.swift";
 			"sourceTree" = "<group>";
 		};
 		"FEE1896A5C756DFF96389CC6" = {
@@ -240,9 +252,11 @@
 				"C2CBF2E084321F2ECA296112",
 				"4C15E8BE8F01FC4E793E0EE1",
 				"CB8C52BD5C2A06B60EC6768B",
+				"E55D030A48044A68741CD7E3",
 				"AEB3E1F4EFCEE89846DDB6F1",
 				"89C50894961A786737934E7B",
 				"CD0B7AD613C4E32D4FA778B6",
+				"1854CD73DE41430109C5A268",
 				"FEE1896A5C756DFF96389CC6",
 				"423B784DC51F6993045C572F",
 				"8319DBF80F0A1AE2BD7EE172",
@@ -331,6 +345,10 @@
 			"isa" = "PBXBuildFile";
 			"fileRef" = "CB8C52BD5C2A06B60EC6768B";
 		};
+		"F6FCE060BF290ECA844D9D14" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "E55D030A48044A68741CD7E3";
+		};
 		"751BBC7AFA2EC0105700402A" = {
 			"isa" = "PBXBuildFile";
 			"fileRef" = "AEB3E1F4EFCEE89846DDB6F1";
@@ -342,6 +360,10 @@
 		"9B9C7F1384F6883379FC34D3" = {
 			"isa" = "PBXBuildFile";
 			"fileRef" = "CD0B7AD613C4E32D4FA778B6";
+		};
+		"B97BA47B9ED21D34C628D9D7" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "1854CD73DE41430109C5A268";
 		};
 		"C9BA7F277F3D1631A6F76FBA" = {
 			"isa" = "PBXBuildFile";
@@ -400,9 +422,11 @@
 				"711C0F30FD1616D636AA2959",
 				"31AACDF3704BA6FDA1C24B2F",
 				"DE69E89DD3EEAAD604860B0B",
+				"F6FCE060BF290ECA844D9D14",
 				"751BBC7AFA2EC0105700402A",
 				"5D40AE704E511176C5DF5A8E",
 				"9B9C7F1384F6883379FC34D3",
+				"B97BA47B9ED21D34C628D9D7",
 				"C9BA7F277F3D1631A6F76FBA",
 				"DB74D5BE500089E74A7764DD",
 				"EDD4738D4B7AD97BBAB17E54",

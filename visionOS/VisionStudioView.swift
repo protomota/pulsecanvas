@@ -1,4 +1,5 @@
 import SwiftUI
+import StoreKit
 import UniformTypeIdentifiers
 
 struct VisionStudioView: View {
@@ -8,6 +9,9 @@ struct VisionStudioView: View {
     @Environment(\.dismissImmersiveSpace) private var dismissSpace
     @Environment(\.dismissWindow) private var dismissWindow
     @Environment(\.scenePhase) private var phase
+    @Environment(\.requestReview) private var requestReview
+    @StateObject private var engagement = CreatorEngagement(preferences: VisionLaunchOptions.current.uiTesting
+        ? UserDefaults(suiteName: "PulseCanvasUITesting-\(ProcessInfo.processInfo.processIdentifier)")! : .standard)
     @State private var importAudio = false
     @State private var importProject = false
     @State private var exportProject = false
@@ -17,6 +21,14 @@ struct VisionStudioView: View {
     @State private var changingSpace = false
     @State private var legal = false
     @State private var launchApplied = false
+    @State private var leftMilestoneRadio = false
+
+    private var canAskForReview: Bool {
+        (engagement.pendingExportThanks || (leftMilestoneRadio && engagement.pendingRadioThanks))
+            && phase == .active && !exportVideo && !exportProject && !importAudio && !importProject
+            && !locateAudio && !legal && !session.immersiveActive && !session.radioMode
+            && !studio.loading && !studio.transport.playing && studio.message == nil
+    }
 
     var body: some View {
         VStack(spacing: 16) {
@@ -77,7 +89,8 @@ struct VisionStudioView: View {
                     Button("Export MP4", systemImage: "film") { exportVideo = true }
                         .disabled(studio.loading || session.radioMode)
                         .accessibilityIdentifier("exportMP4Button")
-                    Button("Legal & Credits", systemImage: "info.circle") { legal = true }
+                    Button("About & Support", systemImage: "info.circle") { legal = true }
+                        .accessibilityIdentifier("visionInfoButton")
                     Spacer()
                     if studio.loading { ProgressView("Analyzing music…") }
                     HStack(spacing: 8) {
@@ -90,20 +103,25 @@ struct VisionStudioView: View {
                 }
             }
             .sheet(isPresented: $legal) {
-                VStack(alignment: .leading, spacing: 20) {
-                    Text("PulseCanvas Studio").font(.title.bold())
-                    Text("Copyright © 2026 Protomota, LLC").foregroundStyle(.secondary)
-                    Link("Source code on GitHub", destination: URL(string: "https://github.com/protomota/pulsecanvas")!)
-                    ScrollView {
-                        Text(Bundle.main.url(forResource: "PulseCanvas-LICENSE", withExtension: "txt", subdirectory: "Legal")
-                            .flatMap { try? String(contentsOf: $0, encoding: .utf8) } ?? "License unavailable")
-                            .font(.body).frame(maxWidth: .infinity, alignment: .leading)
-                    }
-                    Button("Done") { legal = false }.buttonStyle(.borderedProminent)
-                }.padding(32).frame(width: 700, height: 620)
+                VisionInfoView(engagement: engagement) { legal = false }
             }
-            .sheet(isPresented: $exportVideo) { VisionVideoExportView(studio: studio) { exportVideo = false } }
+            .sheet(isPresented: $exportVideo) { VisionVideoExportView(studio: studio, engagement: engagement) { exportVideo = false } }
             .task { await session.editor.start(); await applyLaunchOptions() }
+            .task { await engagement.observeStorefront() }
+            .onChange(of: session.radioMode) { _, active in
+                if active { engagement.radioStarted() }
+                leftMilestoneRadio = !active && engagement.pendingRadioThanks
+            }
+            .task(id: canAskForReview) {
+                guard canAskForReview else { return }
+                // Let the saved-video result settle; never interrupt export, playback, or immersion.
+                do { try await Task.sleep(for: .seconds(11)) } catch { return }
+                guard !Task.isCancelled, canAskForReview else { return }
+                if engagement.pendingExportThanks {
+                    if engagement.presentExportThanks() { requestReview() }
+                } else if engagement.presentRadioThanks() { requestReview() }
+                leftMilestoneRadio = false
+            }
             .task(id: session.radioMode) { if session.radioMode { await session.radio.refreshStations() } }
             .onChange(of: phase) { _, phase in if phase == .background && !session.immersiveActive { session.suspend() } }
             .fileImporter(isPresented: $importAudio, allowedContentTypes: [.audio]) { result in
@@ -178,6 +196,9 @@ struct VisionStudioView: View {
                 NSLog("PulseCanvas launch hook: -PCVisualizer %@ is not an available visualizer in this build", launch.visualizer ?? "")
             }
         }
+        #if DEBUG
+        if launch.uiTesting, let audio = launch.captureAudio { await editor.importAudio(audio) }
+        #endif
         launch.applyCaptureSequence(to: editor)
         if let seconds = launch.seek { editor.seek(seconds) }
         if launch.radio {

@@ -3,6 +3,7 @@ import UniformTypeIdentifiers
 
 struct VisionVideoExportView: View {
     @ObservedObject var studio: VisionStudio
+    @ObservedObject var engagement: CreatorEngagement
     let close: () -> Void
     @StateObject private var exporter = SocialExportController()
     @State private var saveRequest: VisionVideoSaveRequest?
@@ -65,7 +66,11 @@ struct VisionVideoExportView: View {
                     saveRequest = nil
                     if let result {
                         switch result {
-                        case .success: saved = true; saveError = nil
+                        case .success:
+                            saved = true; saveError = nil
+                            if let readyURL, let id = try? VisionVideoFile.saveIdentity(readyURL) {
+                                engagement.videoSaved(id: id)
+                            }
                         case .failure(let error): saveError = "Couldn't save video: \(error.localizedDescription)"
                         }
                     }

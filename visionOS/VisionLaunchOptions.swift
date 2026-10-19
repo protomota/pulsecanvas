@@ -12,6 +12,7 @@ import Foundation
 ///     -PCVisualizer <n|name>  put this visualizer on the first timeline card (index into NativeEffects.names, or a
 ///                             case-insensitive name)
 ///     -PCSeek <seconds>       seek the soundtrack before playing
+///     -PCCaptureAudio <file>  debug UI-test capture only: import a local fixture through the real audio path
 struct VisionLaunchOptions: Equatable {
     var uiTesting = false
     var autoplay = false
@@ -22,6 +23,8 @@ struct VisionLaunchOptions: Equatable {
     var seek: Double?
     /// Debug-only recorded-demo sequence; applied only with isolated UI-test storage.
     var captureScenes: [Int] = []
+    /// Optional short local soundtrack for an isolated debug capture of real export/save UI.
+    var captureAudio: URL?
 
     static let current = VisionLaunchOptions(arguments: ProcessInfo.processInfo.arguments)
 
@@ -45,6 +48,13 @@ struct VisionLaunchOptions: Equatable {
         seek = value("-PCSeek").flatMap(Double.init)
         #if DEBUG
         if uiTesting { captureScenes = value("-PCCaptureScenes")?.split(separator: ",").compactMap { Int($0) } ?? [] }
+        if uiTesting, let path = value("-PCCaptureAudio") {
+            if path.hasPrefix("/") { captureAudio = URL(fileURLWithPath: path) }
+            else if !path.isEmpty, path != ".", path != "..", !path.contains("/"), !path.contains("\\") {
+                // Simulator installation can relocate the container between capture runs.
+                captureAudio = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent(path)
+            }
+        }
         #endif
     }
 

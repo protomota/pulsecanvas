@@ -15,7 +15,7 @@ def ref(path, kind):
 def build(key): return obj('build:' + key, 'PBXBuildFile', fileRef=key)
 shared = ['VisualPalette', 'OriginalGeometry', 'NativeEffects', 'ProjectMPresets', 'StrobeDetector',
           'VisualizerRenderer', 'AudioAnalysis', 'StudioTimeline', 'VisualizerPoolControls', 'RadioLibrary',
-          'StudioStore', 'SocialExportController', 'SecurityScopedAccess']
+          'StudioStore', 'SocialExportController', 'SecurityScopedAccess', 'CreatorEngagement']
 sources = ['Sources/PulseCanvas/' + name + '.swift' for name in shared] + ['macOS/BundleResources.swift']
 sources += sorted(str(p.relative_to(root)) for p in (root / 'visionOS').glob('*.swift'))
 source_refs = [ref(p, 'sourcecode.swift') for p in sources]
