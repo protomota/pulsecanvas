@@ -3,7 +3,7 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 mkdir -p .build/validation
 sources=(Sources/PulseCanvas/SecurityScopedAccess.swift Sources/PulseCanvas/VisualPalette.swift Sources/PulseCanvas/*Geometry.swift
- Sources/PulseCanvas/StrobeDetector.swift Sources/PulseCanvas/ProjectMPresets.swift Sources/PulseCanvas/VisualizerRenderer.swift
+ Sources/PulseCanvas/StrobeDetector.swift Sources/PulseCanvas/VisualPreset.swift Sources/PulseCanvas/ProjectMPresets.swift Sources/PulseCanvas/VisualizerRenderer.swift
  scripts/RendererBundle.swift scripts/SurfaceDeterminismSmoke.swift)
 if [[ -f Sources/PulseCanvas/NativeEffects.swift ]]; then
  sources+=(Sources/PulseCanvas/NativeEffects.swift)

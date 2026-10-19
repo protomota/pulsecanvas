@@ -35,7 +35,7 @@ import Combine
         precondition(studio.transport.playing && NativeEffects.activeIDs.allSatisfy {
             let look = studio.project.looks[$0]!
             return look.chaos == 0.72 && look.zoomSpeed == 2 && look.speed == 1.2 && look.strobeEnabled && look.strobeStrength == 0.4
-                && look.palette == VisionLook(scene: $0).palette
+                && look.palette == (untouched[$0] ?? VisionLook(scene: $0)).palette
         })
         let beforeRemoval = studio.look
         studio.applyCommonSettings(VisionCommonSettings(strobeEnabled: false))
@@ -60,12 +60,14 @@ import Combine
         precondition(!eligible.isEmpty && eligible.allSatisfy { presets.category(for: $0) == category })
         for _ in 0..<30 {
             precondition(studio.randomizeVisualizer() && eligible.contains(studio.selectedScene))
-            precondition(studio.project.looks == savedLooks, "Switching a visualizer must not randomize settings")
+            precondition(studio.look.isValid && studio.look != savedLooks[studio.selectedScene], "New non-favorite selections get fresh looks")
         }
         presets.setRandomizerGroup(.favorites)
         precondition(presets.filteredScenes().isEmpty && !studio.randomizeVisualizer())
-        presets.toggleFavorite(22)
+        presets.toggleFavorite(22, appearance: savedLooks[22]?.preset)
         precondition(presets.filteredScenes() == [22] && studio.randomizeVisualizer() && studio.selectedScene == 22)
+        precondition(studio.look.preset == presets.favoriteAppearance(for: 22))
+        let favoriteSnapshot = studio.look
         let barsBefore = studio.project.clips.map(\.bars)
         studio.randomizeLook()
         precondition(studio.look.isValid && studio.look != savedLooks[22] && studio.project.clips.map(\.bars) == barsBefore)
@@ -74,7 +76,7 @@ import Combine
         precondition(presets.filteredScenes().count == NativeEffects.activeCount)
         let count = studio.project.clips.count
         studio.addClip(); precondition(studio.project.clips.count == count + 1)
-        studio.assign(22); precondition(studio.look.chaos == 0.91)
+        studio.assign(22); precondition(studio.look == favoriteSnapshot && studio.look.preset == presets.favoriteAppearance(for: 22))
         studio.moveClip(1); studio.removeClip(); precondition(studio.project.clips.count == count)
         studio.seek(8); precondition(abs(studio.transport.seconds - 8) < 0.05)
         precondition(studio.render.audioBands.contains { $0 > 0 })
@@ -110,7 +112,7 @@ import Combine
         precondition(studio.look(for: editing) == VisionLook(scene: otherScenes[0]))
         let pickerLooks = studio.project.looks
         precondition(studio.randomizeVisualizer(for: editing))
-        precondition(studio.project.looks == pickerLooks && studio.selected == following)
+        precondition(studio.selected == following && studio.look(for: editing)?.isValid == true)
         studio.randomizeLook(for: editing)
         precondition(studio.look(for: editing)?.isValid == true && studio.selected == following)
         let missingClip = UUID()
@@ -292,8 +294,8 @@ import Combine
         let importedLooks = portable.project.looks
         precondition(portable.randomizeTimeline())
         precondition(portable.segments.map(\.end) == importedEnds && portable.project.clips.map(\.id) == importedIDs
-                     && portable.project.looks == importedLooks && portable.project.importedTimeline != nil,
-                     "Visualizers-only randomization must preserve exact imported cuts, IDs and saved styles")
+                     && portable.project.looks != importedLooks && portable.project.importedTimeline != nil,
+                     "Visualizers-only randomization must preserve exact imported cuts and IDs while creating fresh looks")
         portable.updateLook { $0.size = 5.75; $0.rotation = 1.2; $0.motionBlur = 0.65; $0.fog = 0.2; $0.detail = 0.85; $0.haloCount = 10 }
         precondition(portable.render.particleSize == 5.75 && portable.render.rotation == 1.2
                      && portable.render.motionBlur == 0.65 && portable.render.fog == 0.2
@@ -303,7 +305,7 @@ import Combine
         portable.seek(8); portable.togglePlayback()
         precondition(portable.randomizeTimeline(barLengths: true, chooseLength: { 2 }))
         precondition(portable.transport.playing && abs(portable.transport.seconds - 8) < 0.1
-                     && portable.project.looks == looksBeforeTimeline && portable.audioURL == urlBeforeTimeline)
+                     && portable.project.looks != looksBeforeTimeline && portable.audioURL == urlBeforeTimeline)
         precondition(portable.project.importedTimeline == nil && portable.segments.last?.end == portable.transport.duration
                      && portable.project.clips.allSatisfy { $0.bars == 2 }
                      && Set(portable.project.clips.map(\.scene)).count == portable.project.clips.count)
@@ -315,10 +317,11 @@ import Combine
         precondition(!portable.randomizeTimeline(barLengths: true, chooseLength: { 8 }))
         let afterEmptyPool = try encoder.encode(portable.project)
         precondition(afterEmptyPool == beforeEmptyPool, "Combined randomization failures must be atomic")
+        let barsOnlyLooks = portable.project.looks
         let orderedScenes = portable.project.clips.map(\.scene)
         precondition(portable.randomizeTimeline(visualizers: false, barLengths: true, chooseLength: { 8 }))
         precondition(zip(portable.project.clips.map(\.scene), orderedScenes).allSatisfy { $0.0 == $0.1 }
-                     && portable.project.looks == looksBeforeTimeline, "Bars-only must preserve visualizer order and shared looks")
+                     && portable.project.looks == barsOnlyLooks, "Bars-only must preserve visualizer order and shared looks")
         presets.toggleFavorite(22)
         precondition(portable.randomizeTimeline(barLengths: true, chooseLength: { 1 }))
         precondition(portable.project.clips.allSatisfy { $0.scene == 22 && $0.bars == 1 }

@@ -16,7 +16,7 @@ struct ProjectMPreset: Codable, Identifiable {
     var icon: String? = nil
 }
 
-/// The shared browsing and shuffle group never changes saved visual appearances.
+/// The shared group scopes browsing and fresh visualizer assignments.
 enum VisualizerRandomizerGroup: Hashable, Codable {
     case all
     case favorites
@@ -48,6 +48,7 @@ final class ProjectMPresets: ObservableObject {
     @Published private(set) var entries: [ProjectMPreset] = []
     private(set) var sceneNames: [String] = []
     @Published private(set) var favoriteIDs: Set<String> = []
+    private var favoriteAppearances: [String: VisualPreset] = [:]
     @Published private(set) var favoritesBackupError: String?
     let favoritesBackupDirectory: URL?
     #if os(visionOS)
@@ -125,17 +126,23 @@ final class ProjectMPresets: ObservableObject {
             defaults.set(savedFavorites, forKey: favoritesKey)
         }
         #endif
+        if let data = defaults.data(forKey: favoritesKey + ".appearances"),
+           let saved = try? JSONDecoder().decode([String: VisualPreset].self, from: data) {
+            favoriteAppearances = saved.filter { $0.value.isValid }
+        }
         // An explicitly empty list stays empty; a missing preference can recover
         // from this edition's last successful automatic backup.
         if savedFavorites == nil, let directory = self.favoritesBackupDirectory,
            let data = try? Data(contentsOf: directory.appendingPathComponent("Favorites-\(backupEdition).json")),
            let backup = try? FavoritesBackup.read(data) {
             savedFavorites = backup.favorites.map(\.id)
+            for favorite in backup.favorites { if let look = favorite.appearance { favoriteAppearances[favorite.id] = look } }
             defaults.set(savedFavorites, forKey: favoritesKey)
         }
         let savedIDs = Set(savedFavorites ?? [])
         rebuildNames()
         favoriteIDs = savedIDs.intersection(availableFavoriteIDs)
+        favoriteAppearances = favoriteAppearances.filter { favoriteIDs.contains($0.key) }
         if favoriteIDs != savedIDs { persistFavorites() }
         else if !favoriteIDs.isEmpty { backUpFavorites() }
     }
@@ -155,15 +162,45 @@ final class ProjectMPresets: ObservableObject {
         if Self.nativeIcons.indices.contains(scene) { return Self.nativeIcons[scene] }
         return preset(for:scene)?.icon ?? iconNames[max(0,scene) % iconNames.count]
     }
-    func toggleFavorite(_ scene: Int) {
+    func toggleFavorite(_ scene: Int, appearance: VisualPreset? = nil) {
         guard availableScenes.contains(scene) else { return }
         let id = identity(for: scene)
-        if favoriteIDs.contains(id) {favoriteIDs.remove(id)} else {favoriteIDs.insert(id)}
+        if favoriteIDs.contains(id) {
+            favoriteIDs.remove(id); favoriteAppearances.removeValue(forKey: id)
+        } else {
+            favoriteIDs.insert(id)
+            favoriteAppearances[id] = appearance.flatMap { $0.isValid ? $0 : nil } ?? VisualPreset.defaults(for: scene)
+        }
         persistFavorites()
     }
 
+    /// Upgrade ID-only favorites once from the editor's existing saved looks.
+    /// Subsequent slider edits never rewrite an already saved favorite.
+    func migrateFavoriteAppearances(_ appearance: (Int) -> VisualPreset) {
+        var changed = false
+        for scene in availableScenes where isFavorite(scene) && favoriteAppearances[identity(for: scene)] == nil {
+            let value = appearance(scene)
+            if value.isValid { favoriteAppearances[identity(for: scene)] = value; changed = true }
+        }
+        if changed { persistFavorites() }
+    }
+
+    func favoriteAppearance(for scene: Int) -> VisualPreset? {
+        guard isFavorite(scene) else { return nil }
+        if let saved = favoriteAppearances[identity(for: scene)] { return saved }
+        // Legacy favorites without a saved look migrate once, never on each selection.
+        let saved = VisualPreset.defaults(for: scene)
+        favoriteAppearances[identity(for: scene)] = saved
+        persistFavorites()
+        return saved
+    }
+
+    func appearanceForSelection(_ scene: Int) -> VisualPreset {
+        favoriteAppearance(for: scene) ?? .randomized()
+    }
+
     func exportFavorites() throws -> Data {
-        try FavoritesBackup(ids: favoriteIDs) { id in
+        try FavoritesBackup(ids: favoriteIDs, appearances: favoriteAppearances) { id in
             if id.hasPrefix("native:"), let scene = Int(id.dropFirst(7)), sceneNames.indices.contains(scene) { return sceneNames[scene] }
             return scenesByID[id].map { sceneNames[$0] }
         }.encoded()
@@ -178,6 +215,9 @@ final class ProjectMPresets: ObservableObject {
         let available = availableFavoriteIDs
         let installed = restored.intersection(available)
         let added = installed.subtracting(favoriteIDs).count
+        for favorite in backup.favorites where installed.contains(favorite.id) {
+            if let look = favorite.appearance { favoriteAppearances[favorite.id] = look }
+        }
         favoriteIDs.formUnion(installed)
         persistFavorites()
         return (added, restored.subtracting(available).count)
@@ -185,7 +225,9 @@ final class ProjectMPresets: ObservableObject {
 
     private func persistFavorites() {
         if pool.enabled && pool.favoritesOnly { poolRevision &+= 1 }
+        favoriteAppearances = favoriteAppearances.filter { favoriteIDs.contains($0.key) }
         defaults.set(favoriteIDs.sorted(), forKey: favoritesKey)
+        if let data = try? JSONEncoder().encode(favoriteAppearances) { defaults.set(data, forKey: favoritesKey + ".appearances") }
         backUpFavorites()
     }
 
@@ -335,17 +377,18 @@ struct FavoritesBackup: Codable {
     struct Favorite: Codable {
         let id: String
         let name: String?
+        var appearance: VisualPreset? = nil
     }
     let format: String
     let version: Int
     let savedAt: Date
     let favorites: [Favorite]
 
-    init(ids: Set<String>, name: (String) -> String?) {
+    init(ids: Set<String>, appearances: [String: VisualPreset] = [:], name: (String) -> String?) {
         format = "PulseCanvas Favorites"
-        version = 1
+        version = 2
         savedAt = Date()
-        favorites = ids.sorted().map { Favorite(id: $0, name: name($0)) }
+        favorites = ids.sorted().map { Favorite(id: $0, name: name($0), appearance: appearances[$0]) }
     }
 
     func encoded() throws -> Data {
@@ -360,11 +403,11 @@ struct FavoritesBackup: Codable {
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .iso8601
         let backup = try decoder.decode(Self.self, from: data)
-        guard backup.format == "PulseCanvas Favorites", backup.version == 1 else {
+        guard backup.format == "PulseCanvas Favorites", (1...2).contains(backup.version) else {
             throw invalid("Choose a supported PulseCanvas favorites backup.")
         }
         guard backup.favorites.count <= 100_000, backup.favorites.allSatisfy({
-            !$0.id.isEmpty && $0.id.utf8.count <= 4096 && !$0.id.unicodeScalars.contains(where: { CharacterSet.controlCharacters.contains($0) })
+            ($0.appearance?.isValid ?? true) && !$0.id.isEmpty && $0.id.utf8.count <= 4096 && !$0.id.unicodeScalars.contains(where: { CharacterSet.controlCharacters.contains($0) })
         }) else { throw invalid("The backup contains invalid favorite identities.") }
         return backup
     }

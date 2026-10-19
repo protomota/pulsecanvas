@@ -13,10 +13,10 @@ def obj(label, isa, **values):
 def ref(path, kind):
     return obj('file:' + path, 'PBXFileReference', lastKnownFileType=kind, path=path, sourceTree='<group>')
 def build(key): return obj('build:' + key, 'PBXBuildFile', fileRef=key)
-shared = ['VisualPalette', 'OriginalGeometry', 'NativeEffects', 'ProjectMPresets', 'StrobeDetector',
+shared = ['VisualPreset', 'VisualPalette', 'OriginalGeometry', 'NativeEffects', 'ProjectMPresets', 'StrobeDetector',
           'VisualizerRenderer', 'AudioAnalysis', 'StudioTimeline']
 sources = ['Sources/PulseCanvas/' + name + '.swift' for name in shared] + ['macOS/BundleResources.swift']
-sources += ['visionOS/VisionStudio.swift', 'visionOS/VisionProject.swift', 'Sources/PulseCanvas/RadioLibrary.swift']
+sources += ['visionOS/VisionLookPreset.swift', 'visionOS/VisionStudio.swift', 'visionOS/VisionProject.swift', 'Sources/PulseCanvas/RadioLibrary.swift']
 sources += sorted(str(p.relative_to(root)) for p in (root / 'tvOS').glob('*.swift'))
 source_refs = [ref(p, 'sourcecode.swift') for p in sources]
 resources = [ref('tvOS/Assets.xcassets', 'folder.assetcatalog'), ref('.build/tv-resources/NativeAssets', 'folder'), ref('.build/tv-resources/Legal', 'folder'),

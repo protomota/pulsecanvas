@@ -297,6 +297,7 @@ struct CreatorView: View {
         .overlay { ExportOverlayView(exporter: exporter) }
         .sheet(isPresented: $showVisualizerBrowser) {
             PulseCanvasLibraryView(radio: radio, selected: render.scene,
+                appearance: { $0 == render.scene ? studio.preset(render) : studio.presets[$0] ?? VisualPreset.defaults(for: $0) },
                 choose: { scene in choose(scene); showVisualizerBrowser = false },
                 dismiss: { showVisualizerBrowser = false })
                 .dismissOnOutsideClick { showVisualizerBrowser = false }
@@ -340,7 +341,7 @@ struct CreatorView: View {
             Button { studio.randomizeScene(render) } label: {
                 Label("Random visualizer", systemImage: "shuffle")
             }.buttonStyle(StudioButtonStyle(treatment: .accent))
-                .help("Pick another visualizer with its saved settings")
+                .help("Pick a fresh visualizer look, or restore a saved favorite")
                 .disabled(!presetLibrary.eligibleScenes.contains { $0 != render.scene })
             VisualizerRandomizerPicker()
             #if DIRECT_BUILD && canImport(Sparkle) && !LOCAL_BUILD
@@ -425,7 +426,7 @@ struct CreatorView: View {
         HStack {
             Text(RenderState.sceneNames[render.scene]).font(.system(size: 18, weight: .medium)).lineLimit(1)
             Spacer()
-            Button { presetLibrary.toggleFavorite(render.scene) } label: {
+            Button { presetLibrary.toggleFavorite(render.scene, appearance: studio.preset(render)) } label: {
                 Label(presetLibrary.isFavorite(render.scene) ? "Favorited" : "Favorite", systemImage: presetLibrary.isFavorite(render.scene) ? "heart.fill" : "heart")
             }.buttonStyle(StudioButtonStyle(treatment: presetLibrary.isFavorite(render.scene) ? .accent : .quiet, compact: true))
                 .help(presetLibrary.isFavorite(render.scene) ? "Remove this visualizer from Favorites" : "Add this visualizer to Favorites")

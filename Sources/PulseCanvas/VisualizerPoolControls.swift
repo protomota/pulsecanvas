@@ -61,7 +61,7 @@ struct VisualizerRandomizerPicker: View {
         .frame(maxWidth: fillsWidth ? .infinity : nil, alignment: .leading)
         .accessibilityLabel("Randomize visualizer group")
         .accessibilityValue(library.randomizerGroup.title)
-        .help("Choose all visualizers, favorites, or a category for browsing, Studio and Radio. Saved visual settings stay unchanged.")
+        .help("Choose all visualizers, favorites, or a category for browsing, Studio and Radio. New choices get fresh looks; favorites restore their saved settings.")
         .popover(isPresented: $showSettings) { VisualizerPoolSettings { showSettings = false } }
     }
 }

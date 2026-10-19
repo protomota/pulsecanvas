@@ -180,7 +180,7 @@ private struct VisionImmersiveControls: View {
                     .font(.callout).lineLimit(1).frame(maxWidth: 210, alignment: .leading)
                     .accessibilityIdentifier("immersiveVisualizerName")
                 Button {
-                    library.toggleFavorite(studio.selectedScene)
+                    library.toggleFavorite(studio.selectedScene, appearance: studio.look.preset)
                 } label: {
                     Label(library.isFavorite(studio.selectedScene) ? "Visualizer saved" : "Save visualizer",
                           systemImage: library.isFavorite(studio.selectedScene) ? "heart.fill" : "heart")

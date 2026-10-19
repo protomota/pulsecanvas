@@ -1,13 +1,15 @@
+PASS selection policy: fresh non-favorites, full favorite snapshot restoration, edits preserve favorites, stable playback and explicit Reset
+PASS unique Studio shuffle: no duplicate scenes, favorites included first, full-pool derangement and bounded pool exhaustion
 PASS Reset: native and ProjectM defaults restored and persisted; other styles, timeline and playback retained
 PASS Per-card bars: 4/1/2 sequence, beat-grid ripple, scene order, full-song tail fill/trim, apply-all, large lengths, randomization, settings, project round-trip and legacy compatibility
 PASS Timeline randomization: bars-only 4/1/2 beat-grid sequence, order, tail fill/trim, partial final bar, 1–8 range, invalid-plan atomicity, project round-trip and combined visualizers with settings/playhead retained
-PASS Bars performance: 100 edits across 10,000 sections and 8078 saved styles, no preset republishing or persistence, average 7.32 ms/edit
+PASS Bars performance: 100 edits across 10,000 sections and 8102 saved styles, no preset republishing or persistence, average 7.84 ms/edit
 PASS Studio clip dice: active/inactive shared styles, persistence, explicit strobe choice, timeline assignments and playback retained
 PASS Studio preset following: one reveal per visualizer change; returning scenes reveal again; playback ticks and manual preset selection do not scroll
 PASS Use at playhead: containing section only, exact boundaries/end, shared settings, browsing and playback retained
-PASS: strobe Apply all enables all 8078 shared presets with chosen sensitivity/strength; Remove all disables flashes and retains those values; other controls, timeline/audio, persistence and project round-trip retained
-PASS: selective common Chaos/zoom/motion applies to all 8078 styles and untouched defaults, retains unsaved edits and unselected settings including strobe; preserves timeline/audio; persists and round-trips shared Studio presets
+PASS: strobe Apply all enables all 8102 shared presets with chosen sensitivity/strength; Remove all disables flashes and retains those values; other controls, timeline/audio, persistence and project round-trip retained
+PASS: selective common Chaos/zoom/motion applies to all 8102 styles and untouched defaults, retains unsaved edits and unselected settings including strobe; preserves timeline/audio; persists and round-trips shared Studio presets
 PASS: Visual randomization includes whole-image softness
-PASS: whole-timeline and individual-section randomization change designs, retain fixed boundaries and shared settings
+PASS: whole-timeline and individual-section randomization change designs, retain fixed boundaries with fresh settings
 PASS: fixed section boundaries, exact switches, shared appearance across repeated sections, project round-trip, old project compatibility
-PASS: 100 random visualizer selections, 100 designs selected, all saved settings and soundtrack state retained; dice randomizes only the current visualizer
+PASS: 100 random visualizer selections, 99 designs selected, fresh settings and soundtrack state retained; dice randomizes only the current visualizer

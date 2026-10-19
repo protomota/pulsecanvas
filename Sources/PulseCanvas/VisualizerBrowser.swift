@@ -7,6 +7,7 @@ struct VisualizerBrowser: View {
     @ObservedObject private var library = ProjectMPresets.shared
     let selected: Int
     var heading: String? = nil
+    var appearance: ((Int) -> VisualPreset)? = nil
     let choose: (Int) -> Void
     @State private var query = ""
     @State private var collection = ""
@@ -75,7 +76,7 @@ struct VisualizerBrowser: View {
                                     .contentShape(Rectangle())
                             }.buttonStyle(.plain).accessibilityLabel("Use \(RenderState.sceneNames[scene])")
                                 .help("Select visualizer")
-                            Button {library.toggleFavorite(scene)} label: {
+                            Button {library.toggleFavorite(scene, appearance: appearance?(scene))} label: {
                                 Image(systemName: library.isFavorite(scene) ? "heart.fill" : "heart")
                                     .foregroundStyle(library.isFavorite(scene) ? Color.orange : .secondary)
                                     .frame(width: 44, height: 52).contentShape(Rectangle())

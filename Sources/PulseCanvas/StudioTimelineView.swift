@@ -143,7 +143,7 @@ struct StudioTimelineView: View {
                 Divider().overlay(.white.opacity(0.05))
                 Label(randomizeBarLengths ? "Tail sections may be trimmed or repeated to fit the song." : (randomizeVisualizers ? "Your current visualizer choices will be replaced." : "Select at least one option to continue."), systemImage: "arrow.triangle.2.circlepath")
                     .font(.system(size: 12)).foregroundStyle(.white.opacity(0.85))
-                Label(randomizeBarLengths ? (randomizeVisualizers ? "Soundtrack and saved visual settings stay." : "Visualizer order, soundtrack, and saved settings stay.") : "Timing, soundtrack, and saved visual settings stay.", systemImage: "checkmark.circle")
+                Label(randomizeBarLengths ? (randomizeVisualizers ? "Fresh looks replace visual settings. Your soundtrack stays." : "Visualizer order, soundtrack, and saved settings stay.") : "Fresh looks replace visual settings. Timing and soundtrack stay.", systemImage: "checkmark.circle")
                     .font(.system(size: 12)).foregroundStyle(.secondary)
             }.padding(16).frame(maxWidth: .infinity, alignment: .leading)
                 .background(.white.opacity(0.045), in: RoundedRectangle(cornerRadius: 14))
@@ -366,7 +366,7 @@ struct StudioTimelineView: View {
                     .popover(isPresented: Binding(get: {favoritesSegment == index}, set: {if !$0 && favoritesSegment == index {favoritesSegment = nil}}), arrowEdge: .top) {
                         StudioFavoritesPicker(selected: segment.scene) { scene in
                             guard studio.segments.indices.contains(index) else {favoritesSegment = nil; return}
-                            studio.segments[index].scene = scene
+                            studio.assignScene(scene, at: index, render: render)
                             favoritesSegment = nil
                             preview(studio.segments[index])
                         }
@@ -375,9 +375,9 @@ struct StudioTimelineView: View {
         }
     }
     private func scenePicker(_ segment: StudioSegment, index: Int) -> some View {
-        VisualizerBrowser(selected: segment.scene, heading:"Choose visualizer · Section \(index + 1)") { scene in
+        VisualizerBrowser(selected: segment.scene, heading:"Choose visualizer · Section \(index + 1)", appearance: { studio.presets[$0] ?? VisualPreset.defaults(for: $0) }) { scene in
             guard studio.segments.indices.contains(index) else {choosingSegment = nil; return}
-            studio.segments[index].scene = scene
+            studio.assignScene(scene, at: index, render: render)
             preview(studio.segments[index])
             choosingSegment = nil
         }

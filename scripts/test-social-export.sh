@@ -6,7 +6,7 @@ mkdir -p .build/validation docs
 xcrun swiftc -suppress-warnings -swift-version 6 Sources/PulseCanvas/SecurityScopedAccess.swift Sources/PulseCanvas/VisualPalette.swift \
   Sources/PulseCanvas/*Geometry.swift \
   Sources/PulseCanvas/StrobeDetector.swift \
-  Sources/PulseCanvas/ProjectMEngine.swift Sources/PulseCanvas/ProjectMPresets.swift Sources/PulseCanvas/VisualizerRenderer.swift Sources/PulseCanvas/NativeEffects.swift \
+  Sources/PulseCanvas/ProjectMEngine.swift Sources/PulseCanvas/VisualPreset.swift Sources/PulseCanvas/ProjectMPresets.swift Sources/PulseCanvas/VisualizerRenderer.swift Sources/PulseCanvas/NativeEffects.swift \
   Sources/PulseCanvas/AudioAnalysis.swift \
   Sources/PulseCanvas/SocialExportController.swift \
   Sources/PulseCanvas/StudioTimeline.swift Sources/PulseCanvas/StudioStore.swift scripts/RendererBundle.swift scripts/SocialExportSmoke.swift \

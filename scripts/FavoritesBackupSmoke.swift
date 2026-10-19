@@ -16,11 +16,24 @@ import Foundation
         #endif
         let first = NativeEffects.activeIDs[0], second = NativeEffects.activeIDs[1]
         let library = ProjectMPresets(defaults: defaults, favoritesBackupDirectory: directory)
-        library.toggleFavorite(first)
+        library.toggleFavorite(first, appearance: VisualPreset(speed: 1.37, palette: 3, strobeEnabled: true, chaos: 0.82))
         let data = try library.exportFavorites()
         let backup = try FavoritesBackup.read(data)
         precondition(backup.favorites.map(\.id) == ["native:\(first)"])
         precondition(backup.favorites.first?.name == NativeEffects.names[first])
+        let firstLook = library.favoriteAppearance(for: first)!
+        precondition(firstLook.speed == 1.37 && firstLook.palette == 3 && firstLook.strobeEnabled)
+        precondition(backup.favorites.first?.appearance == firstLook && backup.version == 2)
+        let restoreSuite = suite + ".Restore", restoreDefaults = UserDefaults(suiteName: suite + ".Restore")!
+        defer { restoreDefaults.removePersistentDomain(forName: restoreSuite) }
+        let imported = ProjectMPresets(defaults: restoreDefaults)
+        let importedReport = try imported.importFavorites(data)
+        precondition(importedReport.added == 1 && imported.favoriteAppearance(for: first) == firstLook)
+        let fresh = ProjectMPresets(defaults: defaults, favoritesBackupDirectory: directory)
+        precondition(fresh.appearanceForSelection(first) == firstLook)
+        let legacyData = Data(String(decoding: data, as: UTF8.self).replacingOccurrences(of: "\"version\" : 2", with: "\"version\" : 1").utf8)
+        let legacy = try FavoritesBackup.read(legacyData)
+        precondition(legacy.favorites.first?.id == "native:\(first)")
         library.toggleFavorite(second)
         let merged = try library.importFavorites(data)
         precondition(merged.added == 0 && merged.unavailable == 0)
@@ -67,5 +80,5 @@ import Foundation
 }
 
 private extension Data {
-    func replacingVersion() -> Data { Data(String(decoding: self, as: UTF8.self).replacingOccurrences(of: "\"version\" : 1", with: "\"version\" : 99").utf8) }
+    func replacingVersion() -> Data { Data(String(decoding: self, as: UTF8.self).replacingOccurrences(of: "\"version\" : 2", with: "\"version\" : 99").utf8) }
 }

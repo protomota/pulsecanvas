@@ -13,7 +13,7 @@ def obj(label, isa, **values):
 def ref(path, kind):
     return obj('file:' + path, 'PBXFileReference', lastKnownFileType=kind, path=path, sourceTree='<group>')
 def build(key): return obj('build:' + key, 'PBXBuildFile', fileRef=key)
-shared = ['VisualPalette', 'OriginalGeometry', 'NativeEffects', 'ProjectMPresets', 'StrobeDetector',
+shared = ['VisualPreset', 'VisualPalette', 'OriginalGeometry', 'NativeEffects', 'ProjectMPresets', 'StrobeDetector',
           'VisualizerRenderer', 'AudioAnalysis', 'StudioTimeline', 'VisualizerPoolControls', 'RadioLibrary',
           'StudioStore', 'SocialExportController', 'SecurityScopedAccess', 'CreatorEngagement']
 sources = ['Sources/PulseCanvas/' + name + '.swift' for name in shared] + ['macOS/BundleResources.swift']

@@ -149,6 +149,12 @@
 			"path" = "Sources/PulseCanvas/VisualPalette.swift";
 			"sourceTree" = "<group>";
 		};
+		"E76D1B93B17DC49DF3364355" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"path" = "Sources/PulseCanvas/VisualPreset.swift";
+			"sourceTree" = "<group>";
+		};
 		"2DC8FA731B0E69EFBE8C5F23" = {
 			"isa" = "PBXFileReference";
 			"lastKnownFileType" = "sourcecode.swift";
@@ -263,6 +269,7 @@
 				"3810E7AB9E8DF14917E34477",
 				"E8D8D27BF7F9E2754340E1A3",
 				"5209D7B8FE7DB3E851C09177",
+				"E76D1B93B17DC49DF3364355",
 				"2DC8FA731B0E69EFBE8C5F23",
 				"60524849AAB9510D72A785E5",
 				"708BBBB95AD63DC7E6DBA5CE",
@@ -390,6 +397,10 @@
 			"isa" = "PBXBuildFile";
 			"fileRef" = "5209D7B8FE7DB3E851C09177";
 		};
+		"A7CE383E14BB29514D2DD0C2" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "E76D1B93B17DC49DF3364355";
+		};
 		"69442A0AA42CCF182DE4D40C" = {
 			"isa" = "PBXBuildFile";
 			"fileRef" = "2DC8FA731B0E69EFBE8C5F23";
@@ -438,6 +449,7 @@
 				"1857C14A0B38C2D8BBE2A813",
 				"E13F13A9C228F2084DE33225",
 				"59F9215D16187F2AAD43D7B8",
+				"A7CE383E14BB29514D2DD0C2",
 				"69442A0AA42CCF182DE4D40C",
 				"1E4F77C1404DCB61DFAB398B",
 				"3B47F2807476B0478D4672B9",

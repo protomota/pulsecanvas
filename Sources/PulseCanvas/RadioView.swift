@@ -190,6 +190,7 @@ struct FavoriteSongsView: View {
 struct PulseCanvasLibraryView: View {
     @ObservedObject var radio: RadioController
     let selected: Int
+    var appearance: ((Int) -> VisualPreset)? = nil
     let choose: (Int) -> Void
     let dismiss: () -> Void
     @State private var favoriteSongsSelected = false
@@ -209,7 +210,7 @@ struct PulseCanvasLibraryView: View {
                     if radio.isActive { dismiss() }
                 }.padding(18).frame(height: 560)
             } else {
-                VisualizerBrowser(selected: selected, heading: "Visualizers", choose: choose)
+                VisualizerBrowser(selected: selected, heading: "Visualizers", appearance: appearance, choose: choose)
             }
             HStack { Spacer(); Button("Done", action: dismiss).buttonStyle(StudioButtonStyle(compact: true)) }.padding(18)
         }.frame(width: 680)
@@ -236,11 +237,7 @@ struct RadioPlayerView: View {
             Color.black.ignoresSafeArea()
             VisualizerView(state: render).ignoresSafeArea()
             if controlsVisible || !radio.isPlaybackRequested || radio.isLoading {
-            VStack(spacing: 0) {
-                topBar
-                Spacer()
-                controls.padding(24)
-            }
+            controls.padding(20)
             .transition(.opacity)
             }
         }.background(Color.black)
@@ -265,7 +262,7 @@ struct RadioPlayerView: View {
             }
     }
 
-    private var topBar: some View {
+    private var visualizerRow: some View {
         VStack(alignment: .leading, spacing: 12) {
             ViewThatFits(in: .horizontal) {
                 HStack(spacing: 16) {
@@ -288,7 +285,7 @@ struct RadioPlayerView: View {
             if let message = radio.visualizerGroupMessage {
                 Text(message).font(.caption).foregroundStyle(.secondary)
             }
-        }.padding(22).background(.black.opacity(0.45))
+        }
     }
 
     @ViewBuilder private var currentVisualizer: some View {
@@ -302,7 +299,7 @@ struct RadioPlayerView: View {
                 .help(radio.sceneTitle)
                 .accessibilityElement(children: .combine)
                 Button {
-                    presets.toggleFavorite(render.scene)
+                    presets.toggleFavorite(render.scene, appearance: VisualPreset(render: render))
                     revealControls()
                 } label: {
                     Image(systemName: presets.isFavorite(render.scene) ? "heart.fill" : "heart")
@@ -346,7 +343,9 @@ struct RadioPlayerView: View {
 
     private var controls: some View {
         let _ = playbackRevision
-        return VStack(alignment: .leading, spacing: 16) {
+        return VStack(alignment: .leading, spacing: 12) {
+            visualizerRow
+            Divider().overlay(.white.opacity(0.12))
             HStack(spacing: 16) {
                 VStack(alignment: .leading, spacing: 4) {
                     HStack(spacing: 8) {

@@ -34,6 +34,7 @@ final class PulseCanvasVisionUITests: XCTestCase {
         let play = waitForSoundtrack(app)
         XCTAssertEqual(play.label, "Play")
         XCTAssertTrue(app.buttons["immersiveButton"].exists, "Immersive (goggles) button missing")
+        print("RADIO PLAY LABEL: \(play.label)")
         XCTAssertTrue(app.buttons["randomVisualizerButton"].exists)
     }
 
@@ -60,11 +61,40 @@ final class PulseCanvasVisionUITests: XCTestCase {
         XCTAssertTrue(waitForLabel(play, "Pause", timeout: 90), "-PCAutoplay did not start playback")
     }
 
+    @MainActor func testRadioUsesLargePreviewAndBottomControls() {
+        let app = launch(["-PCRadio"])
+        let play = app.buttons["playPauseButton"]
+        XCTAssertTrue(play.waitForExistence(timeout: 90))
+        XCTAssertTrue(app.buttons["randomVisualizerButton"].exists)
+        XCTAssertTrue(app.descendants(matching: .any)["radioStationPicker"].firstMatch.waitForExistence(timeout: 90))
+        XCTAssertFalse(app.buttons["randomizeStyleButton"].exists)
+        XCTAssertFalse(app.textFields["visualizerSearchField"].exists)
+        XCTAssertFalse(app.sliders["Chaos"].exists)
+        let name = app.staticTexts["selectedVisualizerName"]
+        XCTAssertTrue(name.exists)
+        XCTAssertGreaterThan(name.frame.midY, app.frame.midY, "Visualizer controls belong below the large preview")
+        XCTAssertLessThan(abs(name.frame.midY - app.buttons["randomVisualizerButton"].frame.midY), 50)
+        XCTAssertTrue(waitForLabel(play, "Play Radio", timeout: 90), "Actual playback label: \(play.label)")
+        play.tap()
+        XCTAssertTrue(waitForLabel(play, "Pause Radio", timeout: 120))
+        let oldName = name.label
+        app.buttons["randomVisualizerButton"].tap()
+        let changed = NSPredicate(format: "label != %@", oldName)
+        let changedName = expectation(for: changed, evaluatedWith: name)
+        XCTAssertEqual(XCTWaiter().wait(for: [changedName], timeout: 10), .completed)
+        XCTAssertTrue(waitForLabel(play, "Pause Radio"))
+        play.tap()
+        XCTAssertTrue(waitForLabel(play, "Play Radio"))
+        if ProcessInfo.processInfo.environment["PULSECANVAS_CAPTURE_APPSTORE"] == "1" {
+            Thread.sleep(forTimeInterval: 40)
+        }
+    }
+
     @MainActor func testRadioTransportStartsBeforeAnySongIsLoaded() {
         let app = launch(["-PCRadio"])
         let play = app.buttons["playPauseButton"]
         XCTAssertTrue(play.waitForExistence(timeout: 90))
-        XCTAssertTrue(waitForLabel(play, "Play Radio", timeout: 90))
+        XCTAssertTrue(waitForLabel(play, "Play Radio", timeout: 90), "Actual playback label: \(play.label)")
         XCTAssertTrue(play.isEnabled, "Radio Play must be enabled without a loaded song")
         play.tap()
         XCTAssertTrue(waitForLabel(play, "Pause Radio", timeout: 120), "First Play did not load and play the station")
@@ -76,7 +106,7 @@ final class PulseCanvasVisionUITests: XCTestCase {
         let app = launch(["-PCRadio"])
         let play = app.buttons["playPauseButton"]
         XCTAssertTrue(play.waitForExistence(timeout: 90))
-        XCTAssertTrue(waitForLabel(play, "Play Radio", timeout: 90))
+        XCTAssertTrue(waitForLabel(play, "Play Radio", timeout: 90), "Actual playback label: \(play.label)")
         play.tap()
         XCTAssertTrue(waitForLabel(play, "Pause Radio", timeout: 120))
         let heart = app.buttons["favoriteRadioSongButton"]
@@ -278,7 +308,7 @@ final class PulseCanvasVisionUITests: XCTestCase {
         let app = launch(["-PCRadio"])
         let play = app.buttons["playPauseButton"]
         XCTAssertTrue(play.waitForExistence(timeout: 90))
-        XCTAssertTrue(waitForLabel(play, "Play Radio", timeout: 90))
+        XCTAssertTrue(waitForLabel(play, "Play Radio", timeout: 90), "Actual playback label: \(play.label)")
         play.tap()
         XCTAssertTrue(waitForLabel(play, "Pause Radio", timeout: 120))
         appStoreCaptureMark("radio-play"); Thread.sleep(forTimeInterval: 6)
@@ -290,8 +320,8 @@ final class PulseCanvasVisionUITests: XCTestCase {
         XCTAssertTrue(waitForLabel(play, "Pause Radio", timeout: 120))
         app.buttons["randomVisualizerButton"].tap()
         appStoreCaptureMark("radio-shuffle"); Thread.sleep(forTimeInterval: 6)
-        app.buttons["randomizeStyleButton"].tap()
-        appStoreCaptureMark("radio-style"); Thread.sleep(forTimeInterval: 8)
+        app.buttons["randomVisualizerButton"].tap()
+        appStoreCaptureMark("radio-fresh-look"); Thread.sleep(forTimeInterval: 8)
         app.buttons["immersiveButton"].tap()
         XCTAssertTrue(app.buttons["backToStudioButton"].waitForExistence(timeout: 60))
         Thread.sleep(forTimeInterval: 6)
@@ -318,7 +348,7 @@ final class PulseCanvasVisionUITests: XCTestCase {
         let app = launch(["-PCRadio"])
         let play = app.buttons["playPauseButton"]
         XCTAssertTrue(play.waitForExistence(timeout: 90))
-        XCTAssertTrue(waitForLabel(play, "Play Radio", timeout: 90))
+        XCTAssertTrue(waitForLabel(play, "Play Radio", timeout: 90), "Actual playback label: \(play.label)")
         play.tap()
         XCTAssertTrue(waitForLabel(play, "Pause Radio", timeout: 120))
         // Enter paused so the normal five-second auto-hide cannot race accessibility discovery.
@@ -372,7 +402,7 @@ final class PulseCanvasVisionUITests: XCTestCase {
         }
         let scenes = "247,22,314,252,361,330,254,365,306,375,264,332,380,316,338,369,405,210,256,368,340,331,313,352"
         let app = launch(["-PCRadio", "-PCCaptureScenes", scenes])
-        let station = app.buttons["radioStationPicker"]
+        let station = app.descendants(matching: .any)["radioStationPicker"].firstMatch
         XCTAssertTrue(station.waitForExistence(timeout: 90))
         station.tap()
         app.buttons["Electronic"].tap()

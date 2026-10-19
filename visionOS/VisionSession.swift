@@ -66,6 +66,7 @@ import Foundation
         favoriteSongsOnly = defaults.bool(forKey: "PulseCanvas.radio.favoriteSongsOnly.v1")
         library = RadioLibrary(directory: root.appendingPathComponent("Audio"))
         studio = VisionStudio(directory: root.appendingPathComponent("Session"), library: presets)
+        studio.randomizesPlaybackLooks = true
         studio.loopPlayback = false
         studio.onPlaybackFinished = { [weak self] in
             guard let self, self.wantsPlayback else { return }

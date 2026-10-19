@@ -34,6 +34,7 @@ private struct VisionAnalysis: @unchecked Sendable { let value: SoundtrackAnalyz
     private(set) var audioURL: URL?
     private var analyzer: SoundtrackAnalyzer?
     private var ticker: AnyCancellable?
+    private var poolObserver: AnyCancellable?
     private var currentScene: Int?
     private var revision = UUID()
     private var loadingCount = 0
@@ -41,6 +42,7 @@ private struct VisionAnalysis: @unchecked Sendable { let value: SoundtrackAnalyz
     private var timelineCache: [StudioSegment]?
     private let completion = VisionPlaybackCompletion()
     var onPlaybackFinished: (() -> Void)?
+    var randomizesPlaybackLooks = false
     private let library: ProjectMPresets
     private let directory: URL
     var selectedIndex: Int { project.clips.firstIndex { $0.id == selected } ?? 0 }
@@ -76,12 +78,17 @@ private struct VisionAnalysis: @unchecked Sendable { let value: SoundtrackAnalyz
            let saved = try? JSONDecoder().decode(VisionProject.self, from: data).validated() { project = saved }
         selected = project.clips.first?.id
         completion.finished = { [weak self] in self?.onPlaybackFinished?() }
+        self.library.migrateFavoriteAppearances { self.project.looks[$0]?.preset ?? VisualPreset.defaults(for: $0) }
         applyAppearance()
         #if os(visionOS)
         let tickInterval = 1.0 / 60
         #else
         let tickInterval = 1.0 / 30
         #endif
+        poolObserver = self.library.$poolRevision.dropFirst().sink { [weak self] _ in
+            guard let self, self.randomizesPlaybackLooks else { return }
+            _ = self.randomizeTimeline()
+        }
         ticker = Timer.publish(every: tickInterval, on: .main, in: .common).autoconnect().sink { [weak self] _ in self?.tick() }
     }
 
@@ -146,6 +153,9 @@ private struct VisionAnalysis: @unchecked Sendable { let value: SoundtrackAnalyz
                     VisionClip(scene: sequence[$0.offset % sequence.count])
                 }
                 if project.clips.isEmpty { project.clips = [VisionClip(scene: NativeEffects.defaultScene)] }
+                for scene in Set(project.clips.map(\.scene)) where project.looks[scene] == nil {
+                    project.looks[scene] = VisionLook(library.appearanceForSelection(scene))
+                }
                 selected = project.clips.first?.id
             }
             if project.importedTimeline == nil { project.fitTimeline(duration: next.duration) }
@@ -189,8 +199,9 @@ private struct VisionAnalysis: @unchecked Sendable { let value: SoundtrackAnalyz
     /// Picker edits target a stable clip ID even after playback follows a later section.
     func assign(_ scene: Int, to clipID: UUID) {
         guard library.eligibleScenes.contains(scene), let index = project.clips.firstIndex(where: { $0.id == clipID }) else { return }
+        project.looks[scene] = VisionLook(library.appearanceForSelection(scene))
         project.clips[index].scene = scene
-        if project.clips[index].id == selected { applyAppearance() }
+        if scene == selectedScene { applyAppearance() }
         save()
     }
     func look(for clipID: UUID) -> VisionLook? {
@@ -201,7 +212,7 @@ private struct VisionAnalysis: @unchecked Sendable { let value: SoundtrackAnalyz
         if let clipID { return project.clips.first(where: { $0.id == clipID })?.scene }
         return selectedScene
     }
-    /// Match the Mac randomizer: change the assignment, keeping every saved style intact.
+    /// New choices get fresh looks; favorites restore their saved appearance.
     @discardableResult func randomizeVisualizer(for clipID: UUID? = nil) -> Bool {
         guard let scene = targetScene(for: clipID) else { return false }
         let eligible = library.eligibleScenes
@@ -221,6 +232,7 @@ private struct VisionAnalysis: @unchecked Sendable { let value: SoundtrackAnalyz
         if visualizers {
             guard let scenes = StudioTimeline.randomizedScenes(current: next.clips.map(\.scene),
                 favorites: [], available: library.eligibleScenes, allowRepeats: library.pool.enabled) else { return false }
+            for scene in Set(scenes) { next.looks[scene] = VisionLook(library.appearanceForSelection(scene)) }
             for index in next.clips.indices { next.clips[index].scene = scenes[index] }
         }
         project = next
@@ -228,18 +240,9 @@ private struct VisionAnalysis: @unchecked Sendable { let value: SoundtrackAnalyz
         return true
     }
     func randomizeLook(for clipID: UUID? = nil) {
-        updateLook(for: clipID) {
-            $0.palette = VisualPalette.allCases.randomElement()?.rawValue ?? $0.palette
-            $0.speed = Float.random(in: 0.6...1.8)
-            $0.zoomSpeed = Float.random(in: 0...2.5)
-            $0.chaos = Float.random(in: 0.3...1)
-            $0.zoom = Float.random(in: 0.65...1.4)
-            $0.brightness = Float.random(in: 0.8...1.5)
-            $0.size = Float.random(in: 0.5...1.8)
-            $0.detail = Float.random(in: 0.2...1)
-            $0.fog = Float.random(in: 0...0.6)
-        }
+        updateLook(for: clipID) { $0 = VisionLook(.randomized(strobeEnabled: $0.strobeEnabled)) }
     }
+
     func updateLook(for clipID: UUID? = nil, _ body: (inout VisionLook) -> Void) {
         guard let scene = targetScene(for: clipID) else { return }
         var value = project.looks[scene] ?? VisionLook(scene: scene); body(&value)
@@ -250,7 +253,7 @@ private struct VisionAnalysis: @unchecked Sendable { let value: SoundtrackAnalyz
     }
     func resetLook(for clipID: UUID? = nil) {
         guard let scene = targetScene(for: clipID) else { return }
-        project.looks.removeValue(forKey: scene)
+        project.looks[scene] = VisionLook(scene: scene)
         if scene == selectedScene { applyAppearance() }
         save()
     }
@@ -288,6 +291,7 @@ private struct VisionAnalysis: @unchecked Sendable { let value: SoundtrackAnalyz
     func addClip() {
         guard project.clips.count < 10_000 else { return }
         guard let next = self.library.eligibleScenes.first(where: { $0 != selectedScene }) ?? self.library.eligibleScenes.first else { return }
+        project.looks[next] = VisionLook(library.appearanceForSelection(next))
         let clip = VisionClip(scene: next); project.clips.insert(clip, at: selectedIndex + 1); selected = clip.id
         project.importedTimeline = nil
         applyAppearance(); save()
@@ -332,7 +336,10 @@ private struct VisionAnalysis: @unchecked Sendable { let value: SoundtrackAnalyz
         if player.isPlaying, let index = StudioTimeline.index(at: time, in: segments), project.clips.indices.contains(index) {
             let clip = project.clips[index]
             if selected != clip.id { selected = clip.id }
-            if currentScene != clip.scene { applyAppearance() }
+            if currentScene != clip.scene {
+                if randomizesPlaybackLooks { project.looks[clip.scene] = VisionLook(library.appearanceForSelection(clip.scene)) }
+                applyAppearance()
+            }
         }
         if let features = try? analyzer?.frame(at: time, clipStart: 0, clipEnd: player.duration) {
             render.audioBands = features.bands; render.audioPulse = features.pulse; render.audioSwell = features.swell

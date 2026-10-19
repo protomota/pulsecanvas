@@ -5,6 +5,12 @@
 	};
 	"objectVersion" = 56;
 	"objects" = {
+		"E76D1B93B17DC49DF3364355" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"path" = "Sources/PulseCanvas/VisualPreset.swift";
+			"sourceTree" = "<group>";
+		};
 		"5209D7B8FE7DB3E851C09177" = {
 			"isa" = "PBXFileReference";
 			"lastKnownFileType" = "sourcecode.swift";
@@ -57,6 +63,12 @@
 			"isa" = "PBXFileReference";
 			"lastKnownFileType" = "sourcecode.swift";
 			"path" = "macOS/BundleResources.swift";
+			"sourceTree" = "<group>";
+		};
+		"038813F19FA1E4A37CCCA0C4" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"path" = "visionOS/VisionLookPreset.swift";
 			"sourceTree" = "<group>";
 		};
 		"1074610367B0B6A094EA470C" = {
@@ -148,6 +160,7 @@
 		"0D6E4079E36703EBD37C0072" = {
 			"isa" = "PBXGroup";
 			"children" = (
+				"E76D1B93B17DC49DF3364355",
 				"5209D7B8FE7DB3E851C09177",
 				"100CD0DC00C64B0B646E69DC",
 				"4652E379F9220B1BF60E12B9",
@@ -157,6 +170,7 @@
 				"D061672D180E0CC713D8F100",
 				"3810E7AB9E8DF14917E34477",
 				"AEB3E1F4EFCEE89846DDB6F1",
+				"038813F19FA1E4A37CCCA0C4",
 				"1074610367B0B6A094EA470C",
 				"8319DBF80F0A1AE2BD7EE172",
 				"A49A1847A6C656BBBFECDB8E",
@@ -187,6 +201,10 @@
 			"shellScript" = "\"$SRCROOT/scripts/prepare-tv-resources.sh\"\n";
 			"name" = "Prepare native Metal resources only";
 			"alwaysOutOfDate" = 1;
+		};
+		"A7CE383E14BB29514D2DD0C2" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "E76D1B93B17DC49DF3364355";
 		};
 		"59F9215D16187F2AAD43D7B8" = {
 			"isa" = "PBXBuildFile";
@@ -224,6 +242,10 @@
 			"isa" = "PBXBuildFile";
 			"fileRef" = "AEB3E1F4EFCEE89846DDB6F1";
 		};
+		"423EB9B902DA957AE39D9B50" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "038813F19FA1E4A37CCCA0C4";
+		};
 		"D5EA31B0949757348F1FFD2B" = {
 			"isa" = "PBXBuildFile";
 			"fileRef" = "1074610367B0B6A094EA470C";
@@ -252,6 +274,7 @@
 			"isa" = "PBXSourcesBuildPhase";
 			"buildActionMask" = 2147483647;
 			"files" = (
+				"A7CE383E14BB29514D2DD0C2",
 				"59F9215D16187F2AAD43D7B8",
 				"F11FE05286D083962ACFFC9E",
 				"300C1C6C7AC83D517D44ED14",
@@ -261,6 +284,7 @@
 				"D03D42F4A68816AE8C471677",
 				"1857C14A0B38C2D8BBE2A813",
 				"751BBC7AFA2EC0105700402A",
+				"423EB9B902DA957AE39D9B50",
 				"D5EA31B0949757348F1FFD2B",
 				"EDD4738D4B7AD97BBAB17E54",
 				"437A5D46901E04F456D232F5",

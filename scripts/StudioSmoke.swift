@@ -5,6 +5,26 @@ import Combine
         let suite = "PulseCanvas.StudioTests." + UUID().uuidString
         let defaults = UserDefaults(suiteName:suite)!
         defer { defaults.removePersistentDomain(forName:suite) }
+        let policyLibrary = ProjectMPresets(defaults: defaults)
+        let policyStore = StudioStore(defaults: defaults, library: policyLibrary), policyRender = RenderState()
+        let favorite = NativeEffects.activeIDs[0], ordinary = NativeEffects.activeIDs[1]
+        policyRender.scene = favorite; policyStore.randomize(policyRender)
+        let savedFavorite = policyStore.preset(policyRender)
+        policyLibrary.toggleFavorite(favorite, appearance: savedFavorite)
+        policyStore.randomize(policyRender) // Editing a look must not overwrite the favorite snapshot.
+        policyStore.selectScene(ordinary, render: policyRender)
+        let ordinaryFirst = policyStore.preset(policyRender)
+        policyStore.selectScene(favorite, render: policyRender)
+        precondition(policyStore.preset(policyRender) == savedFavorite)
+        policyStore.selectScene(ordinary, render: policyRender)
+        precondition(policyStore.preset(policyRender) != ordinaryFirst && policyStore.preset(policyRender).isValid)
+        let stable = policyStore.preset(policyRender)
+        policyStore.apply(to: policyRender); policyStore.save(policyRender)
+        precondition(policyStore.preset(policyRender) == stable, "Playback/apply must not reroll the look")
+        policyStore.reset(policyRender)
+        precondition(policyStore.preset(policyRender) == VisualPreset.defaults(for: ordinary))
+        policyLibrary.toggleFavorite(favorite)
+        print("PASS selection policy: fresh non-favorites, full favorite snapshot restoration, edits preserve favorites, stable playback and explicit Reset")
         let render = RenderState(), store = StudioStore(defaults:defaults)
         for _ in 0..<50 {
             let unique = StudioTimeline.randomizedScenes(current: Array(repeating: 0, count: 80), favorites: [98,99], available: Array(0..<100))!
@@ -135,7 +155,7 @@ import Combine
         randomBarsStore.randomizeTimeline(randomBarsRender)
         precondition(randomBarsStore.segments.map {[$0.start,$0.end]} == combinedTiming && randomBarsStore.segments.map(\.bars) == combinedBars)
         precondition(zip(combinedScenes, randomBarsStore.segments).allSatisfy {$0 != $1.scene})
-        precondition(randomBarsStore.presets[18] == randomBarsStyle && randomBarsRender.playbackTime == 9 && randomBarsRender.paused)
+        precondition(randomBarsRender.playbackTime == 9 && randomBarsRender.paused)
         print("PASS Timeline randomization: bars-only 4/1/2 beat-grid sequence, order, tail fill/trim, partial final bar, 1–8 range, invalid-plan atomicity, project round-trip and combined visualizers with settings/playhead retained")
         let performanceSuite = suite + ".BarsPerformance"
         let performanceDefaults = UserDefaults(suiteName: performanceSuite)!
@@ -166,9 +186,9 @@ import Combine
             precondition(render.scene != previous && RenderState.sceneNames.indices.contains(render.scene))
             let expected = RenderState(); expected.scene = render.scene; store.apply(to: expected)
             let actualStyle = try selectionEncoder.encode(store.preset(render)), expectedStyle = try selectionEncoder.encode(store.preset(expected))
-            precondition(actualStyle == expectedStyle, "Random selection loads the destination's saved settings or normal defaults")
+            precondition(actualStyle == expectedStyle, "Random selection applies and stores the new appearance")
             let settingsAfter = try selectionEncoder.encode(store.presets)
-            precondition(settingsAfter == settingsBefore, "Random selection must not alter any visualizer settings, including strobe")
+            precondition(settingsAfter != settingsBefore && store.preset(render).isValid && !render.strobeEnabled, "New selection must produce a valid fresh look without enabling strobe")
             precondition(render.playbackTime == 12.3 && render.audioBands == Array(repeating: 0.25, count: 32) && render.audioPulse == 0.7 && render.paused)
             selected.insert(render.scene)
         }
@@ -279,7 +299,7 @@ import Combine
         precondition(zip(store.segments,store.segments.dropFirst()).allSatisfy { $0.scene != $1.scene })
         precondition(store.segments.map { [$0.start, $0.end] } == boundaries)
         let randomizedStyles = try encoder.encode(store.presets)
-        precondition(randomizedStyles == styles, "Timeline randomization retains shared visual settings")
+        precondition(randomizedStyles != styles, "Timeline randomization creates fresh shared looks")
         let beforeSection = store.segments.map(\.scene)
         store.randomizeSegment(at: 1, render: render)
         precondition(Set(store.segments.map(\.scene)).count == store.segments.count)
@@ -294,7 +314,7 @@ import Combine
         precondition(store.segments.enumerated().allSatisfy { $0.offset == store.selectedSegment || $0.element.scene == beforeStudioShuffle[$0.offset] })
         precondition(store.segments.map { [$0.start, $0.end] } == boundaries)
         let settingsAfterStudioShuffle = try selectionEncoder.encode(store.presets)
-        precondition(settingsAfterStudioShuffle == settingsBeforeStudioShuffle, "Studio random selection cannot modify shared settings")
+        precondition(settingsAfterStudioShuffle != settingsBeforeStudioShuffle, "Studio random selection creates a fresh look")
         render.motionBlur = 0
         store.randomize(render)
         precondition((0...0.45).contains(render.motionBlur))
@@ -379,8 +399,8 @@ import Combine
         print("PASS: strobe Apply all enables all \(ProjectMPresets.shared.availableScenes.count) shared presets with chosen sensitivity/strength; Remove all disables flashes and retains those values; other controls, timeline/audio, persistence and project round-trip retained")
         print("PASS: selective common Chaos/zoom/motion applies to all \(ProjectMPresets.shared.availableScenes.count) styles and untouched defaults, retains unsaved edits and unselected settings including strobe; preserves timeline/audio; persists and round-trips shared Studio presets")
         print("PASS: Visual randomization includes whole-image softness")
-        print("PASS: whole-timeline and individual-section randomization change designs, retain fixed boundaries and shared settings")
+        print("PASS: whole-timeline and individual-section randomization change designs, retain fixed boundaries with fresh settings")
         print("PASS: fixed section boundaries, exact switches, shared appearance across repeated sections, project round-trip, old project compatibility")
-        print("PASS: 100 random visualizer selections, \(selected.count) designs selected, all saved settings and soundtrack state retained; dice randomizes only the current visualizer")
+        print("PASS: 100 random visualizer selections, \(selected.count) designs selected, fresh settings and soundtrack state retained; dice randomizes only the current visualizer")
     }
 }

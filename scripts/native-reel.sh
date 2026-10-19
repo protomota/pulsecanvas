@@ -6,7 +6,7 @@ cd "$(dirname "$0")/.."
 mkdir -p .build/validation
 binary=.build/validation/native-reel
 sources=(Sources/PulseCanvas/SecurityScopedAccess.swift Sources/PulseCanvas/VisualPalette.swift Sources/PulseCanvas/*Geometry.swift
- Sources/PulseCanvas/StrobeDetector.swift Sources/PulseCanvas/ProjectMPresets.swift Sources/PulseCanvas/VisualizerRenderer.swift
+ Sources/PulseCanvas/StrobeDetector.swift Sources/PulseCanvas/VisualPreset.swift Sources/PulseCanvas/ProjectMPresets.swift Sources/PulseCanvas/VisualizerRenderer.swift
  Sources/PulseCanvas/NativeEffects.swift Sources/PulseCanvas/AudioAnalysis.swift Sources/PulseCanvas/SocialExportController.swift
  Sources/PulseCanvas/StudioTimeline.swift Sources/PulseCanvas/StudioStore.swift scripts/RendererBundle.swift scripts/NativeReel.swift)
 needs_build=0

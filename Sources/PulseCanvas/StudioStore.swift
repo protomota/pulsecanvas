@@ -1,70 +1,6 @@
 import Foundation
 import SwiftUI
 
-struct VisualPreset: Codable, Equatable {
-    var isValid: Bool {
-        [speed, brightness, particleSize, fog, rotation, zoom, motionBlur, strobeSensitivity, strobeStrength, chaos, liquidDetail, zoomSpeed].allSatisfy { $0.isFinite } && (0...4).contains(palette) && (0...1).contains(chaos) && (0...1).contains(liquidDetail) && (0...3).contains(zoomSpeed) && (1...12).contains(haloCount)
-    }
-    var speed: Float = 1
-    var brightness: Float = 1
-    var particleSize: Float = 1
-    var palette: Int = 0
-    var fog: Float = 0.5
-    var rotation: Float = 0
-    var zoom: Float = 1
-    var motionBlur: Float = 0
-    var strobeEnabled = false
-    var strobeSensitivity: Float = 1
-    var strobeStrength: Float = 1
-    var chaos: Float = 0.5
-    var liquidDetail: Float = 0.6
-    var zoomSpeed: Float = 1.5
-    var haloCount: Int = 6
-}
-
-// Projects saved before the Chaos control retain a balanced beat response.
-extension VisualPreset {
-    enum CodingKeys: String, CodingKey {
-        case speed, brightness, particleSize, palette, fog, rotation, zoom, motionBlur
-        case strobeEnabled, strobeSensitivity, strobeStrength, chaos, liquidDetail, zoomSpeed, haloCount
-    }
-    init(from decoder: Decoder) throws {
-        let values = try decoder.container(keyedBy: CodingKeys.self)
-        self.init(speed: try values.decode(Float.self, forKey: .speed),
-                  brightness: try values.decode(Float.self, forKey: .brightness),
-                  particleSize: try values.decode(Float.self, forKey: .particleSize),
-                  palette: try values.decode(Int.self, forKey: .palette),
-                  fog: try values.decode(Float.self, forKey: .fog),
-                  rotation: try values.decode(Float.self, forKey: .rotation),
-                  zoom: try values.decode(Float.self, forKey: .zoom),
-                  motionBlur: try values.decode(Float.self, forKey: .motionBlur),
-                  strobeEnabled: try values.decode(Bool.self, forKey: .strobeEnabled),
-                  strobeSensitivity: try values.decode(Float.self, forKey: .strobeSensitivity),
-                  strobeStrength: try values.decode(Float.self, forKey: .strobeStrength),
-                  chaos: try values.decodeIfPresent(Float.self, forKey: .chaos) ?? 0.5,
-                  liquidDetail: try values.decodeIfPresent(Float.self, forKey: .liquidDetail) ?? 0.6,
-                  zoomSpeed: try values.decodeIfPresent(Float.self, forKey: .zoomSpeed) ?? 1.5,
-                  haloCount: try values.decodeIfPresent(Int.self, forKey: .haloCount) ?? 6)
-    }
-}
-
-@MainActor
-extension VisualPreset {
-    /// One default profile serves the editor, reset and Studio export. Existing
-    /// saved appearances take precedence; changing defaults cannot overwrite them.
-    static func defaults(for scene: Int) -> VisualPreset {
-        if scene >= RenderState.nativeSceneNames.count { return VisualPreset(chaos: 1, zoomSpeed: 0) }
-        var result = VisualPreset()
-        if let look = NativeEffects.effect(scene)?.look {
-            result.palette = look.palette; result.particleSize = look.size
-            result.speed = look.speed; result.zoomSpeed = look.zoomSpeed
-            result.brightness = look.brightness; result.fog = look.fog
-            result.liquidDetail = look.detail; result.chaos = look.chaos; result.zoom = look.zoom
-        }
-        return result
-    }
-}
-
 struct CreatorProject: Codable {
     var version = 1
     var soundtrack: URL?
@@ -139,6 +75,7 @@ final class StudioStore: ObservableObject {
             }
             #endif
         }
+        self.library.migrateFavoriteAppearances { self.presets[$0] ?? VisualPreset.defaults(for: $0) }
     }
     static func migratedPresets(_ presets: [Int: VisualPreset], identities: [Int: String]?, library: ProjectMPresets) throws -> [Int: VisualPreset] {
         var result: [Int: VisualPreset] = [:]
@@ -150,9 +87,7 @@ final class StudioStore: ObservableObject {
         return result
     }
     func preset(_ render: RenderState) -> VisualPreset {
-        VisualPreset(speed: render.speed, brightness: render.brightness, particleSize: render.particleSize,
-                     palette: render.palette, fog: render.fog, rotation: render.rotation, zoom: render.zoom,
-                     motionBlur: render.motionBlur, strobeEnabled: render.strobeEnabled, strobeSensitivity: render.strobeSensitivity, strobeStrength: render.strobeStrength, chaos: render.chaos, liquidDetail: render.liquidDetail, zoomSpeed: render.zoomSpeed, haloCount: render.haloCount)
+        VisualPreset(render: render)
     }
     func save(_ render: RenderState) {
         let appearance = preset(render)
@@ -188,6 +123,9 @@ final class StudioStore: ObservableObject {
         segments = zip(plan.boundaries, plan.boundaries.dropFirst()).enumerated().map { index, pair in
             StudioSegment(start: pair.0, end: pair.1,
                 scene: previous.first(where: { abs($0.start - pair.0) < 0.05 && (!self.library.pool.enabled || eligible.contains($0.scene)) })?.scene ?? sequence[index % sequence.count], bars: barsPerSection)
+        }
+        for scene in Set(segments.map(\.scene)) where presets[scene] == nil {
+            presets[scene] = library.appearanceForSelection(scene)
         }
         detectedBPM = plan.bpm; selectedSegment = 0
     }
@@ -260,7 +198,15 @@ final class StudioStore: ObservableObject {
     func selectScene(_ scene: Int, render: RenderState) {
         save(render)
         if isStudio && segments.indices.contains(selectedSegment) { segments[selectedSegment].scene = scene }
+        presets[scene] = library.appearanceForSelection(scene)
         render.scene = scene; apply(to: render)
+    }
+    func assignScene(_ scene: Int, at index: Int, render: RenderState) {
+        guard segments.indices.contains(index), library.eligibleScenes.contains(scene) else { return }
+        save(render)
+        presets[scene] = library.appearanceForSelection(scene)
+        segments[index].scene = scene
+        if render.scene == scene { apply(to: render) }
     }
     /// The browser stays open and playback continues; only the containing clip changes.
     @discardableResult
@@ -277,6 +223,9 @@ final class StudioStore: ObservableObject {
         guard !segments.isEmpty, let scenes = StudioTimeline.randomizedScenes(current: segments.map(\.scene),
             favorites: [], available: library.eligibleScenes, allowRepeats: library.pool.enabled) else { return false }
         save(render)
+        var updated = presets
+        for scene in Set(scenes) { updated[scene] = library.appearanceForSelection(scene) }
+        presets = updated
         for index in segments.indices { segments[index].scene = scenes[index] }
         if segments.indices.contains(selectedSegment) {
             render.scene = segments[selectedSegment].scene; apply(to: render)
@@ -293,6 +242,7 @@ final class StudioStore: ObservableObject {
             choices = library.eligibleScenes.filter { $0 != segments[index].scene }
         }
         guard let scene = choices.randomElement() else { return }
+        presets[scene] = library.appearanceForSelection(scene)
         segments[index].scene = scene
         if selectedSegment == index { render.scene = scene; apply(to: render) }
     }
@@ -321,21 +271,7 @@ final class StudioStore: ObservableObject {
         requestVisualizerReveal()
     }
     func randomize(_ render: RenderState) {
-        render.chaos = Float.random(in: 0.1...1)
-        render.liquidDetail = Float.random(in: 0.15...1)
-        render.zoomSpeed = Float.random(in: 0.5...2.5)
-        render.haloCount = Int.random(in: 2...12)
-        render.speed = Float.random(in: 0.35...2.4)
-        render.brightness = Float.random(in: 0.7...1.8)
-        render.particleSize = Float.random(in: 1...2.8)
-        render.palette = Int.random(in: 0...4)
-        render.fog = Float.random(in: 0.08...0.8)
-        render.rotation = Float.random(in: -.pi...(.pi))
-        render.zoom = Float.random(in: 0.6...1.55)
-        render.motionBlur = Float.random(in: 0...0.45)
-        render.strobeSensitivity = Float.random(in: 0.6...2.4)
-        render.strobeStrength = Float.random(in: 0.35...1)
-        // White flashes require the explicit toggle; never enable them randomly.
+        VisualPreset.randomized(strobeEnabled: render.strobeEnabled).apply(to: render)
         save(render)
     }
     func apply(to render: RenderState) {
@@ -351,21 +287,6 @@ final class StudioStore: ObservableObject {
     func apply(_ saved: VisualPreset, to render: RenderState) { saved.apply(to: render) }
     private func persist() {
         if let data = try? JSONEncoder().encode(Saved(presets: presets, identities: self.library.identities(for: Set(presets.keys)))) { defaults.set(data, forKey: key) }
-    }
-}
-
-@MainActor
-extension VisualPreset {
-    func apply(to render: RenderState) {
-        let saved = self
-        render.chaos = saved.chaos
-        render.liquidDetail = saved.liquidDetail
-        render.zoomSpeed = saved.zoomSpeed
-        render.haloCount = saved.haloCount
-        render.speed = saved.speed; render.brightness = saved.brightness; render.particleSize = saved.particleSize
-        render.palette = saved.palette; render.fog = saved.fog; render.rotation = saved.rotation
-        render.zoom = saved.zoom; render.motionBlur = saved.motionBlur
-        render.strobeEnabled = saved.strobeEnabled; render.strobeSensitivity = saved.strobeSensitivity; render.strobeStrength = saved.strobeStrength
     }
 }
 

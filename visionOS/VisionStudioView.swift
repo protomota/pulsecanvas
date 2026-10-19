@@ -32,6 +32,9 @@ struct VisionStudioView: View {
 
     var body: some View {
         VStack(spacing: 16) {
+            if session.radioMode {
+                radioSurface
+            } else {
             HStack(alignment: .top, spacing: 20) {
                 VStack(spacing: 12) {
                     Picker("Workspace", selection: Binding(get: { session.radioMode }, set: { session.setRadioMode($0) })) {
@@ -39,27 +42,12 @@ struct VisionStudioView: View {
                         Label("Radio", systemImage: "radio").tag(true)
                     }.pickerStyle(.segmented).disabled(session.immersiveActive)
                         .accessibilityIdentifier("workspacePicker")
-                    if session.radioMode { VisionRadioControls(radio: session.radio) }
                     VisionLibrary(studio: studio)
                 }.frame(width: 340)
                 VStack(alignment: .leading, spacing: 12) {
                     Text(NativeEffects.names[studio.selectedScene]).font(.title2.bold()).lineLimit(1)
                         .accessibilityIdentifier("selectedVisualizerName")
-                    Group {
-                        if session.immersiveActive {
-                            VStack(spacing: 16) {
-                                Image(systemName: "visionpro").font(.largeTitle)
-                                Text("Immersive viewing is active").font(.title3)
-                            }.frame(maxWidth: .infinity, maxHeight: .infinity)
-                        } else if exportVideo {
-                            Color.clear.frame(maxWidth: .infinity, maxHeight: .infinity)
-                        } else { VisualizerView(state: studio.render).frame(maxWidth: .infinity, maxHeight: .infinity) }
-                    }
-                        .aspectRatio(16.0 / 9, contentMode: .fit)
-                        .clipShape(RoundedRectangle(cornerRadius: 22))
-                        .overlay(alignment: .center) {
-                            if let error = studio.render.errorMessage { Text(error).padding().background(.regularMaterial) }
-                        }
+                    preview.aspectRatio(16.0 / 9, contentMode: .fit)
                     VisionTransportView(studio: studio, transport: studio.transport, radio: session.radioMode ? session.radio : nil)
                     if studio.needsSoundtrack {
                         Button("Locate soundtrack", systemImage: "waveform.badge.plus") { locateAudio = true }
@@ -68,11 +56,13 @@ struct VisionStudioView: View {
                     VisionStyleControls(studio: studio)
                 }
             }
+            }
             if !session.radioMode { VisionTimelineView(studio: studio) }
         }.padding(.vertical, 20).padding(.leading, 12).padding(.trailing, 20)
             .frame(minWidth: 1100, minHeight: 780)
             .toolbar {
                 ToolbarItemGroup(placement: .bottomOrnament) {
+                    if !session.radioMode {
                     Button("Import audio", systemImage: "tray.and.arrow.down") { importAudio = true }.disabled(studio.loading || session.radioMode)
                         .labelStyle(.titleAndIcon)
                         .accessibilityIdentifier("importAudioButton")
@@ -89,6 +79,7 @@ struct VisionStudioView: View {
                     Button("Export MP4", systemImage: "film") { exportVideo = true }
                         .disabled(studio.loading || session.radioMode)
                         .accessibilityIdentifier("exportMP4Button")
+                    }
                     Button("About & Support", systemImage: "info.circle") { legal = true }
                         .accessibilityIdentifier("visionInfoButton")
                     Spacer()
@@ -150,6 +141,42 @@ struct VisionStudioView: View {
             .alert("PulseCanvas Studio", isPresented: Binding(get: { studio.message != nil }, set: { if !$0 { studio.message = nil } })) {
                 Button("OK") { studio.message = nil }
             } message: { Text(studio.message ?? "") }
+    }
+
+    private var preview: some View {
+        Group {
+            if session.immersiveActive {
+                VStack(spacing: 16) {
+                    Image(systemName: "visionpro").font(.largeTitle)
+                    Text("Immersive viewing is active").font(.title3)
+                }.frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else if exportVideo {
+                Color.clear.frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else { VisualizerView(state: studio.render).frame(maxWidth: .infinity, maxHeight: .infinity) }
+        }.clipShape(RoundedRectangle(cornerRadius: 22))
+            .overlay {
+                if let error = studio.render.errorMessage { Text(error).padding().background(.regularMaterial) }
+            }
+    }
+
+    private var radioSurface: some View {
+        VStack(spacing: 12) {
+            preview.frame(maxWidth: .infinity, maxHeight: .infinity)
+            VStack(spacing: 12) {
+                HStack(spacing: 16) {
+                    VisionRadioVisualizerControls(studio: studio)
+                    Spacer(minLength: 12)
+                    Picker("Workspace", selection: Binding(get: { session.radioMode }, set: { session.setRadioMode($0) })) {
+                        Label("Studio", systemImage: "rectangle.split.3x1").tag(false)
+                        Label("Radio", systemImage: "radio").tag(true)
+                    }.pickerStyle(.segmented).frame(width: 240).disabled(session.immersiveActive)
+                        .accessibilityIdentifier("workspacePicker")
+                }
+                Divider()
+                VisionRadioControls(radio: session.radio)
+                VisionTransportView(studio: studio, transport: studio.transport, radio: session.radio)
+            }.padding(16).background(.white.opacity(0.05), in: RoundedRectangle(cornerRadius: 20))
+        }
     }
 
     private var immersiveButton: some View {
@@ -222,41 +249,56 @@ struct VisionStudioView: View {
     }
 }
 
+private struct VisionRadioVisualizerControls: View {
+    @ObservedObject var studio: VisionStudio
+    @ObservedObject private var library = ProjectMPresets.shared
+    var body: some View {
+        HStack(spacing: 12) {
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Visualizer").font(.caption).foregroundStyle(.secondary)
+                Text(NativeEffects.names[studio.selectedScene]).font(.headline).lineLimit(1)
+                    .accessibilityIdentifier("selectedVisualizerName")
+            }.frame(maxWidth: 260, alignment: .leading)
+            Button {
+                library.toggleFavorite(studio.selectedScene, appearance: studio.look.preset)
+            } label: {
+                Label("Save visualizer", systemImage: library.isFavorite(studio.selectedScene) ? "heart.fill" : "heart")
+            }.labelStyle(.iconOnly)
+                .accessibilityLabel(library.isFavorite(studio.selectedScene) ? "Unfavorite visualizer" : "Favorite visualizer")
+                .accessibilityIdentifier("favoriteRadioVisualizerButton")
+            Button("Random visualizer", systemImage: "shuffle") { studio.randomizeVisualizer() }
+                .buttonStyle(.borderedProminent).disabled(library.eligibleScenes.isEmpty)
+                .accessibilityIdentifier("randomVisualizerButton")
+            VisualizerRandomizerPicker(compact: true)
+        }
+    }
+}
+
 private struct VisionRadioControls: View {
     @ObservedObject var radio: VisionRadio
     @State private var showFavorites = false
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        HStack(spacing: 16) {
             if radio.loadingStations {
-                ProgressView("Loading stations…").frame(maxWidth: .infinity, minHeight: 48)
+                ProgressView("Loading stations…")
             } else {
                 Picker("Station", selection: Binding(get: { radio.musicGroupID }, set: { radio.selectStation($0) })) {
                     ForEach(radio.stations) { Text($0.title).tag($0.id) }
                     Text("Favorite songs").tag("favorite-songs")
-                }.pickerStyle(.menu).disabled(radio.stations.isEmpty || radio.loading)
+                }.pickerStyle(.menu).frame(maxWidth: 260).disabled(radio.stations.isEmpty || radio.loading)
                     .accessibilityIdentifier("radioStationPicker")
-                HStack {
-                    Button { if !radio.studio.transport.playing { radio.togglePlayback() } } label: {
-                        HStack(alignment: .center, spacing: 10) {
-                            Image(systemName: "radio").frame(width: 24, height: 24)
-                            Text("Play Radio")
-                        }.font(.body.weight(.semibold)).frame(minHeight: 32, alignment: .center)
-                    }.buttonStyle(.borderedProminent)
-                    Button("Next song", systemImage: "forward.end.fill") { radio.nextSong() }
-                        .labelStyle(.iconOnly)
-                }.disabled(radio.loading || radio.stations.isEmpty)
+                Button("Next song", systemImage: "forward.end.fill") { radio.nextSong() }
+                    .disabled(radio.loading || radio.stations.isEmpty)
                 Button("Favorite songs", systemImage: "heart.fill") { showFavorites = true }
-                    .frame(maxWidth: .infinity, alignment: .leading)
                     .accessibilityIdentifier("favoriteSongsLibraryButton")
             }
+            Spacer(minLength: 0)
             if radio.loading { ProgressView("Preparing music…") }
             if let error = radio.error {
-                Text(error).font(.caption).foregroundStyle(.secondary)
+                Text(error).font(.caption).foregroundStyle(.secondary).lineLimit(1)
                 Button("Retry stations") { Task { await radio.refreshStations() } }
             }
-        }.padding(12).frame(maxWidth: .infinity, alignment: .leading)
-            .background(.white.opacity(0.05), in: RoundedRectangle(cornerRadius: 16))
-            .sheet(isPresented: $showFavorites) { VisionFavoriteSongsView(radio: radio) }
+        }.sheet(isPresented: $showFavorites) { VisionFavoriteSongsView(radio: radio) }
     }
 }
 
@@ -343,7 +385,7 @@ private struct VisionLibrary: View {
                         .frame(maxWidth: .infinity, minHeight: 32)
                 }.buttonStyle(.borderedProminent).disabled(library.eligibleScenes.isEmpty)
                     .accessibilityIdentifier("randomVisualizerButton")
-                    .help("Choose another visualizer from the selected group. Saved visual settings stay unchanged.")
+                    .help("Choose a fresh look from this group, or restore a saved favorite.")
                 Button { studio.randomizeLook() } label: {
                     Image(systemName: "dice.fill").font(.title3).frame(width: 32, height: 32)
                 }.buttonStyle(.bordered)
@@ -370,7 +412,7 @@ private struct VisionLibrary: View {
                                     .frame(maxWidth: .infinity, minHeight: 52, alignment: .leading)
                                     .contentShape(Rectangle())
                             }.buttonStyle(.plain).hoverEffect(.highlight)
-                            Button { library.toggleFavorite(scene) } label: {
+                            Button { library.toggleFavorite(scene, appearance: studio.project.looks[scene]?.preset ?? VisualPreset.defaults(for: scene)) } label: {
                                 Image(systemName: library.isFavorite(scene) ? "heart.fill" : "heart")
                                     .frame(width: 44, height: 52).contentShape(Rectangle())
                             }.buttonStyle(.plain).hoverEffect(.highlight)
@@ -407,6 +449,7 @@ private struct VisionTransportView: View {
                 VisionRadioPlaybackButton(radio: radio, transport: transport)
                     .buttonStyle(.borderedProminent)
                     .accessibilityIdentifier("playPauseButton")
+                    .accessibilityLabel(radio.loading ? "Preparing Radio" : transport.playing ? "Pause Radio" : "Play Radio")
             } else {
                 Button { studio.togglePlayback() } label: {
                     Image(systemName: transport.playing ? "pause.fill" : "play.fill").frame(width: 32, height: 32)
@@ -579,7 +622,7 @@ private struct VisionRandomizeTimeline: View {
                 Text("Choose 1–8 bars per section on the song’s beat grid. Tail sections may be trimmed or repeated to fit the song.")
                     .font(.callout).foregroundStyle(.secondary)
             }.padding(20).background(.white.opacity(0.05), in: RoundedRectangle(cornerRadius: 18))
-            Text(barLengths ? "Soundtrack and saved visual styles stay unchanged." : "Timing, soundtrack and saved visual styles stay unchanged.")
+            Text(visualizers ? "Fresh looks replace visual settings; saved favorites keep their look. Your soundtrack stays." : "Visualizer order, soundtrack and saved styles stay unchanged.")
                 .font(.callout).foregroundStyle(.secondary)
             if let error { Text(error).font(.callout).foregroundStyle(.orange) }
             HStack {
@@ -740,7 +783,7 @@ private struct VisionClipPicker: View {
                                     }.frame(maxWidth: .infinity, minHeight: 48, alignment: .leading)
                                         .contentShape(Rectangle())
                                 }.buttonStyle(.plain).hoverEffect(.highlight)
-                                Button { library.toggleFavorite(scene) } label: {
+                                Button { library.toggleFavorite(scene, appearance: studio.project.looks[scene]?.preset ?? VisualPreset.defaults(for: scene)) } label: {
                                     Image(systemName: library.isFavorite(scene) ? "heart.fill" : "heart")
                                         .frame(width: 44, height: 48)
                                 }.buttonStyle(.plain).hoverEffect(.highlight)

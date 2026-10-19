@@ -383,14 +383,7 @@ final class RadioController: ObservableObject {
         playedVisualizers.insert(scene)
         guard visualizer.scene != scene || sceneTitle.isEmpty else { return }
         visualizer.scene = scene
-        let appearance = VisualPreset.defaults(for: scene)
-        // Radio's default appearances never read or save the user's Studio presets.
-        visualizer.speed = appearance.speed; visualizer.brightness = appearance.brightness
-        visualizer.particleSize = appearance.particleSize; visualizer.palette = appearance.palette
-        visualizer.fog = appearance.fog; visualizer.rotation = appearance.rotation; visualizer.zoom = appearance.zoom
-        visualizer.motionBlur = appearance.motionBlur; visualizer.chaos = appearance.chaos
-        visualizer.liquidDetail = appearance.liquidDetail; visualizer.zoomSpeed = appearance.zoomSpeed
-        visualizer.haloCount = appearance.haloCount; visualizer.strobeEnabled = false
+        presets.appearanceForSelection(scene).apply(to: visualizer)
         sceneTitle = RenderState.sceneNames[scene]
     }
 
@@ -415,7 +408,7 @@ final class RadioController: ObservableObject {
             segments = RadioVisualSchedule.make(plan: plan, pool: available, bars: barsPerVisualizer,
                 previous: previousScene)
         }
-        sceneTitle = ""; follow(time: audio.playbackSeconds)
+        follow(time: audio.playbackSeconds)
     }
 
     private func discardPrefetch() {
