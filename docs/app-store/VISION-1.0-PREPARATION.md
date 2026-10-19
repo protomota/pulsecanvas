@@ -1,6 +1,6 @@
 # Vision Pro 1.1.5 — submission preparation
 
-October 19, 2026. The latest internal TestFlight build is [1.1.5 (11)](https://appstoreconnect.apple.com/apps/6821642700/testflight/visionos/95d1c020-eb58-40f0-9f05-9fab9937bb25), matching Mac’s release version. Both now read the shared `Version.xcconfig`, with independent build numbers. It retains the Radio, favorite-settings and support features from Vision 1.0 (10). See [delivery receipt](../releases/vision-1.1.5-11.md).
+October 19, 2026. The latest internal TestFlight build is [1.1.5 (12)](https://appstoreconnect.apple.com/apps/6821642700/testflight/visionos/1f51a7aa-9dfb-44f7-a4fd-f220dfc9404a), matching Mac’s release version through the shared `Version.xcconfig` with independent build numbers. Studio/Radio stays pinned at the top left. Radio visualizer controls sit above the large preview; the song/station controls and playback occupy two rows below. Both favorite hearts are circular, with a tighter visualizer title gap. It retains the existing favorite-settings and support features. See [delivery receipt](../releases/vision-1.1.5-12.md).
 
 The Vision-specific 1.1.5 listing remains a draft. Its editable version number was aligned through App Store Connect and verified by API readback. Its audit found an empty English description and no selected build. No public review submission, website deployment or public media upload was performed during this preparation. Mac 1.1.4 remains Waiting for Review.
 
