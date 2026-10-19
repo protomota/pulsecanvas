@@ -14,9 +14,10 @@ no projectM engine, community presets/textures or Sparkle updater.
 - **Random visualizer** replaces the selected section's visualizer without changing
   saved looks. The adjacent dice randomizes only that visualizer's style.
 - Tap a timeline card's visualizer heading to open its popover: search the library,
-  filter categories/favorites, shuffle visualizers, favorite an effect, or adjust
-  its palette, Chaos, zoom and motion. Picker edits target that card even if
-  playback advances to another section. Styles remain shared by visualizer.
+  filter categories/favorites, choose an effect, or use **Surprise me** to choose
+  randomly from the visible results. Choosing closes the picker and targets that
+  card even if playback advances to another section. The picker contains no style
+  controls; saved visualizer looks stay unchanged.
   Set independent 1–64 bar lengths. Music analysis supplies the beat grid. The experimental add,
   remove and reorder buttons have been removed from the interface.
 - Edit palette, Chaos, zoom speed and motion speed. An effect shares its look
@@ -29,6 +30,9 @@ no projectM engine, community presets/textures or Sparkle updater.
   Loading and retry states are visible. Radio shuffles tracks and advances at the
   end of each song instead of looping one track. Its cache and transport are
   independent of the editable Studio project; switching modes pauses the old one.
+  The main Play button also starts the selected station before any audio is loaded,
+  waiting for the initial station request if needed. It shows a spinner while a
+  song is prepared and then becomes Pause. Play resumes the same song after pausing.
 - The **goggles icon** in the bottom ornament opens an immersive space and hides
   the Studio window. The adjacent, visibly labeled **Hide room** switch (on by
   default) hides passthrough and uses a larger curved
@@ -45,7 +49,7 @@ no projectM engine, community presets/textures or Sparkle updater.
   song with additional cards; longer sections trim the tail.
 - Transport play, elapsed time, scrubber, duration and volume share one center line.
 - **Hi-hat strobe** keeps its label and switch together. Enabling it reveals
-  sensitivity and strength controls in both the main style controls and card picker.
+  sensitivity and strength controls in the main style controls.
   These edit the same shared visualizer settings as Apply to all and Mac projects.
 - Save/open Mac-compatible `.pulsecanvas` projects. Older `.pulsevision` backups
   still open. The app also autosaves locally.
@@ -162,9 +166,10 @@ Mac Store regressions exercise all 336 shaders' beat response and zero-Chaos
 behavior. Both visionOS simulator and device-target compilation pass. A simulator
 installation launches successfully and displays the native Metal Studio preview.
 
-Simulator button interactions and entering/exiting immersion have not yet been
-verified: automated pointer taps in Device Hub did not activate its simulated
-controls. Hardware comfort, gaze accuracy, immersive texture orientation and
+Targeted simulator UI tests verify Radio's initially enabled Play button, live
+station startup and pause, plus the Studio picker opening, absence of style sliders,
+Surprise me selection and dismissal. They use isolated launch storage. Entering/exiting
+immersion was not rechecked for build 6. Hardware comfort, gaze accuracy, immersive texture orientation and
 sustained GPU/audio performance still require headset testing. Compilation and a
 visible preview do not establish those results.
 
