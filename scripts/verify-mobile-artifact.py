@@ -23,7 +23,8 @@ assert (app / 'PrivacyInfo.xcprivacy').read_bytes() == Path('macOS/PrivacyInfo.x
 assert not list(app.rglob('*.milk'))
 assert not any('sparkle' in p.name.lower() or 'projectm' in p.name.lower() for p in app.rglob('*'))
 binary = app / info['CFBundleExecutable']
-assert b'PCMobileQA' not in binary.read_bytes(), 'Debug fixture leaked into Release'
+release_bytes = binary.read_bytes()
+assert all(marker not in release_bytes for marker in (b'PCMobileQA', b'PCMobileRadioQA')), 'Debug fixture leaked into Release'
 linked = subprocess.check_output(['otool', '-L', str(binary)], text=True)
 assert 'OpenGL' not in linked and 'projectM' not in linked
 print(json.dumps({'app': str(app), 'version': info['CFBundleShortVersionString'], 'build': info['CFBundleVersion'],
