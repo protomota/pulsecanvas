@@ -206,6 +206,8 @@ struct CreatorView: View {
             if let id { engagement.videoSaved(id: id) }
         }
         .task { await engagement.observeStorefront() }
+        // Reconcile saved songs without opening Radio or starting playback.
+        .task { await radio.refreshFavoriteSongs() }
         .task(id: canPresentExportThanks) {
             guard canPresentExportThanks else { return }
             // Let the saved-video confirmation finish before another modal appears.

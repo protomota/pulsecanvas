@@ -93,6 +93,8 @@ struct VisionStudioView: View {
             .sheet(isPresented: $exportVideo) { VisionVideoExportView(studio: studio, engagement: engagement) { exportVideo = false } }
             .task { await session.editor.start(); await applyLaunchOptions() }
             .task { await engagement.observeStorefront() }
+            // Reconcile saved songs even when the listener stays in Studio.
+            .task { await session.radio.refreshFavoriteSongs() }
             .onChange(of: session.radioMode) { _, active in
                 if active { engagement.radioStarted() }
                 leftMilestoneRadio = !active && engagement.pendingRadioThanks

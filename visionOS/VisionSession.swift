@@ -132,6 +132,7 @@ import Foundation
         if let data = try? JSONEncoder().encode(favoriteSongs) { defaults.set(data, forKey: favoriteSongsKey) }
         queue.reset()
     }
+    private var refreshingFavorites = false
     /// Only the full, successfully loaded catalog can establish that a saved song was removed.
     private func reconcileFavorites(_ complete: RadioCatalog, url: URL, stationID: String) {
         let tracks = Dictionary(uniqueKeysWithValues: complete.tracks.map { ($0.id, $0) })
@@ -143,6 +144,9 @@ import Foundation
         if retained != favoriteSongs { favoriteSongs = retained; persistFavorites() }
     }
     func refreshFavoriteSongs() async {
+        guard !refreshingFavorites, !favoriteSongs.isEmpty else { return }
+        refreshingFavorites = true
+        defer { refreshingFavorites = false }
         guard let complete = try? await library.completeCatalog(at: source), !Task.isCancelled else { return }
         reconcileFavorites(complete.catalog, url: complete.url, stationID: complete.stationID)
         if favoriteSongsOnly && favoriteSongs.isEmpty { suspend() }

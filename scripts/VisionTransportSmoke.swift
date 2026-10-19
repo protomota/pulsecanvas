@@ -260,6 +260,16 @@ import Combine
         radio.toggleFavoriteSong(secondFavorite)
         try JSONEncoder().encode(RadioCatalog(version: 1, title: "Retired song", tracks: tracks.filter { $0.id != currentSong.id }))
             .write(to: catalogPath)
+        let startupCleanup = VisionRadio(directory: directory.appendingPathComponent("StartupCleanupRadio"),
+            source: fixtures.appendingPathComponent("stations.json"), presets: presets, defaults: defaults)
+        await startupCleanup.refreshFavoriteSongs()
+        precondition(!startupCleanup.isFavoriteSong(currentSong) && startupCleanup.isFavoriteSong(secondFavorite)
+                     && startupCleanup.stations.isEmpty && startupCleanup.playingTrack == nil && !startupCleanup.studio.transport.playing,
+                     "Startup cleanup must keep available songs and remove retired songs without starting Radio")
+        let startupReopened = VisionRadio(directory: directory.appendingPathComponent("StartupReopenedRadio"),
+            source: fixtures.appendingPathComponent("stations.json"), presets: presets, defaults: defaults)
+        precondition(!startupReopened.isFavoriteSong(currentSong) && startupReopened.isFavoriteSong(secondFavorite),
+                     "Startup cleanup must stay persisted after relaunch")
         radio.playFavoriteSong(removedSong); await radio.waitForTrack()
         precondition(radio.error != nil && !radio.studio.transport.playing && !radio.isFavoriteSong(currentSong),
                      "A retired saved song must be pruned and reported instead of playing a different song")

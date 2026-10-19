@@ -337,6 +337,12 @@ import Foundation
         precondition(radio.isFavoriteSong(tracks[0]), "A failed catalog read removed a favorite")
         try FileManager.default.moveItem(at: offline, to: catalogURL)
         try JSONEncoder().encode(RadioCatalog(version: 1, title: "Removed first song", tracks: Array(tracks.dropFirst()))).write(to: catalogURL)
+        let startupCleanup = RadioController(library: library, defaults: defaults, presets: favorites)
+        await startupCleanup.refreshFavoriteSongs()
+        precondition(!startupCleanup.isFavoriteSong(tracks[0]) && startupCleanup.catalog == nil && !startupCleanup.isActive,
+            "Startup cleanup must remove retired songs without opening Radio or starting playback")
+        let startupReopened = RadioController(library: library, defaults: defaults, presets: favorites)
+        precondition(!startupReopened.isFavoriteSong(tracks[0]), "Startup song cleanup must be persisted")
         radio.playFavoriteSong(savedSong)
         try await wait("removed favorite") { !radio.isCatalogLoading && radio.favoritePlaybackError != nil }
         precondition(!radio.isFavoriteSong(tracks[0]) && !radio.isActive, "Removed song was retained or played")
