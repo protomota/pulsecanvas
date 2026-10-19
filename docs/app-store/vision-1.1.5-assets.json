@@ -37,22 +37,22 @@
       "sha256": "61f0f2be7f967e79966a7e5520c2eb928c2f5d41db4e453c44ab9c5ff124bcb0"
     },
     {
-      "path": "screenshots/05-radio-favorites.png",
+      "path": "screenshots/05-radio-favorites-v3.png",
       "dimensions": [
         3840,
         2160
       ],
       "mode": "RGB",
-      "sha256": "4cc943759600791528c2d1b21256fe9760509e11019cc48a74f03bce2270fb18"
+      "sha256": "d6191cc920e166a3aa4c2d621e73d543a4159156d33142489f221bcf5ecddeb0"
     },
     {
-      "path": "screenshots/06-radio.png",
+      "path": "screenshots/06-radio-v3.png",
       "dimensions": [
         3840,
         2160
       ],
       "mode": "RGB",
-      "sha256": "09291344fb786281510ac5ba0d48e57ed66d80360bcc526c3f40d100efb3779b"
+      "sha256": "0e495eedc91a652254b3f0d7c94f8aa02c913d63d3dd6f2b9235b0d38bd60ad6"
     }
   ],
   "previews": [
@@ -69,9 +69,9 @@
       "processingState": "COMPLETE"
     },
     {
-      "fileName": "03-PulseCanvas-VisionPro-Radio-4K30-v2.mp4",
-      "sha256": "6ebdde8afd55e06745e64353cb3786354dd7c5cb53dca8ce4993e02ff28fa71a",
-      "bytes": 113025152,
+      "fileName": "03-PulseCanvas-Radio-Current-UI-AppStore-4K30.mp4",
+      "sha256": "d11ef7ac86a9ffd4b77752e720a4c03a5611a8266fdc71d70c8b16b14909a774",
+      "bytes": 35456441,
       "processingState": "COMPLETE"
     }
   ]

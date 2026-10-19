@@ -437,6 +437,17 @@ final class PulseCanvasVisionUITests: XCTestCase {
         app.buttons["Electronic"].tap()
         let play = app.buttons["playPauseButton"]
         XCTAssertTrue(waitForLabel(play, "Pause Radio", timeout: 120))
+        if let desiredSong = ProcessInfo.processInfo.environment["PULSECANVAS_CAPTURE_SONG"] {
+            let title = app.staticTexts["radioSongName"]
+            for _ in 0..<20 where title.label != desiredSong {
+                let previous = title.label
+                app.buttons["nextRadioSongButton"].tap()
+                let changed = expectation(for: NSPredicate(format: "label != %@", previous), evaluatedWith: title)
+                XCTAssertEqual(XCTWaiter().wait(for: [changed], timeout: 120), .completed)
+                XCTAssertTrue(waitForLabel(play, "Pause Radio", timeout: 120))
+            }
+            XCTAssertEqual(title.label, desiredSong, "Requested capture song is not in this station")
+        }
         appStoreCaptureMark("electronic-radio-play"); Thread.sleep(forTimeInterval: 5)
         app.buttons["favoriteRadioSongButton"].tap()
         app.buttons["favoriteSongsLibraryButton"].tap()

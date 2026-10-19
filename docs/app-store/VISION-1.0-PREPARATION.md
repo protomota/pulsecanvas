@@ -2,20 +2,43 @@
 
 October 19, 2026. The latest internal TestFlight build is [1.1.5 (12)](https://appstoreconnect.apple.com/apps/6821642700/testflight/visionos/1f51a7aa-9dfb-44f7-a4fd-f220dfc9404a), matching Mac’s release version through the shared `Version.xcconfig` with independent build numbers. Studio/Radio stays pinned at the top left. Radio visualizer controls sit above the large preview; the song/station controls and playback occupy two rows below. Both favorite hearts are circular, with a tighter visualizer title gap. It retains the existing favorite-settings and support features. See [delivery receipt](../releases/vision-1.1.5-12.md).
 
-**Submitted for App Store review on October 19, 2026 at 3:34 PM EDT.** Apple reports `WAITING_FOR_REVIEW` for Vision 1.1.5 (12), submission `9f64771e-c704-43fd-8f8d-32a6be418d61`. Six screenshots and the three approved previews are uploaded and fully processed. Description, promotion, keywords, URLs, copyright and reviewer instructions were saved and verified; the shared subtitle is now “Music visuals, made by you”. High motion is declared. Apple's missing shared Apple TV plain-text privacy requirement was completed using existing app practices and the policy URL; the TV draft was not submitted. Mac 1.1.4 and its existing submission remain Waiting for Review. See [submission receipt](../releases/vision-1.1.5-app-review.md). No website deployment or public media upload was performed.
+**Resubmitted for App Store review on October 19, 2026 at 4:25 PM EDT.**
+Apple reports `WAITING_FOR_REVIEW` for Vision 1.1.5 (12), submission
+`fb5da144-7a3a-4197-9f29-0f242e45f9f7`. The corrected Radio preview and two Radio
+screenshots are included. All three previews and six screenshots are fully
+processed and their uploaded source checksums match. The Radio preview played
+to completion in Apple's player. The earlier 3:34 PM Vision submission was
+voluntarily canceled to replace media, not rejected by Apple. See the
+[refresh receipt](../releases/vision-1.1.5-radio-media-refresh.md). The separate
+current Mac 1.1.5 submission remains Waiting for Review; it was not changed by
+this task. No website deployment occurred.
+
+## Radio interface refresh
+
+The original Radio preview and its two screenshots showed an older interface.
+Fresh native 4K simulator footage now shows the current layout. The first ten
+seconds of Radio were replaced; the existing narration, music mix and final
+fourteen seconds of immersion were retained. Two matching Radio screenshots
+replace the earlier images. The high-quality master is preserved alongside an
+optimized 4K30 H.264/AAC App Store delivery. See the [refresh receipt](../releases/vision-1.1.5-radio-media-refresh.md) and current [asset manifest](vision-1.1.5-assets.json).
 
 ## Prepared assets
 
 `/Volumes/Music/Codex Media/PulseCanvas Studio/App Store/Vision Pro/1.1.5/`
 
-The three selected preview masters remain in the sibling `1.0/previews/` folder; their exact filenames and hashes, plus those of the six submitted screenshots, are recorded in `vision-1.1.5-assets.json`. Five screenshots were refreshed against the current interface; the unchanged full-immersion hero was retained.
+Immersion and Studio remain in the sibling `1.0/previews/` folder; the latest Radio master and App Store delivery are in this package’s `previews/` folder. The exact submitted filenames and hashes, plus those of all six screenshots, are recorded in `vision-1.1.5-assets.json`. The previous Radio media remains preserved outside the active screenshot directory.
 
 - Six 3840×2160 RGB native simulator screenshots: immersion, Studio, visualizer picker, export settings, Radio song favorites, Radio playback.
 - A screenshot manifest records actual dimensions, alpha absence and SHA-256 hashes.
 - `source/metadata.json` contains the submitted English description, promotion, keywords, URLs and reviewer instructions, including song favorites. The public copy is also committed as `vision-1.1.5.en-US.json`. It uses “hundreds” rather than exact effect counts, “completely free”, and “source available on GitHub” with the PulseCanvas repository. It does not claim an open-source license.
 - Private review-contact audit files remain local; do not publish the entire directory.
 
-## Three revised App Store preview masters
+## Earlier preview preparation (historical)
+
+The following records the previous approved media work; the Radio refresh above
+and its receipt supersede the Radio filenames, captures and upload status below.
+
+### Three revised App Store preview masters
 
 Source projects live in `/Volumes/Music/Video/astra_video/videos/pulsecanvas-vision-appstore/`:
 
@@ -64,7 +87,7 @@ Apple references: [review request behavior](https://developer.apple.com/document
 
 ## After submission
 
-1. Await Apple's review of Vision 1.1.5 (12). The submission and selected build were verified by fresh API reads and the visible review detail page. Do not replace or withdraw the separate Mac submission.
+1. Await Apple's review of the resubmitted Vision 1.1.5 (12), submission `fb5da144-7a3a-4197-9f29-0f242e45f9f7`. Fresh API reads and the review detail confirm Waiting for Review. Do not replace or withdraw the separate Mac submission.
 2. Physical-headset comfort, gaze/hand targets, sustained performance and current-build Files export remain hardware validation work; simulator checks do not establish those results.
 3. Keep the separate website draft and marketing films unpublished until the owner confirms the app is live and supplies the Vision Pro App Store URL. App Store preview uploads are part of this submission and do not deploy the website.
 

@@ -1,5 +1,8 @@
 # Vision Pro 1.1.5 (12) — App Store review submission
 
+**Historical receipt:** this submission was later voluntarily canceled to replace
+the outdated Radio video and screenshots. See the [Radio media refresh receipt](vision-1.1.5-radio-media-refresh.md) for the replacement assets and current status.
+
 Submitted October 19, 2026 at **3:34 PM EDT**. Apple reports
 `WAITING_FOR_REVIEW` for the version and its submission.
 
