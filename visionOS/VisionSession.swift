@@ -52,8 +52,17 @@ import Foundation
             self.nextSong()
         }
     }
+    private var stationsTask: Task<Void, Never>?
+    /// Loads the station list. A second caller while a load is in flight waits for that load instead of returning at
+    /// once: Play Radio pressed before the list arrived used to find no stations and report an invalid catalog.
     func refreshStations() async {
-        guard !loadingStations else { return }
+        if let stationsTask { await stationsTask.value; return }
+        let task = Task { await self.loadStations() }
+        stationsTask = task
+        await task.value
+        stationsTask = nil
+    }
+    private func loadStations() async {
         loadingStations = true; error = nil
         defer { loadingStations = false }
         do {
