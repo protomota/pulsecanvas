@@ -260,11 +260,6 @@ private struct VisionRadioVisualizerControls: View {
         VStack(alignment: .leading, spacing: 6) {
         HStack(spacing: 12) {
             HStack(spacing: 8) {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("Visualizer").font(.caption).foregroundStyle(.secondary)
-                    Text(NativeEffects.names[studio.selectedScene]).font(.headline).lineLimit(1)
-                        .accessibilityIdentifier("selectedVisualizerName")
-                }.layoutPriority(1)
                 Button {
                     library.toggleFavorite(studio.selectedScene, appearance: studio.look.preset)
                 } label: {
@@ -273,6 +268,12 @@ private struct VisionRadioVisualizerControls: View {
                 }.buttonStyle(.bordered).buttonBorderShape(.circle)
                     .accessibilityLabel(library.isFavorite(studio.selectedScene) ? "Unfavorite visualizer" : "Favorite visualizer")
                     .accessibilityIdentifier("favoriteRadioVisualizerButton")
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Visualizer").font(.caption).foregroundStyle(.secondary)
+                    Text(NativeEffects.names[studio.selectedScene]).font(.headline).lineLimit(1)
+                        .accessibilityIdentifier("selectedVisualizerName")
+                }.layoutPriority(1)
+
             }
             Button("Random visualizer", systemImage: "shuffle") { studio.randomizeVisualizer() }
                 .buttonStyle(.borderedProminent).disabled(library.eligibleScenes.isEmpty)
@@ -370,8 +371,6 @@ struct VisionRadioSongTitle: View {
     @ObservedObject var radio: VisionRadio
     var body: some View {
         HStack(spacing: 8) {
-            Text(radio.playingTrack?.title ?? "Radio").font(.headline).lineLimit(1)
-                .accessibilityIdentifier("radioSongName")
             if let track = radio.playingTrack {
                 Button { radio.toggleFavoriteSong(track) } label: {
                     Image(systemName: radio.isFavoriteSong(track) ? "heart.fill" : "heart")
@@ -380,6 +379,8 @@ struct VisionRadioSongTitle: View {
                     .accessibilityLabel(radio.isFavoriteSong(track) ? "Unfavorite song" : "Favorite song")
                     .accessibilityIdentifier("favoriteRadioSongButton")
             }
+            Text(radio.playingTrack?.title ?? "Radio").font(.headline).lineLimit(1)
+                .accessibilityIdentifier("radioSongName")
         }.frame(maxWidth: .infinity, alignment: .leading)
     }
 }
@@ -466,7 +467,7 @@ private struct VisionTransportView: View {
                     .accessibilityLabel(radio.loading ? "Preparing Radio" : transport.playing ? "Pause Radio" : "Play Radio")
             } else {
                 Button { studio.togglePlayback() } label: {
-                    Image(systemName: transport.playing ? "pause.fill" : "play.fill").frame(width: 32, height: 32)
+                    Image(systemName: transport.playing ? "pause.fill" : "play.fill").frame(width: 44, height: 32)
                 }.buttonStyle(.borderedProminent).disabled(studio.loading || transport.duration <= 0)
                     .accessibilityLabel(transport.playing ? "Pause" : "Play")
                     .accessibilityIdentifier("playPauseButton")
@@ -502,7 +503,7 @@ struct VisionRadioPlaybackButton: View {
             ZStack {
                 if radio.loading { ProgressView().controlSize(.small) }
                 else { Image(systemName: transport.playing ? "pause.fill" : "play.fill") }
-            }.frame(width: 32, height: 32)
+            }.frame(width: 44, height: 32)
         }.disabled(radio.loading)
             .accessibilityLabel(radio.loading ? "Preparing Radio" : transport.playing ? "Pause Radio" : "Play Radio")
     }

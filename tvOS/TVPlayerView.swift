@@ -57,14 +57,16 @@ private struct TVControls: View {
         VStack(alignment: .leading, spacing: 24) {
             Text("PULSECANVAS STUDIO").font(.caption.weight(.semibold)).tracking(4).foregroundStyle(tvAccent)
             HStack {
-                Text(NativeEffects.names[studio.selectedScene]).font(.system(size: 52, weight: .bold)).lineLimit(1)
-                Spacer()
                 Button { library.toggleFavorite(studio.selectedScene) } label: {
                     Image(systemName: library.isFavorite(studio.selectedScene) ? "heart.fill" : "heart")
                 }.accessibilityLabel("Favorite visualizer")
+                Text(NativeEffects.names[studio.selectedScene]).font(.system(size: 52, weight: .bold)).lineLimit(1)
+                Spacer()
             }
             HStack(spacing: 24) {
-                Button(transport.playing ? "Pause" : "Play", systemImage: transport.playing ? "pause.fill" : "play.fill") { player.togglePlayback() }
+                Button { player.togglePlayback() } label: {
+                    Label(transport.playing ? "Pause" : "Play", systemImage: transport.playing ? "pause.fill" : "play.fill").frame(width: 140)
+                }
                     .disabled(studio.loading || transport.duration <= 0)
                 Button("Visualizers", systemImage: "square.grid.2x2") { panel = .library }
                 Button("Randomize", systemImage: "shuffle") { player.randomizeVisualizer() }

@@ -291,13 +291,6 @@ struct RadioPlayerView: View {
     @ViewBuilder private var currentVisualizer: some View {
         if !radio.sceneTitle.isEmpty {
             HStack(spacing: 8) {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("Visualizer").font(.caption2).foregroundStyle(.secondary)
-                    Text(radio.sceneTitle).font(.callout.weight(.medium))
-                        .lineLimit(1).truncationMode(.tail)
-                }
-                .help(radio.sceneTitle)
-                .accessibilityElement(children: .combine)
                 Button {
                     presets.toggleFavorite(render.scene, appearance: VisualPreset(render: render))
                     revealControls()
@@ -307,6 +300,14 @@ struct RadioPlayerView: View {
                 .buttonStyle(StudioButtonStyle(compact: true, circular: true))
                 .accessibilityLabel(presets.isFavorite(render.scene) ? "Unfavorite visualizer" : "Favorite visualizer")
                 .help(presets.isFavorite(render.scene) ? "Remove \(radio.sceneTitle) from Favorites" : "Add \(radio.sceneTitle) to Favorites")
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Visualizer").font(.caption2).foregroundStyle(.secondary)
+                    Text(radio.sceneTitle).font(.callout.weight(.medium))
+                        .lineLimit(1).truncationMode(.tail)
+                }
+                .help(radio.sceneTitle)
+                .accessibilityElement(children: .combine)
+
             }
             .frame(maxWidth: 320, alignment: .leading)
         }
@@ -349,8 +350,6 @@ struct RadioPlayerView: View {
             HStack(spacing: 16) {
                 VStack(alignment: .leading, spacing: 4) {
                     HStack(spacing: 8) {
-                        Text(radio.isLoading ? "Preparing next song…" : radio.currentTrack?.title ?? "Radio")
-                            .font(.title3.weight(.semibold)).lineLimit(1)
                         Button {
                             if let track = radio.currentTrack { radio.toggleFavoriteSong(track); revealControls() }
                         } label: {
@@ -360,6 +359,9 @@ struct RadioPlayerView: View {
                             .opacity(radio.currentTrack == nil ? 0 : 1)
                             .accessibilityLabel(radio.currentTrack.map(radio.isFavoriteSong) == true ? "Unfavorite song" : "Favorite song")
                             .help("Save or remove this song in Library → Favorite songs")
+                        Text(radio.isLoading ? "Preparing next song…" : radio.currentTrack?.title ?? "Radio")
+                            .font(.title3.weight(.semibold)).lineLimit(1)
+
                     }.frame(minHeight: 44)
                     Text(radio.isLoading || !audio.isPlaying ? radio.status : radio.currentTrack?.genre ?? "")
                         .font(.callout).foregroundStyle(.secondary).lineLimit(1).frame(height: 17)
@@ -374,7 +376,7 @@ struct RadioPlayerView: View {
             HStack(spacing: 18) {
                 Button { radio.togglePlayback() } label: {
                     Label(radio.isPlaybackRequested ? "Pause" : "Play", systemImage: radio.isPlaybackRequested ? "pause.fill" : "play.fill")
-                        .frame(width: 58)
+                        .frame(width: 68)
                 }.buttonStyle(StudioButtonStyle(treatment: .primary, compact: true))
                 Button { radio.next() } label: { Label("Skip", systemImage: "forward.end.fill") }
                     .buttonStyle(StudioButtonStyle(compact: true)).disabled(!radio.canStart)

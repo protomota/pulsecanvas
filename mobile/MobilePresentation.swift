@@ -22,7 +22,7 @@ struct MobilePresentation: View {
                     Spacer(minLength: 0)
                     Toggle("Fit", isOn: $fitAspect).toggleStyle(.button).accessibilityLabel("Fit project aspect ratio")
                     Button { if editor.selectedTab == 1 { radio.randomizeCurrentVisualizer() } else { editor.studio.randomizeScene(render) } } label: { Image(systemName: "shuffle") }.accessibilityLabel("Randomize")
-                    Button { if editor.selectedTab == 1 { if radio.isActive { radio.togglePlayback() } else { radio.start() } } else { audio.playPause() } } label: { Image(systemName: audio.isPlaying ? "pause.fill" : "play.fill") }
+                    Button { if editor.selectedTab == 1 { if radio.isActive { radio.togglePlayback() } else { radio.start() } } else { audio.playPause() } } label: { Image(systemName: audio.isPlaying ? "pause.fill" : "play.fill").frame(width: 30) }
                         .accessibilityLabel(audio.isPlaying ? "Pause" : "Play")
                 }.buttonStyle(MobileButton()).padding(12).background(.ultraThinMaterial)
             }

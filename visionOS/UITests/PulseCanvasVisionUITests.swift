@@ -94,7 +94,8 @@ final class PulseCanvasVisionUITests: XCTestCase {
         for heart in [visualHeart, songHeart] {
             XCTAssertLessThan(abs(heart.frame.width - heart.frame.height), 3, "Radio hearts must have circular button bounds")
         }
-        XCTAssertLessThan(visualHeart.frame.minX - name.frame.maxX, 32, "Keep the visualizer heart beside its title")
+        XCTAssertLessThan(visualHeart.frame.maxX, name.frame.minX, "Keep the visualizer heart before its title")
+        XCTAssertLessThan(songHeart.frame.maxX, songName.frame.minX, "Keep the song heart before its title")
         let station = app.descendants(matching: .any)["radioStationPicker"].firstMatch
         for item in [songHeart, station, app.buttons["nextRadioSongButton"], app.buttons["favoriteSongsLibraryButton"]] {
             XCTAssertLessThan(abs(item.frame.midY - songName.frame.midY), 4, "Song controls must occupy one horizontal row")

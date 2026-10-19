@@ -209,10 +209,11 @@ private struct MobilePreview: View {
                 .clipShape(RoundedRectangle(cornerRadius: 16)).accessibilityIdentifier("mobileVisualizerPreview")
             if let error = render.errorMessage { Text(error).foregroundStyle(.red).accessibilityIdentifier("mobileRenderError") }
             HStack(spacing: 8) {
-                Text(library.sceneNames[render.scene]).font(.headline).lineLimit(1).accessibilityIdentifier("mobileVisualizerName")
                 Button { library.toggleFavorite(render.scene, appearance: VisualPreset(render: render)) } label: {
-                    Image(systemName: library.isFavorite(render.scene) ? "heart.fill" : "heart")
+                    Image(systemName: library.isFavorite(render.scene) ? "heart.fill" : "heart").frame(width: 16)
                 }.accessibilityLabel("Favorite visualizer")
+                Text(library.sceneNames[render.scene]).font(.headline).lineLimit(1).accessibilityIdentifier("mobileVisualizerName")
+
                 Spacer(minLength: 0)
                 Button { editor.studio.randomizeScene(render); editor.saveSession() } label: { Image(systemName: "shuffle") }.accessibilityLabel("Random visualizer")
                 Button(action: style) { Image(systemName: "slider.horizontal.3") }.accessibilityLabel("Visual style")
@@ -231,7 +232,7 @@ struct MobileTransport: View {
         VStack(alignment: .leading, spacing: 8) {
             Text(audio.title).font(.subheadline.weight(.medium)).lineLimit(1)
             HStack(spacing: 12) {
-                Button { audio.playPause() } label: { Image(systemName: audio.isPlaying ? "pause.fill" : "play.fill") }
+                Button { audio.playPause() } label: { Image(systemName: audio.isPlaying ? "pause.fill" : "play.fill").frame(width: 30) }
                     .buttonStyle(MobileButton(prominent: true)).accessibilityLabel(audio.isPlaying ? "Pause" : "Play").accessibilityIdentifier("mobilePlaybackButton")
                 Text(Self.time(seconds)).monospacedDigit().font(.caption)
                 Slider(value: $fraction, in: 0...1, onEditingChanged: { editing in

@@ -131,7 +131,7 @@ struct StudioPresentationView: View {
                             .overlay(RoundedRectangle(cornerRadius: 11).strokeBorder(.white.opacity(0.13)))
                             .help("Fit the visualization to the project’s \(aspect.rawValue) aspect ratio, with black bars where needed.")
                         Button { audio.playPause(); revealControls() } label: {
-                            Label(audio.isPlaying ? "Pause" : "Play", systemImage: audio.isPlaying ? "pause.fill" : "play.fill")
+                            Label(audio.isPlaying ? "Pause" : "Play", systemImage: audio.isPlaying ? "pause.fill" : "play.fill").frame(width: 68)
                         }.accessibilityLabel(audio.isPlaying ? "Pause presentation" : "Play presentation")
                         Button { audio.seek(fraction: 0); audio.playFullSoundtrack(); revealControls() } label: {
                             Label("Restart", systemImage: "backward.end.fill")

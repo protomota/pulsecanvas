@@ -13,12 +13,12 @@ struct MobileRadio: View {
         ScrollView {
             VStack(spacing: 16) {
                 HStack {
-                    Text(radio.sceneTitle.isEmpty ? "Radio" : radio.sceneTitle).font(.headline).lineLimit(1)
                     if radio.isActive {
                         Button { library.toggleFavorite(radio.visualizer.scene, appearance: VisualPreset(render: radio.visualizer)) } label: {
-                            Image(systemName: library.isFavorite(radio.visualizer.scene) ? "heart.fill" : "heart")
+                            Image(systemName: library.isFavorite(radio.visualizer.scene) ? "heart.fill" : "heart").frame(width: 16)
                         }.accessibilityLabel("Favorite radio visualizer")
                     }
+                    Text(radio.sceneTitle.isEmpty ? "Radio" : radio.sceneTitle).font(.headline).lineLimit(1)
                     Spacer()
                     Button { radio.randomizeCurrentVisualizer() } label: { Image(systemName: "shuffle") }.disabled(!radio.canRandomizeVisualizer).accessibilityLabel("Random radio visualizer")
                     Button(action: present) { Image(systemName: "arrow.up.left.and.arrow.down.right") }.accessibilityLabel("Present radio")
@@ -26,10 +26,11 @@ struct MobileRadio: View {
                 VisualizerRandomizerPicker(fillsWidth: true)
                 VisualizerView(state: radio.visualizer).aspectRatio(16 / 9.0, contentMode: .fit).clipShape(RoundedRectangle(cornerRadius: 18))
                 HStack {
-                    Text(radio.currentTrack?.title ?? "PulseCanvas Radio").font(.headline).lineLimit(1)
                     if let track = radio.currentTrack {
-                        Button { radio.toggleFavoriteSong(track) } label: { Image(systemName: radio.isFavoriteSong(track) ? "heart.fill" : "heart") }.accessibilityLabel("Favorite song")
+                        Button { radio.toggleFavoriteSong(track) } label: { Image(systemName: radio.isFavoriteSong(track) ? "heart.fill" : "heart").frame(width: 16) }.accessibilityLabel("Favorite song")
                     }
+                    Text(radio.currentTrack?.title ?? "PulseCanvas Radio").font(.headline).lineLimit(1)
+
                     Spacer()
                     Button { favorites = true } label: { Image(systemName: "heart.text.clipboard") }.accessibilityLabel("Favorite songs")
                 }.buttonStyle(MobileButton())
@@ -81,7 +82,7 @@ private struct MobileRadioTransport: View {
         HStack(spacing: 10) {
             Button { if radio.isActive { radio.togglePlayback() } else { radio.start() } } label: {
                 Image(systemName: radio.isActive && radio.isPlaybackRequested ? "pause.fill" : "play.fill")
-                    .frame(width: 22)
+                    .frame(width: 30)
             }.buttonStyle(MobileButton(prominent: true))
                 .accessibilityLabel(radio.isActive && radio.isPlaybackRequested ? "Pause" : "Play")
                 .accessibilityIdentifier("radioPlaybackButton")

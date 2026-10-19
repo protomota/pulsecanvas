@@ -426,13 +426,14 @@ struct CreatorView: View {
 
     private var canvasHeader: some View {
         HStack {
-            Text(RenderState.sceneNames[render.scene]).font(.system(size: 18, weight: .medium)).lineLimit(1)
-            Spacer()
             Button { presetLibrary.toggleFavorite(render.scene, appearance: studio.preset(render)) } label: {
-                Label(presetLibrary.isFavorite(render.scene) ? "Favorited" : "Favorite", systemImage: presetLibrary.isFavorite(render.scene) ? "heart.fill" : "heart")
-            }.buttonStyle(StudioButtonStyle(treatment: presetLibrary.isFavorite(render.scene) ? .accent : .quiet, compact: true))
+                Image(systemName: presetLibrary.isFavorite(render.scene) ? "heart.fill" : "heart")
+            }.buttonStyle(StudioButtonStyle(treatment: presetLibrary.isFavorite(render.scene) ? .accent : .quiet, compact: true, circular: true))
                 .help(presetLibrary.isFavorite(render.scene) ? "Remove this visualizer from Favorites" : "Add this visualizer to Favorites")
                 .disabled(exporter.isExporting)
+                .accessibilityLabel(presetLibrary.isFavorite(render.scene) ? "Unfavorite visualizer" : "Favorite visualizer")
+            Text(RenderState.sceneNames[render.scene]).font(.system(size: 18, weight: .medium)).lineLimit(1)
+            Spacer()
             if !studio.isStudio {
                 Button { useAtPlayhead() } label: { Label("Use at playhead", systemImage: "timeline.selection") }
                     .buttonStyle(StudioButtonStyle(compact: true))
@@ -736,7 +737,7 @@ private struct SoundtrackControls: View {
             HStack(spacing: 14) {
                 Button { audio.playPause() } label: {
                     Image(systemName: audio.isPlaying ? "pause.fill" : "play.fill")
-                        .font(.system(size: 17, weight: .semibold)).frame(width: 22, height: 4)
+                        .font(.system(size: 17, weight: .semibold)).frame(width: 32, height: 4)
                 }.buttonStyle(StudioButtonStyle(treatment: .primary, compact: true))
                     .accessibilityLabel(audio.isPlaying ? "Pause soundtrack" : "Play soundtrack")
                     .help("Play or pause soundtrack (Space)").disabled(audio.selectedURL == nil)
