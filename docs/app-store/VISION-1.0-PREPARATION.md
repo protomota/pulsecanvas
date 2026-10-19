@@ -17,11 +17,11 @@ The Vision-specific 1.0 listing remains a draft. Its audit found an empty Englis
 
 Source projects live in `/Volumes/Music/Video/astra_video/videos/pulsecanvas-vision-appstore/`:
 
-- [Immersion](http://localhost:3031/#project/01-immersion): 17 seconds of actual curved-canvas visuals.
-- [Studio](http://localhost:3032/#project/02-studio): 24 seconds showing the current timeline, style controls, visualizer picker and export settings.
-- [Radio](http://localhost:3033/#project/03-radio): 24 seconds showing song hearts, the favorites browser and favorites-only playback.
+- [Immersion](http://localhost:3031/#project/01-immersion): 17 seconds entirely in native full immersion, with the room, Studio window and floating controls hidden.
+- [Studio](http://localhost:3032/#project/02-studio): 24 seconds showing the visualizer picker/export settings, followed by 12 seconds of actual full immersion.
+- [Radio](http://localhost:3033/#project/03-radio): 24 seconds showing song hearts and the favorites browser, followed by 14 seconds of actual Radio full immersion.
 
-All use actual native simulator footage, the existing selected Emma narration (voice ID `9HBoEQ8LqyvVZFYDodnr`) and music from the displayed songs. A shared narration bus drives spectral carving and ducking. The short corner title and closing label leave the app visible throughout. Originals are preserved.
+All use actual native simulator footage, the existing selected Emma narration (voice ID `9HBoEQ8LqyvVZFYDodnr`) and music from the displayed songs. A shared narration bus drives spectral carving and ducking. The short corner title and closing label leave the app visible throughout. Originals are preserved. A fresh 3840×2160 simulator recording supplies the immersive sequences; these are not enlarged editor previews. Two opt-in capture tests verified the floating controls were hidden before marking usable footage. Both suites passed with zero failures; the Xcode runner was stopped after post-suite cleanup stalled. No runtime app code or release version changed for this media revision.
 
 HyperFrames pins were updated from 0.8.157 to 0.8.174. All three final checks pass with zero lint, runtime, layout, motion or contrast findings. Frames at 2, 9 and 15 seconds and the live Radio preview were inspected. Animation maps were reviewed: native video supplies motion during intervals without authored opacity tweens. Checks and hashed media ledgers remain in the projects.
 

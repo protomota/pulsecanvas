@@ -242,6 +242,25 @@ final class PulseCanvasVisionUITests: XCTestCase {
         appStoreCaptureMark("radio-shuffle"); Thread.sleep(forTimeInterval: 6)
         app.buttons["randomizeStyleButton"].tap()
         appStoreCaptureMark("radio-style"); Thread.sleep(forTimeInterval: 8)
+        app.buttons["immersiveButton"].tap()
+        XCTAssertTrue(app.buttons["backToStudioButton"].waitForExistence(timeout: 60))
+        Thread.sleep(forTimeInterval: 6)
+        XCTAssertFalse(app.buttons["backToStudioButton"].exists, "Immersive controls must be hidden for the showcase")
+        appStoreCaptureMark("radio-immersive-clean")
+        Thread.sleep(forTimeInterval: 16)
+        appStoreCaptureMark("end")
+    }
+
+    @MainActor func testCaptureAppStoreImmersion() throws {
+        guard ProcessInfo.processInfo.environment["PULSECANVAS_CAPTURE_APPSTORE"] == "1" else {
+            throw XCTSkip("App Store capture runs only when requested")
+        }
+        let app = launch(["-PCOpenImmersive", "-PCHideRoom", "YES"])
+        XCTAssertTrue(app.buttons["backToStudioButton"].waitForExistence(timeout: 120))
+        Thread.sleep(forTimeInterval: 6)
+        XCTAssertFalse(app.buttons["backToStudioButton"].exists, "Immersive controls must be hidden for the showcase")
+        appStoreCaptureMark("immersive-clean")
+        Thread.sleep(forTimeInterval: 28)
         appStoreCaptureMark("end")
     }
 
