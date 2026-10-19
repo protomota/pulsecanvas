@@ -58,6 +58,25 @@ import Foundation
         padded.fitTimeline(duration: 10.05)
         precondition(padded.segments(duration: 10.05).last?.end == 10.05
             && StudioTimeline.valid(padded.segments(duration: 10.05), sceneCount: NativeEffects.all.count))
+        var randomBars = project
+        randomBars.barBoundaries = Array(stride(from: 0.0, through: 96.0, by: 2.0))
+        let originalIDs = randomBars.clips.map(\.id)
+        let originalScenes = randomBars.clips.map(\.scene)
+        let originalLooks = randomBars.looks
+        var choice = 0
+        precondition(randomBars.randomizeBars(duration: 96.05) { choice += 1; return (choice - 1) % 8 + 1 })
+        let randomizedCuts = randomBars.segments(duration: 96.05)
+        precondition(randomizedCuts.last?.end == 96.05 && StudioTimeline.valid(randomizedCuts, sceneCount: NativeEffects.all.count))
+        precondition(randomBars.clips.map(\.bars) == (0..<randomBars.clips.count).map { $0 % 8 + 1 })
+        precondition(Array(randomBars.clips.prefix(originalIDs.count)).map(\.id) == originalIDs
+                     && Array(randomBars.clips.prefix(originalScenes.count)).map(\.scene) == originalScenes)
+        precondition(Set(randomBars.clips.map(\.id)).count == randomBars.clips.count && randomBars.looks == originalLooks)
+        let beforeInvalidBars = randomBars.clips
+        precondition(!randomBars.randomizeBars(duration: 96.05, chooseLength: { 0 }) && randomBars.clips == beforeInvalidBars)
+        var largeSize = VisionLook(scene: scenes[0]); largeSize.size = 6
+        let restoredLargeSize = try JSONDecoder().decode(VisionLook.self, from: JSONEncoder().encode(largeSize))
+        precondition(largeSize.isValid && restoredLargeSize.size == 6)
+        print("PASS random bar lengths: every new card randomized, beat-grid coverage, decoder padding, IDs/order/looks retained, atomic invalid-input rejection and Mac size range")
         func rejects(_ mutate: (inout VisionProject) -> Void) {
             var invalid = project; mutate(&invalid)
             do { _ = try invalid.validated(); fatalError("Invalid project accepted") } catch {}

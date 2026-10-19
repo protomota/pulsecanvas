@@ -27,7 +27,7 @@ struct VisionLook: Codable, Equatable {
     var isValid: Bool {
         [zoom, speed, zoomSpeed, chaos, brightness, size, detail, fog, rotation, motionBlur, strobeSensitivity, strobeStrength].allSatisfy(\.isFinite)
             && (0.1...3).contains(zoom) && (0...3).contains(speed) && (0...3).contains(zoomSpeed) && (0...1).contains(chaos)
-            && (0.1...3).contains(brightness) && (0.1...3).contains(size)
+            && (0.1...3).contains(brightness) && (0.1...6).contains(size)
             && (0...1).contains(detail) && (0...1).contains(fog) && (0...4).contains(palette)
             && (0.25...4).contains(strobeSensitivity) && (0.1...1).contains(strobeStrength)
             && (1...12).contains(haloCount) && (0...1).contains(motionBlur)
@@ -164,6 +164,27 @@ struct VisionProject: Codable {
             result.append(clip); time = end
         }
         if time == duration { clips = result }
+    }
+    /// Rebuild every cut on the bar grid, retaining card identities and visualizer order where possible.
+    /// Work in a temporary array so an invalid length or capacity failure cannot leave a partial edit.
+    @discardableResult mutating func randomizeBars(duration: Double, chooseLength: () -> Int) -> Bool {
+        guard duration.isFinite, duration > 0, !clips.isEmpty else { return false }
+        let previous = clips
+        var result: [VisionClip] = [], cursor = 0, time = 0.0
+        while time < duration, result.count < 10_000 {
+            let index = result.count
+            let bars = chooseLength()
+            guard (1...8).contains(bars) else { return false }
+            var clip = index < previous.count ? previous[index] : VisionClip(scene: previous[index % previous.count].scene)
+            clip.bars = bars
+            cursor += bars
+            let end = sectionEnd(bar: cursor, start: time, bars: bars, duration: duration)
+            guard end > time else { return false }
+            result.append(clip); time = end
+        }
+        guard time == duration else { return false }
+        clips = result; importedTimeline = nil
+        return true
     }
     private func sectionEnd(bar: Int, start: Double, bars: Int, duration: Double) -> Double {
         // The audio player and analyzer can disagree slightly about decoder padding.

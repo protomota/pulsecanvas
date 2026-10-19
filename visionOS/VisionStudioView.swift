@@ -62,14 +62,18 @@ struct VisionStudioView: View {
             .toolbar {
                 ToolbarItemGroup(placement: .bottomOrnament) {
                     Button("Import audio", systemImage: "tray.and.arrow.down") { importAudio = true }.disabled(studio.loading || session.radioMode)
+                        .labelStyle(.titleAndIcon)
                         .accessibilityIdentifier("importAudioButton")
                     Button("Open project", systemImage: "folder") { importProject = true }.disabled(studio.loading || session.radioMode)
-                    Button("Save project", systemImage: "square.and.arrow.up") {
+                        .labelStyle(.titleAndIcon)
+                    Button("Save project", systemImage: "internaldrive") {
                         do {
                             projectData = try studio.project.portableData(duration: studio.transport.duration, scene: studio.selectedScene)
                             exportProject = true
                         } catch { studio.message = "Couldn't save project: \(error.localizedDescription)" }
                     }.disabled(session.radioMode || studio.loading || studio.needsSoundtrack)
+                        .labelStyle(.titleAndIcon)
+                        .accessibilityIdentifier("saveProjectButton")
                     Button("Export MP4", systemImage: "film") { exportVideo = true }
                         .disabled(studio.loading || session.radioMode)
                         .accessibilityIdentifier("exportMP4Button")
@@ -355,6 +359,10 @@ private struct VisionStyleControls: View {
     private var look: VisionLook {
         clipID.flatMap { studio.look(for: $0) } ?? studio.look
     }
+    private var scene: Int {
+        clipID.flatMap { id in studio.project.clips.first { $0.id == id }?.scene } ?? studio.selectedScene
+    }
+    private let columns = Array(repeating: GridItem(.flexible(), spacing: 24, alignment: .top), count: 3)
     private func value(_ key: WritableKeyPath<VisionLook, Float>) -> Binding<Float> {
         Binding(get: { look[keyPath: key] }, set: { value in studio.updateLook(for: clipID) { $0[keyPath: key] = value } })
     }
@@ -366,38 +374,56 @@ private struct VisionStyleControls: View {
                 }
                 Button("Reset") { studio.resetLook(for: clipID) }
             }
-            HStack(spacing: 24) {
-                control("Chaos", binding: value(\.chaos), range: 0...1)
-                control("Zoom speed", binding: value(\.zoomSpeed), range: 0...3)
-                control("Motion speed", binding: value(\.speed), range: 0...3)
-            }
-            VStack(alignment: .leading, spacing: 12) {
-                HStack(spacing: 12) {
-                    Label("Hi-hat strobe", systemImage: "bolt.fill")
-                    Toggle("Hi-hat strobe", isOn: Binding(get: { look.strobeEnabled }, set: { enabled in
-                        studio.updateLook(for: clipID) { $0.strobeEnabled = enabled }
-                    })).labelsHidden().toggleStyle(.switch).fixedSize()
-                }.frame(maxWidth: .infinity, alignment: .leading)
-                if look.strobeEnabled {
-                    HStack(spacing: 24) {
-                        control("Sensitivity", binding: value(\.strobeSensitivity), range: 0.25...4)
-                        control("Strength", binding: value(\.strobeStrength), range: 0.1...1)
+            ScrollView {
+                VStack(alignment: .leading, spacing: 16) {
+                    LazyVGrid(columns: columns, alignment: .leading, spacing: 16) {
+                        control("Chaos", binding: value(\.chaos), range: 0...1)
+                        control("Zoom speed", binding: value(\.zoomSpeed), range: 0...3)
+                        control("Motion speed", binding: value(\.speed), range: 0...3)
+                        control("Brightness", binding: value(\.brightness), range: 0.1...3)
+                        control(NativeEffects.effect(scene)?.sizeLabel ?? "Particle size", binding: value(\.size), range: 0.3...6)
+                        control("Depth / fog", binding: value(\.fog), range: 0...1)
+                        control("Camera zoom", binding: value(\.zoom), range: 0.3...2)
+                        control("Camera rotation", binding: value(\.rotation), range: -3.14...3.14)
+                        control("Blur", binding: value(\.motionBlur), range: 0...0.9)
+                        if let detail = NativeEffects.effect(scene)?.detailLabel {
+                            control(detail, binding: value(\.detail), range: 0...1)
+                        }
+                        if scene == 28 {
+                            control("Halo count", binding: Binding(get: { Float(look.haloCount) }, set: { count in
+                                studio.updateLook(for: clipID) { $0.haloCount = Int(count.rounded()) }
+                            }), range: 1...12, step: 1, digits: 0)
+                        }
                     }
-                }
-            }
-            if studio.immersiveActive && clipID == nil {
-                HStack(spacing: 24) {
-                    control("Screen distance", binding: $studio.screenDistance, range: 2...5)
-                    control("Screen height", binding: $studio.screenHeight, range: 0.8...2)
-                }
-            }
+                    VStack(alignment: .leading, spacing: 12) {
+                        HStack(spacing: 12) {
+                            Label("Hi-hat strobe", systemImage: "bolt.fill")
+                            Toggle("Hi-hat strobe", isOn: Binding(get: { look.strobeEnabled }, set: { enabled in
+                                studio.updateLook(for: clipID) { $0.strobeEnabled = enabled }
+                            })).labelsHidden().toggleStyle(.switch).fixedSize()
+                        }.frame(maxWidth: .infinity, alignment: .leading)
+                        if look.strobeEnabled {
+                            LazyVGrid(columns: columns, alignment: .leading, spacing: 16) {
+                                control("Sensitivity", binding: value(\.strobeSensitivity), range: 0.25...4)
+                                control("Strength", binding: value(\.strobeStrength), range: 0.1...1)
+                            }
+                        }
+                    }
+                    if studio.immersiveActive && clipID == nil {
+                        LazyVGrid(columns: columns, alignment: .leading, spacing: 16) {
+                            control("Screen distance", binding: $studio.screenDistance, range: 2...5)
+                            control("Screen height", binding: $studio.screenHeight, range: 0.8...2)
+                        }
+                    }
+                }.padding(.trailing, 10)
+            }.scrollIndicators(.visible).frame(maxHeight: 250)
         }
     }
-    private func control(_ title: String, binding: Binding<Float>, range: ClosedRange<Float>) -> some View {
-        VStack(alignment: .leading) {
-            HStack { Text(title); Spacer(); Text(binding.wrappedValue, format: .number.precision(.fractionLength(2))).monospacedDigit() }
+    private func control(_ title: String, binding: Binding<Float>, range: ClosedRange<Float>, step: Float = 0.01, digits: Int = 2) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack { Text(title); Spacer(); Text(binding.wrappedValue, format: .number.precision(.fractionLength(digits))).monospacedDigit() }
                 .font(.caption)
-            Slider(value: binding, in: range).accessibilityLabel(title)
+            Slider(value: binding, in: range, step: step).accessibilityLabel(title)
         }
     }
 }
@@ -405,12 +431,17 @@ private struct VisionStyleControls: View {
 private struct VisionTimelineView: View {
     @ObservedObject var studio: VisionStudio
     @State private var applying = false
+    @State private var randomizing = false
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
                 Label("Studio", systemImage: "rectangle.split.3x1").font(.headline)
                 Text("\(studio.project.clips.count) sections · \(Int(studio.project.bpm)) BPM").foregroundStyle(.secondary)
                 Spacer()
+                Button("Randomize timeline", systemImage: "shuffle") { randomizing = true }
+                    .buttonStyle(.borderedProminent)
+                    .accessibilityIdentifier("randomizeTimelineButton")
+                    .disabled(studio.loading || studio.needsSoundtrack || studio.transport.duration <= 0)
                 Button("Apply to all", systemImage: "slider.horizontal.3") { applying = true }
                     .disabled(studio.loading || studio.needsSoundtrack || studio.transport.duration <= 0)
             }
@@ -422,6 +453,47 @@ private struct VisionTimelineView: View {
                 }
             }.frame(height: 160)
         }.sheet(isPresented: $applying) { VisionApplySettings(studio: studio) { applying = false } }
+            .sheet(isPresented: $randomizing) { VisionRandomizeTimeline(studio: studio) { randomizing = false } }
+    }
+}
+
+private struct VisionRandomizeTimeline: View {
+    @ObservedObject var studio: VisionStudio
+    @ObservedObject private var library = ProjectMPresets.shared
+    let close: () -> Void
+    @State private var visualizers = true
+    @State private var barLengths = false
+    @State private var error: String?
+    var body: some View {
+        VStack(alignment: .leading, spacing: 22) {
+            Label("Randomize timeline", systemImage: "shuffle").font(.title2.bold())
+            Text("Choose what to replace across all \(studio.project.clips.count) Studio sections.")
+                .foregroundStyle(.secondary)
+            VStack(alignment: .leading, spacing: 16) {
+                Toggle("Visualizers", isOn: $visualizers).toggleStyle(.switch)
+                    .accessibilityIdentifier("randomizeTimelineVisualizers")
+                Text("Current group: \(library.poolSummary)").font(.callout).foregroundStyle(.secondary)
+                Toggle("Bar lengths", isOn: $barLengths).toggleStyle(.switch)
+                    .accessibilityIdentifier("randomizeTimelineBars")
+                Text("Choose 1–8 bars per section on the song’s beat grid. Tail sections may be trimmed or repeated to fit the song.")
+                    .font(.callout).foregroundStyle(.secondary)
+            }.padding(20).background(.white.opacity(0.05), in: RoundedRectangle(cornerRadius: 18))
+            Text(barLengths ? "Soundtrack and saved visual styles stay unchanged." : "Timing, soundtrack and saved visual styles stay unchanged.")
+                .font(.callout).foregroundStyle(.secondary)
+            if let error { Text(error).font(.callout).foregroundStyle(.orange) }
+            HStack {
+                Button("Cancel", role: .cancel, action: close)
+                Spacer()
+                Button("Randomize timeline", systemImage: "shuffle") {
+                    if studio.randomizeTimeline(visualizers: visualizers, barLengths: barLengths) { close() }
+                    else { error = "No changes were made. Choose a larger visualizer group or fewer sections, then try again." }
+                }.buttonStyle(.borderedProminent)
+                    .accessibilityIdentifier("confirmRandomizeTimelineButton")
+                    .disabled(studio.loading || (!visualizers && !barLengths) || (visualizers && library.eligibleScenes.isEmpty))
+            }
+        }.padding(28).frame(width: 640)
+            .accessibilityElement(children: .contain)
+            .accessibilityIdentifier("randomizeTimelineSheet")
     }
 }
 

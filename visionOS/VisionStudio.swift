@@ -210,6 +210,23 @@ private struct VisionAnalysis: @unchecked Sendable { let value: SoundtrackAnalyz
         assign(next, to: clipID ?? project.clips[selectedIndex].id)
         return true
     }
+    /// The Mac's scene dealer handles the shared category/favorites pool and repeat policy.
+    /// Commit both choices together; failures leave timing, selection and saved appearances intact.
+    @discardableResult func randomizeTimeline(visualizers: Bool = true, barLengths: Bool = false,
+        chooseLength: () -> Int = { Int.random(in: 1...8) }) -> Bool {
+        guard !loading, !needsSoundtrack, transport.duration > 0,
+              !project.clips.isEmpty, visualizers || barLengths else { return false }
+        var next = project
+        if barLengths, !next.randomizeBars(duration: transport.duration, chooseLength: chooseLength) { return false }
+        if visualizers {
+            guard let scenes = StudioTimeline.randomizedScenes(current: next.clips.map(\.scene),
+                favorites: [], available: library.eligibleScenes, allowRepeats: library.pool.enabled) else { return false }
+            for index in next.clips.indices { next.clips[index].scene = scenes[index] }
+        }
+        project = next
+        followTimingChange(); applyAppearance(); save()
+        return true
+    }
     func randomizeLook(for clipID: UUID? = nil) {
         updateLook(for: clipID) {
             $0.palette = VisualPalette.allCases.randomElement()?.rawValue ?? $0.palette

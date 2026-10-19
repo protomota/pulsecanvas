@@ -223,6 +223,52 @@ import Combine
         precondition(portable.look(for: incoming.clips[0].id)?.chaos == 0.37
             && portable.segments.map(\.end) == incoming.importedTimeline!.map(\.end))
         print("PASS portable project audio relocation: missing audio waits without demo substitution; locating the song preserves exact cuts, card IDs and looks")
+        presets.setRandomizerGroup(.all)
+        let importedEnds = portable.segments.map(\.end)
+        let importedIDs = portable.project.clips.map(\.id)
+        let importedLooks = portable.project.looks
+        precondition(portable.randomizeTimeline())
+        precondition(portable.segments.map(\.end) == importedEnds && portable.project.clips.map(\.id) == importedIDs
+                     && portable.project.looks == importedLooks && portable.project.importedTimeline != nil,
+                     "Visualizers-only randomization must preserve exact imported cuts, IDs and saved styles")
+        portable.updateLook { $0.size = 5.75; $0.rotation = 1.2; $0.motionBlur = 0.65; $0.fog = 0.2; $0.detail = 0.85; $0.haloCount = 10 }
+        precondition(portable.render.particleSize == 5.75 && portable.render.rotation == 1.2
+                     && portable.render.motionBlur == 0.65 && portable.render.fog == 0.2
+                     && portable.render.liquidDetail == 0.85 && portable.render.haloCount == 10)
+        let looksBeforeTimeline = portable.project.looks
+        let urlBeforeTimeline = portable.audioURL
+        portable.seek(8); portable.togglePlayback()
+        precondition(portable.randomizeTimeline(barLengths: true, chooseLength: { 2 }))
+        precondition(portable.transport.playing && abs(portable.transport.seconds - 8) < 0.1
+                     && portable.project.looks == looksBeforeTimeline && portable.audioURL == urlBeforeTimeline)
+        precondition(portable.project.importedTimeline == nil && portable.segments.last?.end == portable.transport.duration
+                     && portable.project.clips.allSatisfy { $0.bars == 2 }
+                     && Set(portable.project.clips.map(\.scene)).count == portable.project.clips.count)
+        portable.suspend()
+        let encoder = JSONEncoder(); encoder.outputFormatting = .sortedKeys
+        for scene in NativeEffects.activeIDs where presets.isFavorite(scene) { presets.toggleFavorite(scene) }
+        presets.setRandomizerGroup(.favorites)
+        let beforeEmptyPool = try encoder.encode(portable.project)
+        precondition(!portable.randomizeTimeline(barLengths: true, chooseLength: { 8 }))
+        let afterEmptyPool = try encoder.encode(portable.project)
+        precondition(afterEmptyPool == beforeEmptyPool, "Combined randomization failures must be atomic")
+        let orderedScenes = portable.project.clips.map(\.scene)
+        precondition(portable.randomizeTimeline(visualizers: false, barLengths: true, chooseLength: { 8 }))
+        precondition(zip(portable.project.clips.map(\.scene), orderedScenes).allSatisfy { $0.0 == $0.1 }
+                     && portable.project.looks == looksBeforeTimeline, "Bars-only must preserve visualizer order and shared looks")
+        presets.toggleFavorite(22)
+        precondition(portable.randomizeTimeline(barLengths: true, chooseLength: { 1 }))
+        precondition(portable.project.clips.allSatisfy { $0.scene == 22 && $0.bars == 1 }
+                     && portable.segments.last?.end == portable.transport.duration)
+        let afterSinglePool = try encoder.encode(portable.project)
+        precondition(!portable.randomizeTimeline(visualizers: false, barLengths: false))
+        precondition(!portable.randomizeTimeline(barLengths: true, chooseLength: { 9 }))
+        let afterRejectedInput = try encoder.encode(portable.project)
+        precondition(afterRejectedInput == afterSinglePool)
+        let autosavedTimeline = try JSONDecoder().decode(VisionProject.self,
+            from: Data(contentsOf: directory.appendingPathComponent("Portable/Studio-autosave.json")))
+        precondition(autosavedTimeline.clips == portable.project.clips && autosavedTimeline.looks == portable.project.looks)
+        print("PASS whole timeline: exact cuts, shared styles/render bindings, playback position, atomic failures, empty/single pools, bars-only order, full coverage and autosave")
         print("PASS loop boundary/restart, loop persistence, category/favorites cascade, empty/single pools and independent style dice")
         print("PASS Vision transport: actual soundtrack import/analysis, per-scene bars, shared appearance, add/move/remove, seek, playback clock/audio bands, pause and autosave restoration")
     }

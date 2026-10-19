@@ -88,6 +88,35 @@ final class PulseCanvasVisionUITests: XCTestCase {
         XCTAssertTrue(picker.waitForNonExistence(timeout: 10), "Choosing a random visualizer must dismiss the picker")
     }
 
+    @MainActor func testTimelineRandomizerAndFullSliderGrid() {
+        let app = launch()
+        waitForSoundtrack(app)
+        XCTAssertEqual(app.buttons["saveProjectButton"].label, "Save project")
+        let chaos = app.sliders["Chaos"], zoom = app.sliders["Zoom speed"], motion = app.sliders["Motion speed"]
+        XCTAssertTrue(chaos.exists && zoom.exists && motion.exists)
+        XCTAssertEqual(chaos.frame.midY, zoom.frame.midY, accuracy: 2)
+        XCTAssertEqual(zoom.frame.midY, motion.frame.midY, accuracy: 2)
+        XCTAssertLessThan(chaos.frame.midX, zoom.frame.midX)
+        XCTAssertLessThan(zoom.frame.midX, motion.frame.midX)
+        for label in ["Brightness", "Depth / fog", "Camera zoom", "Camera rotation", "Blur"] {
+            XCTAssertTrue(app.sliders[label].exists, "Missing slider: \(label)")
+        }
+        let before = app.staticTexts["selectedVisualizerName"].label
+        let button = app.buttons["randomizeTimelineButton"]
+        XCTAssertTrue(button.isHittable)
+        button.tap()
+        let sheet = app.otherElements["randomizeTimelineSheet"]
+        XCTAssertTrue(sheet.waitForExistence(timeout: 10))
+        sheet.buttons["Cancel"].tap()
+        XCTAssertTrue(sheet.waitForNonExistence(timeout: 10))
+        XCTAssertEqual(app.staticTexts["selectedVisualizerName"].label, before)
+        button.tap()
+        XCTAssertTrue(sheet.waitForExistence(timeout: 10))
+        app.buttons["confirmRandomizeTimelineButton"].tap()
+        XCTAssertTrue(sheet.waitForNonExistence(timeout: 10))
+        XCTAssertNotEqual(app.staticTexts["selectedVisualizerName"].label, before)
+    }
+
     @MainActor func testVisualizerLaunchHookChoosesTheFirstCard() {
         // Take a visualizer the app itself can use (from Random visualizer), then relaunch asking for it by name.
         let first = launch()

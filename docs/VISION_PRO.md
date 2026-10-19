@@ -13,6 +13,12 @@ no projectM engine, community presets/textures or Sparkle updater.
   together; its custom pool supports combined category/favorite choices.
 - **Random visualizer** replaces the selected section's visualizer without changing
   saved looks. The adjacent dice randomizes only that visualizer's style.
+- **Randomize timeline**, beside Apply to all, opens a confirmation sheet for the
+  entire Studio. Choose visualizers, 1–8 bar lengths, or both. Visualizer choices
+  follow the same category/favorites pool and repeat rules as Mac Studio. Timing
+  changes stay on the song's bar grid and fill the whole soundtrack. Saved visual
+  styles, soundtrack and current playback position remain intact. Cancel changes
+  nothing; a failed combined operation leaves the whole project unchanged.
 - Tap a timeline card's visualizer heading to open its popover: search the library,
   filter categories/favorites, choose an effect, or use **Surprise me** to choose
   randomly from the visible results. Choosing closes the picker and targets that
@@ -20,8 +26,13 @@ no projectM engine, community presets/textures or Sparkle updater.
   controls; saved visualizer looks stay unchanged.
   Set independent 1–64 bar lengths. Music analysis supplies the beat grid. The experimental add,
   remove and reorder buttons have been removed from the interface.
-- Edit palette, Chaos, zoom speed and motion speed. An effect shares its look
-  across scenes, as on the Mac; Reset restores its native defaults.
+- Edit palette and a three-column slider grid: Chaos, zoom speed, motion speed,
+  brightness, effect-specific size, depth/fog, camera zoom, camera rotation and
+  blur. Effects with a detail control show it under its native name; Halo Engine
+  also offers an integer Halo count slider. The scrollable controls keep the
+  preview and timeline accessible. An effect shares its look across scenes, as on
+  the Mac; Reset restores its native defaults. Size supports the Mac UI's full
+  range up to 6, including project import and autosave.
 - Play, pause, seek and adjust volume. **Loop soundtrack** defaults on, repeats the
   whole soundtrack and timeline, and saves with the project. Older projects default
   to looping without changing their saved sections or styles.
@@ -53,6 +64,8 @@ no projectM engine, community presets/textures or Sparkle updater.
   These edit the same shared visualizer settings as Apply to all and Mac projects.
 - Save/open Mac-compatible `.pulsecanvas` projects. Older `.pulsevision` backups
   still open. The app also autosaves locally.
+- Import audio, Open project and Save project show their names in the bottom
+  ornament. Save project uses a disk icon, rather than a share icon.
 - **Export MP4** renders the complete Studio soundtrack/timeline, with wide,
   landscape, portrait, phone or square framing, 720/1080/2160-pixel shorter edge and
   24/30/60 fps. A progress preview, frame counter and time estimate appear while
