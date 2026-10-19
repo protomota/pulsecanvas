@@ -13,7 +13,7 @@ The Vision-specific 1.0 listing remains a draft. Its audit found an empty Englis
 - `source/metadata-draft.json` contains the English description, promotion, keywords, URLs and reviewer instructions, including song favorites. It uses “hundreds” rather than exact effect counts, “completely free”, and “source available on GitHub” with the PulseCanvas repository. It does not claim an open-source license.
 - Private review-contact audit files remain local; do not publish the entire directory.
 
-## Three App Store preview drafts
+## Three rendered App Store preview masters
 
 Source projects live in `/Volumes/Music/Video/astra_video/videos/pulsecanvas-vision-appstore/`:
 
@@ -25,11 +25,23 @@ All use actual native simulator footage, the existing selected Emma narration (v
 
 HyperFrames pins were updated from 0.8.157 to 0.8.174. All three final checks pass with zero lint, runtime, layout, motion or contrast findings. Frames at 2, 9 and 15 seconds and the live Radio preview were inspected. Animation maps were reviewed: native video supplies motion during intervals without authored opacity tweens. Checks and hashed media ledgers remain in the projects.
 
-Final MP4 renders await the owner's preview approval, as required by the video workflow. No final-file codec, frame-rate, decode or audio-loudness validation is claimed yet.
+The owner approved all three final renders. The 3840×2160/30fps H.264/AAC masters are in the asset package’s `previews/` folder:
+
+| Film | Duration | Frames | Size (decimal MB) | Integrated loudness | True peak |
+| --- | --- | --- | --- | --- | --- |
+| Immersion | 17 s | 510 | 79.9 | -19.4 LUFS | -2.7 dBFS |
+| Studio | 24 s | 720 | 78.1 | -20.1 LUFS | -2.7 dBFS |
+| Radio and favorites | 24 s | 720 | 107.2 | -20.5 LUFS | -2.7 dBFS |
+
+All three fully decoded with no errors. Probes confirm constant 30fps, 3840×2160, yuv420p, BT.709 and stereo AAC at 48kHz. No black frames were detected. Decoded frames, including both sides of scene cuts, were inspected: immersive ranges fill the frame with the room/window/controls hidden. Studio’s two freeze-detector findings are its static picker/export settings, outside immersion. Logs, frame samples, hashes and complete probes are in `previews/qc/verification.json`. These are measurement and frame-review results, not a subjective audio listening or exact music-waveform-sync claim.
+
+The initial strict export failed safely on duplicate music automation: a legacy volume attribute hid the valid versioned carve lanes. The old fade points were merged into the version-1 envelope, retaining the spectral carve and ducking. All three checks then passed, and all three strict delivery renders completed using hardware GPU `drawelement` capture.
+
+No upload acceptance is claimed. Apple lists 3840×2160 for Vision Pro previews, while its generic encoding table specifies H.264 up to High 4.0, 10–12Mbps and AAC 256kbps. These quality masters use the valid 4K H.264 High 5.1 profile at approximately 26–37Mbps and AAC 192kbps. Confirm or conform submission encoding against App Store Connect before upload; do not relabel 4K video as Level 4.0. The approved edit and original masters remain preserved.
 
 ## Remaining before submission
 
-1. Approve the previews, render at 3840×2160/30fps, and verify decoded output, narration/music levels, no unintended black frames, duration and file size.
+1. Resolve final submission encoding/acceptance against Apple’s preview specifications; the approved 4K masters and output verification are complete.
 2. Apply verified copy to the Vision-specific listing, select build 1.0 (8), and upload approved screenshots/previews. Do not change the Mac review submission.
 3. Verify required motion information, privacy and age-rating declarations and reviewer fields against the actual app. Check export/save, targets, immersion comfort and sustained performance on a physical headset; simulator checks do not establish those results.
 4. Submit only when authorized. Keep the separate website draft and marketing films unpublished until the owner confirms the app is live and supplies the Vision Pro App Store URL.
