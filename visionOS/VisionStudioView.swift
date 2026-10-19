@@ -419,11 +419,14 @@ private struct VisionStyleControls: View {
             }.scrollIndicators(.visible).frame(maxHeight: 250)
         }
     }
-    private func control(_ title: String, binding: Binding<Float>, range: ClosedRange<Float>, step: Float = 0.01, digits: Int = 2) -> some View {
+    private func control(_ title: String, binding: Binding<Float>, range: ClosedRange<Float>, step: Float? = nil, digits: Int = 2) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack { Text(title); Spacer(); Text(binding.wrappedValue, format: .number.precision(.fractionLength(digits))).monospacedDigit() }
                 .font(.caption)
-            Slider(value: binding, in: range, step: step).accessibilityLabel(title)
+            Group {
+                if let step { Slider(value: binding, in: range, step: step) }
+                else { Slider(value: binding, in: range) }
+            }.accessibilityLabel(title)
         }
     }
 }
