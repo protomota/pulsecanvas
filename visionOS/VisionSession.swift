@@ -27,11 +27,24 @@ import Foundation
     let studio: VisionStudio
     @Published private(set) var stations: [RadioStation] = []
     @Published private(set) var stationID = "all-music"
+    @Published private(set) var favoriteSongs: [FavoriteRadioSong] = []
+    @Published private(set) var favoriteSongsOnly = false
     @Published private(set) var loading = false
     @Published private(set) var loadingStations = false
     @Published var error: String?
     private let source: URL
     private let library: RadioLibrary
+    private let defaults: UserDefaults
+    private let favoriteSongsKey = "PulseCanvas.radio.favoriteSongs.v1"
+    var musicGroupID: String { favoriteSongsOnly ? "favorite-songs" : stationID }
+    var playingTrack: RadioTrack? {
+        currentTrack.flatMap { index in catalog?.tracks.indices.contains(index) == true ? catalog?.tracks[index] : nil }
+    }
+    private var eligibleTrackIndices: [Int] {
+        guard let catalog else { return [] }
+        let favorites = Set(favoriteSongs.map(\.id))
+        return catalog.tracks.indices.filter { !favoriteSongsOnly || favorites.contains(catalog.tracks[$0].id) }
+    }
     private var catalog: RadioCatalog?
     private var catalogURL: URL?
     private var currentTrack: Int?
@@ -40,10 +53,17 @@ import Foundation
     private var wantsPlayback = false
 
     init(directory: URL? = nil, source: URL = URL(string: "https://radio.pulsecanvas.si/stations.json")!,
-         presets: ProjectMPresets? = nil) {
+         presets: ProjectMPresets? = nil, defaults: UserDefaults = .standard) {
         let root = directory ?? FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0]
             .appendingPathComponent("PulseCanvas/VisionRadio", isDirectory: true)
         self.source = source
+        self.defaults = defaults
+        if let data = defaults.data(forKey: favoriteSongsKey), data.count <= 8_000_000,
+           let saved = try? JSONDecoder().decode([FavoriteRadioSong].self, from: data), saved.count <= 2_000 {
+            var seen = Set<String>()
+            favoriteSongs = saved.filter { $0.sourceURL == source && $0.isValid && seen.insert($0.id).inserted }
+        }
+        favoriteSongsOnly = defaults.bool(forKey: "PulseCanvas.radio.favoriteSongsOnly.v1")
         library = RadioLibrary(directory: root.appendingPathComponent("Audio"))
         studio = VisionStudio(directory: root.appendingPathComponent("Session"), library: presets)
         studio.loopPlayback = false
@@ -74,12 +94,71 @@ import Foundation
         } catch { self.error = "Stations couldn't load. Check your connection and try again." }
     }
     func selectStation(_ id: String) {
+        if id == "favorite-songs" {
+            guard !loading else { return }
+            favoriteSongsOnly = true
+            defaults.set(true, forKey: "PulseCanvas.radio.favoriteSongsOnly.v1")
+            if let all = stations.first(where: { $0.id == "all-music" }) ?? (stations.count == 1 ? stations.first : nil) {
+                selectLoadedStation(all.id)
+            } else { error = "The full music library isn't available. Try refreshing stations." }
+            return
+        }
         guard !loading, stations.contains(where: { $0.id == id }) else { return }
+        favoriteSongsOnly = false
+        defaults.set(false, forKey: "PulseCanvas.radio.favoriteSongsOnly.v1")
+        selectLoadedStation(id)
+    }
+    private func selectLoadedStation(_ id: String) {
         if id != stationID { stationID = id; catalog = nil; catalogURL = nil; queue.reset(); currentTrack = nil }
+        queue.reset()
         nextSong()
     }
-    func nextSong() {
+    func isFavoriteSong(_ track: RadioTrack) -> Bool { favoriteSongs.contains { $0.id == track.id } }
+    func toggleFavoriteSong(_ track: RadioTrack) {
+        if let index = favoriteSongs.firstIndex(where: { $0.id == track.id }) {
+            favoriteSongs.remove(at: index)
+        } else if let catalogURL, catalog?.tracks.contains(where: { $0.id == track.id }) == true,
+                  favoriteSongs.count < 2_000 {
+            let song = FavoriteRadioSong(track: track, sourceURL: source, catalogURL: catalogURL,
+                stationID: stationID, folderBookmark: nil)
+            guard song.isValid else { return }
+            favoriteSongs.append(song)
+        }
+        persistFavorites()
+        if favoriteSongsOnly && favoriteSongs.isEmpty { suspend() }
+    }
+    private func persistFavorites() {
+        if let data = try? JSONEncoder().encode(favoriteSongs) { defaults.set(data, forKey: favoriteSongsKey) }
+        queue.reset()
+    }
+    /// Only the full, successfully loaded catalog can establish that a saved song was removed.
+    private func reconcileFavorites(_ complete: RadioCatalog, url: URL, stationID: String) {
+        let tracks = Dictionary(uniqueKeysWithValues: complete.tracks.map { ($0.id, $0) })
+        let retained = favoriteSongs.compactMap { song -> FavoriteRadioSong? in
+            guard let track = tracks[song.id] else { return nil }
+            return FavoriteRadioSong(track: track, sourceURL: source, catalogURL: url,
+                stationID: stationID, folderBookmark: nil)
+        }
+        if retained != favoriteSongs { favoriteSongs = retained; persistFavorites() }
+    }
+    func refreshFavoriteSongs() async {
+        guard let complete = try? await library.completeCatalog(at: source), !Task.isCancelled else { return }
+        reconcileFavorites(complete.catalog, url: complete.url, stationID: complete.stationID)
+        if favoriteSongsOnly && favoriteSongs.isEmpty { suspend() }
+    }
+    func playFavoriteSong(_ song: FavoriteRadioSong) {
+        guard !loading, favoriteSongs.contains(where: { $0.id == song.id }) else { return }
+        favoriteSongsOnly = true
+        defaults.set(true, forKey: "PulseCanvas.radio.favoriteSongsOnly.v1")
+        // Refresh the full catalog before selecting the saved identity.
+        stationID = "all-music"; catalog = nil; catalogURL = nil; currentTrack = nil; queue.reset()
+        nextSong(preferredTrackID: song.id)
+    }
+    func nextSong(preferredTrackID: String? = nil) {
         guard !loading else { return }
+        if favoriteSongsOnly && favoriteSongs.isEmpty {
+            suspend(); error = "No favorite songs yet. Tap a song's heart in Radio to save it."; return
+        }
         loading = true; wantsPlayback = true; error = nil
         studio.suspend()
         task = Task { [weak self] in
@@ -88,14 +167,27 @@ import Foundation
             do {
                 if self.stations.isEmpty { await self.refreshStations() }
                 try Task.checkCancellation()
-                guard let station = self.stations.first(where: { $0.id == self.stationID }) else { throw RadioError.invalidCatalog }
+                let selectedID = self.favoriteSongsOnly ? "all-music" : self.stationID
+                guard let station = self.stations.first(where: { $0.id == selectedID })
+                    ?? (self.stations.count == 1 ? self.stations.first : nil) else { throw RadioError.invalidCatalog }
+                self.stationID = station.id
                 if self.catalog == nil {
                     let url = try station.resolvedURL(relativeTo: self.source)
                     self.catalog = try await self.library.catalog(at: url); self.catalogURL = url
                     self.queue.reset(); self.currentTrack = nil
+                    if station.id == "all-music" || self.stations.count == 1, let catalog = self.catalog {
+                        self.reconcileFavorites(catalog, url: url, stationID: station.id)
+                    }
                 }
-                guard let catalog = self.catalog, let url = self.catalogURL,
-                      let next = self.queue.next(count: catalog.tracks.count, current: self.currentTrack, shuffle: true) else {
+                let choices = self.eligibleTrackIndices
+                guard let catalog = self.catalog, let url = self.catalogURL else { throw RadioError.invalidCatalog }
+                let preferred = preferredTrackID.flatMap { id in choices.first(where: { catalog.tracks[$0].id == id }) }
+                if preferredTrackID != nil && preferred == nil {
+                    self.error = "This song is no longer available in Radio."; return
+                }
+                guard let next = preferred ?? self.queue.next(count: choices.count,
+                    current: self.currentTrack.flatMap { choices.firstIndex(of: $0) }, shuffle: true).map({ choices[$0] }) else {
+                    if self.favoriteSongsOnly { self.error = "No favorite songs are available. Save a song from another station first."; return }
                     throw RadioError.allUnavailable
                 }
                 let track = catalog.tracks[next]
@@ -112,6 +204,7 @@ import Foundation
     }
     func togglePlayback() {
         guard !loading else { return }
+        if favoriteSongsOnly && (playingTrack.map { !isFavoriteSong($0) } ?? true) { nextSong(); return }
         guard currentTrack != nil else { nextSong(); return }
         wantsPlayback = !studio.transport.playing
         studio.togglePlayback()

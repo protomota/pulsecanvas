@@ -64,7 +64,8 @@ extension VisionSession {
     /// The app's session: normal storage, or fresh isolated storage under `-PCUITesting`.
     static func forLaunch(_ launch: VisionLaunchOptions = .current) -> VisionSession {
         guard launch.uiTesting else { return VisionSession() }
+        let defaults = UserDefaults(suiteName: "PulseCanvasUITesting-\(ProcessInfo.processInfo.processIdentifier)")!
         return VisionSession(editor: VisionStudio(directory: VisionLaunchOptions.isolatedDirectory("Studio")),
-                             radio: VisionRadio(directory: VisionLaunchOptions.isolatedDirectory("Radio")))
+                             radio: VisionRadio(directory: VisionLaunchOptions.isolatedDirectory("Radio"), defaults: defaults))
     }
 }

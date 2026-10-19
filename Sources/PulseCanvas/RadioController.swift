@@ -141,18 +141,21 @@ final class RadioController: ObservableObject {
         rebuildVisuals(keepingCurrent: true)
     }
 
-    func selectMusicGroup(_ id: String) {
+    func selectMusicGroup(_ id: String, startPlayback: Bool = false) {
         let favorites = id == "favorite-songs"
         favoriteSongsOnly = favorites
         defaults.set(favorites, forKey: "PulseCanvas.radio.favoriteSongsOnly.v1")
         queue.reset(); discardPrefetch()
         let station = favorites ? "all-music" : id
         defaults.set(station, forKey: "PulseCanvas.radio.station")
-        selectStation(station)
+        selectStation(station, startPlayback: startPlayback)
+        if startPlayback, !isCatalogLoading { start() }
         if isActive, !isCatalogLoading, let currentIndex, let catalog, let catalogURL {
             prepareNextTrack(after: currentIndex, catalog: catalog, catalogURL: catalogURL)
         }
     }
+
+    func playFavoriteStation() { selectMusicGroup("favorite-songs", startPlayback: true) }
 
     func attach(audio: AudioController) { self.audio = audio }
     /// Preserve the requested transport state through a temporary download/decode pause.
@@ -276,10 +279,10 @@ final class RadioController: ObservableObject {
         }
     }
 
-    func selectStation(_ id: String) {
+    func selectStation(_ id: String, startPlayback: Bool = false) {
         guard id != stationID, let station = stations.first(where: { $0.id == id }), let directoryURL,
               let url = try? station.resolvedURL(relativeTo: directoryURL) else { return }
-        let resume = isActive
+        let resume = isActive || startPlayback
         leave(); revision = UUID(); let token = revision
         isCatalogLoading = true; status = "Loading \(station.title)…"
         task = Task { [weak self, library] in

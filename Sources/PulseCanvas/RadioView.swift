@@ -45,7 +45,7 @@ struct RadioLibraryView: View {
                     .accessibilityElement(children: .combine)
             } else {
             HStack {
-                Text(radio.stationTitle).font(.headline)
+                Text(radio.favoriteSongsOnly ? "Favorite songs" : radio.stationTitle).font(.headline)
                 Spacer()
                 Button {
                     if radio.isActive { radio.next() } else { radio.start() }
@@ -140,6 +140,12 @@ struct FavoriteSongsView: View {
                 Text("\(radio.favoriteSongs.count) \(radio.favoriteSongs.count == 1 ? "song" : "songs")")
                     .font(.caption).foregroundStyle(.secondary)
             }
+            Button {
+                radio.playFavoriteStation()
+            } label: {
+                Label("Play favorite songs", systemImage: "shuffle")
+            }.buttonStyle(StudioButtonStyle(treatment: .primary))
+                .disabled(radio.favoriteSongs.isEmpty || radio.isCatalogLoading || radio.isLoading)
             Text("Choose a song to open Radio and start listening.").font(.callout).foregroundStyle(.secondary)
             if radio.favoriteSongs.isEmpty {
                 ContentUnavailableView("No favorite songs yet", systemImage: "heart",

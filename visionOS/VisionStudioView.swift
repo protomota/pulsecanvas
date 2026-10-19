@@ -202,14 +202,17 @@ struct VisionStudioView: View {
 
 private struct VisionRadioControls: View {
     @ObservedObject var radio: VisionRadio
+    @State private var showFavorites = false
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             if radio.loadingStations {
                 ProgressView("Loading stations…").frame(maxWidth: .infinity, minHeight: 48)
             } else {
-                Picker("Station", selection: Binding(get: { radio.stationID }, set: { radio.selectStation($0) })) {
+                Picker("Station", selection: Binding(get: { radio.musicGroupID }, set: { radio.selectStation($0) })) {
                     ForEach(radio.stations) { Text($0.title).tag($0.id) }
+                    Text("Favorite songs").tag("favorite-songs")
                 }.pickerStyle(.menu).disabled(radio.stations.isEmpty || radio.loading)
+                    .accessibilityIdentifier("radioStationPicker")
                 HStack {
                     Button { if !radio.studio.transport.playing { radio.togglePlayback() } } label: {
                         HStack(alignment: .center, spacing: 10) {
@@ -220,6 +223,9 @@ private struct VisionRadioControls: View {
                     Button("Next song", systemImage: "forward.end.fill") { radio.nextSong() }
                         .labelStyle(.iconOnly)
                 }.disabled(radio.loading || radio.stations.isEmpty)
+                Button("Favorite songs", systemImage: "heart.fill") { showFavorites = true }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .accessibilityIdentifier("favoriteSongsLibraryButton")
             }
             if radio.loading { ProgressView("Preparing music…") }
             if let error = radio.error {
@@ -228,6 +234,74 @@ private struct VisionRadioControls: View {
             }
         }.padding(12).frame(maxWidth: .infinity, alignment: .leading)
             .background(.white.opacity(0.05), in: RoundedRectangle(cornerRadius: 16))
+            .sheet(isPresented: $showFavorites) { VisionFavoriteSongsView(radio: radio) }
+    }
+}
+
+private struct VisionFavoriteSongsView: View {
+    @ObservedObject var radio: VisionRadio
+    @Environment(\.dismiss) private var dismiss
+    var body: some View {
+        VStack(alignment: .leading, spacing: 20) {
+            HStack {
+                Label("Favorite songs", systemImage: "heart.fill").font(.title2.bold())
+                Spacer()
+                Button("Done") { dismiss() }
+            }
+            Button("Play favorite songs", systemImage: "shuffle") {
+                radio.selectStation("favorite-songs"); dismiss()
+            }.buttonStyle(.borderedProminent)
+                .disabled(radio.favoriteSongs.isEmpty || radio.loading || radio.stations.isEmpty)
+                .accessibilityIdentifier("playFavoriteSongsButton")
+            if radio.favoriteSongs.isEmpty {
+                ContentUnavailableView("No favorite songs yet", systemImage: "heart",
+                    description: Text("Tap the heart beside a song's title in Radio to save it here."))
+            } else {
+                ScrollView {
+                    LazyVStack(spacing: 8) {
+                        ForEach(radio.favoriteSongs.sorted { $0.track.title.localizedStandardCompare($1.track.title) == .orderedAscending }) { song in
+                            HStack {
+                                Button {
+                                    radio.playFavoriteSong(song); dismiss()
+                                } label: {
+                                    HStack(spacing: 12) {
+                                        Image(systemName: "play.circle.fill").font(.title2)
+                                        VStack(alignment: .leading, spacing: 4) {
+                                            Text(song.track.title).font(.headline).lineLimit(1)
+                                            Text(song.track.genre).font(.caption).foregroundStyle(.secondary)
+                                        }
+                                        Spacer()
+                                    }.frame(maxWidth: .infinity, minHeight: 44).contentShape(Rectangle())
+                                }.buttonStyle(.plain).disabled(radio.loading)
+                                    .accessibilityLabel("Play \(song.track.title)")
+                                Button { radio.toggleFavoriteSong(song.track) } label: {
+                                    Image(systemName: "heart.fill").frame(width: 44, height: 44)
+                                }.accessibilityLabel("Unfavorite song \(song.track.title)")
+                            }.padding(12).background(.white.opacity(0.05), in: RoundedRectangle(cornerRadius: 16))
+                        }
+                    }
+                }
+            }
+        }.padding(28).frame(width: 620, height: 540)
+            .task { await radio.refreshFavoriteSongs() }
+    }
+}
+
+/// Observe song favorites directly so the heart updates in both the window and immersive controls.
+struct VisionRadioSongTitle: View {
+    @ObservedObject var radio: VisionRadio
+    var body: some View {
+        HStack(spacing: 12) {
+            Text(radio.playingTrack?.title ?? "Radio").font(.headline).lineLimit(1)
+            if let track = radio.playingTrack {
+                Button { radio.toggleFavoriteSong(track) } label: {
+                    Image(systemName: radio.isFavoriteSong(track) ? "heart.fill" : "heart")
+                        .frame(width: 32, height: 32)
+                }.disabled(radio.loading)
+                    .accessibilityLabel(radio.isFavoriteSong(track) ? "Unfavorite song" : "Favorite song")
+                    .accessibilityIdentifier("favoriteRadioSongButton")
+            }
+        }.frame(maxWidth: .infinity, alignment: .leading)
     }
 }
 
@@ -302,8 +376,10 @@ private struct VisionTransportView: View {
     var radio: VisionRadio?
     var body: some View {
         VStack(spacing: 8) {
-          Text(studio.project.audioTitle).font(.headline).lineLimit(1)
+          if let radio { VisionRadioSongTitle(radio: radio) }
+          else { Text(studio.project.audioTitle).font(.headline).lineLimit(1)
               .frame(maxWidth: .infinity, alignment: .leading)
+          }
           HStack(spacing: 16) {
             if let radio {
                 VisionRadioPlaybackButton(radio: radio, transport: transport)

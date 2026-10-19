@@ -298,6 +298,19 @@ import Foundation
         radio.leave()
         print("PASS music dropdown: explicit favorites-only queue, empty favorites, All restores every song")
 
+        radio.playFavoriteStation()
+        try await wait("play favorites directly from library") { radio.isActive && !radio.isLoading && radio.currentIndex == 0 }
+        precondition(radio.favoriteSongsOnly && audio.isPlaying)
+        radio.leave()
+        radio.selectStation("future-genre")
+        try await wait("genre before direct favorites playback") { !radio.isCatalogLoading && radio.stationID == "future-genre" }
+        radio.playFavoriteStation()
+        try await wait("play favorites from another station") { radio.isActive && !radio.isLoading && radio.currentTrack?.id == tracks[0].id }
+        precondition(radio.favoriteSongsOnly && radio.stationID == "all-music" && audio.isPlaying)
+        radio.leave()
+        radio.selectMusicGroup("all-music")
+        print("PASS direct Play favorite songs: starts from Library with the full favorites station, including when switching from a genre")
+
         radio.playFavoriteSong(savedSong)
         try await wait("favorite from another station") { radio.isActive && !radio.isLoading && radio.currentTrack?.id == tracks[0].id }
         precondition(audio.isPlaying && radio.stationID == "all-music", "Selecting a saved song must switch station and play that exact song")

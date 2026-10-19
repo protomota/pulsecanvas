@@ -152,7 +152,7 @@ import Combine
         let soundtrack = try Data(contentsOf: URL(fileURLWithPath: "Sources/PulseCanvas/Resources/Audio/PulseCanvas.mp3"))
         try soundtrack.write(to: fixtures.appendingPathComponent("song.mp3"))
         let hash = SHA256.hash(data: soundtrack).map { String(format: "%02x", $0) }.joined()
-        let tracks = (1...2).map { i in RadioTrack(id: UUID().uuidString, title: "Fixture song \(i)", genre: "Electronic",
+        let tracks = (1...3).map { i in RadioTrack(id: UUID().uuidString, title: "Fixture song \(i)", genre: "Electronic",
             duration: 60, audio: "song.mp3", sha256: hash, byteCount: soundtrack.count) }
         try JSONEncoder().encode(RadioCatalog(version: 1, title: "Test music", tracks: tracks))
             .write(to: fixtures.appendingPathComponent("catalog.json"))
@@ -160,7 +160,7 @@ import Combine
             RadioStation(id: "all-music", title: "All Music", description: "Fixture", catalog: "catalog.json")]))
             .write(to: fixtures.appendingPathComponent("stations.json"))
         let radio = VisionRadio(directory: directory.appendingPathComponent("RadioCache"),
-            source: fixtures.appendingPathComponent("stations.json"), presets: presets)
+            source: fixtures.appendingPathComponent("stations.json"), presets: presets, defaults: defaults)
         presets.setRandomizerGroup(.category(category))
         radio.studio.volume = 0
         let session = VisionSession(editor: restored, radio: radio)
@@ -194,7 +194,7 @@ import Combine
                      "Radio must never overwrite the user's Studio session")
         print("PASS Vision Radio: station JSON, verified audio, autoplay next track, mode switching and independent Studio storage")
         let loadingRadio = VisionRadio(directory: directory.appendingPathComponent("LoadingRadioCache"),
-            source: fixtures.appendingPathComponent("stations.json"), presets: presets)
+            source: fixtures.appendingPathComponent("stations.json"), presets: presets, defaults: defaults)
         loadingRadio.studio.volume = 0
         // Request Play as soon as the UI observes loading, before the directory can finish.
         let startOnLoading = loadingRadio.$loadingStations.filter { $0 }.prefix(1).sink { _ in
@@ -208,6 +208,69 @@ import Combine
                      "Play must await the in-flight station directory and start a track")
         loadingRadio.suspend()
         print("PASS Radio first Play: cold start, repeated taps, pause/resume and Play during initial station loading")
+        let currentSong = radio.playingTrack!
+        radio.toggleFavoriteSong(currentSong)
+        precondition(radio.isFavoriteSong(currentSong) && radio.favoriteSongs.count == 1)
+        let reopenedRadio = VisionRadio(directory: directory.appendingPathComponent("ReopenedRadio"),
+            source: fixtures.appendingPathComponent("stations.json"), presets: presets, defaults: defaults)
+        precondition(reopenedRadio.isFavoriteSong(currentSong), "Song hearts must survive a new Radio instance")
+        radio.selectStation("favorite-songs"); await radio.waitForTrack()
+        precondition(radio.error == nil && radio.favoriteSongsOnly && radio.playingTrack == currentSong)
+        radio.nextSong(); await radio.waitForTrack()
+        precondition(radio.playingTrack == currentSong && radio.studio.transport.playing,
+                     "One favorite must form a favorites-only station, without falling back to other music")
+        let secondFavorite = tracks.first { $0.id != currentSong.id }!
+        radio.toggleFavoriteSong(secondFavorite)
+        for _ in 0..<4 {
+            let previous = radio.playingTrack
+            radio.nextSong(); await radio.waitForTrack()
+            precondition(radio.playingTrack != previous && radio.playingTrack.map(radio.isFavoriteSong) == true)
+        }
+        let favoritesReopened = VisionRadio(directory: directory.appendingPathComponent("FavoritesReopenedRadio"),
+            source: fixtures.appendingPathComponent("stations.json"), presets: presets, defaults: defaults)
+        precondition(favoritesReopened.favoriteSongsOnly && favoritesReopened.favoriteSongs.count == 2)
+        let genreTrack = tracks.first { $0.id != currentSong.id && $0.id != secondFavorite.id }!
+        try JSONEncoder().encode(RadioCatalog(version: 1, title: "Genre", tracks: [genreTrack]))
+            .write(to: fixtures.appendingPathComponent("genre.json"))
+        try JSONEncoder().encode(RadioStationDirectory(version: 1, stations: [
+            RadioStation(id: "all-music", title: "All Music", description: "Fixture", catalog: "catalog.json"),
+            RadioStation(id: "genre", title: "Genre", description: "Subset", catalog: "genre.json")]))
+            .write(to: fixtures.appendingPathComponent("stations.json"))
+        await radio.refreshStations()
+        radio.selectStation("genre"); await radio.waitForTrack()
+        precondition(radio.playingTrack == genreTrack && radio.favoriteSongs.count == 2,
+                     "A genre subset must not remove saved songs from other stations")
+        radio.playFavoriteSong(radio.favoriteSongs.first { $0.id == currentSong.id }!); await radio.waitForTrack()
+        precondition(radio.playingTrack == currentSong, "Selecting a saved song must play that exact song")
+        radio.toggleFavoriteSong(currentSong); radio.toggleFavoriteSong(secondFavorite)
+        radio.togglePlayback(); await radio.waitForTrack()
+        precondition(!radio.studio.transport.playing && radio.error != nil && radio.favoriteSongs.isEmpty,
+                     "Empty favorites must pause, explain what to do, and never fall back to all songs")
+        radio.selectStation("all-music"); await radio.waitForTrack()
+        precondition(radio.error == nil && !radio.favoriteSongsOnly && radio.studio.transport.playing)
+        radio.toggleFavoriteSong(currentSong); radio.suspend()
+        let catalogPath = fixtures.appendingPathComponent("catalog.json")
+        let originalCatalog = try Data(contentsOf: catalogPath)
+        try Data("invalid".utf8).write(to: catalogPath)
+        await radio.refreshFavoriteSongs()
+        precondition(radio.isFavoriteSong(currentSong), "Offline or invalid catalogs must not erase favorites")
+        let removedSong = radio.favoriteSongs.first!
+        radio.toggleFavoriteSong(secondFavorite)
+        try JSONEncoder().encode(RadioCatalog(version: 1, title: "Retired song", tracks: tracks.filter { $0.id != currentSong.id }))
+            .write(to: catalogPath)
+        radio.playFavoriteSong(removedSong); await radio.waitForTrack()
+        precondition(radio.error != nil && !radio.studio.transport.playing && !radio.isFavoriteSong(currentSong),
+                     "A retired saved song must be pruned and reported instead of playing a different song")
+        radio.toggleFavoriteSong(secondFavorite)
+        try JSONEncoder().encode(RadioCatalog(version: 1, title: "Removed song", tracks: tracks.filter { $0.id != currentSong.id }))
+            .write(to: catalogPath)
+        await radio.refreshFavoriteSongs()
+        precondition(radio.favoriteSongs.isEmpty)
+        let prunedRadio = VisionRadio(directory: directory.appendingPathComponent("PrunedRadio"),
+            source: fixtures.appendingPathComponent("stations.json"), presets: presets, defaults: defaults)
+        precondition(prunedRadio.favoriteSongs.isEmpty, "Removed songs must stay removed after reopening")
+        try originalCatalog.write(to: catalogPath)
+        print("PASS Vision song favorites: persisted hearts, one/multiple/empty favorites stations, exact song playback, All restore, failed refresh retention and removed-song pruning")
         let portable = VisionStudio(directory: directory.appendingPathComponent("Portable"), library: presets)
         portable.volume = 0
         var incoming = VisionProject()

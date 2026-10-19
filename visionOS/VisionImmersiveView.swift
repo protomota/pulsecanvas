@@ -164,7 +164,8 @@ private struct VisionImmersiveControls: View {
         VStack(spacing: 12) {
             if let message = studio.message { Text(message).font(.callout).foregroundStyle(.orange) }
             Text(NativeEffects.names[studio.selectedScene]).font(.headline)
-            Text(studio.project.audioTitle).font(.caption).foregroundStyle(.secondary).lineLimit(1)
+            if session.radioMode { VisionRadioSongTitle(radio: session.radio) }
+            else { Text(studio.project.audioTitle).font(.caption).foregroundStyle(.secondary).lineLimit(1) }
             HStack {
                 VisionImmersivePlayback(studio: studio, transport: studio.transport, session: session)
                 Button("Random visualizer", systemImage: "shuffle") { studio.randomizeVisualizer() }

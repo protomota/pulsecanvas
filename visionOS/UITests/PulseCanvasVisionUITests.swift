@@ -72,6 +72,35 @@ final class PulseCanvasVisionUITests: XCTestCase {
         XCTAssertTrue(waitForLabel(play, "Play Radio"), "Radio did not pause")
     }
 
+    @MainActor func testRadioSongFavoritesAndStation() {
+        let app = launch(["-PCRadio"])
+        let play = app.buttons["playPauseButton"]
+        XCTAssertTrue(play.waitForExistence(timeout: 90))
+        XCTAssertTrue(waitForLabel(play, "Play Radio", timeout: 90))
+        play.tap()
+        XCTAssertTrue(waitForLabel(play, "Pause Radio", timeout: 120))
+        let heart = app.buttons["favoriteRadioSongButton"]
+        XCTAssertTrue(heart.waitForExistence(timeout: 10))
+        XCTAssertEqual(heart.label, "Favorite song")
+        heart.tap()
+        XCTAssertTrue(waitForLabel(heart, "Unfavorite song"))
+        app.buttons["favoriteSongsLibraryButton"].tap()
+        let favoritesPlay = app.buttons["playFavoriteSongsButton"]
+        XCTAssertTrue(favoritesPlay.waitForExistence(timeout: 10) && favoritesPlay.isEnabled)
+        favoritesPlay.tap()
+        XCTAssertTrue(favoritesPlay.waitForNonExistence(timeout: 10))
+        XCTAssertTrue(waitForLabel(play, "Pause Radio", timeout: 120))
+        XCTAssertTrue(waitForLabel(heart, "Unfavorite song"))
+        app.buttons["favoriteSongsLibraryButton"].tap()
+        let remove = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Unfavorite song ")).firstMatch
+        XCTAssertTrue(remove.waitForExistence(timeout: 10))
+        remove.tap()
+        XCTAssertTrue(app.staticTexts["No favorite songs yet"].waitForExistence(timeout: 10))
+        XCTAssertFalse(app.buttons["playFavoriteSongsButton"].isEnabled)
+        app.buttons["Done"].tap()
+        XCTAssertTrue(waitForLabel(play, "Play Radio"), "Removing the last favorite must stop the favorites station")
+    }
+
     @MainActor func testClipPickerOnlyOffersSelectionAndSurprise() {
         let app = launch()
         waitForSoundtrack(app)
@@ -154,6 +183,67 @@ final class PulseCanvasVisionUITests: XCTestCase {
     }
 
     // MARK: - Recorded demo (opt-in)
+
+    private func appStoreCaptureMark(_ name: String) {
+        let line = String(format: "APPSTORE-MARK %@ %.3f\n", name, Date().timeIntervalSince1970)
+        print(line, terminator: "")
+        guard let path = ProcessInfo.processInfo.environment["PULSECANVAS_CAPTURE_MARKS"] else { return }
+        if let handle = FileHandle(forWritingAtPath: path) {
+            handle.seekToEndOfFile(); handle.write(Data(line.utf8)); try? handle.close()
+        } else { try? line.write(toFile: path, atomically: true, encoding: .utf8) }
+    }
+
+    @MainActor func testCaptureAppStoreStudio() throws {
+        guard ProcessInfo.processInfo.environment["PULSECANVAS_CAPTURE_APPSTORE"] == "1" else {
+            throw XCTSkip("App Store capture runs only when requested")
+        }
+        let app = launch()
+        let play = waitForSoundtrack(app)
+        play.tap(); appStoreCaptureMark("studio-play")
+        Thread.sleep(forTimeInterval: 3)
+        app.buttons["randomizeTimelineButton"].tap()
+        XCTAssertTrue(app.otherElements["randomizeTimelineSheet"].waitForExistence(timeout: 10))
+        appStoreCaptureMark("timeline-options"); Thread.sleep(forTimeInterval: 3)
+        app.buttons["confirmRandomizeTimelineButton"].tap()
+        appStoreCaptureMark("timeline-randomized"); Thread.sleep(forTimeInterval: 4)
+        app.buttons["randomizeStyleButton"].tap()
+        appStoreCaptureMark("style"); Thread.sleep(forTimeInterval: 3)
+        app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@", "chooseVisualizer-")).firstMatch.tap()
+        XCTAssertTrue(app.buttons["surpriseClipVisualizerButton"].waitForExistence(timeout: 10))
+        appStoreCaptureMark("picker"); Thread.sleep(forTimeInterval: 3)
+        app.buttons["surpriseClipVisualizerButton"].tap()
+        Thread.sleep(forTimeInterval: 3)
+        app.buttons["exportMP4Button"].tap()
+        if app.buttons["Render another video"].waitForExistence(timeout: 1) {
+            app.buttons["Render another video"].tap()
+        }
+        appStoreCaptureMark("export"); Thread.sleep(forTimeInterval: 4)
+        appStoreCaptureMark("end")
+    }
+
+    @MainActor func testCaptureAppStoreRadio() throws {
+        guard ProcessInfo.processInfo.environment["PULSECANVAS_CAPTURE_APPSTORE"] == "1" else {
+            throw XCTSkip("App Store capture runs only when requested")
+        }
+        let app = launch(["-PCRadio"])
+        let play = app.buttons["playPauseButton"]
+        XCTAssertTrue(play.waitForExistence(timeout: 90))
+        XCTAssertTrue(waitForLabel(play, "Play Radio", timeout: 90))
+        play.tap()
+        XCTAssertTrue(waitForLabel(play, "Pause Radio", timeout: 120))
+        appStoreCaptureMark("radio-play"); Thread.sleep(forTimeInterval: 6)
+        app.buttons["favoriteRadioSongButton"].tap()
+        app.buttons["favoriteSongsLibraryButton"].tap()
+        XCTAssertTrue(app.buttons["playFavoriteSongsButton"].waitForExistence(timeout: 10))
+        appStoreCaptureMark("radio-favorites"); Thread.sleep(forTimeInterval: 4)
+        app.buttons["playFavoriteSongsButton"].tap()
+        XCTAssertTrue(waitForLabel(play, "Pause Radio", timeout: 120))
+        app.buttons["randomVisualizerButton"].tap()
+        appStoreCaptureMark("radio-shuffle"); Thread.sleep(forTimeInterval: 6)
+        app.buttons["randomizeStyleButton"].tap()
+        appStoreCaptureMark("radio-style"); Thread.sleep(forTimeInterval: 8)
+        appStoreCaptureMark("end")
+    }
 
     /// A paced, human-speed tour for screen recordings; skipped unless PULSECANVAS_CAPTURE_DEMO=1 is passed to the test
     /// runner (TEST_RUNNER_PULSECANVAS_CAPTURE_DEMO=1). Writes "CAPTURE-MARK <name> <unix seconds>" lines to the file in

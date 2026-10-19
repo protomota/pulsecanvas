@@ -44,6 +44,16 @@ no projectM engine, community presets/textures or Sparkle updater.
   The main Play button also starts the selected station before any audio is loaded,
   waiting for the initial station request if needed. It shows a spinner while a
   song is prepared and then becomes Pause. Play resumes the same song after pausing.
+- Save a Radio song using the heart beside its title, including in immersive controls.
+  **Favorite songs** in the left column opens a scrollable list with play and remove
+  controls. **Play favorite songs**, or the **Favorite songs** station in the menu,
+  shuffles only saved songs; Next and automatic advancement stay in that station.
+  One favorite repeats, multiple favorites avoid consecutive repeats, and an empty
+  list stops with guidance instead of falling back to other songs. Hearts persist
+  across launches and app updates in the same installation. Only a successful full
+  catalog refresh removes retired songs; genre subsets and failed requests do not.
+  These are song favorites, separate from the visualizer hearts and filters. The Mac
+  exposes the same station through Radio's music menu and Library → Favorite songs.
 - The **goggles icon** in the bottom ornament opens an immersive space and hides
   the Studio window. The adjacent, visibly labeled **Hide room** switch (on by
   default) hides passthrough and uses a larger curved
@@ -185,6 +195,11 @@ Surprise me selection and dismissal. They use isolated launch storage. Entering/
 immersion was not rechecked for build 6. Hardware comfort, gaze accuracy, immersive texture orientation and
 sustained GPU/audio performance still require headset testing. Compilation and a
 visible preview do not establish those results.
+
+Song-favorite fixture tests exercise persistent save/remove, exact-song playback,
+one/multiple/empty favorites stations, returning to All Music, failed-refresh
+retention and removed-song pruning. Mac Radio tests also cover starting the
+favorites station directly from its Library, including from another genre.
 
 This is an early test target, not a production App Store release. Distribution
 uses the existing PulseCanvas app record and bundle ID `com.protomota.pulsecanvas`. MP4
