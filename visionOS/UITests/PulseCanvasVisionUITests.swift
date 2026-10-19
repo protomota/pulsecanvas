@@ -72,11 +72,35 @@ final class PulseCanvasVisionUITests: XCTestCase {
         XCTAssertFalse(app.sliders["Chaos"].exists)
         let name = app.staticTexts["selectedVisualizerName"]
         XCTAssertTrue(name.exists)
-        XCTAssertGreaterThan(name.frame.midY, app.frame.midY, "Visualizer controls belong below the large preview")
+        XCTAssertLessThan(name.frame.midY, app.frame.midY, "Visualizer controls belong above the large preview")
         XCTAssertLessThan(abs(name.frame.midY - app.buttons["randomVisualizerButton"].frame.midY), 50)
         XCTAssertTrue(waitForLabel(play, "Play Radio", timeout: 90), "Actual playback label: \(play.label)")
+        let studioTab = app.buttons["Studio"]
+        let pinnedFrame = studioTab.frame
+        studioTab.tap()
+        XCTAssertTrue(app.textFields["visualizerSearchField"].waitForExistence(timeout: 20))
+        XCTAssertLessThan(abs(studioTab.frame.minX - pinnedFrame.minX), 2)
+        XCTAssertLessThan(abs(studioTab.frame.minY - pinnedFrame.minY), 2)
+        app.buttons["Radio"].tap()
+        XCTAssertTrue(app.buttons["randomVisualizerButton"].waitForExistence(timeout: 20))
+        XCTAssertLessThan(abs(studioTab.frame.minX - pinnedFrame.minX), 2)
+        XCTAssertLessThan(abs(studioTab.frame.minY - pinnedFrame.minY), 2)
         play.tap()
         XCTAssertTrue(waitForLabel(play, "Pause Radio", timeout: 120))
+        let visualHeart = app.buttons["favoriteRadioVisualizerButton"]
+        let songHeart = app.buttons["favoriteRadioSongButton"]
+        let songName = app.staticTexts["radioSongName"]
+        XCTAssertTrue(songHeart.waitForExistence(timeout: 10))
+        for heart in [visualHeart, songHeart] {
+            XCTAssertLessThan(abs(heart.frame.width - heart.frame.height), 3, "Radio hearts must have circular button bounds")
+        }
+        XCTAssertLessThan(visualHeart.frame.minX - name.frame.maxX, 32, "Keep the visualizer heart beside its title")
+        let station = app.descendants(matching: .any)["radioStationPicker"].firstMatch
+        for item in [songHeart, station, app.buttons["nextRadioSongButton"], app.buttons["favoriteSongsLibraryButton"]] {
+            XCTAssertLessThan(abs(item.frame.midY - songName.frame.midY), 4, "Song controls must occupy one horizontal row")
+        }
+        XCTAssertLessThan(name.frame.midY, songName.frame.midY)
+        XCTAssertLessThan(songName.frame.midY, play.frame.midY)
         let oldName = name.label
         app.buttons["randomVisualizerButton"].tap()
         let changed = NSPredicate(format: "label != %@", oldName)

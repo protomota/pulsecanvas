@@ -1,9 +1,14 @@
 # Radio and favorite looks
 
-Radio on Mac and Vision Pro gives the preview the full window width. Song,
-visualizer and playback controls sit together below it; Mac controls fade after
-three idle seconds during playback. Studio keeps its editing sidebar and sliders.
-Radio offers a visualizer group and shuffle, rather than an appearance editor.
+Radio on Mac and Vision Pro gives the preview the full window width. Mac groups
+its controls below the visual; those controls fade after three idle seconds during
+playback. Vision Pro keeps Studio/Radio pinned at the top left in a shared header,
+with the visualizer title, round favorite button, randomizer and group selector
+above the preview. Below it, one row contains the song title and round favorite
+button, station picker, Next song and Favorite songs; playback occupies the final
+row. The visualizer heart stays close to its title. Studio keeps its editing
+sidebar and sliders. Radio offers group selection and shuffle, rather than an
+appearance editor.
 
 New visualizer selections, scene assignments and visualizer timeline shuffles
 create randomized looks for non-favorites. The same settings ranges are used on

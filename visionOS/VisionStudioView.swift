@@ -32,21 +32,15 @@ struct VisionStudioView: View {
 
     var body: some View {
         VStack(spacing: 16) {
+            workspaceHeader
             if session.radioMode {
                 radioSurface
             } else {
             HStack(alignment: .top, spacing: 20) {
                 VStack(spacing: 12) {
-                    Picker("Workspace", selection: Binding(get: { session.radioMode }, set: { session.setRadioMode($0) })) {
-                        Label("Studio", systemImage: "rectangle.split.3x1").tag(false)
-                        Label("Radio", systemImage: "radio").tag(true)
-                    }.pickerStyle(.segmented).disabled(session.immersiveActive)
-                        .accessibilityIdentifier("workspacePicker")
                     VisionLibrary(studio: studio)
                 }.frame(width: 340)
                 VStack(alignment: .leading, spacing: 12) {
-                    Text(NativeEffects.names[studio.selectedScene]).font(.title2.bold()).lineLimit(1)
-                        .accessibilityIdentifier("selectedVisualizerName")
                     preview.aspectRatio(16.0 / 9, contentMode: .fit)
                     VisionTransportView(studio: studio, transport: studio.transport, radio: session.radioMode ? session.radio : nil)
                     if studio.needsSoundtrack {
@@ -159,20 +153,28 @@ struct VisionStudioView: View {
             }
     }
 
+    // One header owns the workspace switch in both modes, so its position never changes.
+    private var workspaceHeader: some View {
+        HStack(spacing: 20) {
+            Picker("Workspace", selection: Binding(get: { session.radioMode }, set: { session.setRadioMode($0) })) {
+                Label("Studio", systemImage: "rectangle.split.3x1").tag(false)
+                Label("Radio", systemImage: "radio").tag(true)
+            }.pickerStyle(.segmented).frame(width: 340, height: 52).disabled(session.immersiveActive)
+                .accessibilityIdentifier("workspacePicker")
+            if session.radioMode {
+                VisionRadioVisualizerControls(studio: studio)
+            } else {
+                Text(NativeEffects.names[studio.selectedScene]).font(.title2.bold()).lineLimit(1)
+                    .accessibilityIdentifier("selectedVisualizerName")
+            }
+            Spacer(minLength: 0)
+        }
+    }
+
     private var radioSurface: some View {
         VStack(spacing: 12) {
             preview.frame(maxWidth: .infinity, maxHeight: .infinity)
             VStack(spacing: 12) {
-                HStack(spacing: 16) {
-                    VisionRadioVisualizerControls(studio: studio)
-                    Spacer(minLength: 12)
-                    Picker("Workspace", selection: Binding(get: { session.radioMode }, set: { session.setRadioMode($0) })) {
-                        Label("Studio", systemImage: "rectangle.split.3x1").tag(false)
-                        Label("Radio", systemImage: "radio").tag(true)
-                    }.pickerStyle(.segmented).frame(width: 240).disabled(session.immersiveActive)
-                        .accessibilityIdentifier("workspacePicker")
-                }
-                Divider()
                 VisionRadioControls(radio: session.radio)
                 VisionTransportView(studio: studio, transport: studio.transport, radio: session.radio)
             }.padding(16).background(.white.opacity(0.05), in: RoundedRectangle(cornerRadius: 20))
@@ -254,18 +256,21 @@ private struct VisionRadioVisualizerControls: View {
     @ObservedObject private var library = ProjectMPresets.shared
     var body: some View {
         HStack(spacing: 12) {
-            VStack(alignment: .leading, spacing: 2) {
-                Text("Visualizer").font(.caption).foregroundStyle(.secondary)
-                Text(NativeEffects.names[studio.selectedScene]).font(.headline).lineLimit(1)
-                    .accessibilityIdentifier("selectedVisualizerName")
-            }.frame(maxWidth: 260, alignment: .leading)
-            Button {
-                library.toggleFavorite(studio.selectedScene, appearance: studio.look.preset)
-            } label: {
-                Label("Save visualizer", systemImage: library.isFavorite(studio.selectedScene) ? "heart.fill" : "heart")
-            }.labelStyle(.iconOnly)
-                .accessibilityLabel(library.isFavorite(studio.selectedScene) ? "Unfavorite visualizer" : "Favorite visualizer")
-                .accessibilityIdentifier("favoriteRadioVisualizerButton")
+            HStack(spacing: 8) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Visualizer").font(.caption).foregroundStyle(.secondary)
+                    Text(NativeEffects.names[studio.selectedScene]).font(.headline).lineLimit(1)
+                        .accessibilityIdentifier("selectedVisualizerName")
+                }.layoutPriority(1)
+                Button {
+                    library.toggleFavorite(studio.selectedScene, appearance: studio.look.preset)
+                } label: {
+                    Image(systemName: library.isFavorite(studio.selectedScene) ? "heart.fill" : "heart")
+                        .frame(width: 24, height: 24)
+                }.buttonStyle(.bordered).buttonBorderShape(.circle)
+                    .accessibilityLabel(library.isFavorite(studio.selectedScene) ? "Unfavorite visualizer" : "Favorite visualizer")
+                    .accessibilityIdentifier("favoriteRadioVisualizerButton")
+            }
             Button("Random visualizer", systemImage: "shuffle") { studio.randomizeVisualizer() }
                 .buttonStyle(.borderedProminent).disabled(library.eligibleScenes.isEmpty)
                 .accessibilityIdentifier("randomVisualizerButton")
@@ -279,6 +284,7 @@ private struct VisionRadioControls: View {
     @State private var showFavorites = false
     var body: some View {
         HStack(spacing: 16) {
+            VisionRadioSongTitle(radio: radio)
             if radio.loadingStations {
                 ProgressView("Loading stations…")
             } else {
@@ -288,6 +294,7 @@ private struct VisionRadioControls: View {
                 }.pickerStyle(.menu).frame(maxWidth: 260).disabled(radio.stations.isEmpty || radio.loading)
                     .accessibilityIdentifier("radioStationPicker")
                 Button("Next song", systemImage: "forward.end.fill") { radio.nextSong() }
+                    .accessibilityIdentifier("nextRadioSongButton")
                     .disabled(radio.loading || radio.stations.isEmpty)
                 Button("Favorite songs", systemImage: "heart.fill") { showFavorites = true }
                     .accessibilityIdentifier("favoriteSongsLibraryButton")
@@ -355,13 +362,14 @@ private struct VisionFavoriteSongsView: View {
 struct VisionRadioSongTitle: View {
     @ObservedObject var radio: VisionRadio
     var body: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: 8) {
             Text(radio.playingTrack?.title ?? "Radio").font(.headline).lineLimit(1)
+                .accessibilityIdentifier("radioSongName")
             if let track = radio.playingTrack {
                 Button { radio.toggleFavoriteSong(track) } label: {
                     Image(systemName: radio.isFavoriteSong(track) ? "heart.fill" : "heart")
-                        .frame(width: 32, height: 32)
-                }.disabled(radio.loading)
+                        .frame(width: 24, height: 24)
+                }.buttonStyle(.bordered).buttonBorderShape(.circle).disabled(radio.loading)
                     .accessibilityLabel(radio.isFavoriteSong(track) ? "Unfavorite song" : "Favorite song")
                     .accessibilityIdentifier("favoriteRadioSongButton")
             }
@@ -440,8 +448,7 @@ private struct VisionTransportView: View {
     var radio: VisionRadio?
     var body: some View {
         VStack(spacing: 8) {
-          if let radio { VisionRadioSongTitle(radio: radio) }
-          else { Text(studio.project.audioTitle).font(.headline).lineLimit(1)
+          if radio == nil { Text(studio.project.audioTitle).font(.headline).lineLimit(1)
               .frame(maxWidth: .infinity, alignment: .leading)
           }
           HStack(spacing: 16) {
