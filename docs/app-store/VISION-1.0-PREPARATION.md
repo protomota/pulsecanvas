@@ -13,19 +13,19 @@ The Vision-specific 1.0 listing remains a draft. Its audit found an empty Englis
 - `source/metadata-draft.json` contains the English description, promotion, keywords, URLs and reviewer instructions, including song favorites. It uses “hundreds” rather than exact effect counts, “completely free”, and “source available on GitHub” with the PulseCanvas repository. It does not claim an open-source license.
 - Private review-contact audit files remain local; do not publish the entire directory.
 
-## Three rendered App Store preview masters
+## Three App Store previews — revised cut awaiting render approval
 
 Source projects live in `/Volumes/Music/Video/astra_video/videos/pulsecanvas-vision-appstore/`:
 
-- [Immersion](http://localhost:3031/#project/01-immersion): 17 seconds entirely in native full immersion, with the room, Studio window and floating controls hidden.
-- [Studio](http://localhost:3032/#project/02-studio): 24 seconds showing the visualizer picker/export settings, followed by 12 seconds of actual full immersion.
-- [Radio](http://localhost:3033/#project/03-radio): 24 seconds showing song hearts and the favorites browser, followed by 14 seconds of actual Radio full immersion.
+- [Immersion](http://localhost:3031/#project/01-immersion): revised 21.6-second montage with 12 different native effects, including coaster tunnels, fractals, woven passages and light effects. The room, Studio window and floating controls are hidden.
+- [Studio](http://localhost:3032/#project/02-studio): revised 22.8 seconds showing the picker/export settings, followed by six different immersive effects in 10.8 seconds.
+- [Radio](http://localhost:3033/#project/03-radio): revised 24 seconds showing the Electronic station playing “Neon Tidewater”, song favorites, and 14 seconds of distinct native full immersion. The prior bluegrass song is absent from this revision.
 
-All use actual native simulator footage, the existing selected Emma narration (voice ID `9HBoEQ8LqyvVZFYDodnr`) and music from the displayed songs. A shared narration bus drives spectral carving and ducking. The short corner title and closing label leave the app visible throughout. Originals are preserved. A fresh 3840×2160 simulator recording supplies the immersive sequences; these are not enlarged editor previews. Two opt-in capture tests verified the floating controls were hidden before marking usable footage. Both suites passed with zero failures; the Xcode runner was stopped after post-suite cleanup stalled. No runtime app code or release version changed for this media revision.
+All use actual native simulator footage, the existing selected Emma narration (voice ID `9HBoEQ8LqyvVZFYDodnr`) and music from the displayed songs. A shared narration bus drives spectral carving and ducking. The short corner title and closing label leave the app visible throughout. Originals are preserved. A fresh 3840×2160 simulator recording supplies the immersive sequences; these are not enlarged editor previews. Two opt-in capture tests verified the floating controls were hidden before marking usable footage. Both suites passed with zero failures; the Xcode runner was stopped after post-suite cleanup stalled. The release version is unchanged; the separate immersive-toolbar update is described below.
 
 HyperFrames pins were updated from 0.8.157 to 0.8.174. All three final checks pass with zero lint, runtime, layout, motion or contrast findings. Frames at 2, 9 and 15 seconds and the live Radio preview were inspected. Animation maps were reviewed: native video supplies motion during intervals without authored opacity tweens. Checks and hashed media ledgers remain in the projects.
 
-The owner approved all three final renders. The 3840×2160/30fps H.264/AAC masters are in the asset package’s `previews/` folder:
+The earlier approved 3840×2160/30fps H.264/AAC exports remain preserved in the asset package’s `previews/` folder. The table below describes those earlier files, not the revised cut:
 
 | Film | Duration | Frames | Size (decimal MB) | Integrated loudness | True peak |
 | --- | --- | --- | --- | --- | --- |
@@ -39,9 +39,18 @@ The initial strict export failed safely on duplicate music automation: a legacy 
 
 No upload acceptance is claimed. Apple lists 3840×2160 for Vision Pro previews, while its generic encoding table specifies H.264 up to High 4.0, 10–12Mbps and AAC 256kbps. These quality masters use the valid 4K H.264 High 5.1 profile at approximately 26–37Mbps and AAC 192kbps. Confirm or conform submission encoding against App Store Connect before upload; do not relabel 4K video as Level 4.0. The approved edit and original masters remain preserved.
 
+
+## Variety revision and immersive toolbar
+
+The revised compositions are built and validated, but have not been approved or rendered as new final MP4s. All three checks passed after preparing smaller 4K30 source clips. Snapshots covered every shot in the 12-effect montage and the Studio/Radio scenes. The first and Studio immersive selections use disjoint native scene IDs, and Radio’s full-immersion range uses another distinct sequence. Blue, green, gold, purple and mixed palettes were inspected; this is not a single-purple presentation. Footage remains the real simulator output with no grading or fabricated camera movement. Capture settings use the actual Studio paths: one-bar scenes, Chaos 0.85, zoom speed 2, motion speed 1.3, strobe off. The included instrumental bed and existing selected narration remain in the first two previews. Radio’s new bed comes from the same “Neon Tidewater” track visible in the recording; alignment is estimated from transport/capture marks, not claimed waveform-perfect.
+
+`source/variety-revision/` holds the native 3840×2160 recording, original timestamps, real scene grids, isolated project snapshots, Radio track provenance and capture-test logs. Both opt-in capture tests passed with zero failures (127.6 seconds); their runner was stopped after post-suite cleanup stalled. These debug captures require `SWIFT_ACTIVE_COMPILATION_CONDITIONS="STORE_BUILD DEBUG"` and `-PCUITesting`; ordinary launches and release builds do not apply the capture sequence. The user's own projects and soundtrack were not used.
+
+The immersive toolbar is now one centered horizontal row. Vertical separators group song controls, visualizer controls and viewing controls. The hearts explicitly say “Save song” and “Save visualizer”, changing to “Song saved” and “Visualizer saved”. Song titles and visualizer names stay on one line; edge smoothing moved into Viewing settings. The final UI test passed with normal test-command exit 0, verifying independent favorite actions, unchanged state of the other heart, button-center alignment within 3 points and paused controls remaining visible beyond the auto-hide interval. Simulator screenshots are in `source/variety-revision/immersive-controls-saved-and-aligned.png` and its detail crop. This toolbar update is built locally and on main; no new TestFlight build or App Store submission was made.
+
 ## Remaining before submission
 
-1. Resolve final submission encoding/acceptance against Apple’s preview specifications; the approved 4K masters and output verification are complete.
+1. Approve and render the revised previews, verify the actual new output, then resolve final submission encoding/acceptance against Apple’s preview specifications. Earlier approved masters remain preserved.
 2. Apply verified copy to the Vision-specific listing, select build 1.0 (8), and upload approved screenshots/previews. Do not change the Mac review submission.
 3. Verify required motion information, privacy and age-rating declarations and reviewer fields against the actual app. Check export/save, targets, immersion comfort and sustained performance on a physical headset; simulator checks do not establish those results.
 4. Submit only when authorized. Keep the separate website draft and marketing films unpublished until the owner confirms the app is live and supplies the Vision Pro App Store URL.

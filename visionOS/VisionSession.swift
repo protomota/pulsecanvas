@@ -197,6 +197,9 @@ import Foundation
                 guard !Task.isCancelled, self.wantsPlayback else { self.studio.suspend(); return }
                 self.currentTrack = next
                 self.studio.randomizeVisualizer()
+                #if os(visionOS)
+                VisionLaunchOptions.current.applyCaptureSequence(to: self.studio)
+                #endif
                 self.studio.togglePlayback()
             } catch is CancellationError { }
             catch { self.error = "Radio couldn't play this track. \(error.localizedDescription)" }

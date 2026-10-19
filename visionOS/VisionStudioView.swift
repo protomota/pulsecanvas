@@ -178,6 +178,7 @@ struct VisionStudioView: View {
                 NSLog("PulseCanvas launch hook: -PCVisualizer %@ is not an available visualizer in this build", launch.visualizer ?? "")
             }
         }
+        launch.applyCaptureSequence(to: editor)
         if let seconds = launch.seek { editor.seek(seconds) }
         if launch.radio {
             session.setRadioMode(true)

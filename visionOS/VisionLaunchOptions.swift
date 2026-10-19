@@ -20,6 +20,8 @@ struct VisionLaunchOptions: Equatable {
     var radio = false
     var visualizer: String?
     var seek: Double?
+    /// Debug-only recorded-demo sequence; applied only with isolated UI-test storage.
+    var captureScenes: [Int] = []
 
     static let current = VisionLaunchOptions(arguments: ProcessInfo.processInfo.arguments)
 
@@ -41,6 +43,9 @@ struct VisionLaunchOptions: Equatable {
         if let room = value("-PCHideRoom") { hideRoom = !["NO", "no", "false", "0"].contains(room) }
         visualizer = value("-PCVisualizer")
         seek = value("-PCSeek").flatMap(Double.init)
+        #if DEBUG
+        if uiTesting { captureScenes = value("-PCCaptureScenes")?.split(separator: ",").compactMap { Int($0) } ?? [] }
+        #endif
     }
 
     /// The index of the requested visualizer in `names`, by number or by case-insensitive name.
@@ -67,5 +72,24 @@ extension VisionSession {
         let defaults = UserDefaults(suiteName: "PulseCanvasUITesting-\(ProcessInfo.processInfo.processIdentifier)")!
         return VisionSession(editor: VisionStudio(directory: VisionLaunchOptions.isolatedDirectory("Studio")),
                              radio: VisionRadio(directory: VisionLaunchOptions.isolatedDirectory("Radio"), defaults: defaults))
+    }
+}
+
+@MainActor extension VisionLaunchOptions {
+    /// Use the actual Studio assignment/settings paths for reproducible simulator recordings.
+    /// Ordinary launches and release builds never read or apply this capture-only sequence.
+    func applyCaptureSequence(to studio: VisionStudio) {
+        #if DEBUG
+        guard uiTesting, !captureScenes.isEmpty, captureScenes.count <= 64,
+              captureScenes.allSatisfy({ NativeEffects.activeIDs.contains($0) }) else { return }
+        studio.applyCommonSettings(VisionCommonSettings(bars: 1, chaos: 0.85, zoomSpeed: 2,
+                                                        motionSpeed: 1.3, strobeEnabled: false))
+        for (index, clip) in studio.project.clips.enumerated() {
+            studio.assign(captureScenes[index % captureScenes.count], to: clip.id)
+        }
+        for segment in studio.segments {
+            NSLog("CAPTURE-SEGMENT %.3f %.3f %d %@", segment.start, segment.end, segment.scene, NativeEffects.names[segment.scene])
+        }
+        #endif
     }
 }

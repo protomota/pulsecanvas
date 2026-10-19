@@ -161,28 +161,72 @@ private struct VisionImmersiveControls: View {
     let hide: () -> Void
     let returnToStudio: () -> Void
     var body: some View {
-        VStack(spacing: 12) {
+        VStack(spacing: 10) {
             if let message = studio.message { Text(message).font(.callout).foregroundStyle(.orange) }
-            Text(NativeEffects.names[studio.selectedScene]).font(.headline)
-            if session.radioMode { VisionRadioSongTitle(radio: session.radio) }
-            else { Text(studio.project.audioTitle).font(.caption).foregroundStyle(.secondary).lineLimit(1) }
-            HStack {
+            HStack(alignment: .center, spacing: 12) {
                 VisionImmersivePlayback(studio: studio, transport: studio.transport, session: session)
-                Button("Random visualizer", systemImage: "shuffle") { studio.randomizeVisualizer() }
-                    .labelStyle(.iconOnly).disabled(library.eligibleScenes.isEmpty)
-                Button("Favorite visualizer", systemImage: library.isFavorite(studio.selectedScene) ? "heart.fill" : "heart") {
-                    library.toggleFavorite(studio.selectedScene)
-                }.labelStyle(.iconOnly)
                 if session.radioMode {
                     Button("Next song", systemImage: "forward.end.fill") { session.radio.nextSong() }
                         .labelStyle(.iconOnly).disabled(session.radio.loading)
+                        .frame(minWidth: 44, minHeight: 44)
+                    separator
+                    VisionImmersiveSongControls(radio: session.radio)
+                } else {
+                    Label(studio.project.audioTitle, systemImage: "music.note")
+                        .font(.callout).lineLimit(1).frame(maxWidth: 190, alignment: .leading)
                 }
-                Button("Hide controls", systemImage: "eye.slash", action: hide).labelStyle(.iconOnly)
-                Button("Back to Studio", action: returnToStudio)
+                separator
+                Label(NativeEffects.names[studio.selectedScene], systemImage: "sparkles")
+                    .font(.callout).lineLimit(1).frame(maxWidth: 210, alignment: .leading)
+                    .accessibilityIdentifier("immersiveVisualizerName")
+                Button {
+                    library.toggleFavorite(studio.selectedScene)
+                } label: {
+                    Label(library.isFavorite(studio.selectedScene) ? "Visualizer saved" : "Save visualizer",
+                          systemImage: library.isFavorite(studio.selectedScene) ? "heart.fill" : "heart")
+                        .frame(minHeight: 32)
+                }.accessibilityLabel(library.isFavorite(studio.selectedScene) ? "Unfavorite visualizer" : "Favorite visualizer")
+                    .accessibilityIdentifier("favoriteImmersiveVisualizerButton")
+                Button("Random visualizer", systemImage: "shuffle") { studio.randomizeVisualizer() }
+                    .labelStyle(.iconOnly).disabled(library.eligibleScenes.isEmpty)
+                    .frame(minWidth: 44, minHeight: 44)
+                separator
+                Menu {
+                    Toggle("Edge smoothing", isOn: $session.edgeSmoothing)
+                } label: { Image(systemName: "slider.horizontal.3").frame(width: 32, height: 32) }
+                    .accessibilityLabel("Viewing settings")
+                Button("Hide controls", systemImage: "eye.slash", action: hide)
+                    .labelStyle(.iconOnly).frame(minWidth: 44, minHeight: 44)
+                Button("Studio", systemImage: "rectangle.on.rectangle", action: returnToStudio)
+                    .frame(minHeight: 32)
+                    .accessibilityLabel("Back to Studio")
                     .accessibilityIdentifier("backToStudioButton")
+            }.font(.callout).lineLimit(1).fixedSize(horizontal: false, vertical: true)
+        }.frame(width: session.radioMode ? 1280 : 1080)
+    }
+
+    private var separator: some View {
+        Divider().frame(height: 32).padding(.horizontal, 2)
+    }
+}
+
+private struct VisionImmersiveSongControls: View {
+    @ObservedObject var radio: VisionRadio
+    var body: some View {
+        HStack(alignment: .center, spacing: 12) {
+            Label(radio.playingTrack?.title ?? "Radio", systemImage: "music.note")
+                .font(.callout).lineLimit(1).frame(maxWidth: 190, alignment: .leading)
+                .accessibilityIdentifier("immersiveSongName")
+            if let track = radio.playingTrack {
+                Button { radio.toggleFavoriteSong(track) } label: {
+                    Label(radio.isFavoriteSong(track) ? "Song saved" : "Save song",
+                          systemImage: radio.isFavoriteSong(track) ? "heart.fill" : "heart")
+                        .frame(minHeight: 32)
+                }.disabled(radio.loading)
+                    .accessibilityLabel(radio.isFavoriteSong(track) ? "Unfavorite song" : "Favorite song")
+                    .accessibilityIdentifier("favoriteImmersiveSongButton")
             }
-            Toggle("Edge smoothing", isOn: $session.edgeSmoothing).toggleStyle(.button)
-        }.frame(width: 620)
+        }
     }
 }
 

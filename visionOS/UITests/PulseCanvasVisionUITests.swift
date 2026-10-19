@@ -264,6 +264,84 @@ final class PulseCanvasVisionUITests: XCTestCase {
         appStoreCaptureMark("end")
     }
 
+    @MainActor func testImmersiveControlsKeepFavoritesDistinctAndAligned() throws {
+        let app = launch(["-PCRadio"])
+        let play = app.buttons["playPauseButton"]
+        XCTAssertTrue(play.waitForExistence(timeout: 90))
+        XCTAssertTrue(waitForLabel(play, "Play Radio", timeout: 90))
+        play.tap()
+        XCTAssertTrue(waitForLabel(play, "Pause Radio", timeout: 120))
+        // Enter paused so the normal five-second auto-hide cannot race accessibility discovery.
+        play.tap()
+        XCTAssertTrue(waitForLabel(play, "Play Radio"))
+        app.buttons["immersiveButton"].tap()
+        XCTAssertTrue(app.buttons["backToStudioButton"].waitForExistence(timeout: 60))
+        let immersivePlay = app.buttons["immersivePlayPauseButton"]
+        XCTAssertTrue(immersivePlay.waitForExistence(timeout: 10))
+        XCTAssertTrue(waitForLabel(immersivePlay, "Play Radio"))
+        let song = app.buttons["favoriteImmersiveSongButton"]
+        let visualizer = app.buttons["favoriteImmersiveVisualizerButton"]
+        XCTAssertTrue(song.waitForExistence(timeout: 10))
+        XCTAssertTrue(visualizer.exists)
+        XCTAssertEqual(song.label, "Favorite song")
+        let originalVisualizer = visualizer.label
+        song.tap()
+        XCTAssertTrue(waitForLabel(song, "Unfavorite song"))
+        XCTAssertEqual(visualizer.label, originalVisualizer)
+        visualizer.tap()
+        XCTAssertTrue(waitForLabel(visualizer, originalVisualizer == "Favorite visualizer" ? "Unfavorite visualizer" : "Favorite visualizer"))
+        XCTAssertEqual(song.label, "Unfavorite song")
+        for button in [song, visualizer, app.buttons["backToStudioButton"]] {
+            XCTAssertEqual(button.frame.midY, immersivePlay.frame.midY, accuracy: 3, "Immersive controls must share one centered row")
+        }
+        Thread.sleep(forTimeInterval: 6)
+        XCTAssertTrue(app.buttons["backToStudioButton"].exists, "Paused controls must remain visible")
+        if ProcessInfo.processInfo.environment["PULSECANVAS_CAPTURE_APPSTORE"] == "1" {
+            appStoreCaptureMark("aligned-immersive-controls"); Thread.sleep(forTimeInterval: 25)
+        }
+    }
+
+    /// Capture distinct, fast-moving native effects on the real one-bar Studio grid.
+    @MainActor func testCaptureAppStoreVariety() throws {
+        guard ProcessInfo.processInfo.environment["PULSECANVAS_CAPTURE_APPSTORE"] == "1" else {
+            throw XCTSkip("App Store capture runs only when requested")
+        }
+        let scenes = "10,18,16,390,400,416,453,402,425,444,409,319,328,341,360,334,347,326,354,318,325,355,345"
+        let app = launch(["-PCOpenImmersive", "-PCHideRoom", "YES", "-PCCaptureScenes", scenes])
+        XCTAssertTrue(app.buttons["backToStudioButton"].waitForExistence(timeout: 120))
+        Thread.sleep(forTimeInterval: 6)
+        XCTAssertFalse(app.buttons["backToStudioButton"].exists)
+        appStoreCaptureMark("variety-immersive-clean")
+        Thread.sleep(forTimeInterval: 36)
+        appStoreCaptureMark("variety-end")
+    }
+
+    @MainActor func testCaptureAppStoreElectronicRadio() throws {
+        guard ProcessInfo.processInfo.environment["PULSECANVAS_CAPTURE_APPSTORE"] == "1" else {
+            throw XCTSkip("App Store capture runs only when requested")
+        }
+        let scenes = "247,22,314,252,361,330,254,365,306,375,264,332,380,316,338,369,405,210,256,368,340,331,313,352"
+        let app = launch(["-PCRadio", "-PCCaptureScenes", scenes])
+        let station = app.buttons["radioStationPicker"]
+        XCTAssertTrue(station.waitForExistence(timeout: 90))
+        station.tap()
+        app.buttons["Electronic"].tap()
+        let play = app.buttons["playPauseButton"]
+        XCTAssertTrue(waitForLabel(play, "Pause Radio", timeout: 120))
+        appStoreCaptureMark("electronic-radio-play"); Thread.sleep(forTimeInterval: 5)
+        app.buttons["favoriteRadioSongButton"].tap()
+        app.buttons["favoriteSongsLibraryButton"].tap()
+        XCTAssertTrue(app.buttons["playFavoriteSongsButton"].waitForExistence(timeout: 10))
+        appStoreCaptureMark("electronic-radio-favorites"); Thread.sleep(forTimeInterval: 5)
+        app.buttons["Done"].tap()
+        app.buttons["immersiveButton"].tap()
+        XCTAssertTrue(app.buttons["backToStudioButton"].waitForExistence(timeout: 60))
+        Thread.sleep(forTimeInterval: 6)
+        XCTAssertFalse(app.buttons["backToStudioButton"].exists)
+        appStoreCaptureMark("electronic-radio-immersive-clean"); Thread.sleep(forTimeInterval: 20)
+        appStoreCaptureMark("electronic-radio-end")
+    }
+
     /// A paced, human-speed tour for screen recordings; skipped unless PULSECANVAS_CAPTURE_DEMO=1 is passed to the test
     /// runner (TEST_RUNNER_PULSECANVAS_CAPTURE_DEMO=1). Writes "CAPTURE-MARK <name> <unix seconds>" lines to the file in
     /// PULSECANVAS_CAPTURE_MARKS so the recording can be cut on the real moments.
