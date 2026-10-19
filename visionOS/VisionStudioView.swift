@@ -603,13 +603,19 @@ private struct VisionTimelineView: View {
                 Button("Apply to all", systemImage: "slider.horizontal.3") { applying = true }
                     .disabled(studio.loading || studio.needsSoundtrack || studio.transport.duration <= 0)
             }
-            ScrollView(.horizontal) {
-                LazyHStack(spacing: 12) {
-                    ForEach(studio.project.clips) { clip in
-                        VisionTimelineCard(studio: studio, clip: clip)
+            ScrollViewReader { proxy in
+                ScrollView(.horizontal) {
+                    LazyHStack(spacing: 12) {
+                        ForEach(studio.project.clips) { clip in
+                            VisionTimelineCard(studio: studio, clip: clip).id(clip.id)
+                        }
                     }
-                }
-            }.frame(height: 160)
+                }.frame(height: 160)
+                    .onChange(of: studio.selected) { _, selected in
+                        guard studio.transport.playing, let selected else { return }
+                        withAnimation(.easeInOut(duration: 0.25)) { proxy.scrollTo(selected, anchor: .center) }
+                    }
+            }
         }.sheet(isPresented: $applying) { VisionApplySettings(studio: studio) { applying = false } }
             .sheet(isPresented: $randomizing) { VisionRandomizeTimeline(studio: studio) { randomizing = false } }
     }

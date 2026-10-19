@@ -119,7 +119,10 @@ import Combine
         }))
         precondition(Array(randomBarsStore.segments.prefix(3)).map {[$0.start,$0.end]} == [[0,8],[8,10],[10,14]])
         precondition(Array(randomBarsStore.segments.prefix(6)).map(\.scene) == [18,19,20,21,22,23])
-        precondition(randomBarsStore.segments.dropFirst(6).allSatisfy {$0.scene == 23}, "New tail cards repeat the last visualizer")
+        for index in randomBarsStore.segments.indices {
+            precondition(randomBarsStore.segments[index].scene == 18 + index % 6,
+                "New tail cards must continue the existing visualizer sequence")
+        }
         precondition(randomBarsStore.segments.allSatisfy {grid.boundaries.contains($0.start) && grid.boundaries.contains($0.end)})
         precondition(randomBarsStore.segments.last!.end == 48 && randomBarsStore.segments.last!.bars == 4)
         precondition(StudioTimeline.valid(randomBarsStore.segments, sceneCount: RenderState.sceneNames.count))
@@ -140,6 +143,12 @@ import Combine
         precondition(afterInvalidRandomBars == invalidRandomBars, "Invalid plans never partly replace the timeline")
         precondition(randomBarsStore.randomizeBars(grid:grid, render:randomBarsRender, chooseLength:{8}))
         precondition(randomBarsStore.segments.count == 3 && randomBarsStore.segments.map(\.scene) == [18,19,20], "Longer cards trim only the tail")
+        precondition(randomBarsStore.setBars(1, grid: grid, render: randomBarsRender))
+        precondition(randomBarsStore.segments.count == 24)
+        for index in randomBarsStore.segments.indices {
+            precondition(randomBarsStore.segments[index].scene == [18,19,20][index % 3],
+                "Expanding a shortened timeline must not fill the song with its last visualizer")
+        }
         let shortenedGrid = SongSegmentation(boundaries:[0,2,4,5], bpm:120)
         randomBarsStore.segments = [StudioSegment(start:0,end:5,scene:18,bars:3)]
         precondition(randomBarsStore.randomizeBars(grid:shortenedGrid, render:randomBarsRender, chooseLength:{8}))

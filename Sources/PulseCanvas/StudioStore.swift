@@ -175,7 +175,9 @@ final class StudioStore: ObservableObject {
             let end = grid.boundaries[next]
             guard end > time else { return false }
             rebuilt.append(StudioSegment(start: time, end: end,
-                scene: original?.scene ?? previous.last!.scene, bars: bars))
+                // Shorter bars add cards. Continue the existing sequence instead
+                // of filling the remainder of the song with one repeated design.
+                scene: original?.scene ?? previous[sourceIndex % previous.count].scene, bars: bars))
             time = end; cursor = next; sourceIndex += 1
         }
         guard time == grid.boundaries[last] else { return false }

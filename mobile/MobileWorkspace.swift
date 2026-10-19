@@ -177,12 +177,18 @@ struct MobileWorkspace: View {
             if editor.needsSoundtrack {
                 Button("Locate soundtrack", systemImage: "waveform.badge.plus") { audioPicker = true }.buttonStyle(MobileButton(prominent: true))
             }
-            ScrollView(.horizontal) {
-                HStack(spacing: 10) {
-                    ForEach(Array(editor.studio.segments.enumerated()), id: \.offset) { index, clip in
-                        MobileClip(editor: editor, index: index, clip: clip, choose: { editor.selectClip(index); sheet = .library })
+            ScrollViewReader { proxy in
+                ScrollView(.horizontal) {
+                    HStack(spacing: 10) {
+                        ForEach(Array(editor.studio.segments.enumerated()), id: \.offset) { index, clip in
+                            MobileClip(editor: editor, index: index, clip: clip, choose: { editor.selectClip(index); sheet = .library }).id(index)
+                        }
+                    }.padding(.vertical, 3)
+                }.accessibilityIdentifier("mobileStudioTimeline")
+                    .onChange(of: studio.selectedSegment) { _, index in
+                        guard audio.isPlaying, studio.segments.indices.contains(index) else { return }
+                        withAnimation(.easeInOut(duration: 0.25)) { proxy.scrollTo(index, anchor: .center) }
                     }
-                }.padding(.vertical, 3)
             }
         }
     }
@@ -267,6 +273,8 @@ private struct MobileClip: View {
             }.padding(14)
         }.frame(width: 260, height: 148)
             .overlay(RoundedRectangle(cornerRadius: 15).strokeBorder(studio.selectedSegment == index ? MobileTheme.accent : .white.opacity(0.12), lineWidth: 1.5))
+            .accessibilityElement(children: .contain)
+            .accessibilityIdentifier(studio.selectedSegment == index ? "currentStudioClip" : "studioClip-\(index)")
     }
 }
 

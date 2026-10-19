@@ -25,6 +25,14 @@ that disabled state as a catalog failure.
   observations are confined to the transport and throttled to 10 Hz.
 - Mac Radio's progress display is now seekable through the same guarded model
   operation. Vision Pro already has a seekable transport.
+- Mobile and Vision Studio center the active card when playback switches scenes
+  (including a playing seek). Paused browsing does not trigger auto-scrolling.
+  Mac Studio already centers the active card when the selected segment changes.
+- When shortening bar lengths creates more cards, the shared Mac/mobile Studio
+  now continues the existing visualizer sequence. Previously, every appended
+  card copied the last scene, producing long stretches of identical visuals.
+  Existing assignments and styles remain intact. Vision already cycles the
+  sequence in its corresponding timeline-fill operation.
 - Mobile stays at version 1.1.5 and advances its independent build number to 2.
   The Debug-only Radio UI fixture uses a local 30-second excerpt and catalog;
   the normal export fixture remains eight seconds. Neither is in Release.
@@ -37,6 +45,13 @@ that disabled state as a catalog failure.
   empty catalog, retired-song cleanup and bounded unavailable-song retries.
 - Shared visualizer-pool suite passed, exit 0: scoped fallback, persistence,
   Studio randomizers, saved favorites and genuinely missing categories.
+- Full Creators Studio suite passed, exit 0, including a new shrink/expand
+  regression: three different long scenes become 24 one-bar scenes cycling
+  those three designs, with original scene order and shared styles retained.
+- A separate iPhone Studio UI test passed: one test, zero failures, 15.041
+  seconds. A seek during actual playback changes the active scene and places
+  its card within 24 points of the horizontal timeline's center while audio
+  remains playing.
 - Vision transport suite passed, exit 0, including empty-favorites visualizer
   and whole-timeline randomization, category filtering, real audio playback,
   station/song favorites and project persistence. Initial runs stopped at old

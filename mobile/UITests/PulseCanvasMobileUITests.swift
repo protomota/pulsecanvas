@@ -2,6 +2,29 @@ import XCTest
 
 final class PulseCanvasMobileUITests: XCTestCase {
     override func setUp() { continueAfterFailure = false }
+    @MainActor func testStudioCentersPlayingCard() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["-PCMobileQA", "-PCMobileRadioQA"]
+        app.launch()
+        let play = app.buttons["mobilePlaybackButton"]
+        XCTAssertTrue(play.waitForExistence(timeout: 30))
+        expectation(for: NSPredicate(format: "enabled == true"), evaluatedWith: app.buttons["mobileLibraryButton"])
+        waitForExpectations(timeout: 90)
+        play.tap()
+        expectation(for: NSPredicate(format: "label == %@", "Pause"), evaluatedWith: play)
+        waitForExpectations(timeout: 15)
+        app.sliders["Soundtrack position"].adjust(toNormalizedSliderPosition: 0.5)
+        let current = app.otherElements["currentStudioClip"]
+        let timeline = app.scrollViews["mobileStudioTimeline"]
+        XCTAssertTrue(current.waitForExistence(timeout: 10))
+        XCTAssertTrue(timeline.exists)
+        expectation(for: NSPredicate { _, _ in
+            abs(current.frame.midX - timeline.frame.midX) < 24
+        }, evaluatedWith: app)
+        waitForExpectations(timeout: 15)
+        XCTAssertEqual(play.label, "Pause")
+        play.tap()
+    }
     @MainActor func testRadioEmptyFavoritesAndScrubbing() throws {
         let app = XCUIApplication()
         XCUIDevice.shared.orientation = ProcessInfo.processInfo.environment["PC_MOBILE_LANDSCAPE"] == "1" ? .landscapeLeft : .portrait
