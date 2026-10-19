@@ -32,7 +32,7 @@ enum SocialAspect: String, CaseIterable, Identifiable {
 
 @MainActor
 final class SocialExportController: ObservableObject {
-    #if os(visionOS)
+    #if os(visionOS) || os(iOS)
     static let supportedFrameRates = [24, 30, 60]
     private static let supportedResolutions = [720, 1080, 2160]
     #else
@@ -98,7 +98,7 @@ final class SocialExportController: ObservableObject {
             await Task.yield()
             guard StudioTimeline.valid(segments, sceneCount: RenderState.sceneNames.count) else { throw ExportError("Studio timeline is invalid") }
             guard Self.supportedFrameRates.contains(frameRate), Self.supportedResolutions.contains(resolution) else {
-                #if os(visionOS)
+                #if os(visionOS) || os(iOS)
                 throw ExportError("Choose 720p, 1080p, or 4K and 24, 30, or 60 fps")
                 #else
                 throw ExportError("Choose 720p, 1080p, or 4K and 24, 30, 60, or 120 fps (Experimental)")

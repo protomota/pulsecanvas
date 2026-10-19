@@ -273,7 +273,8 @@ final class VisualizerRenderer: NSObject, MTKViewDelegate {
             nativePipelines = [:]
             let depth = MTLDepthStencilDescriptor(); depth.depthCompareFunction = .lessEqual; depth.isDepthWriteEnabled = true
             depthState = device.makeDepthStencilState(descriptor: depth)
-            lastError = nil; state.errorMessage = nil
+            lastError = nil
+            if state.errorMessage != nil { state.errorMessage = nil }
         } catch { report(error.localizedDescription) }
     }
 
