@@ -1,6 +1,6 @@
 # Vision Pro 1.0 — submission preparation
 
-October 19, 2026. The latest internal TestFlight build is [1.0 (9)](https://appstoreconnect.apple.com/apps/6821642700/testflight/visionos/a2e55dbf-2a31-4509-9061-043042698f85), including Ratings & Support, native review milestones, aligned immersive controls and Radio song favorites. See [delivery receipt](../releases/vision-1.0-9.md).
+October 19, 2026. The latest internal TestFlight build is [1.0 (10)](https://appstoreconnect.apple.com/apps/6821642700/testflight/visionos/8e4b1270-69fe-4761-b104-2e2dde88da8b), adding full-width Radio with bottom controls, fresh randomized looks and favorite-settings snapshots. It retains Ratings & Support and native review milestones. See [delivery receipt](../releases/radio-bottom-controls-2026-10-19.md).
 
 The Vision-specific 1.0 listing remains a draft. Its audit found an empty English description and no selected build. No public review submission, website deployment or public media upload was performed during this preparation. Mac 1.1.4 remains Waiting for Review.
 
