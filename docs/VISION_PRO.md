@@ -134,7 +134,7 @@ Key controls carry accessibility identifiers, for example `playPauseButton`, `el
 - Random visualizer;
 - opening immersive viewing and returning to Studio.
 
-Every test launches with `-PCUITesting`. `testCaptureDemoTour` is a paced demo for screen recordings. It is skipped
+Every test launches with `-PCUITesting`. `testCaptureDemoTour` is a paced demo for screen recordings that ends in immersive viewing. It is skipped
 unless `TEST_RUNNER_PULSECANVAS_CAPTURE_DEMO=1` is set, and writes `CAPTURE-MARK` timestamps to
 `TEST_RUNNER_PULSECANVAS_CAPTURE_MARKS`.
 

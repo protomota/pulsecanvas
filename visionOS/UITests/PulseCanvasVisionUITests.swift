@@ -126,12 +126,9 @@ final class PulseCanvasVisionUITests: XCTestCase {
         app.buttons["immersiveButton"].tap(); mark("immersive-tap")
         let back = app.buttons["backToStudioButton"]
         XCTAssertTrue(back.waitForExistence(timeout: 60)); mark("immersive")
-        // Immersive controls auto-hide after five seconds of playback, so the tour returns before then by default.
-        pause(Double(env["PULSECANVAS_CAPTURE_IMMERSIVE_SECONDS"] ?? "") ?? 4)
-        if !back.isHittable {                 // hidden: a tap on the visual shows them again
-            app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.45)).tap(); pause(1)
-        }
-        back.tap(); mark("back")
-        XCTAssertTrue(app.buttons["immersiveButton"].waitForExistence(timeout: 30)); pause(3); mark("end")
+        // The tour ends in immersive viewing: its controls auto-hide after five seconds of playback, and the visionOS
+        // simulator can't synthesize the tap on the visual that would show them again.
+        pause(Double(env["PULSECANVAS_CAPTURE_IMMERSIVE_SECONDS"] ?? "") ?? 15)
+        mark("end")
     }
 }
