@@ -169,5 +169,38 @@ import Combine
         precondition(!audio.isPlaying && audio.selectedURL == nil, "Clear must invalidate pending loop callbacks")
         print("PASS Loop: on by default, end stop when disabled, repeat with PCM analysis, pause, disable, clear")
         print("PASS soundtrack: load, paused analysis, real FFT, playback, pause, seek, resume, clear")
+
+        let music = AudioController()
+        let continuousPrepared = try PreparedSoundtrack(url: url)
+        precondition(music.install(continuousPrepared, title: "Continuous Radio", playback: .radio))
+        precondition(!music.isPlaying && music.title == "Continuous Radio")
+        music.volume = 0.1
+        music.playFullSoundtrack()
+        try await Task.sleep(for: .milliseconds(350))
+        precondition(music.isPlaying && music.playbackSeconds > 0.1 && music.spectrum.max()! > 0.3)
+        music.pause(); let held = music.playbackSeconds
+        try await Task.sleep(for: .milliseconds(150))
+        precondition(!music.isPlaying && music.playbackSeconds == held)
+        music.seek(fraction: 0.5)
+        precondition(abs(music.playbackSeconds - music.duration * 0.5) < 0.001)
+        music.playFullSoundtrack()
+        try await Task.sleep(for: .milliseconds(150))
+        precondition(music.isPlaying && music.playbackSeconds > held)
+        var completions = 0
+        music.onSoundtrackFinished = { completions += 1 }
+        music.seek(fraction: 0.95)
+        try await Task.sleep(for: .milliseconds(600))
+        precondition(completions == 1 && !music.isPlaying && music.progress == 1,
+            "Radio owns end-of-song even when Studio Loop is on")
+        music.onSoundtrackFinished = nil; music.loopEnabled = true
+        music.playFullSoundtrack(); music.seek(fraction: 0.95)
+        try await Task.sleep(for: .milliseconds(600))
+        precondition(music.isPlaying && music.playbackSeconds < 1, "Continuous playback must also honor normal full-song looping")
+        music.playSection(start: boundary, end: 0.733, restart: true)
+        try await Task.sleep(for: .milliseconds(600))
+        precondition(music.isPlaying && music.previewSectionStart == boundary && music.playbackSeconds < 0.733,
+            "Entering a Studio section from Radio must restore precise engine playback")
+        music.clear()
+        print("PASS continuous Radio playback: independent file player, clock/FFT, volume, pause/seek/resume, completion, full-song loop and precise Studio handoff")
     }
 }

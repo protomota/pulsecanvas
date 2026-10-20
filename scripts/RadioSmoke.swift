@@ -130,6 +130,37 @@ import Foundation
         precondition(repairedData == originalData)
         print("PASS cache integrity: modified cached audio is replaced with verified source")
 
+        // Preserve containers, including verified old caches whose extension was wrong.
+        let formatCache = temporary.appendingPathComponent("format-cache")
+        let formatLibrary = RadioLibrary(directory: formatCache)
+        try FileManager.default.createDirectory(at: formatCache, withIntermediateDirectories: true)
+        let wave = audioDirectory.appendingPathComponent("format.WAV")
+        let waveFormat = AVAudioFormat(standardFormatWithSampleRate: 48000, channels: 1)!
+        let waveBuffer = AVAudioPCMBuffer(pcmFormat: waveFormat, frameCapacity: 48000)!
+        waveBuffer.frameLength = waveBuffer.frameCapacity
+        for i in 0..<48000 { waveBuffer.floatChannelData![0][i] = 0.25 * sin(Float(i) * 2 * .pi * 330 / 48000) }
+        do { let out = try AVAudioFile(forWriting: wave, settings: waveFormat.settings); try out.write(from: waveBuffer) }
+        let mp3 = audioDirectory.appendingPathComponent("format.mp3")
+        try FileManager.default.copyItem(at: BundledSoundtrack.url!, to: mp3)
+        for source in [wave, mp3] {
+            let bytes = try Data(contentsOf: source)
+            let hash = SHA256.hash(data: bytes).map { String(format: "%02x", $0) }.joined()
+            let opened = try AVAudioFile(forReading: source)
+            let track = RadioTrack(id: UUID().uuidString, title: "Format test", genre: "Test",
+                duration: Double(opened.length) / opened.processingFormat.sampleRate,
+                audio: "audio/" + source.lastPathComponent, sha256: hash, byteCount: bytes.count)
+            try bytes.write(to: formatCache.appendingPathComponent(hash + ".m4a"))
+            try FileManager.default.removeItem(at: source)
+            let migrated = try await formatLibrary.localAudio(for: track, catalogURL: catalogURL)
+            precondition(migrated.pathExtension == source.pathExtension.lowercased())
+            let restored = try Data(contentsOf: migrated)
+            precondition(restored == bytes, "Cache migration must never transcode or change samples")
+            let decoded = try PreparedSoundtrack(url: migrated)
+            precondition(abs(decoded.file.processingFormat.sampleRate - opened.processingFormat.sampleRate) < 0.001)
+            precondition(decoded.file.processingFormat.channelCount == opened.processingFormat.channelCount)
+        }
+        print("PASS audio formats: uppercase WAV and MP3 retain extension, sample rate/channels and exact bytes; verified old M4A-named caches migrate offline")
+
         let audio = AudioController(), studio = StudioStore(defaults: defaults), render = RenderState()
         audio.volume = 0
         precondition(audio.load(url: audioDirectory.appendingPathComponent("0.m4a")))

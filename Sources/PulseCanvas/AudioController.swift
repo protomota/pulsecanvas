@@ -2,6 +2,25 @@ import Foundation
 import AVFoundation
 import Combine
 
+/// AVAudioPlayer keeps continuous music decoding independent of the Studio engine.
+@MainActor private final class RadioPlaybackCompletion: NSObject, AVAudioPlayerDelegate {
+    var finished: ((AVAudioPlayer, Bool) -> Void)?
+    nonisolated func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
+        Task { @MainActor [weak self, weak player] in
+            guard let player else { return }
+            self?.finished?(player, flag)
+        }
+    }
+    nonisolated func audioPlayerDecodeErrorDidOccur(_ player: AVAudioPlayer, error: Error?) {
+        Task { @MainActor [weak self, weak player] in
+            guard let player else { return }
+            self?.finished?(player, false)
+        }
+    }
+}
+
+enum SoundtrackPlayback { case studio, radio }
+
 /// A single project soundtrack, with real PCM analysis for the preview.
 @MainActor
 final class AudioController: ObservableObject {
@@ -35,9 +54,17 @@ final class AudioController: ObservableObject {
     @Published var loopEnabled = true
     /// Radio owns full-song completion; bounded Studio previews still loop normally.
     var onSoundtrackFinished: (() -> Void)?
-    @Published var volume: Float = 0.7 { didSet { engine.mainMixerNode.outputVolume = min(1, max(0, volume)) } }
+    @Published var volume: Float = 0.7 {
+        didSet {
+            let gain = volume.isFinite ? min(1, max(0, volume)) : 0
+            engine.mainMixerNode.outputVolume = gain
+            continuousPlayer?.volume = gain
+        }
+    }
     private let engine = AVAudioEngine()
     private let player = AVAudioPlayerNode()
+    private var continuousPlayer: AVAudioPlayer?
+    private let continuousCompletion = RadioPlaybackCompletion()
     private var file: AVAudioFile?
     private var analyzer: SoundtrackAnalyzer?
     private var segmentStart: AVAudioFramePosition = 0
@@ -76,23 +103,39 @@ final class AudioController: ObservableObject {
 
     /// Prepared on a worker, then transferred exclusively to the playback actor.
     @discardableResult
-    func install(_ prepared: PreparedSoundtrack, title displayTitle: String? = nil) -> Bool {
+    func install(_ prepared: PreparedSoundtrack, title displayTitle: String? = nil, playback: SoundtrackPlayback = .studio) -> Bool {
         do {
             let opened = prepared.file, url = prepared.url
+            let radioPlayer = playback == .radio ? try AVAudioPlayer(contentsOf: url) : nil
             stop()
+            // Format changes must happen while the Studio graph is stopped.
+            engine.stop(); continuousPlayer = nil
             analyzer = prepared.analyzer
             file = opened
-            engine.disconnectNodeOutput(player)
-            engine.connect(player, to: engine.mainMixerNode, format: opened.processingFormat)
-            engine.prepare()
-            #if os(macOS)
-            try engine.start()
-            #endif
+            if let radioPlayer {
+                guard radioPlayer.duration.isFinite, radioPlayer.duration > 0 else { throw SoundtrackError.empty }
+                radioPlayer.numberOfLoops = 0
+                radioPlayer.volume = volume.isFinite ? min(1, max(0, volume)) : 0
+                radioPlayer.delegate = continuousCompletion
+                guard radioPlayer.prepareToPlay() else { throw SoundtrackError.cannotPrepare }
+                continuousPlayer = radioPlayer
+                continuousCompletion.finished = { [weak self] completed, succeeded in
+                    guard let self, self.continuousPlayer === completed, self.isPlaying,
+                          !completed.isPlaying else { return }
+                    if succeeded { self.finishSoundtrack() }
+                    else { self.isPlaying = false; self.status = "Audio playback stopped unexpectedly" }
+                }
+            } else {
+                prepareStudioEngine(for: opened)
+                #if os(macOS)
+                try engine.start()
+                #endif
+            }
             soundtrackAccess = prepared.access
             soundtrackBookmark = BundledSoundtrack.identifier(for: url) == nil ? try? prepared.access.readOnlyBookmark() : nil
             selectedURL = url
             title = displayTitle ?? url.deletingPathExtension().lastPathComponent
-            duration = Double(opened.length) / opened.processingFormat.sampleRate
+            duration = radioPlayer?.duration ?? Double(opened.length) / opened.processingFormat.sampleRate
             schedule(from: 0, playing: false)
             analyze(frame: 0)
             status = "Soundtrack ready"
@@ -101,25 +144,55 @@ final class AudioController: ObservableObject {
     }
 
     func clear() {
-        stop(); file = nil; analyzer = nil; selectedURL = nil; title = "Add a soundtrack"; duration = 0
+        stop(); continuousPlayer = nil; continuousCompletion.finished = nil; file = nil; analyzer = nil; selectedURL = nil; title = "Add a soundtrack"; duration = 0
         soundtrackAccess = nil; soundtrackBookmark = nil
         engine.stop(); status = "Choose music to sync your visuals"
     }
 
-    func segmentPlan(beatsPerSection: Int = 16) -> SongSegmentation? { analyzer?.segmentPlan(beatsPerSection: beatsPerSection) }
+    func segmentPlan(beatsPerSection: Int = 16) -> SongSegmentation? {
+        guard let plan = analyzer?.segmentPlan(beatsPerSection: beatsPerSection) else { return nil }
+        guard continuousPlayer != nil else { return plan }
+        // Container priming can make AVAudioPlayer's audible duration differ by
+        // a few samples from AVAudioFile. End Radio scenes on the playback clock.
+        return SongSegmentation(boundaries: plan.boundaries.filter { $0 < duration } + [duration], bpm: plan.bpm)
+    }
+
+    private func prepareStudioEngine(for file: AVAudioFile) {
+        engine.stop()
+        engine.disconnectNodeOutput(player)
+        engine.connect(player, to: engine.mainMixerNode, format: file.processingFormat)
+        engine.prepare()
+    }
+
+    private func activatePlaybackSession() throws {
+        #if !os(macOS)
+        let session = AVAudioSession.sharedInstance()
+        if session.category != .playback { try session.setCategory(.playback, mode: .default) }
+        try session.setActive(true)
+        #endif
+    }
 
     private func startPlaybackEngine() -> Bool {
         do {
-            #if !os(macOS)
-            try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default)
-            try AVAudioSession.sharedInstance().setActive(true)
-            #endif
-            if !engine.isRunning { try engine.start() }
+            if !engine.isRunning { try activatePlaybackSession(); try engine.start() }
             return true
         } catch { status = "Audio playback couldn't start: \(error.localizedDescription)"; return false }
     }
     func playPause() {
         guard file != nil else { return }
+        if let continuousPlayer {
+            if isPlaying {
+                updateProgress(); continuousPlayer.pause(); isPlaying = false; status = "Paused"
+            } else {
+                do {
+                    try activatePlaybackSession()
+                    if progress >= 0.9999 { continuousPlayer.currentTime = 0; progress = 0; playbackSeconds = 0 }
+                    isPlaying = continuousPlayer.play()
+                    status = isPlaying ? "Playing soundtrack" : "Audio playback couldn't start"
+                } catch { status = "Audio playback couldn't start: \(error.localizedDescription)" }
+            }
+            return
+        }
         if !isPlaying && !startPlaybackEngine() { return }
         if isPlaying { updateProgress(); player.pause(); isPlaying = false; status = "Paused" }
         else {
@@ -142,7 +215,7 @@ final class AudioController: ObservableObject {
     func pause() { if isPlaying { playPause() } }
 
     func stop() {
-        generation = UUID(); player.stop(); isPlaying = false; segmentStart = 0
+        generation = UUID(); player.stop(); continuousPlayer?.stop(); continuousPlayer?.currentTime = 0; isPlaying = false; segmentStart = 0
         previewSectionStart = nil; previewSectionEnd = nil
         progress = 0; playbackSeconds = 0; spectrum = [Float](repeating: 0, count: 32); beatPulse = 0; momentum = 0; beatMotionTime = 0; envelopes = .zero; swell = 0; treblePulse = 0; trebleAttackTime = nil
         visualizationUpdated.send()
@@ -152,6 +225,10 @@ final class AudioController: ObservableObject {
     func playSection(start: Double, end: Double, restart: Bool = false) {
         guard let file, start.isFinite, end.isFinite, start >= 0, end > start, end <= duration + 0.001 else { return }
         if !restart && isPlaying && previewSectionStart == start { pause(); return }
+        if continuousPlayer != nil {
+            continuousPlayer?.stop(); continuousPlayer = nil; continuousCompletion.finished = nil
+            prepareStudioEngine(for: file)
+        }
         let rate = file.processingFormat.sampleRate
         let first = min(file.length - 1, AVAudioFramePosition(start == 0 ? 0 : ceil((start * rate).nextUp)))
         let last = min(file.length, AVAudioFramePosition(end * rate))
@@ -172,8 +249,10 @@ final class AudioController: ObservableObject {
 
     func seek(fraction: Double) {
         guard let file else { return }
+        guard fraction.isFinite else { return }
         let fraction = min(1, max(0, fraction))
-        seek(frame: min(file.length - 1, AVAudioFramePosition(fraction * Double(file.length))))
+        let frame = continuousPlayer == nil ? fraction * Double(file.length) : fraction * duration * file.processingFormat.sampleRate
+        seek(frame: min(file.length - 1, AVAudioFramePosition(frame)))
     }
 
     func seekToSection(start: Double) {
@@ -188,8 +267,8 @@ final class AudioController: ObservableObject {
         guard let file else { return }
         previewSectionStart = nil; previewSectionEnd = nil
         schedule(from: frame, playing: isPlaying)
-        progress = Double(frame) / Double(file.length)
-        playbackSeconds = Double(frame) / file.processingFormat.sampleRate
+        playbackSeconds = continuousPlayer?.currentTime ?? Double(frame) / file.processingFormat.sampleRate
+        progress = duration > 0 ? playbackSeconds / duration : 0
         analyze(frame: frame)
     }
 
@@ -217,6 +296,15 @@ final class AudioController: ObservableObject {
 
     private func schedule(from start: AVAudioFramePosition, playing: Bool, end: AVAudioFramePosition? = nil) {
         guard let file else { return }
+        if let continuousPlayer {
+            generation = UUID(); previewSectionStart = nil; previewSectionEnd = nil
+            continuousPlayer.currentTime = min(duration, Double(start) / file.processingFormat.sampleRate)
+            if playing {
+                do { try activatePlaybackSession(); isPlaying = continuousPlayer.play() }
+                catch { isPlaying = false; status = "Audio playback couldn't start: \(error.localizedDescription)" }
+            } else { continuousPlayer.pause(); isPlaying = false }
+            return
+        }
         if playing && !startPlaybackEngine() { return }
         if end == nil { previewSectionStart = nil; previewSectionEnd = nil }
         generation = UUID(); let token = generation
@@ -234,23 +322,26 @@ final class AudioController: ObservableObject {
                     self.status = "Playing Studio section · Looping"
                     return
                 }
-                let finished = self.isPlaying ? self.onSoundtrackFinished : nil
-                if self.isPlaying && self.loopEnabled && finished == nil {
-                    self.schedule(from: 0, playing: true)
-                    self.progress = 0; self.playbackSeconds = 0
-                    self.analyze(frame: 0)
-                    self.status = "Playing soundtrack · Looping"
-                    return
-                }
-                self.isPlaying = false; self.progress = 1; self.playbackSeconds = self.duration
-                self.beatPulse = 0; self.momentum = 0; self.envelopes = .zero; self.swell = 0; self.treblePulse = 0; self.trebleAttackTime = nil; self.spectrum = [Float](repeating: 0, count: 32)
-                self.visualizationUpdated.send()
-                self.status = "End of soundtrack"
-                finished?()
+                self.finishSoundtrack()
             }
         }
         if playing { player.play() }
         isPlaying = playing
+    }
+
+    private func finishSoundtrack() {
+        let finished = isPlaying ? onSoundtrackFinished : nil
+        if isPlaying && loopEnabled && finished == nil {
+            schedule(from: 0, playing: true)
+            progress = 0; playbackSeconds = 0; analyze(frame: 0)
+            status = "Playing soundtrack · Looping"
+            return
+        }
+        isPlaying = false; progress = 1; playbackSeconds = duration
+        beatPulse = 0; momentum = 0; envelopes = .zero; swell = 0; treblePulse = 0; trebleAttackTime = nil
+        spectrum = [Float](repeating: 0, count: 32)
+        visualizationUpdated.send(); status = "End of soundtrack"
+        finished?()
     }
 
     private func updateProgress(fromTimer: Bool = false) {
@@ -258,6 +349,13 @@ final class AudioController: ObservableObject {
             let now = ProcessInfo.processInfo.systemUptime
             guard now - lastBackgroundProgressRefresh >= 1 else { return }
             lastBackgroundProgressRefresh = now
+        }
+        if let continuousPlayer {
+            guard isPlaying, let file else { return }
+            playbackSeconds = min(duration, max(0, continuousPlayer.currentTime))
+            progress = duration > 0 ? playbackSeconds / duration : 0
+            analyze(frame: AVAudioFramePosition(playbackSeconds * file.processingFormat.sampleRate))
+            return
         }
         guard isPlaying, let file, let time = player.lastRenderTime, let position = player.playerTime(forNodeTime: time) else { return }
         playbackSeconds = min(previewSectionEnd.map { max(0, $0 - 1 / file.processingFormat.sampleRate) } ?? duration, max(0, Double(segmentStart) / file.processingFormat.sampleRate + max(0, Double(position.sampleTime) / file.processingFormat.sampleRate - player.outputPresentationLatency)))
@@ -283,6 +381,11 @@ final class PreparedSoundtrack: @unchecked Sendable {
 }
 
 private enum SoundtrackError: LocalizedError {
-    case empty
-    var errorDescription: String? { "This file has no audio samples." }
+    case empty, cannotPrepare
+    var errorDescription: String? {
+        switch self {
+        case .empty: return "This file has no audio samples."
+        case .cannotPrepare: return "This soundtrack couldn't be prepared for playback."
+        }
+    }
 }

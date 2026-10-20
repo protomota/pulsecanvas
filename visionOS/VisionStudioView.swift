@@ -322,8 +322,10 @@ private struct VisionRadioControls: View {
                 Button("Next song", systemImage: "forward.end.fill") { radio.nextSong() }
                     .accessibilityIdentifier("nextRadioSongButton")
                     .disabled(radio.loading || radio.stations.isEmpty && !radio.isPersonalMusic)
-                Button("Favorite songs", systemImage: "heart.fill") { showFavorites = true }
-                    .accessibilityIdentifier("favoriteSongsLibraryButton")
+                if !radio.isPersonalMusic {
+                    Button("Favorite songs", systemImage: "heart.fill") { showFavorites = true }
+                        .accessibilityIdentifier("favoriteSongsLibraryButton")
+                }
             }
             Spacer(minLength: 0)
             if radio.loading { ProgressView("Preparing music…") }

@@ -113,7 +113,9 @@ struct MobileRadio: View {
             Text(radio.currentTrack?.title ?? "PulseCanvas Radio").font(.headline).lineLimit(1)
                 .accessibilityIdentifier("radioCurrentSongTitle")
             Spacer(minLength: 0)
-            Button { favorites = true } label: { Image(systemName: "heart.text.clipboard") }.accessibilityLabel("Favorite songs")
+            if !radio.isPersonalMusic {
+                Button { favorites = true } label: { Image(systemName: "heart.text.clipboard") }.accessibilityLabel("Favorite songs")
+            }
         }.buttonStyle(MobileButton())
     }
     private var stationPicker: some View {

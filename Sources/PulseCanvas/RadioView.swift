@@ -91,12 +91,13 @@ struct RadioLibraryView: View {
                                 .monospacedDigit().foregroundStyle(.secondary)
                         }.padding(.vertical, 4).contentShape(Rectangle())
                     }.buttonStyle(.plain)
-                    Button { radio.toggleFavoriteSong(track) } label: {
-                        Image(systemName: radio.isFavoriteSong(track) ? "heart.fill" : "heart")
-                            .frame(width: 44, height: 44).contentShape(Rectangle())
-                    }.buttonStyle(.plain)
-                        .disabled(!radio.canFavoriteCurrentSong)
-                        .accessibilityLabel("\(radio.isFavoriteSong(track) ? "Unfavorite" : "Favorite") song \(track.title)")
+                    if radio.canFavoriteCurrentSong {
+                        Button { radio.toggleFavoriteSong(track) } label: {
+                            Image(systemName: radio.isFavoriteSong(track) ? "heart.fill" : "heart")
+                                .frame(width: 44, height: 44).contentShape(Rectangle())
+                        }.buttonStyle(.plain)
+                            .accessibilityLabel("\(radio.isFavoriteSong(track) ? "Unfavorite" : "Favorite") song \(track.title)")
+                    }
                     }
                 }.frame(minHeight: 160, maxHeight: .infinity).disabled(radio.isCatalogLoading)
             } else {
@@ -354,15 +355,14 @@ struct RadioPlayerView: View {
             HStack(spacing: 16) {
                 VStack(alignment: .leading, spacing: 4) {
                     HStack(spacing: 8) {
-                        Button {
-                            if let track = radio.currentTrack { radio.toggleFavoriteSong(track); revealControls() }
-                        } label: {
-                            Image(systemName: radio.currentTrack.map(radio.isFavoriteSong) == true ? "heart.fill" : "heart")
-                        }.buttonStyle(StudioButtonStyle(compact: true, circular: true))
-                            .disabled(radio.currentTrack == nil || radio.isLoading || !radio.canFavoriteCurrentSong)
-                            .opacity(radio.currentTrack == nil || !radio.canFavoriteCurrentSong ? 0 : 1)
-                            .accessibilityLabel(radio.currentTrack.map(radio.isFavoriteSong) == true ? "Unfavorite song" : "Favorite song")
-                            .help("Save or remove this song in Library → Favorite songs")
+                        if let track = radio.currentTrack, radio.canFavoriteCurrentSong {
+                            Button { radio.toggleFavoriteSong(track); revealControls() } label: {
+                                Image(systemName: radio.isFavoriteSong(track) ? "heart.fill" : "heart")
+                            }.buttonStyle(StudioButtonStyle(compact: true, circular: true))
+                                .disabled(radio.isLoading)
+                                .accessibilityLabel(radio.isFavoriteSong(track) ? "Unfavorite song" : "Favorite song")
+                                .help("Save or remove this song in Library → Favorite songs")
+                        }
                         Text(radio.isLoading ? "Preparing next song…" : radio.currentTrack?.title ?? "Radio")
                             .font(.title3.weight(.semibold)).lineLimit(1)
 

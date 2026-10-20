@@ -17,6 +17,8 @@ final class PulseCanvasMobileUITests: XCTestCase {
         waitForExpectations(timeout: 60)
         XCTAssertEqual(app.buttons["radioPlaybackButton"].label, "Pause")
         XCTAssertFalse(app.buttons["Favorite song"].exists)
+        XCTAssertFalse(app.buttons["Favorite songs"].exists)
+        XCTAssertTrue(app.buttons["Favorite radio visualizer"].exists)
         app.buttons["Project actions"].tap()
         XCTAssertFalse(app.buttons["Export MP4"].isEnabled)
         app.buttons["Choose music"].tap()

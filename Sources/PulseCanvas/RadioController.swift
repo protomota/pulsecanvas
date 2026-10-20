@@ -503,7 +503,7 @@ final class RadioController: ObservableObject {
                     try Task.checkCancellation()
                     guard let self, self.revision == token, self.isActive else { return }
                     let previousScene = self.hasRadioAudio ? self.visualizer.scene : nil
-                    guard audio.install(prepared, title: track.title) else { throw RadioError.download }
+                    guard audio.install(prepared, title: track.title, playback: .radio) else { throw RadioError.download }
                     self.hasRadioAudio = true
                     self.currentIndex = index; self.requestedIndex = nil; self.isLoading = false
                     self.segments = []; self.playedVisualizers = []; self.sceneTitle = ""
