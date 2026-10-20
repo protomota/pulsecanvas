@@ -367,5 +367,32 @@ import Combine
         precondition(restoredLibraryStudio.audioURL == permanentURL && restoredLibraryStudio.project.audioTitle == "Picked from music")
         precondition(restoredLibraryStudio.transport.duration > 0 && !restoredLibraryStudio.needsSoundtrack)
         print("PASS Studio library song: chosen title, permanent copy, timeline and reopening after source removal")
+
+        try JSONEncoder().encode(RadioCatalog(version: 1, title: "Test Radio", tracks: tracks))
+            .write(to: fixtures.appendingPathComponent("catalog.json"))
+        let personalLibrary = RadioLibrary(directory: directory.appendingPathComponent("PersonalCache"))
+        let album = directory.appendingPathComponent("Personal album")
+        try FileManager.default.createDirectory(at: album, withIntermediateDirectories: true)
+        let localSong = fixtures.appendingPathComponent(tracks[0].audio)
+        try FileManager.default.copyItem(at: localSong, to: album.appendingPathComponent("Personal song.mp3"))
+        let personal = try await personalLibrary.importMusicFolder(album, into: directory.appendingPathComponent("PersonalRadio"))
+        defaults.set(personal.url, forKey: PersonalRadioMusic.catalogKey)
+        defaults.set(true, forKey: PersonalRadioMusic.activeKey)
+        let personalRadio = VisionRadio(directory: directory.appendingPathComponent("PersonalPlayback"),
+            source: fixtures.appendingPathComponent("stations.json"), presets: presets, defaults: defaults)
+        personalRadio.studio.volume = 0
+        personalRadio.nextSong(); await personalRadio.waitForTrack()
+        precondition(personalRadio.error == nil && personalRadio.isPersonalMusic && personalRadio.studio.transport.playing)
+        precondition(personalRadio.playingTrack?.title == "Personal song")
+        precondition(personalRadio.studioMusicSource == fixtures.appendingPathComponent("stations.json"))
+        let personalID = personalRadio.playingTrack!.id
+        personalRadio.studio.seek(personalRadio.studio.transport.duration - 0.2)
+        try await Task.sleep(for: .milliseconds(700)); await personalRadio.waitForTrack()
+        precondition(personalRadio.playingTrack?.id == personalID && personalRadio.studio.transport.playing)
+        await personalRadio.refreshStations()
+        personalRadio.selectStation("all-music"); await personalRadio.waitForTrack()
+        precondition(!personalRadio.isPersonalMusic && personalRadio.studio.transport.playing && personalRadio.error == nil)
+        personalRadio.suspend()
+        print("PASS Vision personal Radio: restored folder, looping, Studio catalog isolation, returning to server music")
     }
 }

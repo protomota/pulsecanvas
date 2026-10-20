@@ -2,6 +2,40 @@ import XCTest
 
 final class PulseCanvasMobileUITests: XCTestCase {
     override func setUp() { continueAfterFailure = false }
+    @MainActor func testPersonalFolderRadioStaysOutOfStudio() throws {
+        let app = XCUIApplication()
+        XCUIDevice.shared.orientation = .portrait
+        app.launchArguments = ["-PCMobileQA", "-PCMobileRadioQA", "-PCMobileFolderQA"]
+        app.launch()
+        let library = app.buttons["mobileLibraryButton"]
+        XCTAssertTrue(library.waitForExistence(timeout: 30))
+        expectation(for: NSPredicate(format: "enabled == true"), evaluatedWith: library)
+        waitForExpectations(timeout: 90)
+        app.buttons["Radio"].tap()
+        let title = app.staticTexts["radioCurrentSongTitle"]
+        expectation(for: NSPredicate(format: "label == %@", "Personal song"), evaluatedWith: title)
+        waitForExpectations(timeout: 60)
+        XCTAssertEqual(app.buttons["radioPlaybackButton"].label, "Pause")
+        XCTAssertFalse(app.buttons["Favorite song"].exists)
+        app.buttons["Project actions"].tap()
+        XCTAssertFalse(app.buttons["Export MP4"].isEnabled)
+        app.buttons["Choose music"].tap()
+        let songs = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@", "studioMusicSong-"))
+        expectation(for: NSPredicate { _, _ in songs.count == 2 }, evaluatedWith: app)
+        waitForExpectations(timeout: 30)
+        XCTAssertFalse(app.buttons["Use Personal song in Studio"].exists)
+        app.buttons["cancelStudioMusic"].tap()
+        app.buttons["Next song"].tap()
+        expectation(for: NSPredicate(format: "label == %@", "Pause"), evaluatedWith: app.buttons["radioPlaybackButton"])
+        waitForExpectations(timeout: 30)
+        XCTAssertEqual(title.label, "Personal song", "A one-song album loops")
+        app.buttons["radioStationPicker"].tap()
+        XCTAssertTrue(app.buttons["Choose music folder…"].exists)
+        app.buttons["All music"].tap()
+        XCTAssertTrue(app.buttons["Favorite song"].waitForExistence(timeout: 30))
+        XCTAssertTrue(title.label.hasPrefix("Radio test soundtrack"))
+    }
+
     @MainActor func testChooseLibrarySongAsStudioSoundtrack() throws {
         let app = XCUIApplication()
         XCUIDevice.shared.orientation = .portrait

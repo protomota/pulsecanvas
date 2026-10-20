@@ -1,6 +1,7 @@
 import SwiftUI
 import Combine
 import UIKit
+import UniformTypeIdentifiers
 
 struct MobileRadio: View {
     @ObservedObject var editor: MobileEditor
@@ -9,6 +10,8 @@ struct MobileRadio: View {
     @ObservedObject private var library = ProjectMPresets.shared
     let present: () -> Void
     @State private var favorites = false
+    @State private var musicFolder = false
+    @State private var folderError: String?
     init(editor: MobileEditor, present: @escaping () -> Void) { self.editor = editor; radio = editor.radio; audio = editor.audio; self.present = present }
     var body: some View {
         GeometryReader { geometry in
@@ -34,6 +37,15 @@ struct MobileRadio: View {
                 }
             }
         }.onAppear { radio.loadSavedCatalogIfNeeded(refresh: !radio.isActive) }
+        .fileImporter(isPresented: $musicFolder, allowedContentTypes: [.folder]) { result in
+            switch result {
+            case .success(let url): radio.importMusicFolder(url)
+            case .failure(let error): folderError = error.localizedDescription
+            }
+        }
+        .alert("Music folder", isPresented: Binding(get: { folderError != nil }, set: { if !$0 { folderError = nil } })) {
+            Button("OK") { folderError = nil }
+        } message: { Text(folderError ?? "") }
         .sheet(isPresented: $favorites) {
             NavigationStack {
                 List {
@@ -93,7 +105,7 @@ struct MobileRadio: View {
     }
     private var songHeading: some View {
         HStack {
-            if let track = radio.currentTrack {
+            if let track = radio.currentTrack, radio.canFavoriteCurrentSong {
                 Button { radio.toggleFavoriteSong(track) } label: {
                     Image(systemName: radio.isFavoriteSong(track) ? "heart.fill" : "heart").frame(width: 16)
                 }.accessibilityLabel("Favorite song")
@@ -108,13 +120,17 @@ struct MobileRadio: View {
         Menu {
             Button("All music") { radio.selectMusicGroup("all-music", startPlayback: true) }
             Button("Favorite songs") { radio.playFavoriteStation() }
-            ForEach(radio.stations.filter { $0.id != "all-music" }) { station in
+            Divider()
+            if radio.hasPersonalMusic { Button("My music folder") { radio.usePersonalMusic() } }
+            Button("Choose music folder…", systemImage: "folder.badge.plus") { musicFolder = true }
+            Toggle("Shuffle songs", isOn: $radio.shuffle)
+            ForEach(radio.isPersonalMusic ? [] : radio.stations.filter { $0.id != "all-music" }) { station in
                 Button(station.title) { radio.selectMusicGroup(station.id, startPlayback: true) }
             }
         } label: {
             Label(radio.favoriteSongsOnly ? "Favorite songs" : radio.stationTitle, systemImage: "antenna.radiowaves.left.and.right")
                 .lineLimit(1)
-        }.accessibilityIdentifier("radioStationPicker")
+        }.disabled(radio.isCatalogLoading).accessibilityIdentifier("radioStationPicker")
     }
     private var nextSong: some View {
         Button { radio.next() } label: { Image(systemName: "forward.end.fill") }
@@ -131,6 +147,7 @@ struct MobileRadio: View {
         VStack(spacing: 4) {
             if radio.isCatalogLoading || radio.isLoading { ProgressView(radio.status).frame(maxWidth: .infinity) }
             else { Text(radio.status).font(.caption).foregroundStyle(.secondary).lineLimit(2) }
+            if radio.isPersonalMusic, let notice = radio.folderImportNotice { Text(notice).font(.caption).foregroundStyle(.secondary) }
             if radio.favoriteSongsOnly && radio.favoriteSongs.isEmpty {
                 Text("No favorite songs yet. Choose All music, then save songs with the heart.").font(.caption).foregroundStyle(.secondary).lineLimit(2)
             }

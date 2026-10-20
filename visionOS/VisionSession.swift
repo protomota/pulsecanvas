@@ -32,13 +32,19 @@ import Foundation
     @Published private(set) var loading = false
     @Published private(set) var loadingStations = false
     @Published var error: String?
+    @Published private(set) var isPersonalMusic = false
+    @Published private(set) var folderImportNotice: String?
+    @Published var shuffle = true { didSet { queue.reset() } }
+    var hasPersonalMusic: Bool { defaults.url(forKey: PersonalRadioMusic.catalogKey) != nil }
+    var personalMusicTitle: String { isPersonalMusic ? catalog?.title ?? "My music folder" : "My music folder" }
+    private var folderTask: Task<Void, Never>?
     private let source: URL
     var studioMusicSource: URL { source }
     var studioMusicLibrary: RadioLibrary { library }
     private let library: RadioLibrary
     private let defaults: UserDefaults
     private let favoriteSongsKey = "PulseCanvas.radio.favoriteSongs.v1"
-    var musicGroupID: String { favoriteSongsOnly ? "favorite-songs" : stationID }
+    var musicGroupID: String { isPersonalMusic ? "my-music" : favoriteSongsOnly ? "favorite-songs" : stationID }
     var playingTrack: RadioTrack? {
         currentTrack.flatMap { index in catalog?.tracks.indices.contains(index) == true ? catalog?.tracks[index] : nil }
     }
@@ -60,12 +66,14 @@ import Foundation
             .appendingPathComponent("PulseCanvas/VisionRadio", isDirectory: true)
         self.source = source
         self.defaults = defaults
+        let personal = defaults.bool(forKey: PersonalRadioMusic.activeKey) && defaults.url(forKey: PersonalRadioMusic.catalogKey) != nil
+        isPersonalMusic = personal
         if let data = defaults.data(forKey: favoriteSongsKey), data.count <= 8_000_000,
            let saved = try? JSONDecoder().decode([FavoriteRadioSong].self, from: data), saved.count <= 2_000 {
             var seen = Set<String>()
             favoriteSongs = saved.filter { $0.sourceURL == source && $0.isValid && seen.insert($0.id).inserted }
         }
-        favoriteSongsOnly = defaults.bool(forKey: "PulseCanvas.radio.favoriteSongsOnly.v1")
+        favoriteSongsOnly = !personal && defaults.bool(forKey: "PulseCanvas.radio.favoriteSongsOnly.v1")
         library = RadioLibrary(directory: root.appendingPathComponent("Audio"))
         studio = VisionStudio(directory: root.appendingPathComponent("Session"), library: presets)
         studio.randomizesPlaybackLooks = true
@@ -86,17 +94,59 @@ import Foundation
         stationsTask = nil
     }
     private func loadStations() async {
-        loadingStations = true; error = nil
+        loadingStations = !isPersonalMusic; error = nil
         defer { loadingStations = false }
         do {
             stations = try await library.stations(at: source).stations
-            if !stations.contains(where: { $0.id == stationID }) {
+            if !isPersonalMusic && !stations.contains(where: { $0.id == stationID }) {
                 stationID = stations.first?.id ?? "all-music"
                 catalog = nil; catalogURL = nil; queue.reset(); currentTrack = nil
             }
-        } catch { self.error = "Stations couldn't load. Check your connection and try again." }
+        } catch { if !isPersonalMusic { self.error = "Stations couldn't load. Check your connection and try again." } }
     }
+    func importMusicFolder(_ folder: URL) {
+        guard !loading else { return }
+        loading = true; error = nil; folderImportNotice = nil
+        let previous = defaults.url(forKey: PersonalRadioMusic.catalogKey)
+        folderTask = Task { [weak self, library] in
+            do {
+                let result = try await library.importMusicFolder(folder)
+                guard let self, !Task.isCancelled else {
+                    await library.removePersonalCopy(at: result.url); return
+                }
+                self.defaults.set(result.url, forKey: PersonalRadioMusic.catalogKey)
+                self.loading = false; self.folderTask = nil
+                self.selectStation("my-music")
+                if result.skipped > 0 { self.folderImportNotice = "\(result.skipped) unsupported files skipped." }
+                await library.removePersonalCopy(at: previous)
+            } catch {
+                if !Task.isCancelled { self?.loading = false; self?.error = error.localizedDescription }
+            }
+        }
+    }
+
     func selectStation(_ id: String) {
+        guard !loading else { return }
+        if id == "my-music" {
+            guard hasPersonalMusic else { return }
+            isPersonalMusic = true; favoriteSongsOnly = false
+            defaults.set(true, forKey: PersonalRadioMusic.activeKey)
+            catalog = nil; catalogURL = nil; currentTrack = nil; queue.reset()
+            nextSong(); return
+        }
+        if stations.isEmpty {
+            Task { [weak self] in
+                guard let self else { return }
+                await self.refreshStations()
+                if self.stations.isEmpty { self.error = "Stations couldn't load. Your local music remains available." }
+                else { self.selectStation(id) }
+            }
+            return
+        }
+        if isPersonalMusic {
+            isPersonalMusic = false; catalog = nil; catalogURL = nil; currentTrack = nil; queue.reset()
+            defaults.set(false, forKey: PersonalRadioMusic.activeKey)
+        }
         if id == "favorite-songs" {
             guard !loading else { return }
             favoriteSongsOnly = true
@@ -118,6 +168,7 @@ import Foundation
     }
     func isFavoriteSong(_ track: RadioTrack) -> Bool { favoriteSongs.contains { $0.id == track.id } }
     func toggleFavoriteSong(_ track: RadioTrack) {
+        guard !isPersonalMusic || isFavoriteSong(track) else { return }
         if let index = favoriteSongs.firstIndex(where: { $0.id == track.id }) {
             favoriteSongs.remove(at: index)
         } else if let catalogURL, catalog?.tracks.contains(where: { $0.id == track.id }) == true,
@@ -155,6 +206,7 @@ import Foundation
     }
     func playFavoriteSong(_ song: FavoriteRadioSong) {
         guard !loading, favoriteSongs.contains(where: { $0.id == song.id }) else { return }
+        isPersonalMusic = false; defaults.set(false, forKey: PersonalRadioMusic.activeKey)
         favoriteSongsOnly = true
         defaults.set(true, forKey: "PulseCanvas.radio.favoriteSongsOnly.v1")
         // Refresh the full catalog before selecting the saved identity.
@@ -172,18 +224,26 @@ import Foundation
             guard let self else { return }
             defer { self.loading = false }
             do {
-                if self.stations.isEmpty { await self.refreshStations() }
-                try Task.checkCancellation()
-                let selectedID = self.favoriteSongsOnly ? "all-music" : self.stationID
-                guard let station = self.stations.first(where: { $0.id == selectedID })
-                    ?? (self.stations.count == 1 ? self.stations.first : nil) else { throw RadioError.invalidCatalog }
-                self.stationID = station.id
-                if self.catalog == nil {
-                    let url = try station.resolvedURL(relativeTo: self.source)
-                    self.catalog = try await self.library.catalog(at: url); self.catalogURL = url
-                    self.queue.reset(); self.currentTrack = nil
-                    if station.id == "all-music" || self.stations.count == 1, let catalog = self.catalog {
-                        self.reconcileFavorites(catalog, url: url, stationID: station.id)
+                if self.isPersonalMusic {
+                    if self.catalog == nil {
+                        guard let url = self.defaults.url(forKey: PersonalRadioMusic.catalogKey) else { throw RadioError.invalidCatalog }
+                        self.catalog = try await self.library.catalog(at: url); self.catalogURL = url
+                        self.queue.reset(); self.currentTrack = nil
+                    }
+                } else {
+                    if self.stations.isEmpty { await self.refreshStations() }
+                    try Task.checkCancellation()
+                    let selectedID = self.favoriteSongsOnly ? "all-music" : self.stationID
+                    guard let station = self.stations.first(where: { $0.id == selectedID })
+                        ?? (self.stations.count == 1 ? self.stations.first : nil) else { throw RadioError.invalidCatalog }
+                    self.stationID = station.id
+                    if self.catalog == nil {
+                        let url = try station.resolvedURL(relativeTo: self.source)
+                        self.catalog = try await self.library.catalog(at: url); self.catalogURL = url
+                        self.queue.reset(); self.currentTrack = nil
+                        if station.id == "all-music" || self.stations.count == 1, let catalog = self.catalog {
+                            self.reconcileFavorites(catalog, url: url, stationID: station.id)
+                        }
                     }
                 }
                 let choices = self.eligibleTrackIndices
@@ -192,17 +252,26 @@ import Foundation
                 if preferredTrackID != nil && preferred == nil {
                     self.error = "This song is no longer available in Radio."; return
                 }
-                guard let next = preferred ?? self.queue.next(count: choices.count,
-                    current: self.currentTrack.flatMap { choices.firstIndex(of: $0) }, shuffle: true).map({ choices[$0] }) else {
-                    if self.favoriteSongsOnly { self.error = "No favorite songs are available. Save a song from another station first."; return }
+                guard let first = preferred ?? self.queue.next(count: choices.count,
+                    current: self.currentTrack.flatMap { choices.firstIndex(of: $0) }, shuffle: self.shuffle).map({ choices[$0] }) else {
                     throw RadioError.allUnavailable
                 }
-                let track = catalog.tracks[next]
-                let audio = try await self.library.localAudio(for: track, catalogURL: url)
-                try Task.checkCancellation()
-                guard await self.studio.loadRadioAudio(audio, title: track.title) else { return }
+                let others = choices.filter { $0 != first }
+                let candidates = [first] + (self.shuffle ? others.shuffled() : others)
+                var loadedIndex: Int?
+                for next in candidates {
+                    try Task.checkCancellation()
+                    let track = catalog.tracks[next]
+                    do {
+                        let audio = try await self.library.localAudio(for: track, catalogURL: url)
+                        try Task.checkCancellation()
+                        if await self.studio.loadRadioAudio(audio, title: track.title) { loadedIndex = next; break }
+                    } catch is CancellationError { throw CancellationError() }
+                    catch { continue }
+                }
+                guard let loadedIndex else { throw RadioError.allUnavailable }
                 guard !Task.isCancelled, self.wantsPlayback else { self.studio.suspend(); return }
-                self.currentTrack = next
+                self.currentTrack = loadedIndex
                 self.studio.randomizeVisualizer()
                 #if os(visionOS)
                 VisionLaunchOptions.current.applyCaptureSequence(to: self.studio)
@@ -219,7 +288,11 @@ import Foundation
         wantsPlayback = !studio.transport.playing
         studio.togglePlayback()
     }
-    func suspend() { wantsPlayback = false; task?.cancel(); studio.suspend() }
+    func suspend() {
+        wantsPlayback = false
+        if folderTask != nil { folderTask?.cancel(); folderTask = nil; loading = false }
+        task?.cancel(); studio.suspend()
+    }
     /// Awaitable for local fixture checks; UI requests stay asynchronous and responsive.
     func waitForTrack() async { await task?.value }
 }

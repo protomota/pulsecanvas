@@ -409,6 +409,69 @@ import Foundation
         radio.leave()
         print("PASS failure handling: all-broken playlist stops after one pass")
 
+        // Personal albums are copied, loop as Radio, and never replace Studio's catalog or soundtrack.
+        let album = temporary.appendingPathComponent("Personal album")
+        let disc = album.appendingPathComponent("Disc 1")
+        try FileManager.default.createDirectory(at: disc, withIntermediateDirectories: true)
+        for index in 0..<3 {
+            try FileManager.default.copyItem(at: audioDirectory.appendingPathComponent("\(index).m4a"),
+                                            to: disc.appendingPathComponent("Song \(index).m4a"))
+        }
+        try Data("broken".utf8).write(to: album.appendingPathComponent("broken.mp3"))
+        try Data("not music".utf8).write(to: album.appendingPathComponent("notes.txt"))
+        let managed = temporary.appendingPathComponent("PersonalRadio")
+        let imported = try await library.importMusicFolder(album, into: managed)
+        let importedCatalog = try await library.catalog(at: imported.url)
+        precondition(importedCatalog.tracks.count == 3 && imported.skipped == 1)
+        precondition(importedCatalog.tracks.map(\.title) == ["Song 0", "Song 1", "Song 2"])
+        try FileManager.default.removeItem(at: album)
+        let remoteSource = radio.studioMusicSource
+        let oldAudioURL = audio.selectedURL
+        let oldTitle = audio.title
+        let savedFavorites = radio.favoriteSongs
+        defaults.set(imported.url, forKey: PersonalRadioMusic.catalogKey)
+        radio.shuffle = false
+        radio.usePersonalMusic()
+        try await wait("personal Radio import") { radio.isActive && !radio.isLoading && !radio.isCatalogLoading }
+        precondition(radio.isPersonalMusic && radio.stationTitle == "Personal album")
+        precondition(radio.studioMusicSource == remoteSource && radio.sourceText == remoteSource.absoluteString)
+        precondition(radio.currentIndex == 0 && audio.title == "Song 0" && audio.isPlaying)
+        for expected in [1, 2, 0, 1] {
+            radio.next()
+            try await wait("personal queue wraps") { !radio.isLoading && radio.currentIndex == expected }
+            precondition(audio.isPlaying)
+        }
+        audio.seek(fraction: 0.98)
+        try await wait("personal automatic next song") { !radio.isLoading && radio.currentIndex == 2 && audio.isPlaying }
+        radio.toggleFavoriteSong(radio.currentTrack!)
+        precondition(radio.favoriteSongs == savedFavorites, "Personal tracks must not enter catalog favorites")
+        radio.leave()
+        precondition(audio.selectedURL == oldAudioURL && audio.title == oldTitle)
+        let reopenedAlbum = RadioController(library: library, defaults: defaults, presets: favorites)
+        reopenedAlbum.attach(audio: audio)
+        reopenedAlbum.loadSavedCatalogIfNeeded()
+        try await wait("personal playlist reopens") { !reopenedAlbum.isCatalogLoading }
+        precondition(reopenedAlbum.isPersonalMusic && reopenedAlbum.catalog?.tracks.count == 3 && !reopenedAlbum.isActive)
+        precondition(reopenedAlbum.studioMusicSource == remoteSource)
+        let emptyAlbum = temporary.appendingPathComponent("Empty album")
+        try FileManager.default.createDirectory(at: emptyAlbum, withIntermediateDirectories: true)
+        reopenedAlbum.importMusicFolder(emptyAlbum, into: managed)
+        try await wait("empty import error") { !reopenedAlbum.isCatalogLoading }
+        precondition(reopenedAlbum.catalogError != nil && reopenedAlbum.catalog?.tracks.count == 3)
+        let remainingImports = try FileManager.default.contentsOfDirectory(atPath: managed.path)
+        precondition(remainingImports.count == 1,
+            "Failed folder imports must clean partial copies")
+        try JSONEncoder().encode(catalog).write(to: catalogURL)
+        reopenedAlbum.selectMusicGroup("all-music", startPlayback: true)
+        try await wait("return to catalog Radio") { !reopenedAlbum.isCatalogLoading && !reopenedAlbum.isLoading && reopenedAlbum.isActive }
+        precondition(!reopenedAlbum.isPersonalMusic && !defaults.bool(forKey: PersonalRadioMusic.activeKey))
+        reopenedAlbum.leave()
+        await library.removePersonalCopy(at: catalogURL, within: managed)
+        precondition(FileManager.default.fileExists(atPath: catalogURL.path), "Cleanup must refuse external catalogs")
+        await library.removePersonalCopy(at: imported.url, within: managed)
+        precondition(!FileManager.default.fileExists(atPath: imported.url.path), "Owned collection cleanup must work with plain directory URLs")
+        print("PASS personal Radio: nested album, corrupt-file skip, managed copy survives source removal, sequential wrap, relaunch, failed-import rollback, Studio isolation, source switching")
+
         if CommandLine.arguments.count > 1 {
             let argument = CommandLine.arguments[1]
             let realURL = argument.hasPrefix("https://") ? URL(string: argument)! : URL(fileURLWithPath: argument)

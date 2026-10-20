@@ -85,7 +85,18 @@ import CryptoKit
                         let second = RadioTrack(id: "00000000-0000-4000-8000-000000000002", title: "Radio test soundtrack 2", genre: track.genre, duration: track.duration,
                             audio: track.audio, sha256: track.sha256, byteCount: track.byteCount)
                         try JSONEncoder().encode(RadioCatalog(version: 1, title: "Test Radio", tracks: [track, second])).write(to: url)
-                        radio.loadCatalog(at: url)
+                        if ProcessInfo.processInfo.arguments.contains("-PCMobileFolderQA") {
+                            selectedTab = 1
+                            let album = documents.appendingPathComponent("My album")
+                            try FileManager.default.createDirectory(at: album, withIntermediateDirectories: true)
+                            try FileManager.default.copyItem(at: sample, to: album.appendingPathComponent("Personal song.m4a"))
+                            radio.loadCatalog(at: url)
+                            // Keep the real asynchronous import path; isolated QA preferences/storage only.
+                            Task { @MainActor in
+                                while radio.isCatalogLoading { try? await Task.sleep(for: .milliseconds(50)) }
+                                radio.importMusicFolder(album, into: documents.appendingPathComponent("PersonalRadio"))
+                            }
+                        } else { radio.loadCatalog(at: url) }
                     }
                     return
                 } catch { message = error.localizedDescription; return }
@@ -186,6 +197,7 @@ import CryptoKit
         else if !exporter.isExporting { studio.follow(time: audio.playbackSeconds, render: render) }
     }
     func projectData() throws -> Data {
+        guard !radio.isActive || !radio.isPersonalMusic else { throw CocoaError(.userCancelled) }
         studio.save(render)
         let bundled = BundledSoundtrack.identifier(for: audio.selectedURL)
         let project = CreatorProject(soundtrack: bundled == nil ? audio.selectedURL : nil, scene: render.scene,

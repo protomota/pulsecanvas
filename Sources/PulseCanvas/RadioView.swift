@@ -66,7 +66,7 @@ struct RadioLibraryView: View {
                     VisualizerRandomizerPicker(compact: true)
                 }
             }
-            if let station = radio.stations.first(where: { $0.id == radio.stationID }), !radio.favoriteSongsOnly {
+            if let station = radio.stations.first(where: { $0.id == radio.stationID }), !radio.favoriteSongsOnly && !radio.isPersonalMusic {
                 Text(station.description).font(.caption).foregroundStyle(.secondary)
             }
             if radio.favoriteSongsOnly {
@@ -95,6 +95,7 @@ struct RadioLibraryView: View {
                         Image(systemName: radio.isFavoriteSong(track) ? "heart.fill" : "heart")
                             .frame(width: 44, height: 44).contentShape(Rectangle())
                     }.buttonStyle(.plain)
+                        .disabled(!radio.canFavoriteCurrentSong)
                         .accessibilityLabel("\(radio.isFavoriteSong(track) ? "Unfavorite" : "Favorite") song \(track.title)")
                     }
                 }.frame(minHeight: 160, maxHeight: .infinity).disabled(radio.isCatalogLoading)
@@ -110,7 +111,10 @@ struct RadioLibraryView: View {
                 Spacer()
                 if radio.isActive { Button("Leave radio") { radio.leave(); dismiss() } }
             }
-            Text("Radio downloads music to this Mac for playback and analysis. Your own soundtracks stay on your Mac.")
+            if radio.isPersonalMusic, let notice = radio.folderImportNotice {
+                Text(notice).font(.caption).foregroundStyle(.secondary)
+            }
+            Text(radio.isPersonalMusic ? "Folder songs are copied to this Mac and loop continuously in Radio. They stay out of Studio." : "Radio downloads music to this Mac for playback and analysis. Your own soundtracks stay on your Mac.")
                 .font(.caption).foregroundStyle(.secondary)
         }.padding(24).frame(width: 670, height: 650)
             .onAppear { source = radio.sourceText; radio.loadSavedCatalogIfNeeded(refresh: !radio.isActive); opening = false }
@@ -355,8 +359,8 @@ struct RadioPlayerView: View {
                         } label: {
                             Image(systemName: radio.currentTrack.map(radio.isFavoriteSong) == true ? "heart.fill" : "heart")
                         }.buttonStyle(StudioButtonStyle(compact: true, circular: true))
-                            .disabled(radio.currentTrack == nil || radio.isLoading)
-                            .opacity(radio.currentTrack == nil ? 0 : 1)
+                            .disabled(radio.currentTrack == nil || radio.isLoading || !radio.canFavoriteCurrentSong)
+                            .opacity(radio.currentTrack == nil || !radio.canFavoriteCurrentSong ? 0 : 1)
                             .accessibilityLabel(radio.currentTrack.map(radio.isFavoriteSong) == true ? "Unfavorite song" : "Favorite song")
                             .help("Save or remove this song in Library → Favorite songs")
                         Text(radio.isLoading ? "Preparing next song…" : radio.currentTrack?.title ?? "Radio")
@@ -410,11 +414,27 @@ struct RadioPlayerView: View {
 private struct RadioMusicGroupPicker: View {
     @ObservedObject var radio: RadioController
     var body: some View {
-        Picker("Music", selection: Binding(get: { radio.musicGroupID }, set: { radio.selectMusicGroup($0) })) {
-            ForEach(radio.stations) { station in Text(station.title).tag(station.id) }
-            Text("Favorite songs").tag("favorite-songs")
-        }.labelsHidden().pickerStyle(.menu).controlSize(.large)
-            .accessibilityLabel("Radio music station")
+        Menu {
+            Button("All music") { radio.selectMusicGroup("all-music") }
+            ForEach(radio.isPersonalMusic ? [] : radio.stations.filter { $0.id != "all-music" }) { station in
+                Button(station.title) { radio.selectMusicGroup(station.id) }
+            }
+            Button("Favorite songs") { radio.selectMusicGroup("favorite-songs") }
+            Divider()
+            if radio.hasPersonalMusic { Button("My music folder") { radio.usePersonalMusic() } }
+            Button("Choose music folder…") {
+                let picker = NSOpenPanel()
+                picker.canChooseFiles = false; picker.canChooseDirectories = true
+                picker.allowsMultipleSelection = false
+                picker.message = "Copy an album or music folder for continuous Radio playback. Up to 500 songs; subfolders are included. These songs stay out of Studio."
+                if picker.runModal() == .OK, let folder = picker.url { radio.importMusicFolder(folder) }
+            }
+            Toggle("Shuffle songs", isOn: $radio.shuffle)
+        } label: {
+            Label(radio.isPersonalMusic ? radio.stationTitle : radio.favoriteSongsOnly ? "Favorite songs" : radio.stationTitle,
+                  systemImage: radio.isPersonalMusic ? "folder.badge.music.note" : "antenna.radiowaves.left.and.right")
+        }.controlSize(.large).disabled(radio.isCatalogLoading)
+            .accessibilityLabel("Radio music source")
     }
 }
 

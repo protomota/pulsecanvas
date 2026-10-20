@@ -25,7 +25,7 @@ final class RadioController: ObservableObject {
             ? "No favorite visualizers in this pool. Add a heart or choose another group."
             : "No visualizers in this group. Choose another group or change the visualizer pool."
     }
-    var musicGroupID: String { favoriteSongsOnly ? "favorite-songs" : stationID }
+    var musicGroupID: String { isPersonalMusic ? "my-music" : favoriteSongsOnly ? "favorite-songs" : stationID }
     var eligibleTrackIndices: [Int] {
         guard let catalog else { return [] }
         let favorites = Set(favoriteSongs.map(\.id))
@@ -51,13 +51,18 @@ final class RadioController: ObservableObject {
     static let barChoices = [1, 2, 4, 8, 16]
     @Published var shuffle = true { didSet { queue.reset(); discardPrefetch() } }
     @Published private(set) var sourceText: String
-    var studioMusicSource: URL { directoryURL ?? URL(string: sourceText) ?? URL(string: "https://radio.pulsecanvas.si/stations.json")! }
+    var studioMusicSource: URL { (isPersonalMusic ? nil : directoryURL) ?? URL(string: sourceText) ?? URL(string: "https://radio.pulsecanvas.si/stations.json")! }
     var studioMusicFolderBookmark: Data? { defaults.data(forKey: "PulseCanvas.radio.folderBookmark") }
     var studioMusicLibrary: RadioLibrary { library }
+    @Published private(set) var isPersonalMusic = false
+    @Published private(set) var folderImportNotice: String?
+    var hasPersonalMusic: Bool { defaults.url(forKey: PersonalRadioMusic.catalogKey) != nil }
+    private var personalImportTask: Task<Void, Never>?
+    var canFavoriteCurrentSong: Bool { !isPersonalMusic }
     private(set) var segments: [StudioSegment] = []
     let soundtrackInstalled = PassthroughSubject<Void, Never>()
     var currentTrack: RadioTrack? { currentIndex.flatMap { catalog?.tracks.indices.contains($0) == true ? catalog?.tracks[$0] : nil } }
-    var stationTitle: String { stations.first { $0.id == stationID }?.title ?? catalog?.title ?? "All Music" }
+    var stationTitle: String { if isPersonalMusic { return catalog?.title ?? "My music folder" }; return stations.first { $0.id == stationID }?.title ?? catalog?.title ?? "All Music" }
     var canStart: Bool { !eligibleTrackIndices.isEmpty && !visualizerChoices.isEmpty && !isCatalogLoading }
     var canSeek: Bool { isActive && hasRadioAudio && !isLoading }
     private let library: RadioLibrary
@@ -148,6 +153,14 @@ final class RadioController: ObservableObject {
     }
 
     func selectMusicGroup(_ id: String, startPlayback: Bool = false) {
+        if id == "my-music" { usePersonalMusic(startPlayback: startPlayback); return }
+        if isPersonalMusic {
+            favoriteSongsOnly = id == "favorite-songs"
+            defaults.set(favoriteSongsOnly, forKey: "PulseCanvas.radio.favoriteSongsOnly.v1")
+            let station = favoriteSongsOnly ? "all-music" : id
+            loadCatalog(at: studioMusicSource, preferredStationID: station, startPlayback: isActive || startPlayback)
+            return
+        }
         let favorites = id == "favorite-songs"
         favoriteSongsOnly = favorites
         defaults.set(favorites, forKey: "PulseCanvas.radio.favoriteSongsOnly.v1")
@@ -170,6 +183,7 @@ final class RadioController: ObservableObject {
     func isFavoriteSong(_ track: RadioTrack) -> Bool { favoriteSongs.contains { $0.id == track.id } }
 
     func toggleFavoriteSong(_ track: RadioTrack) {
+        guard !isPersonalMusic || favoriteSongs.contains(where: { $0.id == track.id }) else { return }
         if let index = favoriteSongs.firstIndex(where: { $0.id == track.id }) {
             favoriteSongs.remove(at: index)
         } else {
@@ -228,7 +242,38 @@ final class RadioController: ObservableObject {
                     preferredStationID: song.stationID, playTrackID: song.id)
     }
 
+    func importMusicFolder(_ folder: URL, into root: URL = PersonalRadioMusic.directory) {
+        guard !isCatalogLoading else { return }
+        isCatalogLoading = true; catalogError = nil; folderImportNotice = nil; status = "Copying music folder…"
+        let previous = defaults.url(forKey: PersonalRadioMusic.catalogKey)
+        personalImportTask = Task { [weak self, library] in
+            do {
+                let result = try await library.importMusicFolder(folder, into: root)
+                guard let self, !Task.isCancelled else {
+                    await library.removePersonalCopy(at: result.url, within: root); return
+                }
+                self.folderImportNotice = result.skipped > 0 ? "\(result.skipped) unsupported files were skipped." : nil
+                self.defaults.set(result.url, forKey: PersonalRadioMusic.catalogKey)
+                self.isCatalogLoading = false; self.personalImportTask = nil
+                self.loadCatalog(at: result.url, personal: true, startPlayback: true, skipped: result.skipped)
+                await library.removePersonalCopy(at: previous, within: root)
+            } catch {
+                guard let self, !Task.isCancelled else { return }
+                self.isCatalogLoading = false; self.catalogError = error.localizedDescription; self.status = error.localizedDescription
+            }
+        }
+    }
+
+    func usePersonalMusic(startPlayback: Bool = true) {
+        guard let url = defaults.url(forKey: PersonalRadioMusic.catalogKey) else { return }
+        loadCatalog(at: url, personal: true, startPlayback: startPlayback)
+    }
+
     func loadSavedCatalogIfNeeded(refresh: Bool = false) {
+        if defaults.bool(forKey: PersonalRadioMusic.activeKey), hasPersonalMusic {
+            if (catalog == nil || refresh) && !isCatalogLoading { usePersonalMusic(startPlayback: false) }
+            return
+        }
         guard (catalog == nil || refresh), !isCatalogLoading, !sourceText.isEmpty, let url = URL(string: sourceText) else { return }
         let bookmark = url.isFileURL ? defaults.data(forKey: "PulseCanvas.radio.folderBookmark") : nil
         let directory = SecurityScopedAccess.resolve(bookmark: bookmark, fallback: url.deletingLastPathComponent())
@@ -237,7 +282,7 @@ final class RadioController: ObservableObject {
     }
 
     /// A stations directory is the public entry point. A direct catalog also works for local testing.
-    func loadCatalog(at url: URL, access: SecurityScopedAccess? = nil, preferredStationID: String? = nil, playTrackID: String? = nil) {
+    func loadCatalog(at url: URL, access: SecurityScopedAccess? = nil, preferredStationID: String? = nil, playTrackID: String? = nil, personal: Bool = false, startPlayback: Bool = false, skipped: Int = 0) {
         leave()
         task?.cancel(); revision = UUID(); let token = revision
         catalogError = nil; isCatalogLoading = true; status = "Loading radio library…"
@@ -262,14 +307,21 @@ final class RadioController: ObservableObject {
                 self.catalog = loaded; self.catalogURL = stationURL; self.catalogAccess = lease
                 self.stations = stationList; self.directoryURL = url
                 self.stationID = try stationList.first { try $0.resolvedURL(relativeTo: url) == stationURL }?.id ?? stationList[0].id
-                self.sourceText = url.absoluteString; self.currentIndex = nil; self.queue.reset()
-                self.defaults.set(url.absoluteString, forKey: "PulseCanvas.radio.catalogURL")
-                self.defaults.set(try? lease?.readOnlyBookmark(), forKey: "PulseCanvas.radio.folderBookmark")
-                if stationList.count == 1 || self.stationID == "all-music" {
+                self.isPersonalMusic = personal
+                self.defaults.set(personal, forKey: PersonalRadioMusic.activeKey)
+                if personal { self.favoriteSongsOnly = false }
+                self.currentIndex = nil; self.queue.reset()
+                if !personal {
+                    self.sourceText = url.absoluteString
+                    self.defaults.set(url.absoluteString, forKey: "PulseCanvas.radio.catalogURL")
+                    self.defaults.set(try? lease?.readOnlyBookmark(), forKey: "PulseCanvas.radio.folderBookmark")
+                }
+                if !personal && (stationList.count == 1 || self.stationID == "all-music") {
                     self.reconcileFavoriteSongs(loaded, source: url, catalogURL: stationURL, station: self.stationID)
                 }
-                self.isCatalogLoading = false; self.status = "\(loaded.tracks.count) songs · Ready to play"
+                self.isCatalogLoading = false; self.status = "\(loaded.tracks.count) songs · Ready to play" + (skipped > 0 ? " · \(skipped) unsupported files skipped" : "")
                 Task { [weak self] in await self?.refreshFavoriteSongs() }
+                if startPlayback { self.start() }
                 if let playTrackID {
                     if let index = loaded.tracks.firstIndex(where: { $0.id == playTrackID }) { self.start(at: index) }
                     else {
@@ -366,6 +418,7 @@ final class RadioController: ObservableObject {
     }
 
     func leave() {
+        personalImportTask?.cancel(); personalImportTask = nil
         task?.cancel(); discardPrefetch(); revision = UUID()
         isCatalogLoading = false; isLoading = false; requestedIndex = nil
         guard isActive, let audio else { return }
@@ -383,6 +436,7 @@ final class RadioController: ObservableObject {
 
     /// App shutdown cancels downloads and completions without reloading the editor song.
     func shutdown() {
+        personalImportTask?.cancel()
         task?.cancel(); discardPrefetch(); revision = UUID()
         audio?.onSoundtrackFinished = nil; audio?.stop()
         isActive = false; isLoading = false; isCatalogLoading = false

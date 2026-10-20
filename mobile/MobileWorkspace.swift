@@ -171,9 +171,9 @@ struct MobileWorkspace: View {
                 Button("Save project", systemImage: "internaldrive") {
                     do { projectDocument = MobileProjectDocument(data: try editor.projectData()); savingProject = true }
                     catch { editor.message = error.localizedDescription }
-                }
+                }.disabled(radio.isActive && radio.isPersonalMusic)
                 Button("Export MP4", systemImage: "film") { sheet = .export }
-                    .disabled(audio.selectedURL == nil || radio.isActive && !radio.canSeek)
+                    .disabled(audio.selectedURL == nil || radio.isActive && (!radio.canSeek || radio.isPersonalMusic))
                 Divider()
                 Button("About & Support", systemImage: "info.circle") { sheet = .about }
             } label: { Image(systemName: "ellipsis").frame(width: 20) }.accessibilityLabel("Project actions")

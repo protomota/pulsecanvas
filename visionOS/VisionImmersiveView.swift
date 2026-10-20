@@ -215,7 +215,7 @@ private struct VisionImmersiveSongControls: View {
     @ObservedObject var radio: VisionRadio
     var body: some View {
         HStack(alignment: .center, spacing: 12) {
-            if let track = radio.playingTrack {
+            if let track = radio.playingTrack, !radio.isPersonalMusic {
                 Button { radio.toggleFavoriteSong(track) } label: {
                     Label(radio.isFavoriteSong(track) ? "Song saved" : "Save song",
                           systemImage: radio.isFavoriteSong(track) ? "heart.fill" : "heart")

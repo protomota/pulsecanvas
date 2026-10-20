@@ -297,30 +297,48 @@ private struct VisionRadioVisualizerControls: View {
 private struct VisionRadioControls: View {
     @ObservedObject var radio: VisionRadio
     @State private var showFavorites = false
+    @State private var musicFolder = false
     var body: some View {
         HStack(spacing: 16) {
             VisionRadioSongTitle(radio: radio)
             if radio.loadingStations {
                 ProgressView("Loading stations…")
             } else {
-                Picker("Station", selection: Binding(get: { radio.musicGroupID }, set: { radio.selectStation($0) })) {
-                    ForEach(radio.stations) { Text($0.title).tag($0.id) }
-                    Text("Favorite songs").tag("favorite-songs")
-                }.pickerStyle(.menu).frame(maxWidth: 260).disabled(radio.stations.isEmpty || radio.loading)
+                Menu {
+                    Button("All music") { radio.selectStation("all-music") }
+                    ForEach(radio.stations.filter { $0.id != "all-music" }) { station in
+                        Button(station.title) { radio.selectStation(station.id) }
+                    }
+                    Button("Favorite songs") { radio.selectStation("favorite-songs") }
+                    Divider()
+                    if radio.hasPersonalMusic { Button("My music folder") { radio.selectStation("my-music") } }
+                    Button("Choose music folder…", systemImage: "folder.badge.plus") { musicFolder = true }
+                    Toggle("Shuffle songs", isOn: $radio.shuffle)
+                } label: {
+                    Label(radio.isPersonalMusic ? radio.personalMusicTitle : radio.favoriteSongsOnly ? "Favorite songs" : radio.stations.first { $0.id == radio.stationID }?.title ?? "All music",
+                          systemImage: "antenna.radiowaves.left.and.right").lineLimit(1)
+                }.frame(maxWidth: 260).disabled(radio.loading)
                     .accessibilityIdentifier("radioStationPicker")
                 Button("Next song", systemImage: "forward.end.fill") { radio.nextSong() }
                     .accessibilityIdentifier("nextRadioSongButton")
-                    .disabled(radio.loading || radio.stations.isEmpty)
+                    .disabled(radio.loading || radio.stations.isEmpty && !radio.isPersonalMusic)
                 Button("Favorite songs", systemImage: "heart.fill") { showFavorites = true }
                     .accessibilityIdentifier("favoriteSongsLibraryButton")
             }
             Spacer(minLength: 0)
             if radio.loading { ProgressView("Preparing music…") }
+            if radio.isPersonalMusic, let notice = radio.folderImportNotice { Text(notice).font(.caption).foregroundStyle(.secondary) }
             if let error = radio.error {
                 Text(error).font(.caption).foregroundStyle(.secondary).lineLimit(1)
                 Button("Retry stations") { Task { await radio.refreshStations() } }
             }
         }.sheet(isPresented: $showFavorites) { VisionFavoriteSongsView(radio: radio) }
+        .fileImporter(isPresented: $musicFolder, allowedContentTypes: [.folder]) { result in
+            switch result {
+            case .success(let url): radio.importMusicFolder(url)
+            case .failure(let error): radio.error = error.localizedDescription
+            }
+        }
     }
 }
 
@@ -378,7 +396,7 @@ struct VisionRadioSongTitle: View {
     @ObservedObject var radio: VisionRadio
     var body: some View {
         HStack(spacing: 8) {
-            if let track = radio.playingTrack {
+            if let track = radio.playingTrack, !radio.isPersonalMusic {
                 Button { radio.toggleFavoriteSong(track) } label: {
                     Image(systemName: radio.isFavoriteSong(track) ? "heart.fill" : "heart")
                         .frame(width: 24, height: 24)

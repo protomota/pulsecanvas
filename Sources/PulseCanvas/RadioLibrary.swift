@@ -1,3 +1,4 @@
+import AVFoundation
 import CryptoKit
 import Foundation
 import Combine
@@ -113,6 +114,69 @@ actor RadioLibrary {
     private let directory: URL
     init(directory: URL = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
         .appendingPathComponent("PulseCanvas/Radio/Audio", isDirectory: true)) { self.directory = directory }
+
+    /// A private Radio-only copy: no server catalog changes, cloud uploads, or Studio imports.
+    func importMusicFolder(_ folder: URL, into root: URL = PersonalRadioMusic.directory) async throws -> (url: URL, skipped: Int) {
+        let lease = SecurityScopedAccess(url: folder)
+        defer { withExtendedLifetime(lease) {} }
+        let fm = FileManager.default
+        let destination = root.appendingPathComponent(UUID().uuidString, isDirectory: true)
+        try fm.createDirectory(at: destination, withIntermediateDirectories: true)
+        var committed = false
+        defer { if !committed { try? fm.removeItem(at: destination) } }
+        guard let enumerator = fm.enumerator(at: folder, includingPropertiesForKeys: [.isRegularFileKey, .isSymbolicLinkKey, .fileSizeKey],
+                                             options: [.skipsHiddenFiles, .skipsPackageDescendants]) else {
+            throw PersonalRadioMusic.FolderError.unreadable
+        }
+        var candidates: [URL] = []
+        let extensions: Set<String> = ["mp3", "m4a", "aac", "wav", "aif", "aiff", "caf", "flac", "mp4", "alac"]
+        for case let file as URL in enumerator {
+            try Task.checkCancellation()
+            let values = try file.resourceValues(forKeys: [.isRegularFileKey, .isSymbolicLinkKey])
+            if values.isSymbolicLink == true { enumerator.skipDescendants(); continue }
+            guard values.isRegularFile == true, extensions.contains(file.pathExtension.lowercased()) else { continue }
+            candidates.append(file)
+            guard candidates.count <= 500 else { throw PersonalRadioMusic.FolderError.tooMany }
+        }
+        var tracks: [RadioTrack] = []
+        var skipped = 0
+        for file in candidates.sorted(by: { $0.path.localizedStandardCompare($1.path) == .orderedAscending }) {
+            try Task.checkCancellation()
+            let id = UUID().uuidString
+            let copy = destination.appendingPathComponent(id + "." + file.pathExtension.lowercased())
+            do {
+                let size = try file.resourceValues(forKeys: [.fileSizeKey]).fileSize ?? 0
+                guard (1...100_000_000).contains(size) else { skipped += 1; continue }
+                try fm.copyItem(at: file, to: copy)
+                let asset = AVURLAsset(url: copy)
+                let duration = try await asset.load(.duration).seconds
+                guard duration.isFinite, duration > 0, duration <= 7200,
+                      !(try await asset.loadTracks(withMediaType: .audio)).isEmpty else {
+                    try? fm.removeItem(at: copy); skipped += 1; continue
+                }
+                let data = try Data(contentsOf: copy, options: .mappedIfSafe)
+                tracks.append(RadioTrack(id: id, title: file.deletingPathExtension().lastPathComponent,
+                    genre: "My music", duration: duration, audio: copy.lastPathComponent,
+                    sha256: SHA256.hash(data: data).map { String(format: "%02x", $0) }.joined(), byteCount: data.count))
+            } catch is CancellationError { throw CancellationError() }
+            catch { try? fm.removeItem(at: copy); skipped += 1 }
+        }
+        try Task.checkCancellation()
+        guard !tracks.isEmpty else { throw PersonalRadioMusic.FolderError.empty }
+        let url = destination.appendingPathComponent("catalog.json")
+        let data = try JSONEncoder().encode(RadioCatalog(version: 1, title: folder.lastPathComponent, tracks: tracks))
+        _ = try RadioCatalog.decode(data, from: url)
+        try data.write(to: url, options: .atomic)
+        committed = true
+        return (url, skipped)
+    }
+
+    func removePersonalCopy(at url: URL?, within root: URL = PersonalRadioMusic.directory) {
+        guard let url, url.lastPathComponent == "catalog.json",
+              UUID(uuidString: url.deletingLastPathComponent().lastPathComponent) != nil,
+              url.deletingLastPathComponent().deletingLastPathComponent().standardizedFileURL.path == root.standardizedFileURL.path else { return }
+        try? FileManager.default.removeItem(at: url.deletingLastPathComponent())
+    }
 
     func catalog(at url: URL) async throws -> RadioCatalog {
         try RadioCatalog.decode(await document(at: url), from: url)
@@ -302,5 +366,25 @@ enum RadioVisualSchedule {
             previous = scene
         }
         return result
+    }
+}
+
+/// Separate storage and preferences keep personal playlists out of Studio's catalog picker.
+enum PersonalRadioMusic {
+    static var directory: URL {
+        FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
+            .appendingPathComponent("PulseCanvas/PersonalRadio", isDirectory: true)
+    }
+    static let catalogKey = "PulseCanvas.radio.personalCatalog.v1"
+    static let activeKey = "PulseCanvas.radio.personalActive.v1"
+    enum FolderError: LocalizedError {
+        case unreadable, empty, tooMany
+        var errorDescription: String? {
+            switch self {
+            case .unreadable: return "This folder couldn't be opened. Choose a downloaded music folder and try again."
+            case .empty: return "No playable songs found. Use MP3, M4A, WAV, AIFF, AAC, CAF or FLAC files up to 100 MB and two hours each."
+            case .tooMany: return "Choose a folder with up to 500 songs, including its subfolders."
+            }
+        }
     }
 }
