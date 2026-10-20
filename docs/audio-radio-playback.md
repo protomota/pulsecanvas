@@ -1,6 +1,7 @@
 # Radio audio playback and personal-song favorites
 
-October 20, 2026. Prepared for 1.1.6 Mac (27), iPhone/iPad (7) and Vision Pro (15).
+October 20, 2026. Delivered as 1.1.6 Mac (27), iPhone/iPad (7) and Vision Pro (15).
+See the [verified TestFlight delivery](releases/testflight-1.1.6-audio-fix.md).
 
 The owner reported ongoing distortion and popping on Mac and iPhone when playing
 personal-folder MP3 and M4A songs. Those files sound clean in other players.
