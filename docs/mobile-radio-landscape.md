@@ -26,4 +26,6 @@ passing per-destination logs were preserved. A normal iPad command exit is not
 claimed. Evidence is outside Git in
 `/Volumes/Music/Codex Media/PulseCanvas Studio/Mobile QA/2026-10-20-landscape/`.
 
-This change has not been uploaded to TestFlight; 1.1.5 (4) predates it.
+Included in [TestFlight 1.1.5 (5)](releases/mobile-1.1.5-5.md). Version 1.1.5 (4)
+predates this layout change. Build 5 also moves the iPad header down while keeping
+Studio and Radio left-aligned.
