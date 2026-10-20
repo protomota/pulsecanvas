@@ -1,6 +1,7 @@
 import SwiftUI
 import StoreKit
 import UniformTypeIdentifiers
+import UIKit
 
 private enum MobileSheet: String, Identifiable {
     case library, style, export, about, apply
@@ -145,6 +146,11 @@ struct MobileWorkspace: View {
         case .apply: "Apply to all"
         }
     }
+    private var windowControlClearance: CGFloat {
+        guard UIDevice.current.userInterfaceIdiom == .pad else { return 0 }
+        if #available(iOS 26, *) { return 28 }
+        return 0
+    }
     private func header(compact: Bool) -> some View {
         HStack(spacing: 12) {
             Picker("Workspace", selection: $editor.selectedTab) { Text("Studio").tag(0); Text("Radio").tag(1) }
@@ -166,6 +172,8 @@ struct MobileWorkspace: View {
                 Button("About & Support", systemImage: "info.circle") { sheet = .about }
             } label: { Image(systemName: "ellipsis").frame(width: 20) }.accessibilityLabel("Project actions")
         }.buttonStyle(MobileButton()).padding(.horizontal, 16).padding(.vertical, 10)
+            // Keep the tabs leading, below iPadOS's window-control strip.
+            .padding(.top, windowControlClearance)
             .disabled(editor.loading || editor.exporter.isExporting)
     }
     private var timeline: some View {

@@ -11,6 +11,11 @@ final class PulseCanvasMobileUITests: XCTestCase {
         XCTAssertTrue(library.waitForExistence(timeout: 30))
         expectation(for: NSPredicate(format: "enabled == true"), evaluatedWith: library)
         waitForExpectations(timeout: 90)
+        for tab in [app.buttons["Studio"], app.buttons["Radio"]] {
+            XCTAssertTrue(tab.isHittable)
+            XCTAssertLessThan(tab.frame.midX, app.frame.midX, "iPad workspace tabs stay left-aligned")
+            XCTAssertGreaterThanOrEqual(tab.frame.minY, app.frame.minY + 60, "Tabs must sit below the window-control strip")
+        }
         app.buttons["Radio"].tap()
         let landscape = app.otherElements["mobileRadioLandscape"]
         XCTAssertTrue(landscape.waitForExistence(timeout: 15))
@@ -42,6 +47,10 @@ final class PulseCanvasMobileUITests: XCTestCase {
         expectation(for: NSPredicate(format: "exists == false"), evaluatedWith: landscape)
         waitForExpectations(timeout: 10)
         XCTAssertTrue(app.scrollViews.firstMatch.exists, "Portrait keeps the compact-screen layout")
+        XCTAssertTrue(app.buttons["Studio"].isHittable)
+        XCTAssertTrue(app.buttons["Radio"].isHittable)
+        XCTAssertLessThan(app.buttons["Studio"].frame.minX, app.frame.minX + 40)
+        XCTAssertGreaterThanOrEqual(app.buttons["Studio"].frame.minY, app.frame.minY + 60, "Portrait tabs must also sit below window controls")
         XCUIDevice.shared.orientation = .landscapeRight
         XCTAssertTrue(landscape.waitForExistence(timeout: 10))
         XCTAssertEqual(app.scrollViews.count, 0)
