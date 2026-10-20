@@ -1,5 +1,7 @@
 # Mac Radio media-player candidate — 1.1.6 (28)
 
+[TestFlight delivery verified](../releases/mac-testflight-1.1.6-28.md).
+
 The owner reports that Mac Radio still crackles through a DX3 Pro+ USB DAC with
 1.1.6 (27). iPhone/iPad playback sounds clean. Built-in Mac speakers did not
 reveal the same crackle, although that listening comparison was less sensitive.
