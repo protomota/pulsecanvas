@@ -1,5 +1,8 @@
 # Radio audio playback and personal-song favorites
 
+> **Reverted — October 20, 2026.** The playback and cache changes described below were reverted at the owner’s request after a restart cleared the reported crackling. Personal-song favorite UI changes remain. This document records historical investigation and validation, not the current transport.
+> See [rollback details](development/audio-investigation-rollback.md).
+
 October 20, 2026. Delivered as 1.1.6 Mac (27), iPhone/iPad (7) and Vision Pro (15).
 See the [verified TestFlight delivery](releases/testflight-1.1.6-audio-fix.md).
 

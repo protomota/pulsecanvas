@@ -1,5 +1,8 @@
 # Mac Radio media-player candidate — 1.1.6 (28)
 
+> **Reverted — October 20, 2026.** The AVPlayer candidate described below was reverted at the owner’s request after a restart cleared the reported crackling. Build 28 remains a historical TestFlight upload; current source uses the earlier engine transport.
+> See [rollback details](audio-investigation-rollback.md).
+
 [TestFlight delivery verified](../releases/mac-testflight-1.1.6-28.md).
 
 The owner reports that Mac Radio still crackles through a DX3 Pro+ USB DAC with

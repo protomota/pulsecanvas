@@ -1,5 +1,8 @@
 # Mac TestFlight 1.1.6 (28) — Radio audio compatibility candidate
 
+> **Reverted — October 20, 2026.** This upload receipt is historical. The candidate’s audio changes were subsequently reverted at the owner’s request after a restart cleared the reported crackling. The uploaded binary is unchanged by that source rollback.
+> See [rollback details](../development/audio-investigation-rollback.md).
+
 [Open build in App Store Connect](https://appstoreconnect.apple.com/apps/6821642700/testflight/macos/4baa2886-77cb-4b37-b062-1bd8be9ae3b0)
 
 Available to the existing internal TestFlight group on October 20, 2026. Archived

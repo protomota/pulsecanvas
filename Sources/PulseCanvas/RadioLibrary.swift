@@ -218,19 +218,8 @@ actor RadioLibrary {
     func localAudio(for track: RadioTrack, catalogURL: URL) async throws -> URL {
         let source = try track.resolvedURL(relativeTo: catalogURL)
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
-        // Keep the actual container hint: a WAV, MP3 or FLAC does not become M4A
-        // when copied. Existing verified cache bytes can migrate without downloading again.
-        let candidateExtension = source.pathExtension.lowercased()
-        let audioExtension = (1...8).contains(candidateExtension.count)
-            && candidateExtension.allSatisfy({ $0.isASCII && ($0.isLetter || $0.isNumber) })
-            ? candidateExtension : "audio"
-        let destination = directory.appendingPathComponent(track.sha256.lowercased() + "." + audioExtension)
+        let destination = directory.appendingPathComponent(track.sha256.lowercased() + ".m4a")
         if let data = try? Data(contentsOf: destination), valid(data, track: track) { return destination }
-        let legacy = directory.appendingPathComponent(track.sha256.lowercased() + ".m4a")
-        if legacy != destination, let data = try? Data(contentsOf: legacy), valid(data, track: track) {
-            try data.write(to: destination, options: .atomic)
-            return destination
-        }
         let temporary: URL
         if source.isFileURL { temporary = source }
         else {

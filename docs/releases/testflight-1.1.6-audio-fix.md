@@ -1,5 +1,8 @@
 # TestFlight 1.1.6 — Radio playback update
 
+> **Reverted — October 20, 2026.** This upload receipt is historical. The playback and cache changes were subsequently reverted at the owner’s request after a restart cleared the reported crackling. The separate personal-song favorite UI changes remain. Uploaded binaries are unchanged by that source rollback.
+> See [rollback details](../development/audio-investigation-rollback.md).
+
 Available to the existing internal TestFlight group on October 20, 2026.
 All three signed packages were archived from
 [source 83f23f7](https://github.com/protomota/pulsecanvas/commit/83f23f72705fc1e5c7c12a243750df260a1b137b),

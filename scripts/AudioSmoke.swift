@@ -1,25 +1,6 @@
 import Foundation
 import AVFoundation
 import Combine
-import CoreAudio
-
-/// Ask the actual Mac audio server, rather than inspecting an engine's private state.
-private func processHasRunningAudioOutput() throws -> Bool {
-    var pid = getpid(), process = AudioObjectID(kAudioObjectUnknown)
-    var size = UInt32(MemoryLayout<AudioObjectID>.size)
-    var address = AudioObjectPropertyAddress(mSelector: kAudioHardwarePropertyTranslatePIDToProcessObject,
-        mScope: kAudioObjectPropertyScopeGlobal, mElement: kAudioObjectPropertyElementMain)
-    var result = AudioObjectGetPropertyData(AudioObjectID(kAudioObjectSystemObject), &address,
-        UInt32(MemoryLayout<pid_t>.size), &pid, &size, &process)
-    guard result == noErr else { throw NSError(domain: NSOSStatusErrorDomain, code: Int(result)) }
-    guard process != kAudioObjectUnknown else { return false }
-    address.mSelector = kAudioProcessPropertyIsRunningOutput
-    var running: UInt32 = 0
-    size = UInt32(MemoryLayout<UInt32>.size)
-    result = AudioObjectGetPropertyData(process, &address, 0, nil, &size, &running)
-    guard result == noErr else { throw NSError(domain: NSOSStatusErrorDomain, code: Int(result)) }
-    return running != 0
-}
 
 @main struct AudioSmoke {
     @MainActor static func main() async throws {
@@ -59,8 +40,6 @@ private func processHasRunningAudioOutput() throws -> Bool {
         precondition(audio.loadDefaultSoundtrackIfNeeded() && audio.selectedURL == url && audio.duration == 3,
                      "Default loading must retain an imported or restored soundtrack")
         try await Task.sleep(nanoseconds: 100_000_000)
-        let idleOutput = try processHasRunningAudioOutput()
-        precondition(!idleOutput, "A loaded but paused Mac soundtrack must not run hardware output")
         precondition(audio.spectrum.max()! > 0.3, "Paused seek/load must analyze actual PCM")
         audio.playPause()
         var editorInvalidations = 0
@@ -76,15 +55,6 @@ private func processHasRunningAudioOutput() throws -> Bool {
         audio.pause(); let paused = audio.playbackSeconds
         try await Task.sleep(nanoseconds: 150_000_000)
         precondition(abs(paused - audio.playbackSeconds) < 0.01)
-        let pausedOutput = try processHasRunningAudioOutput()
-        precondition(!pausedOutput, "Pausing must release the Mac audio output callback")
-        audio.playPause()
-        try await Task.sleep(nanoseconds: 250_000_000)
-        let resumedOutput = try processHasRunningAudioOutput()
-        precondition(resumedOutput && audio.playbackSeconds > paused + 0.08 && audio.playbackSeconds < paused + 0.5,
-                     "Resuming the hardware must continue at the paused position without a clock jump")
-        audio.pause()
-        print("PASS Mac hardware lifecycle: paused load and pause release output; resume retains the song position")
         audio.seek(fraction: 0.5)
         precondition(abs(audio.playbackSeconds - 1.5) < 0.01)
         audio.playPause()
@@ -199,43 +169,5 @@ private func processHasRunningAudioOutput() throws -> Bool {
         precondition(!audio.isPlaying && audio.selectedURL == nil, "Clear must invalidate pending loop callbacks")
         print("PASS Loop: on by default, end stop when disabled, repeat with PCM analysis, pause, disable, clear")
         print("PASS soundtrack: load, paused analysis, real FFT, playback, pause, seek, resume, clear")
-
-        let music = AudioController()
-        let continuousPrepared = try PreparedSoundtrack(url: url)
-        precondition(music.install(continuousPrepared, title: "Continuous Radio", playback: .radio))
-        precondition(!music.isPlaying && music.title == "Continuous Radio")
-        music.volume = 0.1
-        music.playFullSoundtrack()
-        try await Task.sleep(for: .milliseconds(350))
-        precondition(music.isPlaying && music.playbackSeconds > 0.1 && music.spectrum.max()! > 0.3)
-        music.pause(); let held = music.playbackSeconds
-        try await Task.sleep(for: .milliseconds(150))
-        precondition(!music.isPlaying && music.playbackSeconds == held)
-        // Rapid scrubs may complete out of order on the asynchronous Mac player.
-        music.seek(fraction: 0.8); music.seek(fraction: 0.2); music.seek(fraction: 0.6)
-        try await Task.sleep(for: .milliseconds(250))
-        precondition(!music.isPlaying && abs(music.playbackSeconds - music.duration * 0.6) < 0.001,
-                     "A completed stale seek must not replace the latest paused scrub target")
-        music.seek(fraction: 0.5)
-        precondition(abs(music.playbackSeconds - music.duration * 0.5) < 0.001)
-        music.playFullSoundtrack()
-        try await Task.sleep(for: .milliseconds(150))
-        precondition(music.isPlaying && music.playbackSeconds > held)
-        var completions = 0
-        music.onSoundtrackFinished = { completions += 1 }
-        music.seek(fraction: 0.95)
-        try await Task.sleep(for: .milliseconds(600))
-        precondition(completions == 1 && !music.isPlaying && music.progress == 1,
-            "Radio owns end-of-song even when Studio Loop is on")
-        music.onSoundtrackFinished = nil; music.loopEnabled = true
-        music.playFullSoundtrack(); music.seek(fraction: 0.95)
-        try await Task.sleep(for: .milliseconds(600))
-        precondition(music.isPlaying && music.playbackSeconds < 1, "Continuous playback must also honor normal full-song looping")
-        music.playSection(start: boundary, end: 0.733, restart: true)
-        try await Task.sleep(for: .milliseconds(600))
-        precondition(music.isPlaying && music.previewSectionStart == boundary && music.playbackSeconds < 0.733,
-            "Entering a Studio section from Radio must restore precise engine playback")
-        music.clear()
-        print("PASS continuous Radio playback: independent file player, clock/FFT, volume, pause/seek/resume, completion, full-song loop and precise Studio handoff")
     }
 }

@@ -1,5 +1,8 @@
 # Mac audio crackle follow-up — October 20, 2026
 
+> **Reverted — October 20, 2026.** The engine-lifecycle changes described below were reverted at the owner’s request after a restart cleared the reported crackling. The measurements remain historical evidence, not a claim about current behavior.
+> See [rollback details](audio-investigation-rollback.md).
+
 The owner still reports crackling on musical transients in Mac 1.1.6 (27), while
 iPhone/iPad playback in the corresponding update sounds clean. The running Mac
 installation was verified to contain the dedicated Radio player. This follow-up
