@@ -66,3 +66,11 @@ Local artifacts, logs, API receipts, screenshots and the verified source archive
 The source archive ending `b038e98a12e4-source.tar.gz` is verified; the earlier
 2ec5b30 source-package attempt is superseded. No signing keys or private local
 artifacts are committed.
+
+## Website update canceled — October 20, 2026
+
+The owner chose “Skip the website download update” after resuming signing.
+The owned signing process was stopped. No DMG, website metadata, appcast or
+production deployment was published. The four TestFlight deliveries above remain
+available; this cancellation does not withdraw any build or review. The current
+website installer remains 1.1.5 (23).
