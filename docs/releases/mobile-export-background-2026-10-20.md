@@ -42,6 +42,8 @@ when presenting Radio. Mac and Vision presentation controls are unchanged.
   the absence of Fit.
 - The saved iPhone Files-provider movie is H.264/AAC, 1280×720 at 30 fps,
   7.998980 seconds. FFmpeg decoded the full saved file without errors.
+  The final 29.998957-second Radio export also fully decoded without errors,
+  with H.264 video and AAC audio at the same size and frame rate.
 - iPad Pro 13-inch (M5), iOS 27 simulator: the same two targeted tests passed,
   zero failures, including Radio export and the actual Files save callback.
 - Shared Radio smoke suite passed with command exit 0.
@@ -61,8 +63,9 @@ button. The final iPhone test instead performs the real Save action and verifies
 the app's success callback. Xcode's runner remained alive during post-suite
 cleanup after the successful iPhone suite; its completed owned process was
 terminated. This is a passing XCTest suite, not a claimed normal xcodebuild exit.
-The iPad suite also reports two passed tests; its runner cleanup is assessed
-separately from those test assertions.
+The iPad suite also reports two passed tests; its completed runner was likewise
+terminated during stalled post-suite cleanup, rather than claiming a normal
+command exit.
 
 Physical-device lock-screen playback, Bluetooth/headset remote commands,
 telephone interruptions, and sustained 4K export performance were not tested.
