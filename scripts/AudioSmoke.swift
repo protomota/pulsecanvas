@@ -211,6 +211,11 @@ private func processHasRunningAudioOutput() throws -> Bool {
         music.pause(); let held = music.playbackSeconds
         try await Task.sleep(for: .milliseconds(150))
         precondition(!music.isPlaying && music.playbackSeconds == held)
+        // Rapid scrubs may complete out of order on the asynchronous Mac player.
+        music.seek(fraction: 0.8); music.seek(fraction: 0.2); music.seek(fraction: 0.6)
+        try await Task.sleep(for: .milliseconds(250))
+        precondition(!music.isPlaying && abs(music.playbackSeconds - music.duration * 0.6) < 0.001,
+                     "A completed stale seek must not replace the latest paused scrub target")
         music.seek(fraction: 0.5)
         precondition(abs(music.playbackSeconds - music.duration * 0.5) < 0.001)
         music.playFullSoundtrack()

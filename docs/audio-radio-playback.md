@@ -6,13 +6,18 @@ See the [verified TestFlight delivery](releases/testflight-1.1.6-audio-fix.md).
 The owner reported ongoing distortion and popping on Mac and iPhone when playing
 personal-folder MP3 and M4A songs. Those files sound clean in other players.
 
-Mac/mobile Radio now uses AVAudioPlayer for continuous music playback, matching
+Mac/mobile Radio initially moved to AVAudioPlayer for continuous music playback, matching
 the established Vision transport choice. The Studio AVAudioEngine is stopped
 while Radio plays, and the independent analyzer still supplies the visual clock,
 FFT bands and beat features. Seeking, pause/resume, background audio, next-song
 completion and playlist looping use the same public transport controls. Studio
 keeps its frame-bounded AVAudioPlayerNode section loops. Returning to Studio
 rebuilds its graph while stopped, before configuring the incoming file format.
+
+The subsequent [Mac 1.1.6 (28) candidate](development/mac-radio-media-player.md)
+uses AVPlayer for Mac Radio after the owner reported continued crackling with a
+USB DAC. The iPhone/iPad path described here remains in place. Its listening
+result must be verified separately from the initial 27/7/15 delivery.
 
 The Radio cache also preserves the source extension instead of copying every
 format to an M4A-named file. Verified older cache bytes migrate to a correctly

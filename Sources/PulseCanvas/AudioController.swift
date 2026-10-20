@@ -2,7 +2,7 @@ import Foundation
 import AVFoundation
 import Combine
 
-/// AVAudioPlayer keeps continuous music decoding independent of the Studio engine.
+/// Mobile AVAudioPlayer callbacks are independent of the Studio engine.
 @MainActor private final class RadioPlaybackCompletion: NSObject, AVAudioPlayerDelegate {
     var finished: ((AVAudioPlayer, Bool) -> Void)?
     nonisolated func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
@@ -20,6 +20,81 @@ import Combine
 }
 
 enum SoundtrackPlayback { case studio, radio }
+
+#if os(macOS)
+/// File playback through the Mac media pipeline. Audio decoding/output stays off
+/// the visualization clock; seeks publish their target until AVPlayer finishes.
+@MainActor private final class MacRadioPlayback {
+    private let player: AVPlayer
+    private let item: AVPlayerItem
+    private var observers: [NSObjectProtocol] = []
+    private var statusObserver: NSKeyValueObservation?
+    private var pendingTime: Double?
+    private var seekRevision = UUID()
+    private(set) var isPlaying = false
+    let duration: Double
+    var finished: ((Bool) -> Void)?
+    var volume: Float { get { player.volume } set { player.volume = newValue } }
+    var currentTime: Double {
+        get {
+            if let pendingTime { return pendingTime }
+            let time = player.currentTime().seconds
+            return time.isFinite ? min(duration, max(0, time)) : 0
+        }
+        set {
+            let target = min(duration, max(0, newValue))
+            let revision = UUID(); seekRevision = revision; pendingTime = target
+            player.seek(to: CMTime(seconds: target, preferredTimescale: 600_000),
+                        toleranceBefore: .zero, toleranceAfter: .zero) { [weak self] _ in
+                Task { @MainActor [weak self] in
+                    guard let self, self.seekRevision == revision else { return }
+                    self.pendingTime = nil
+                }
+            }
+        }
+    }
+
+    init(url: URL, duration: Double) {
+        self.duration = duration
+        item = AVPlayerItem(url: url)
+        player = AVPlayer(playerItem: item)
+        player.actionAtItemEnd = .pause
+        // Radio plays complete local copies, including downloaded catalog music.
+        player.automaticallyWaitsToMinimizeStalling = false
+        observers.append(NotificationCenter.default.addObserver(forName: AVPlayerItem.didPlayToEndTimeNotification,
+            object: item, queue: .main) { [weak self] _ in
+                Task { @MainActor [weak self] in
+                    guard let self, self.pendingTime == nil,
+                          self.currentTime >= self.duration - 0.1 else { return }
+                    self.complete(success: true)
+                }
+            })
+        observers.append(NotificationCenter.default.addObserver(forName: AVPlayerItem.failedToPlayToEndTimeNotification,
+            object: item, queue: .main) { [weak self] _ in
+                Task { @MainActor [weak self] in self?.complete(success: false) }
+            })
+        statusObserver = item.observe(\.status, options: [.new]) { [weak self] item, _ in
+            guard item.status == .failed else { return }
+            Task { @MainActor [weak self] in self?.complete(success: false) }
+        }
+    }
+    deinit { observers.forEach(NotificationCenter.default.removeObserver); player.pause() }
+    func prepareToPlay() -> Bool { item.status != .failed }
+    func play() -> Bool {
+        guard item.status != .failed else { return false }
+        isPlaying = true; player.play(); return true
+    }
+    func pause() { isPlaying = false; player.pause() }
+    func stop() { pause(); currentTime = 0 }
+    private func complete(success: Bool) {
+        guard isPlaying else { return }
+        isPlaying = false; player.pause(); finished?(success)
+    }
+}
+private typealias ContinuousAudioPlayer = MacRadioPlayback
+#else
+private typealias ContinuousAudioPlayer = AVAudioPlayer
+#endif
 
 /// A single project soundtrack, with real PCM analysis for the preview.
 @MainActor
@@ -63,7 +138,7 @@ final class AudioController: ObservableObject {
     }
     private let engine = AVAudioEngine()
     private let player = AVAudioPlayerNode()
-    private var continuousPlayer: AVAudioPlayer?
+    private var continuousPlayer: ContinuousAudioPlayer?
     private let continuousCompletion = RadioPlaybackCompletion()
     private var file: AVAudioFile?
     private var analyzer: SoundtrackAnalyzer?
@@ -106,7 +181,12 @@ final class AudioController: ObservableObject {
     func install(_ prepared: PreparedSoundtrack, title displayTitle: String? = nil, playback: SoundtrackPlayback = .studio) -> Bool {
         do {
             let opened = prepared.file, url = prepared.url
+            #if os(macOS)
+            let radioPlayer = playback == .radio ? MacRadioPlayback(url: url,
+                duration: Double(opened.length) / opened.processingFormat.sampleRate) : nil
+            #else
             let radioPlayer = playback == .radio ? try AVAudioPlayer(contentsOf: url) : nil
+            #endif
             stop()
             // Format changes must happen while the Studio graph is stopped.
             engine.stop(); continuousPlayer = nil
@@ -114,17 +194,21 @@ final class AudioController: ObservableObject {
             file = opened
             if let radioPlayer {
                 guard radioPlayer.duration.isFinite, radioPlayer.duration > 0 else { throw SoundtrackError.empty }
-                radioPlayer.numberOfLoops = 0
                 radioPlayer.volume = volume.isFinite ? min(1, max(0, volume)) : 0
+                #if os(macOS)
+                radioPlayer.finished = { [weak self, weak radioPlayer] success in
+                    guard let radioPlayer else { return }
+                    self?.radioPlaybackFinished(radioPlayer, succeeded: success)
+                }
+                #else
+                radioPlayer.numberOfLoops = 0
                 radioPlayer.delegate = continuousCompletion
+                continuousCompletion.finished = { [weak self] completed, success in
+                    self?.radioPlaybackFinished(completed, succeeded: success)
+                }
+                #endif
                 guard radioPlayer.prepareToPlay() else { throw SoundtrackError.cannotPrepare }
                 continuousPlayer = radioPlayer
-                continuousCompletion.finished = { [weak self] completed, succeeded in
-                    guard let self, self.continuousPlayer === completed, self.isPlaying,
-                          !completed.isPlaying else { return }
-                    if succeeded { self.finishSoundtrack() }
-                    else { self.isPlaying = false; self.status = "Audio playback stopped unexpectedly" }
-                }
             } else {
                 prepareStudioEngine(for: opened)
             }
@@ -149,7 +233,7 @@ final class AudioController: ObservableObject {
     func segmentPlan(beatsPerSection: Int = 16) -> SongSegmentation? {
         guard let plan = analyzer?.segmentPlan(beatsPerSection: beatsPerSection) else { return nil }
         guard continuousPlayer != nil else { return plan }
-        // Container priming can make AVAudioPlayer's audible duration differ by
+        // Container priming can make a player's audible duration differ by
         // a few samples from AVAudioFile. End Radio scenes on the playback clock.
         return SongSegmentation(boundaries: plan.boundaries.filter { $0 < duration } + [duration], bpm: plan.bpm)
     }
@@ -159,6 +243,12 @@ final class AudioController: ObservableObject {
         engine.disconnectNodeOutput(player)
         engine.connect(player, to: engine.mainMixerNode, format: file.processingFormat)
         engine.prepare()
+    }
+
+    private func radioPlaybackFinished(_ completed: ContinuousAudioPlayer, succeeded: Bool) {
+        guard continuousPlayer === completed, isPlaying, !completed.isPlaying else { return }
+        if succeeded { finishSoundtrack() }
+        else { isPlaying = false; status = "Audio playback stopped unexpectedly" }
     }
 
     private func activatePlaybackSession() throws {
