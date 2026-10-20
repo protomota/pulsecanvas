@@ -127,9 +127,6 @@ final class AudioController: ObservableObject {
                 }
             } else {
                 prepareStudioEngine(for: opened)
-                #if os(macOS)
-                try engine.start()
-                #endif
             }
             soundtrackAccess = prepared.access
             soundtrackBookmark = BundledSoundtrack.identifier(for: url) == nil ? try? prepared.access.readOnlyBookmark() : nil
@@ -194,7 +191,14 @@ final class AudioController: ObservableObject {
             return
         }
         if !isPlaying && !startPlaybackEngine() { return }
-        if isPlaying { updateProgress(); player.pause(); isPlaying = false; status = "Paused" }
+        if isPlaying {
+            updateProgress(); player.pause()
+            #if os(macOS)
+            // A paused player alone leaves the Mac hardware's I/O callback active.
+            engine.pause()
+            #endif
+            isPlaying = false; status = "Paused"
+        }
         else {
             if progress >= 0.9999 { schedule(from: 0, playing: true) }
             else {
@@ -216,6 +220,9 @@ final class AudioController: ObservableObject {
 
     func stop() {
         generation = UUID(); player.stop(); continuousPlayer?.stop(); continuousPlayer?.currentTime = 0; isPlaying = false; segmentStart = 0
+        #if os(macOS)
+        engine.pause()
+        #endif
         previewSectionStart = nil; previewSectionEnd = nil
         progress = 0; playbackSeconds = 0; spectrum = [Float](repeating: 0, count: 32); beatPulse = 0; momentum = 0; beatMotionTime = 0; envelopes = .zero; swell = 0; treblePulse = 0; trebleAttackTime = nil
         visualizationUpdated.send()
@@ -338,6 +345,9 @@ final class AudioController: ObservableObject {
             return
         }
         isPlaying = false; progress = 1; playbackSeconds = duration
+        #if os(macOS)
+        engine.pause()
+        #endif
         beatPulse = 0; momentum = 0; envelopes = .zero; swell = 0; treblePulse = 0; trebleAttackTime = nil
         spectrum = [Float](repeating: 0, count: 32)
         visualizationUpdated.send(); status = "End of soundtrack"
