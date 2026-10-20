@@ -119,6 +119,12 @@
 			"path" = "Sources/PulseCanvas/StudioControls.swift";
 			"sourceTree" = "<group>";
 		};
+		"7D367B139647CEA90F768A9B" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"path" = "Sources/PulseCanvas/StudioMusicPicker.swift";
+			"sourceTree" = "<group>";
+		};
 		"D730C93684B8416B6A61FE2F" = {
 			"isa" = "PBXFileReference";
 			"lastKnownFileType" = "sourcecode.swift";
@@ -270,6 +276,7 @@
 				"4C15E8BE8F01FC4E793E0EE1",
 				"4CFE272A94D11EA39270BB02",
 				"445C690F1C4291BAEB5B0FED",
+				"7D367B139647CEA90F768A9B",
 				"D730C93684B8416B6A61FE2F",
 				"C2CBF2E084321F2ECA296112",
 				"3810E7AB9E8DF14917E34477",
@@ -384,6 +391,10 @@
 			"isa" = "PBXBuildFile";
 			"fileRef" = "445C690F1C4291BAEB5B0FED";
 		};
+		"AAC473035B0539E8E791202F" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "7D367B139647CEA90F768A9B";
+		};
 		"036E8B061D198647F16F74AA" = {
 			"isa" = "PBXBuildFile";
 			"fileRef" = "D730C93684B8416B6A61FE2F";
@@ -451,6 +462,7 @@
 				"31AACDF3704BA6FDA1C24B2F",
 				"2CA3823F37CFB4409025F7D9",
 				"73350406688F45BC7A78DEA9",
+				"AAC473035B0539E8E791202F",
 				"036E8B061D198647F16F74AA",
 				"711C0F30FD1616D636AA2959",
 				"1857C14A0B38C2D8BBE2A813",

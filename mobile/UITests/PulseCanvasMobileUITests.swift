@@ -2,6 +2,57 @@ import XCTest
 
 final class PulseCanvasMobileUITests: XCTestCase {
     override func setUp() { continueAfterFailure = false }
+    @MainActor func testChooseLibrarySongAsStudioSoundtrack() throws {
+        let app = XCUIApplication()
+        XCUIDevice.shared.orientation = .portrait
+        app.launchArguments = ["-PCMobileQA", "-PCMobileRadioQA"]
+        app.launch()
+        let library = app.buttons["mobileLibraryButton"]
+        XCTAssertTrue(library.waitForExistence(timeout: 30))
+        expectation(for: NSPredicate(format: "enabled == true"), evaluatedWith: library)
+        waitForExpectations(timeout: 90)
+        app.buttons["Radio"].tap()
+        let radioPlay = app.buttons["radioPlaybackButton"]
+        expectation(for: NSPredicate(format: "enabled == true"), evaluatedWith: radioPlay)
+        waitForExpectations(timeout: 30)
+        radioPlay.tap()
+        XCTAssertTrue(app.buttons["Favorite song"].waitForExistence(timeout: 30))
+        let title = app.staticTexts["radioCurrentSongTitle"].label
+        app.buttons["Favorite song"].tap()
+        app.buttons["Project actions"].tap(); app.buttons["Choose music"].tap()
+        let songs = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@", "studioMusicSong-"))
+        expectation(for: NSPredicate { _, _ in songs.count == 2 }, evaluatedWith: app)
+        waitForExpectations(timeout: 30)
+        app.buttons["cancelStudioMusic"].tap()
+        XCTAssertEqual(radioPlay.label, "Pause", "Canceling the picker must not stop Radio")
+        XCTAssertEqual(app.staticTexts["radioCurrentSongTitle"].label, title)
+        app.buttons["Project actions"].tap(); app.buttons["Choose music"].tap()
+        expectation(for: NSPredicate { _, _ in songs.count == 2 }, evaluatedWith: app)
+        waitForExpectations(timeout: 30)
+        app.buttons["Favorites"].tap()
+        XCTAssertEqual(songs.count, 1)
+        let search = app.textFields["studioMusicSearch"]
+        search.tap(); search.typeText("no such song\n")
+        XCTAssertTrue(app.staticTexts["No matching favorite songs"].waitForExistence(timeout: 5))
+        app.buttons["clearStudioMusicSearch"].tap()
+        expectation(for: NSPredicate { _, _ in songs.count == 1 }, evaluatedWith: app)
+        waitForExpectations(timeout: 5)
+        XCTAssertFalse(app.buttons["clearStudioMusicSearch"].exists)
+        app.buttons["Use \(title) in Studio"].coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.5)).tap()
+        expectation(for: NSPredicate(format: "exists == false"), evaluatedWith: app.buttons["cancelStudioMusic"])
+        waitForExpectations(timeout: 90)
+        XCTAssertTrue(app.buttons["Studio"].isSelected)
+        XCTAssertTrue(app.staticTexts[title].exists, "Studio must show the song title rather than a cache hash")
+        XCTAssertTrue(app.buttons["Play scene 1"].exists, "Loading a library song creates the Studio timeline")
+        app.buttons["mobilePlaybackButton"].tap()
+        expectation(for: NSPredicate(format: "label == %@", "Pause"), evaluatedWith: app.buttons["mobilePlaybackButton"])
+        waitForExpectations(timeout: 15)
+        app.buttons["mobilePlaybackButton"].tap()
+        app.buttons["Project actions"].tap(); app.buttons["Export MP4"].tap()
+        XCTAssertTrue(app.buttons["Render video"].waitForExistence(timeout: 10))
+        app.buttons["720p"].tap(); app.buttons["Render video"].tap()
+        XCTAssertTrue(app.buttons["Save video"].waitForExistence(timeout: 180), "Library songs must export with the normal Studio renderer")
+    }
     @MainActor func testIPadLandscapeRadioFitsWithoutScrolling() throws {
         let app = XCUIApplication()
         XCUIDevice.shared.orientation = .landscapeLeft

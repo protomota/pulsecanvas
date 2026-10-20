@@ -98,6 +98,25 @@ import CryptoKit
         radio.leave(); selectedTab = 0
         await load(url, copy: true)
     }
+    func importLibrarySong(_ url: URL, title: String) async throws {
+        guard !loading, !exporter.isExporting else { throw CocoaError(.userCancelled) }
+        loading = true
+        defer { loading = false }
+        let folder = documents.appendingPathComponent("StudioMusic", isDirectory: true)
+        let prepared = try await Task.detached(priority: .userInitiated) {
+            let copy = try StudioMusicStorage.copy(url, title: title, into: folder)
+            do { return try PreparedSoundtrack(url: copy) }
+            catch { try? FileManager.default.removeItem(at: copy.deletingLastPathComponent()); throw error }
+        }.value
+        do { try Task.checkCancellation() }
+        catch { try? FileManager.default.removeItem(at: prepared.url.deletingLastPathComponent()); throw error }
+        radio.leave()
+        guard audio.install(prepared, title: title) else { throw CocoaError(.fileReadCorruptFile) }
+        selectedTab = 0; pendingProject = nil; needsSoundtrack = false
+        studio.isStudio = true; studio.segments = []
+        if let plan = audio.segmentPlan() { studio.makeTimeline(plan, render: render) }
+        loading = false; tick(); saveSession()
+    }
     private func load(_ url: URL, copy: Bool) async {
         guard !loading else { return }; loading = true
         defer { loading = false }
@@ -110,7 +129,8 @@ import CryptoKit
                 do { return try PreparedSoundtrack(url: destination) }
                 catch { if copy { try? FileManager.default.removeItem(at: destination) }; throw error }
             }.value
-            guard audio.install(prepared, title: copy ? url.deletingPathExtension().lastPathComponent : "PulseCanvas") else {
+            let title = BundledSoundtrack.identifier(for: url) == nil ? url.deletingPathExtension().lastPathComponent : "PulseCanvas"
+            guard audio.install(prepared, title: title) else {
                 throw CocoaError(.fileReadCorruptFile)
             }
             if let project = pendingProject {

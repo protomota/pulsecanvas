@@ -13,6 +13,7 @@ struct VisionStudioView: View {
     @StateObject private var engagement = CreatorEngagement(preferences: VisionLaunchOptions.current.uiTesting
         ? UserDefaults(suiteName: "PulseCanvasUITesting-\(ProcessInfo.processInfo.processIdentifier)")! : .standard)
     @State private var importAudio = false
+    @State private var chooseMusic = false
     @State private var importProject = false
     @State private var exportProject = false
     @State private var projectData = Data()
@@ -26,7 +27,7 @@ struct VisionStudioView: View {
     private var canAskForReview: Bool {
         (engagement.pendingExportThanks || (leftMilestoneRadio && engagement.pendingRadioThanks))
             && phase == .active && !exportVideo && !exportProject && !importAudio && !importProject
-            && !locateAudio && !legal && !session.immersiveActive && !session.radioMode
+            && !locateAudio && !chooseMusic && !legal && !session.immersiveActive && !session.radioMode
             && !studio.loading && !studio.transport.playing && studio.message == nil
     }
 
@@ -57,6 +58,8 @@ struct VisionStudioView: View {
             .toolbar {
                 ToolbarItemGroup(placement: .bottomOrnament) {
                     if !session.radioMode {
+                    Button("Choose music", systemImage: "music.note.list") { chooseMusic = true }.disabled(studio.loading)
+                        .accessibilityIdentifier("chooseStudioMusicButton")
                     Button("Import audio", systemImage: "tray.and.arrow.down") { importAudio = true }.disabled(studio.loading || session.radioMode)
                         .labelStyle(.titleAndIcon)
                         .accessibilityIdentifier("importAudioButton")
@@ -86,6 +89,10 @@ struct VisionStudioView: View {
                     }.fixedSize()
                     immersiveButton
                 }
+            }
+            .sheet(isPresented: $chooseMusic) {
+                VisionStudioMusicPicker(studio: session.editor, radio: session.radio) { chooseMusic = false }
+                    .frame(width: 680, height: 640)
             }
             .sheet(isPresented: $legal) {
                 VisionInfoView(engagement: engagement) { legal = false }
@@ -830,5 +837,19 @@ private struct VisionClipPicker: View {
         }.padding(24).frame(width: 680, height: 680)
             .accessibilityElement(children: .contain)
             .accessibilityIdentifier("clipVisualizerPicker")
+    }
+}
+
+private struct VisionStudioMusicPicker: View {
+    @ObservedObject var studio: VisionStudio
+    @ObservedObject var radio: VisionRadio
+    let close: () -> Void
+    var body: some View {
+        StudioMusicPicker(source: radio.studioMusicSource, library: radio.studioMusicLibrary, favoriteIDs: Set(radio.favoriteSongs.map(\.id)), useSong: { url, title in
+            guard await studio.importAudio(url, title: title) else {
+                throw CocoaError(.fileReadCorruptFile, userInfo: [NSLocalizedDescriptionKey: studio.message ?? "This song could not be loaded."])
+            }
+        }, close: close)
+        .task { await radio.refreshFavoriteSongs() }
     }
 }

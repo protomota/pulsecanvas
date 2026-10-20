@@ -33,6 +33,8 @@ import Foundation
     @Published private(set) var loadingStations = false
     @Published var error: String?
     private let source: URL
+    var studioMusicSource: URL { source }
+    var studioMusicLibrary: RadioLibrary { library }
     private let library: RadioLibrary
     private let defaults: UserDefaults
     private let favoriteSongsKey = "PulseCanvas.radio.favoriteSongs.v1"

@@ -14,7 +14,7 @@ def ref(path, kind):
     return obj('file:' + path, 'PBXFileReference', lastKnownFileType=kind, path=path, sourceTree='<group>')
 def build(key): return obj('build:' + key, 'PBXBuildFile', fileRef=key)
 shared = ['VisualPreset', 'VisualPalette', 'OriginalGeometry', 'NativeEffects', 'ProjectMPresets', 'StrobeDetector',
-          'VisualizerRenderer', 'AudioAnalysis', 'StudioTimeline', 'VisualizerPoolControls', 'RadioLibrary',
+          'VisualizerRenderer', 'AudioAnalysis', 'StudioTimeline', 'VisualizerPoolControls', 'RadioLibrary', 'StudioMusicPicker',
           'StudioStore', 'SocialExportController', 'SecurityScopedAccess', 'CreatorEngagement']
 sources = ['Sources/PulseCanvas/' + name + '.swift' for name in shared] + ['macOS/BundleResources.swift']
 sources += sorted(str(p.relative_to(root)) for p in (root / 'visionOS').glob('*.swift'))

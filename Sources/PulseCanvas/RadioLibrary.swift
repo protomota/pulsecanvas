@@ -1,5 +1,6 @@
 import CryptoKit
 import Foundation
+import Combine
 
 struct RadioStation: Codable, Identifiable, Sendable {
     let id: String
@@ -178,6 +179,66 @@ actor RadioLibrary {
 
     private func valid(_ data: Data, track: RadioTrack) -> Bool {
         data.count == track.byteCount && SHA256.hash(data: data).map { String(format: "%02x", $0) }.joined() == track.sha256.lowercased()
+    }
+}
+
+/// Browsing Studio music never switches Radio's station or starts its player.
+@MainActor final class StudioMusicCatalog: ObservableObject {
+    @Published private(set) var tracks: [RadioTrack] = []
+    @Published private(set) var loading = false
+    @Published private(set) var error: String?
+    private let library: RadioLibrary
+    private let source: URL
+    private var catalogURL: URL?
+    private let access: SecurityScopedAccess?
+
+    init(source: URL, folderBookmark: Data? = nil, library: RadioLibrary = RadioLibrary()) {
+        self.library = library
+        let folder = SecurityScopedAccess.resolve(bookmark: folderBookmark, fallback: source.deletingLastPathComponent())
+        self.source = source.isFileURL ? folder.appendingPathComponent(source.lastPathComponent) : source
+        access = source.isFileURL ? SecurityScopedAccess(url: folder) : nil
+    }
+
+    func load() async {
+        guard !loading else { return }
+        loading = true; error = nil
+        defer { loading = false }
+        do {
+            let complete = try await library.completeCatalog(at: source)
+            try Task.checkCancellation()
+            tracks = complete.catalog.tracks.sorted { $0.title.localizedStandardCompare($1.title) == .orderedAscending }
+            catalogURL = complete.url
+        } catch is CancellationError { }
+        catch { self.error = error.localizedDescription }
+    }
+
+    func matching(search: String, favoritesOnly: Bool, favoriteIDs: Set<String>) -> [RadioTrack] {
+        let query = search.trimmingCharacters(in: .whitespacesAndNewlines)
+        return tracks.filter { track in
+            (!favoritesOnly || favoriteIDs.contains(track.id)) &&
+                (query.isEmpty || track.title.localizedStandardContains(query) || track.genre.localizedStandardContains(query))
+        }
+    }
+
+    func audio(for track: RadioTrack) async throws -> URL {
+        guard tracks.contains(track), let catalogURL else { throw RadioError.invalidCatalog }
+        return try await library.localAudio(for: track, catalogURL: catalogURL)
+    }
+}
+
+/// A Studio project owns its soundtrack copy, independent of Radio cache cleanup.
+enum StudioMusicStorage {
+    static func copy(_ source: URL, title: String, into directory: URL) throws -> URL {
+        let allowed = CharacterSet.alphanumerics.union(CharacterSet(charactersIn: " -_()"))
+        let name = String(title.components(separatedBy: allowed.inverted).joined(separator: " ").prefix(100))
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        let folder = directory.appendingPathComponent(UUID().uuidString, isDirectory: true)
+        let destination = folder.appendingPathComponent(name.isEmpty ? "Soundtrack" : name).appendingPathExtension(source.pathExtension)
+        do {
+            try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+            try FileManager.default.copyItem(at: source, to: destination)
+            return destination
+        } catch { try? FileManager.default.removeItem(at: folder); throw error }
     }
 }
 

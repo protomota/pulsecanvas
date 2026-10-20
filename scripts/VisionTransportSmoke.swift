@@ -354,5 +354,18 @@ import Combine
         print("PASS whole timeline: exact cuts, shared styles/render bindings, playback position, atomic failures, empty/single pools, bars-only order, full coverage and autosave")
         print("PASS loop boundary/restart, loop persistence, category/favorites cascade, empty/single pools and independent style dice")
         print("PASS Vision transport: actual soundtrack import/analysis, per-scene bars, shared appearance, add/move/remove, seek, playback clock/audio bands, pause and autosave restoration")
+        let librarySong = directory.appendingPathComponent("Library song.m4a")
+        try FileManager.default.copyItem(at: studio.audioURL!, to: librarySong)
+        let libraryStudio = VisionStudio(directory: directory.appendingPathComponent("LibraryStudio"), library: presets)
+        let imported = await libraryStudio.importAudio(librarySong, title: "Picked from music")
+        precondition(imported && libraryStudio.project.audioTitle == "Picked from music")
+        let permanentURL = libraryStudio.audioURL!
+        try FileManager.default.removeItem(at: librarySong)
+        precondition(FileManager.default.fileExists(atPath: permanentURL.path) && !libraryStudio.segments.isEmpty)
+        let restoredLibraryStudio = VisionStudio(directory: directory.appendingPathComponent("LibraryStudio"), library: presets)
+        await restoredLibraryStudio.start()
+        precondition(restoredLibraryStudio.audioURL == permanentURL && restoredLibraryStudio.project.audioTitle == "Picked from music")
+        precondition(restoredLibraryStudio.transport.duration > 0 && !restoredLibraryStudio.needsSoundtrack)
+        print("PASS Studio library song: chosen title, permanent copy, timeline and reopening after source removal")
     }
 }

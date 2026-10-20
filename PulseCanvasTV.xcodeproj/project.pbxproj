@@ -59,6 +59,12 @@
 			"path" = "Sources/PulseCanvas/StudioTimeline.swift";
 			"sourceTree" = "<group>";
 		};
+		"CB8C52BD5C2A06B60EC6768B" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"path" = "Sources/PulseCanvas/SecurityScopedAccess.swift";
+			"sourceTree" = "<group>";
+		};
 		"AEB3E1F4EFCEE89846DDB6F1" = {
 			"isa" = "PBXFileReference";
 			"lastKnownFileType" = "sourcecode.swift";
@@ -169,6 +175,7 @@
 				"7958DCE0804231A319D26CD8",
 				"D061672D180E0CC713D8F100",
 				"3810E7AB9E8DF14917E34477",
+				"CB8C52BD5C2A06B60EC6768B",
 				"AEB3E1F4EFCEE89846DDB6F1",
 				"038813F19FA1E4A37CCCA0C4",
 				"1074610367B0B6A094EA470C",
@@ -238,6 +245,10 @@
 			"isa" = "PBXBuildFile";
 			"fileRef" = "3810E7AB9E8DF14917E34477";
 		};
+		"DE69E89DD3EEAAD604860B0B" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "CB8C52BD5C2A06B60EC6768B";
+		};
 		"751BBC7AFA2EC0105700402A" = {
 			"isa" = "PBXBuildFile";
 			"fileRef" = "AEB3E1F4EFCEE89846DDB6F1";
@@ -283,6 +294,7 @@
 				"80C0D081FE8F82B6B5025265",
 				"D03D42F4A68816AE8C471677",
 				"1857C14A0B38C2D8BBE2A813",
+				"DE69E89DD3EEAAD604860B0B",
 				"751BBC7AFA2EC0105700402A",
 				"423EB9B902DA957AE39D9B50",
 				"D5EA31B0949757348F1FFD2B",

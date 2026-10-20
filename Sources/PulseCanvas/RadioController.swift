@@ -51,6 +51,9 @@ final class RadioController: ObservableObject {
     static let barChoices = [1, 2, 4, 8, 16]
     @Published var shuffle = true { didSet { queue.reset(); discardPrefetch() } }
     @Published private(set) var sourceText: String
+    var studioMusicSource: URL { directoryURL ?? URL(string: sourceText) ?? URL(string: "https://radio.pulsecanvas.si/stations.json")! }
+    var studioMusicFolderBookmark: Data? { defaults.data(forKey: "PulseCanvas.radio.folderBookmark") }
+    var studioMusicLibrary: RadioLibrary { library }
     private(set) var segments: [StudioSegment] = []
     let soundtrackInstalled = PassthroughSubject<Void, Never>()
     var currentTrack: RadioTrack? { currentIndex.flatMap { catalog?.tracks.indices.contains($0) == true ? catalog?.tracks[$0] : nil } }

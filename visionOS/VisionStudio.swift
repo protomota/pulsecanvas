@@ -107,7 +107,7 @@ private struct VisionAnalysis: @unchecked Sendable { let value: SoundtrackAnalyz
         }
     }
 
-    func importAudio(_ url: URL, generateTimeline: Bool = true) async {
+    @discardableResult func importAudio(_ url: URL, generateTimeline: Bool = true, title: String? = nil) async -> Bool {
         let access = url.startAccessingSecurityScopedResource()
         defer { if access { url.stopAccessingSecurityScopedResource() } }
         do {
@@ -116,11 +116,12 @@ private struct VisionAnalysis: @unchecked Sendable { let value: SoundtrackAnalyz
             try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
             try FileManager.default.copyItem(at: url, to: destination)
             guard await loadAudio(destination, generateTimeline: generateTimeline) else {
-                try? FileManager.default.removeItem(at: destination); return
+                try? FileManager.default.removeItem(at: destination); return false
             }
-            project.audioFile = name; project.audioTitle = url.deletingPathExtension().lastPathComponent
+            project.audioFile = name; project.audioTitle = title ?? url.deletingPathExtension().lastPathComponent
             project.externalAudioURL = url; save()
-        } catch { message = error.localizedDescription }
+            return true
+        } catch { message = error.localizedDescription; return false }
     }
 
     @discardableResult private func loadAudio(_ url: URL, generateTimeline: Bool) async -> Bool {
@@ -128,6 +129,7 @@ private struct VisionAnalysis: @unchecked Sendable { let value: SoundtrackAnalyz
         defer { loadingCount -= 1; loading = loadingCount > 0 }
         do {
             let prepared = try await Task.detached(priority: .userInitiated) { VisionAnalysis(value: try SoundtrackAnalyzer(url: url)) }.value
+            try Task.checkCancellation()
             guard revision == token else { return false }
             let next = try AVAudioPlayer(contentsOf: url)
             guard next.duration.isFinite, next.duration > 0 else { throw CocoaError(.fileReadCorruptFile) }

@@ -160,6 +160,7 @@ struct CreatorView: View {
     @State private var showCommunityInHelp = false
     @State private var showProjectSettings = false
     @State private var showRadio = false
+    @State private var showMusicPicker = false
     /// The listener has just left the Radio session that reached the support milestone.
     @State private var leftMilestoneRadio = false
     @StateObject private var engagement = CreatorEngagement()
@@ -201,6 +202,12 @@ struct CreatorView: View {
         .sheet(isPresented: $showRadio) {
             RadioLibraryView(radio: radio) { showRadio = false }
                 .dismissOnOutsideClick { showRadio = false }
+        }
+        .sheet(isPresented: $showMusicPicker) {
+            StudioMusicPicker(source: radio.studioMusicSource, folderBookmark: radio.studioMusicFolderBookmark,
+                library: radio.studioMusicLibrary, favoriteIDs: Set(radio.favoriteSongs.map(\.id)), useSong: importLibrarySong, close: { showMusicPicker = false })
+                .frame(width: 670, height: 620)
+                .dismissOnOutsideClick { showMusicPicker = false }
         }
         .onChange(of: exporter.successfulSaveID) { _, id in
             if let id { engagement.videoSaved(id: id) }
@@ -255,12 +262,12 @@ struct CreatorView: View {
 
     private var canPresentExportThanks: Bool {
         engagement.pendingExportThanks && !exporter.isExporting && !presentation.isPresented
-            && !showVisualizerBrowser && !showProjectSettings && !showHelp && !showRadio
+            && !showVisualizerBrowser && !showProjectSettings && !showHelp && !showRadio && !showMusicPicker
     }
 
     private var canPresentRadioThanks: Bool {
         leftMilestoneRadio && engagement.pendingRadioThanks && !radio.isActive && !engagement.showsThanks && !exporter.isExporting
-            && !presentation.isPresented && !showVisualizerBrowser && !showProjectSettings && !showHelp && !showRadio
+            && !presentation.isPresented && !showVisualizerBrowser && !showProjectSettings && !showHelp && !showRadio && !showMusicPicker
     }
 
     private var editor: some View {
@@ -280,7 +287,7 @@ struct CreatorView: View {
                             Divider()
                         }
                         SoundtrackControls(audio: audio, exporting: exporter.isExporting,
-                            selectSoundtrack: selectSoundtrack, compactness: compactness)
+                            selectSoundtrack: selectSoundtrack, chooseMusic: { showMusicPicker = true }, compactness: compactness)
                             .padding(.horizontal, 20).padding(.vertical, 20 - 10 * compactness).background(panel)
                     }
                     Divider()
@@ -621,6 +628,20 @@ struct CreatorView: View {
             if audio.load(url: url) { message = "" }
         }
     }
+    private func importLibrarySong(_ url: URL, title: String) async throws {
+        let directory = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
+            .appendingPathComponent("PulseCanvas/StudioMusic", isDirectory: true)
+        let prepared = try await Task.detached(priority: .userInitiated) {
+            let copy = try StudioMusicStorage.copy(url, title: title, into: directory)
+            do { return try PreparedSoundtrack(url: copy) }
+            catch { try? FileManager.default.removeItem(at: copy.deletingLastPathComponent()); throw error }
+        }.value
+        do { try Task.checkCancellation() }
+        catch { try? FileManager.default.removeItem(at: prepared.url.deletingLastPathComponent()); throw error }
+        radio.leave(); studio.isStudio = true
+        guard audio.install(prepared, title: title) else { throw CocoaError(.fileReadCorruptFile) }
+        message = ""
+    }
     private func startExport() {
         guard !exporter.isExporting else { return }
         let picker = NSSavePanel(); picker.allowedContentTypes = [.mpeg4Movie]; picker.nameFieldStringValue = "PulseCanvas-\(RenderState.sceneNames[render.scene].replacingOccurrences(of: "/", with: "-").replacingOccurrences(of: " ", with: "-").prefix(120)).mp4"
@@ -710,6 +731,7 @@ private struct SoundtrackControls: View {
     @ObservedObject var audio: AudioController
     let exporting: Bool
     let selectSoundtrack: () -> Void
+    let chooseMusic: () -> Void
     var compactness: CGFloat = 0
     @State private var playbackRevision = 0
     private let accent = Color(red: 0.95, green: 0.68, blue: 0.55)
@@ -725,9 +747,12 @@ private struct SoundtrackControls: View {
                         .font(.system(size: 12)).foregroundStyle(.secondary)
                 }
                 Spacer()
-                Button { selectSoundtrack() } label: {
+                Menu {
+                    Button("Choose music", action: chooseMusic)
+                    Button("Choose audio file…", action: selectSoundtrack)
+                } label: {
                     Label(audio.selectedURL == nil ? "Add soundtrack" : "Replace audio", systemImage: "waveform.badge.plus")
-                }
+                }.menuStyle(.borderlessButton).fixedSize()
                 if audio.selectedURL != nil {
                     Button { audio.clear() } label: { Image(systemName: "xmark").frame(width: 20) }
                         .buttonStyle(StudioButtonStyle(treatment: .quiet, compact: true))

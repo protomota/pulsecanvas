@@ -4,7 +4,7 @@ import UniformTypeIdentifiers
 import UIKit
 
 private enum MobileSheet: String, Identifiable {
-    case library, style, export, about, apply
+    case library, style, export, about, apply, music
     var id: String { rawValue }
 }
 
@@ -94,6 +94,10 @@ struct MobileWorkspace: View {
                     case .export: MobileExport(editor: editor)
                     case .about: MobileAbout()
                     case .apply: MobileApply(editor: editor)
+                    case .music:
+                        StudioMusicPicker(source: radio.studioMusicSource, folderBookmark: radio.studioMusicFolderBookmark,
+                            library: radio.studioMusicLibrary, favoriteIDs: Set(radio.favoriteSongs.map(\.id)), useSong: editor.importLibrarySong, close: { sheet = nil })
+                            .toolbar(.hidden, for: .navigationBar)
                     }
                 }.navigationTitle(title(item)).navigationBarTitleDisplayMode(.inline)
                     .toolbar { ToolbarItem(placement: .confirmationAction) { Button("Done") { sheet = nil }.disabled(editor.exporter.isExporting) } }
@@ -144,6 +148,7 @@ struct MobileWorkspace: View {
         case .export: "Export video"
         case .about: "About & Support"
         case .apply: "Apply to all"
+        case .music: "Choose music"
         }
     }
     private var windowControlClearance: CGFloat {
@@ -160,6 +165,7 @@ struct MobileWorkspace: View {
             Button { sheet = .library } label: { Image(systemName: "square.grid.2x2").frame(width: 20) }
                 .accessibilityLabel("Open visualizer library").accessibilityIdentifier("mobileLibraryButton")
             Menu {
+                Button("Choose music", systemImage: "music.note.list") { sheet = .music }
                 Button("Import audio", systemImage: "waveform.badge.plus") { audioPicker = true }
                 Button("Open project", systemImage: "folder") { projectPicker = true }
                 Button("Save project", systemImage: "internaldrive") {
