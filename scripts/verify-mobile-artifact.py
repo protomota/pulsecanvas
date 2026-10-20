@@ -11,6 +11,7 @@ app = Path(sys.argv[1]).resolve()
 info = plistlib.loads((app / 'Info.plist').read_bytes())
 assert set(info['UIDeviceFamily']) == {1, 2}, 'Both iPhone and iPad must be supported'
 assert info['MinimumOSVersion'] == '18.0'
+assert info.get('UIBackgroundModes') == ['audio'], 'Background playback mode is missing or overbroad'
 root = app / 'NativeAssets'
 catalog = json.loads((root / 'NativeVisualizers.json').read_text())
 expected = json.loads(subprocess.check_output([sys.executable, 'scripts/native-visualizer-catalog.py'], text=True))

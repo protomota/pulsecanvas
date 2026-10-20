@@ -21,6 +21,7 @@ struct MobileButton: ButtonStyle {
             .foregroundStyle(prominent ? MobileTheme.background : .white)
             .background(prominent ? MobileTheme.accent : MobileTheme.panel, in: RoundedRectangle(cornerRadius: 13))
             .overlay(RoundedRectangle(cornerRadius: 13).strokeBorder(.white.opacity(prominent ? 0 : 0.1)))
+            .contentShape(RoundedRectangle(cornerRadius: 13))
             .opacity(configuration.isPressed ? 0.7 : 1)
     }
 }
@@ -82,7 +83,7 @@ struct MobileWorkspace: View {
             do { try await Task.sleep(for: .seconds(11)) } catch { return }
             if canRequestReview, engagement.presentExportThanks() { requestReview() }
         }
-        .onChange(of: phase) { _, value in if value == .background { editor.suspend() } }
+        .onChange(of: phase) { _, value in editor.setForeground(value == .active, inBackground: value == .background) }
         .sheet(item: $sheet) { item in
             NavigationStack {
                 Group {
@@ -159,7 +160,8 @@ struct MobileWorkspace: View {
                     do { projectDocument = MobileProjectDocument(data: try editor.projectData()); savingProject = true }
                     catch { editor.message = error.localizedDescription }
                 }
-                Button("Export MP4", systemImage: "film") { sheet = .export }.disabled(editor.audio.selectedURL == nil || editor.radio.isActive)
+                Button("Export MP4", systemImage: "film") { sheet = .export }
+                    .disabled(audio.selectedURL == nil || radio.isActive && !radio.canSeek)
                 Divider()
                 Button("About & Support", systemImage: "info.circle") { sheet = .about }
             } label: { Image(systemName: "ellipsis").frame(width: 20) }.accessibilityLabel("Project actions")

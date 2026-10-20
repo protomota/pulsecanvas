@@ -57,6 +57,9 @@ final class RenderState: ObservableObject {
 @MainActor
 struct VisualizerView: UIViewRepresentable {
     @ObservedObject var state: RenderState
+    #if os(iOS)
+    @Environment(\.scenePhase) private var phase
+    #endif
     func makeCoordinator() -> VisualizerRenderer { VisualizerRenderer(state: state) }
     func makeUIView(context: Context) -> MTKView {
         let view = MTKView(frame: .zero, device: MTLCreateSystemDefaultDevice())
@@ -65,9 +68,17 @@ struct VisualizerView: UIViewRepresentable {
         view.preferredFramesPerSecond = 30
         view.delegate = context.coordinator
         context.coordinator.attach(view)
+        #if os(iOS)
+        view.isPaused = phase != .active
+        #endif
         return view
     }
-    func updateUIView(_ view: MTKView, context: Context) { context.coordinator.state = state }
+    func updateUIView(_ view: MTKView, context: Context) {
+        context.coordinator.state = state
+        #if os(iOS)
+        view.isPaused = phase != .active
+        #endif
+    }
     static func dismantleUIView(_ view: MTKView, coordinator: VisualizerRenderer) {
         view.isPaused = true; view.delegate = nil
     }
@@ -338,6 +349,9 @@ final class VisualizerRenderer: NSObject, MTKViewDelegate {
     func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) { blurTexture = nil }
 
     func draw(in view: MTKView) {
+        #if os(iOS)
+        guard UIApplication.shared.applicationState != .background else { return }
+        #endif
         guard device != nil, let queue, canvasPipeline != nil, let drawable = view.currentDrawable else { return }
         guard flightSlots.wait(timeout: .now()) == .success else { return }
         guard let command = queue.makeCommandBuffer() else { flightSlots.signal(); return }

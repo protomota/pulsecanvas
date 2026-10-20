@@ -29,7 +29,7 @@ struct MobileRadio: View {
                     if let track = radio.currentTrack {
                         Button { radio.toggleFavoriteSong(track) } label: { Image(systemName: radio.isFavoriteSong(track) ? "heart.fill" : "heart").frame(width: 16) }.accessibilityLabel("Favorite song")
                     }
-                    Text(radio.currentTrack?.title ?? "PulseCanvas Radio").font(.headline).lineLimit(1)
+                    Text(radio.currentTrack?.title ?? "PulseCanvas Radio").font(.headline).lineLimit(1).accessibilityIdentifier("radioCurrentSongTitle")
 
                     Spacer()
                     Button { favorites = true } label: { Image(systemName: "heart.text.clipboard") }.accessibilityLabel("Favorite songs")
@@ -88,7 +88,7 @@ private struct MobileRadioTransport: View {
                 .accessibilityIdentifier("radioPlaybackButton")
                 .disabled(!radio.isActive && !radio.canStart)
             Text(MobileTransport.time(radio.canSeek ? (seeking ? fraction * audio.duration : audio.playbackSeconds) : 0))
-                .monospacedDigit().font(.caption).frame(minWidth: 34)
+                .monospacedDigit().font(.caption).frame(minWidth: 34).accessibilityIdentifier("radioElapsedTime")
             Slider(value: $fraction, in: 0...1, onEditingChanged: { editing in
                 seeking = editing
                 if !editing { radio.seek(fraction: fraction) }

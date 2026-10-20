@@ -4,10 +4,14 @@ import UIKit
 struct MobileExport: View {
     @ObservedObject var editor: MobileEditor
     @ObservedObject var exporter: SocialExportController
+    @ObservedObject var audio: AudioController
+    @ObservedObject var radio: RadioController
     @State private var request: MobileVideoSaveRequest?
     @State private var saved = false
+    @State private var renderStarted = false
     @State private var error: String?
-    init(editor: MobileEditor) { self.editor = editor; exporter = editor.exporter }
+    init(editor: MobileEditor) { self.editor = editor; exporter = editor.exporter; audio = editor.audio; radio = editor.radio }
+    private var hasCurrentResult: Bool { renderStarted && exporter.exportedURL != nil }
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
@@ -15,28 +19,36 @@ struct MobileExport: View {
                     Picker("Canvas", selection: $exporter.aspect) { ForEach(SocialAspect.allCases) { Text($0.rawValue).tag($0) } }
                     Picker("Resolution", selection: $exporter.resolution) { Text("720p").tag(720); Text("1080p").tag(1080); Text("4K").tag(2160) }.pickerStyle(.segmented)
                     Picker("Frame rate", selection: $exporter.fps) { ForEach([24, 30, 60], id: \.self) { Text("\($0) fps").tag($0) } }.pickerStyle(.segmented)
-                    Text("Full soundtrack included. Higher resolutions take longer to render.").foregroundStyle(.secondary)
+                    Text(radio.isActive ? "Export the current Radio song with the visualizer you’re watching." : "Full soundtrack included. Higher resolutions take longer to render.").foregroundStyle(.secondary)
                 }
-                if exporter.isExporting || exporter.exportedURL != nil {
+                if exporter.isExporting || hasCurrentResult {
                     if let image = exporter.framePreview { Image(decorative: image, scale: 1).resizable().scaledToFit().frame(maxHeight: 250).clipShape(RoundedRectangle(cornerRadius: 14)) }
                     ProgressView(value: exporter.progress)
-                    Text(saved ? "Video saved" : exporter.exportedURL != nil ? "Your video is ready" : exporter.status).font(.headline)
+                    Text(saved ? "Video saved" : hasCurrentResult ? "Your video is ready" : exporter.status).font(.headline)
                     if let estimate = exporter.estimatedSecondsRemaining { Text("About \(MobileTransport.time(estimate)) remaining").foregroundStyle(.secondary) }
                 }
                 if let error { Text(error).foregroundStyle(.red) }
                 if exporter.status.hasPrefix("Export failed") { Text(exporter.status).foregroundStyle(.red) }
+            }.padding(24)
+        }.safeAreaInset(edge: .bottom, spacing: 0) {
+            VStack(spacing: 10) {
                 if exporter.isExporting {
                     Button("Cancel export") { exporter.cancel() }.buttonStyle(MobileButton())
                 } else {
-                    if let url = exporter.exportedURL {
-                        Button(saved ? "Save another copy" : "Save video", systemImage: "tray.and.arrow.down") { request = MobileVideoSaveRequest(url: url) }.buttonStyle(MobileButton(prominent: true))
+                    if let url = exporter.exportedURL, hasCurrentResult {
+                        Button { request = MobileVideoSaveRequest(url: url) } label: {
+                            Label(saved ? "Save another copy" : "Save video", systemImage: "tray.and.arrow.down").frame(maxWidth: .infinity, minHeight: 52)
+                        }.buttonStyle(MobileButton(prominent: true)).accessibilityIdentifier("saveMobileVideo")
                     }
-                    Button(exporter.exportedURL == nil ? "Render video" : "Render another video", systemImage: "film") { startExport() }
-                        .buttonStyle(MobileButton(prominent: exporter.exportedURL == nil)).disabled(editor.audio.selectedURL == nil || editor.radio.isActive)
+                    Button { startExport() } label: {
+                        Label(hasCurrentResult ? "Render another video" : "Render video", systemImage: "film").frame(maxWidth: .infinity, minHeight: 52)
+                    }.buttonStyle(MobileButton(prominent: !hasCurrentResult))
+                        .accessibilityIdentifier("renderMobileVideo")
+                        .disabled(audio.selectedURL == nil || radio.isActive && !radio.canSeek)
                 }
-            }.padding(24)
+            }.padding(20).frame(maxWidth: .infinity).background(MobileTheme.background)
         }.interactiveDismissDisabled(exporter.isExporting)
-        .sheet(item: $request) { item in
+        .fullScreenCover(item: $request) { item in
             MobileVideoSavePicker(url: item.url) { result in
                 request = nil
                 if let result {
@@ -51,12 +63,17 @@ struct MobileExport: View {
         }
     }
     private func startExport() {
-        editor.audio.pause(); editor.studio.save(editor.render); saved = false; error = nil
+        let radioExport = radio.isActive
+        if radioExport { radio.pause() } else { audio.pause(); editor.studio.save(editor.render) }
+        let audioURL = audio.selectedURL
+        let render = radioExport ? radio.visualizer : editor.render
+        let segments = !radioExport && editor.studio.isStudio ? editor.studio.segments : []
+        saved = false; error = nil
         let destination = FileManager.default.temporaryDirectory.appendingPathComponent("Mobile-video-\(UUID().uuidString)").appendingPathComponent("PulseCanvas Video.mp4")
         do { try FileManager.default.createDirectory(at: destination.deletingLastPathComponent(), withIntermediateDirectories: true) }
         catch { self.error = error.localizedDescription; return }
-        Task { await exporter.export(audioURL: editor.audio.selectedURL, render: editor.render, to: destination,
-                                     segments: editor.studio.isStudio ? editor.studio.segments : [], appearances: editor.studio.presets) }
+        Task { renderStarted = true; await exporter.export(audioURL: audioURL, render: render, to: destination,
+                                     segments: segments, appearances: radioExport ? [:] : editor.studio.presets) }
     }
 }
 

@@ -50,10 +50,20 @@ struct VisualizerRandomizerPicker: View {
                 if fillsWidth { Spacer(minLength: 0) }
                 Image(systemName: "chevron.down").font(.caption.weight(.semibold))
             }
+            #if os(iOS)
+            .font(.body.weight(.semibold))
+            .padding(.horizontal, 16).frame(minHeight: 52)
+            .frame(maxWidth: fillsWidth ? .infinity : nil, alignment: .leading)
+            .background(Color.white.opacity(0.08), in: RoundedRectangle(cornerRadius: 14))
+            .overlay(RoundedRectangle(cornerRadius: 14).strokeBorder(Color.white.opacity(0.16)))
+            .contentShape(RoundedRectangle(cornerRadius: 14))
+            #endif
         }
         #if os(macOS)
         .menuStyle(.borderlessButton).menuIndicator(.hidden)
         .buttonStyle(StudioButtonStyle(treatment: library.pool.enabled ? .accent : .secondary, compact: compact))
+        #elseif os(iOS)
+        .buttonStyle(.plain)
         #else
         .buttonStyle(.bordered)
         #endif

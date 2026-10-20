@@ -23,6 +23,14 @@ final class AudioController: ObservableObject {
     @Published private(set) var previewSectionStart: Double?
     // High-rate audio data bypasses ObservableObject; only playback widgets observe it.
     let visualizationUpdated = PassthroughSubject<Void, Never>()
+    private var visualizationEnabled = true
+    private var lastBackgroundProgressRefresh: TimeInterval = 0
+    /// Background listening keeps its playback clock and completion callbacks,
+    /// without spending CPU on audio features for an invisible renderer.
+    func setVisualizationEnabled(_ enabled: Bool) {
+        visualizationEnabled = enabled
+        if enabled { updateProgress() }
+    }
     private var previewSectionEnd: Double?
     @Published var loopEnabled = true
     /// Radio owns full-song completion; bounded Studio previews still loop normally.
@@ -44,7 +52,7 @@ final class AudioController: ObservableObject {
         engine.connect(player, to: engine.mainMixerNode, format: nil)
         engine.mainMixerNode.outputVolume = volume
         timer = Timer(timeInterval: 1.0 / 60, repeats: true) { [weak self] _ in
-            Task { @MainActor [weak self] in self?.updateProgress() }
+            Task { @MainActor [weak self] in self?.updateProgress(fromTimer: true) }
         }
         RunLoop.main.add(timer!, forMode: .common)
     }
@@ -189,6 +197,7 @@ final class AudioController: ObservableObject {
 
     private func analyze(frame: AVAudioFramePosition) {
         defer { visualizationUpdated.send() }
+        guard visualizationEnabled else { return }
         guard let file, let analyzer else { return }
         do {
             let features = try analyzer.frame(at: Double(frame) / file.processingFormat.sampleRate,
@@ -244,7 +253,12 @@ final class AudioController: ObservableObject {
         isPlaying = playing
     }
 
-    private func updateProgress() {
+    private func updateProgress(fromTimer: Bool = false) {
+        if fromTimer && !visualizationEnabled {
+            let now = ProcessInfo.processInfo.systemUptime
+            guard now - lastBackgroundProgressRefresh >= 1 else { return }
+            lastBackgroundProgressRefresh = now
+        }
         guard isPlaying, let file, let time = player.lastRenderTime, let position = player.playerTime(forNodeTime: time) else { return }
         playbackSeconds = min(previewSectionEnd.map { max(0, $0 - 1 / file.processingFormat.sampleRate) } ?? duration, max(0, Double(segmentStart) / file.processingFormat.sampleRate + max(0, Double(position.sampleTime) / file.processingFormat.sampleRate - player.outputPresentationLatency)))
         progress = duration > 0 ? playbackSeconds / duration : 0

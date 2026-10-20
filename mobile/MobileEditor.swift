@@ -10,7 +10,7 @@ import CryptoKit
     let render = RenderState()
     let audio = AudioController()
     let studio = StudioStore()
-    let radio = RadioController()
+    let radio: RadioController
     let exporter = SocialExportController()
     let engagement = CreatorEngagement()
     let library = ProjectMPresets.shared
@@ -22,18 +22,29 @@ import CryptoKit
     private var pendingProject: CreatorProject?
     private var observations = Set<AnyCancellable>()
     private var started = false
+    private var foreground = true
+    private var playbackSession: MobilePlaybackSession?
     private let documents: URL
     private var autosave: URL { documents.appendingPathComponent("Studio-autosave.pulsecanvas") }
 
     init() {
         let base = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
         #if DEBUG
-        documents = ProcessInfo.processInfo.arguments.contains("-PCMobileQA")
+        let qa = ProcessInfo.processInfo.arguments.contains("-PCMobileQA")
+        documents = qa
             ? FileManager.default.temporaryDirectory.appendingPathComponent("Mobile-QA-\(UUID().uuidString)") : base
+        if qa {
+            let suite = "PulseCanvas.MobileRadio.QA"
+            let defaults = UserDefaults(suiteName: suite)!
+            defaults.removePersistentDomain(forName: suite)
+            radio = RadioController(defaults: defaults)
+        } else { radio = RadioController() }
         #else
         documents = base
+        radio = RadioController()
         #endif
         radio.attach(audio: audio)
+        playbackSession = MobilePlaybackSession(audio: audio, radio: radio)
         studio.apply(to: render)
         audio.visualizationUpdated.sink { [weak self] in self?.tick() }.store(in: &observations)
         studio.$segments.dropFirst().debounce(for: .milliseconds(500), scheduler: RunLoop.main)
@@ -48,7 +59,6 @@ import CryptoKit
         do { try await Task.detached {
             let session = AVAudioSession.sharedInstance()
             try session.setCategory(.playback, mode: .default)
-            try session.setActive(true)
         }.value }
         catch { message = "Audio could not start: \(error.localizedDescription)" }
         studio.isStudio = true
@@ -69,10 +79,12 @@ import CryptoKit
                     await load(sample, copy: false)
                     if radioQA {
                         let data = try Data(contentsOf: sample)
-                        let track = RadioTrack(id: "mobile-radio-qa", title: "Radio test soundtrack", genre: "Electronic", duration: seconds,
+                        let track = RadioTrack(id: "00000000-0000-4000-8000-000000000001", title: "Radio test soundtrack", genre: "Electronic", duration: seconds,
                             audio: sample.lastPathComponent, sha256: SHA256.hash(data: data).map { String(format: "%02x", $0) }.joined(), byteCount: data.count)
                         let url = documents.appendingPathComponent("catalog.json")
-                        try JSONEncoder().encode(RadioCatalog(version: 1, title: "Test Radio", tracks: [track])).write(to: url)
+                        let second = RadioTrack(id: "00000000-0000-4000-8000-000000000002", title: "Radio test soundtrack 2", genre: track.genre, duration: track.duration,
+                            audio: track.audio, sha256: track.sha256, byteCount: track.byteCount)
+                        try JSONEncoder().encode(RadioCatalog(version: 1, title: "Test Radio", tracks: [track, second])).write(to: url)
                         radio.loadCatalog(at: url)
                     }
                     return
@@ -131,11 +143,19 @@ import CryptoKit
         guard let grid = audio.segmentPlan(beatsPerSection: 4) else { return }
         audio.pause(); _ = studio.setBars(value, at: index, grid: grid, render: render); saveSession()
     }
-    func suspend() {
-        radio.pause(); audio.pause(); exporter.cancel()
-        render.paused = true; radio.visualizer.paused = true; saveSession()
+    func setForeground(_ active: Bool, inBackground: Bool = false) {
+        foreground = active
+        audio.setVisualizationEnabled(active)
+        if active { tick() }
+        else {
+            // iOS permits audio playback in the background, not Metal rendering.
+            render.paused = true; radio.visualizer.paused = true
+            if inBackground { exporter.cancel() }
+            saveSession()
+        }
     }
     private func tick() {
+        guard foreground else { return }
         let target = currentRender
         target.audioTrebleAttackTime = audio.trebleAttackTime
         target.audioTreblePulse = audio.treblePulse; target.audioBeatMotionTime = audio.beatMotionTime
