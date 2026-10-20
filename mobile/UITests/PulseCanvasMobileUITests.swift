@@ -2,6 +2,52 @@ import XCTest
 
 final class PulseCanvasMobileUITests: XCTestCase {
     override func setUp() { continueAfterFailure = false }
+    @MainActor func testIPadLandscapeRadioFitsWithoutScrolling() throws {
+        let app = XCUIApplication()
+        XCUIDevice.shared.orientation = .landscapeLeft
+        app.launchArguments = ["-PCMobileQA", "-PCMobileRadioQA"]
+        app.launch()
+        let library = app.buttons["mobileLibraryButton"]
+        XCTAssertTrue(library.waitForExistence(timeout: 30))
+        expectation(for: NSPredicate(format: "enabled == true"), evaluatedWith: library)
+        waitForExpectations(timeout: 90)
+        app.buttons["Radio"].tap()
+        let landscape = app.otherElements["mobileRadioLandscape"]
+        XCTAssertTrue(landscape.waitForExistence(timeout: 15))
+        XCTAssertEqual(app.scrollViews.count, 0, "Landscape Radio must fit without a scroll container")
+        let play = app.buttons["radioPlaybackButton"]
+        expectation(for: NSPredicate(format: "enabled == true"), evaluatedWith: play)
+        waitForExpectations(timeout: 30)
+        play.tap()
+        expectation(for: NSPredicate(format: "enabled == true"), evaluatedWith: app.sliders["radioSongPosition"])
+        waitForExpectations(timeout: 30)
+        let controls = [app.buttons["Randomize visualizer group"], app.buttons["Random radio visualizer"],
+                        app.buttons["Present radio"], app.buttons["Favorite radio visualizer"],
+                        app.buttons["Favorite song"], app.buttons["Favorite songs"], app.buttons["Next song"],
+                        app.buttons["radioStationPicker"], play, app.sliders["radioSongPosition"], app.sliders["Radio volume"]]
+        for control in controls {
+            XCTAssertTrue(control.isHittable, "\(control.identifier) must be reachable without scrolling")
+            XCTAssertTrue(app.frame.insetBy(dx: -1, dy: -1).contains(control.frame), "\(control.identifier) must stay on screen")
+        }
+        XCTAssertGreaterThan(app.otherElements["mobileRadioPreview"].frame.height, 200)
+        app.buttons["Randomize visualizer group"].tap()
+        app.buttons["Randomize favorites"].tap()
+        let message = app.staticTexts["No saved favorite visualizers yet. Playing random visualizers from the full library."]
+        XCTAssertTrue(message.waitForExistence(timeout: 10))
+        XCTAssertTrue(message.isHittable)
+        XCTAssertEqual(app.scrollViews.count, 0, "Fallback messaging must also fit")
+        let screenshot = XCTAttachment(screenshot: app.screenshot())
+        screenshot.name = "Landscape Radio — all controls visible"; screenshot.lifetime = .keepAlways; add(screenshot)
+        XCUIDevice.shared.orientation = .portrait
+        expectation(for: NSPredicate(format: "exists == false"), evaluatedWith: landscape)
+        waitForExpectations(timeout: 10)
+        XCTAssertTrue(app.scrollViews.firstMatch.exists, "Portrait keeps the compact-screen layout")
+        XCUIDevice.shared.orientation = .landscapeRight
+        XCTAssertTrue(landscape.waitForExistence(timeout: 10))
+        XCTAssertEqual(app.scrollViews.count, 0)
+        XCTAssertEqual(play.label, "Pause", "Rotation must not interrupt playback")
+        play.tap()
+    }
     @MainActor func testBackgroundAudioAndRadioPresentation() throws {
         let app = XCUIApplication()
         XCUIDevice.shared.orientation = .portrait

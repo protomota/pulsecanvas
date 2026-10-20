@@ -1,5 +1,6 @@
 import SwiftUI
 import Combine
+import UIKit
 
 struct MobileRadio: View {
     @ObservedObject var editor: MobileEditor
@@ -10,49 +11,28 @@ struct MobileRadio: View {
     @State private var favorites = false
     init(editor: MobileEditor, present: @escaping () -> Void) { self.editor = editor; radio = editor.radio; audio = editor.audio; self.present = present }
     var body: some View {
-        ScrollView {
-            VStack(spacing: 16) {
-                HStack {
-                    if radio.isActive {
-                        Button { library.toggleFavorite(radio.visualizer.scene, appearance: VisualPreset(render: radio.visualizer)) } label: {
-                            Image(systemName: library.isFavorite(radio.visualizer.scene) ? "heart.fill" : "heart").frame(width: 16)
-                        }.accessibilityLabel("Favorite radio visualizer")
-                    }
-                    Text(radio.sceneTitle.isEmpty ? "Radio" : radio.sceneTitle).font(.headline).lineLimit(1)
-                    Spacer()
-                    Button { radio.randomizeCurrentVisualizer() } label: { Image(systemName: "shuffle") }.disabled(!radio.canRandomizeVisualizer).accessibilityLabel("Random radio visualizer")
-                    Button(action: present) { Image(systemName: "arrow.up.left.and.arrow.down.right") }.accessibilityLabel("Present radio")
-                }.buttonStyle(MobileButton())
-                VisualizerRandomizerPicker(fillsWidth: true)
-                VisualizerView(state: radio.visualizer).aspectRatio(16 / 9.0, contentMode: .fit).clipShape(RoundedRectangle(cornerRadius: 18))
-                HStack {
-                    if let track = radio.currentTrack {
-                        Button { radio.toggleFavoriteSong(track) } label: { Image(systemName: radio.isFavoriteSong(track) ? "heart.fill" : "heart").frame(width: 16) }.accessibilityLabel("Favorite song")
-                    }
-                    Text(radio.currentTrack?.title ?? "PulseCanvas Radio").font(.headline).lineLimit(1).accessibilityIdentifier("radioCurrentSongTitle")
-
-                    Spacer()
-                    Button { favorites = true } label: { Image(systemName: "heart.text.clipboard") }.accessibilityLabel("Favorite songs")
-                }.buttonStyle(MobileButton())
-                HStack {
-                    Menu {
-                        Button("All music") { radio.selectMusicGroup("all-music", startPlayback: true) }
-                        Button("Favorite songs") { radio.playFavoriteStation() }
-                        ForEach(radio.stations.filter { $0.id != "all-music" }) { station in
-                            Button(station.title) { radio.selectMusicGroup(station.id, startPlayback: true) }
-                        }
-                    } label: { Label(radio.favoriteSongsOnly ? "Favorite songs" : radio.stationTitle, systemImage: "antenna.radiowaves.left.and.right") }
-                    Spacer()
-                    Button { radio.next() } label: { Image(systemName: "forward.end.fill") }.disabled(!radio.isActive || radio.isLoading).accessibilityLabel("Next song")
-                }.buttonStyle(MobileButton())
-                MobileRadioTransport(radio: radio, audio: audio)
-                if radio.isCatalogLoading || radio.isLoading { ProgressView(radio.status).frame(maxWidth: .infinity) }
-                else { Text(radio.status).font(.caption).foregroundStyle(.secondary) }
-                if radio.favoriteSongsOnly && radio.favoriteSongs.isEmpty { Text("No favorite songs yet. Choose All music, then save songs with the heart.").foregroundStyle(.secondary) }
-                if radio.catalogError != nil && !radio.isCatalogLoading { Button("Retry radio") { radio.loadSavedCatalogIfNeeded(refresh: true) }.buttonStyle(MobileButton()).accessibilityIdentifier("retryRadioButton") }
-                HStack { Image(systemName: "speaker.fill"); Slider(value: $radio.volume, in: 0...1).accessibilityLabel("Radio volume"); Image(systemName: "speaker.wave.3.fill") }
-                if let error = radio.visualizerGroupMessage { Text(error).font(.caption).foregroundStyle(.secondary) }
-            }.padding(16)
+        GeometryReader { geometry in
+            if UIDevice.current.userInterfaceIdiom == .pad && geometry.size.width > geometry.size.height {
+                landscapeRadio
+            } else {
+                ScrollView {
+                    VStack(spacing: 16) {
+                        visualizerControls(inlinePicker: false)
+                        VisualizerRandomizerPicker(fillsWidth: true)
+                        VisualizerView(state: radio.visualizer).aspectRatio(16 / 9.0, contentMode: .fit)
+                            .clipShape(RoundedRectangle(cornerRadius: 18))
+                        songHeading
+                        HStack {
+                            stationPicker
+                            Spacer()
+                            nextSong
+                        }.buttonStyle(MobileButton())
+                        MobileRadioTransport(radio: radio, audio: audio)
+                        status
+                        volume
+                    }.padding(16)
+                }
+            }
         }.onAppear { radio.loadSavedCatalogIfNeeded(refresh: !radio.isActive) }
         .sheet(isPresented: $favorites) {
             NavigationStack {
@@ -69,6 +49,98 @@ struct MobileRadio: View {
             }.task { await radio.refreshFavoriteSongs() }
         }
     }
+    // The preview takes only the space left after the controls. A width-driven
+    // 16:9 preview exceeds an iPad's available landscape height.
+    private var landscapeRadio: some View {
+        VStack(spacing: 10) {
+            visualizerControls(inlinePicker: true)
+            GeometryReader { preview in
+                VisualizerView(state: radio.visualizer)
+                    .frame(width: preview.size.width, height: preview.size.height)
+                    .clipShape(RoundedRectangle(cornerRadius: 18))
+            }.frame(minHeight: 0, maxHeight: .infinity)
+                .accessibilityElement(children: .ignore).accessibilityLabel("Radio visualization")
+                .accessibilityIdentifier("mobileRadioPreview")
+            HStack(spacing: 12) {
+                songHeading
+                stationPicker.frame(maxWidth: 260)
+                nextSong
+            }.buttonStyle(MobileButton())
+            HStack(spacing: 20) {
+                MobileRadioTransport(radio: radio, audio: audio)
+                volume.frame(width: 170)
+            }
+            status
+        }.padding(12)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .accessibilityElement(children: .contain)
+            .accessibilityIdentifier("mobileRadioLandscape")
+    }
+    private func visualizerControls(inlinePicker: Bool) -> some View {
+        HStack(spacing: 12) {
+            if radio.isActive {
+                Button { library.toggleFavorite(radio.visualizer.scene, appearance: VisualPreset(render: radio.visualizer)) } label: {
+                    Image(systemName: library.isFavorite(radio.visualizer.scene) ? "heart.fill" : "heart").frame(width: 16)
+                }.accessibilityLabel("Favorite radio visualizer")
+            }
+            Text(radio.sceneTitle.isEmpty ? "Radio" : radio.sceneTitle).font(.headline).lineLimit(1)
+            Spacer(minLength: 0)
+            if inlinePicker { VisualizerRandomizerPicker(fillsWidth: true).frame(maxWidth: 320) }
+            Button { radio.randomizeCurrentVisualizer() } label: { Image(systemName: "shuffle") }
+                .disabled(!radio.canRandomizeVisualizer).accessibilityLabel("Random radio visualizer")
+            Button(action: present) { Image(systemName: "arrow.up.left.and.arrow.down.right") }.accessibilityLabel("Present radio")
+        }.buttonStyle(MobileButton())
+    }
+    private var songHeading: some View {
+        HStack {
+            if let track = radio.currentTrack {
+                Button { radio.toggleFavoriteSong(track) } label: {
+                    Image(systemName: radio.isFavoriteSong(track) ? "heart.fill" : "heart").frame(width: 16)
+                }.accessibilityLabel("Favorite song")
+            }
+            Text(radio.currentTrack?.title ?? "PulseCanvas Radio").font(.headline).lineLimit(1)
+                .accessibilityIdentifier("radioCurrentSongTitle")
+            Spacer(minLength: 0)
+            Button { favorites = true } label: { Image(systemName: "heart.text.clipboard") }.accessibilityLabel("Favorite songs")
+        }.buttonStyle(MobileButton())
+    }
+    private var stationPicker: some View {
+        Menu {
+            Button("All music") { radio.selectMusicGroup("all-music", startPlayback: true) }
+            Button("Favorite songs") { radio.playFavoriteStation() }
+            ForEach(radio.stations.filter { $0.id != "all-music" }) { station in
+                Button(station.title) { radio.selectMusicGroup(station.id, startPlayback: true) }
+            }
+        } label: {
+            Label(radio.favoriteSongsOnly ? "Favorite songs" : radio.stationTitle, systemImage: "antenna.radiowaves.left.and.right")
+                .lineLimit(1)
+        }.accessibilityIdentifier("radioStationPicker")
+    }
+    private var nextSong: some View {
+        Button { radio.next() } label: { Image(systemName: "forward.end.fill") }
+            .disabled(!radio.isActive || radio.isLoading).accessibilityLabel("Next song")
+    }
+    private var volume: some View {
+        HStack {
+            Image(systemName: "speaker.fill")
+            Slider(value: $radio.volume, in: 0...1).accessibilityLabel("Radio volume")
+            Image(systemName: "speaker.wave.3.fill")
+        }
+    }
+    private var status: some View {
+        VStack(spacing: 4) {
+            if radio.isCatalogLoading || radio.isLoading { ProgressView(radio.status).frame(maxWidth: .infinity) }
+            else { Text(radio.status).font(.caption).foregroundStyle(.secondary).lineLimit(2) }
+            if radio.favoriteSongsOnly && radio.favoriteSongs.isEmpty {
+                Text("No favorite songs yet. Choose All music, then save songs with the heart.").font(.caption).foregroundStyle(.secondary).lineLimit(2)
+            }
+            if radio.catalogError != nil && !radio.isCatalogLoading {
+                Button("Retry radio") { radio.loadSavedCatalogIfNeeded(refresh: true) }.buttonStyle(MobileButton()).accessibilityIdentifier("retryRadioButton")
+            }
+            if let error = radio.visualizerGroupMessage { Text(error).font(.caption).foregroundStyle(.secondary).lineLimit(2) }
+        }
+    }
+
 }
 
 /// Observe only the small transport at playback cadence, not the Metal preview
