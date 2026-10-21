@@ -23,20 +23,24 @@ artwork and other platforms' build/review selections are preserved.
 
 ## Duo assets and verification
 
-Eight actual simulator screenshots were added to the English iPhone Duo group:
-four inner-display landscape captures (2853×2007) and four outer-display portrait
-captures (1398×2034). They show Studio, Radio, full-screen viewing and visual
-style. The captures use the bundled soundtrack and live Radio, without QA launch
-fixtures. Only conversion to opaque RGB PNG was performed; there was no scaling,
-mock UI or replacement of app content.
+The initial eight plain simulator screenshots were replaced with six designed
+marketing slides using the approved iPhone/iPad campaign template. Each canvas is
+2853×2007, opaque RGB, with headlines, device frames and enlarged UI details.
+Inner landscape and outer portrait captures show the actual 1.2 (8) app: music,
+Studio, visual style, Radio, Export and Library. Screens retain their original
+aspect ratios, and callouts are crops of the same real UI. No QA fixtures or
+generated interface elements appear in the captures.
 
-The final observed order is inner Studio, Radio, full screen, style; outer Radio,
-full screen, style, Studio. The outer Studio image initially failed Apple's file
-processing. Removing only its placement retained the failed asset in the Asset
-Library; uploading the same validated PNG separately succeeded. Fresh API reads
-confirm eight ACTIVE placements, all eight images PREPARE_FOR_SUBMISSION, valid
-Duo size specifications and no placement errors. The existing API key returned
-403 for uploads; the signed-in browser completed them instead.
+The ordered files are `duo-01-music.png`, `duo-02-studio.png`,
+`duo-03-style.png`, `duo-04-radio.png`, `duo-05-export.png`, and
+`duo-06-free.png`. Their editable source and rebuild instructions are in
+[`duo-marketing-1.2`](../../assets/app-store/duo-marketing-1.2/README.md).
+Previous plain screenshots remain in the Asset Library; only their placements
+were removed. Fresh official API reads verified six ACTIVE placements, every image
+PREPARE_FOR_SUBMISSION, the correct Duo size specification, matching filenames
+and byte counts, and the six-slide order. All twelve existing iPhone/iPad
+placements are identical to the pre-upload snapshot. The existing header/search assets
+are preserved. No review submission or binary upload is part of this change.
 
 Reviewer notes now describe 1.2 and omit the obsolete 1.1.5 (5) build reference.
 Fresh API reads verified the exact promotion, description, keywords, URLs and
@@ -57,3 +61,7 @@ The receipt records each file's local checksum, byte count, Apple image and
 placement IDs, accepted size specification and final observed order. Apple does
 not expose a matching SHA-256; server verification covers filenames, byte counts,
 size specifications and processing/placement states.
+
+The replacement marketing set, contact sheet, local source/output SHA-256 manifest
+and server placement verification are in:
+`/Volumes/Music/Codex Media/PulseCanvas Studio/App Store/1.2/Duo-marketing/`.

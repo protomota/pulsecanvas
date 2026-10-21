@@ -1,0 +1,77 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>PulseCanvas Studio — Duo marketing screenshots</title><style>
+*{box-sizing:border-box}html,body{margin:0}
+body{background:#e8e5ec;font-family:"Avenir Next",Avenir,-apple-system,sans-serif;-webkit-font-smoothing:antialiased;color:#17121f}
+.overview{display:flex;flex-wrap:wrap;gap:28px;padding:32px;width:max-content;max-width:calc(6 * (var(--tw) + 28px) + 64px)}
+.thumb{width:var(--tw);height:var(--th);overflow:hidden;border-radius:24px;box-shadow:0 1px 4px #0002}
+.single .overview{display:block;padding:0}.single .thumb{width:var(--W);height:var(--H);border-radius:0;box-shadow:none}.single .slide{transform:none}
+
+/* Canvas: iPhone 6.9" 1320×2868, iPad 13" 2064×2752 */
+body.iphone{--W:1320px;--H:2868px;--s:1;--tw:330px;--th:717px}
+body.ipad{--W:2752px;--H:2064px;--s:1.15;--tw:688px;--th:516px}
+.slide{position:relative;isolation:isolate;width:var(--W);height:var(--H);overflow:hidden;transform:scale(.25);transform-origin:top left;
+  background:linear-gradient(180deg,#fdfcfe 0%,#f8f5fb 55%,#f1ecf6 100%)}
+.glow{position:absolute;z-index:0;border-radius:50%;filter:blur(160px);opacity:.42;background:var(--accent)}
+.octagon{position:absolute;z-index:0;fill:none;stroke:var(--accent);opacity:.10}
+
+/* Copy block, mirrors the Mac slides: brand row, headline, subtitle, value stat */
+.copy{position:absolute;z-index:5;left:calc(100px * var(--s));right:calc(100px * var(--s));top:calc(150px * var(--s))}
+.brand{display:flex;align-items:center;gap:calc(20px * var(--s));font-size:calc(50px * var(--s));font-weight:600;color:#4a4257;letter-spacing:-.5px}
+.brand img{width:calc(84px * var(--s));height:calc(84px * var(--s));border-radius:calc(20px * var(--s))}
+h1{margin:calc(44px * var(--s)) 0 0;font-size:calc(136px * var(--s));line-height:1.06;letter-spacing:calc(-4.5px * var(--s));font-weight:700}
+h1 em{font-style:normal;color:var(--accent)}
+.sub{margin:calc(34px * var(--s)) 0 0;font-size:calc(62px * var(--s));line-height:1.22;font-weight:500;color:#4f4759;letter-spacing:-.5px;max-width:calc(1120px * var(--s))}
+.value{position:absolute;z-index:8;padding:calc(34px * var(--s)) calc(48px * var(--s)) calc(30px * var(--s));border-radius:calc(48px * var(--s));background:#fff;color:var(--accent);
+  box-shadow:0 40px 90px #2a1a4a33,0 8px 22px #1c123022,0 0 0 2px #efe9f6}
+.value strong{display:block;font-size:calc(150px * var(--s));line-height:.92;letter-spacing:calc(-5px * var(--s));font-weight:700}
+.value span{display:block;margin-top:calc(8px * var(--s));font-size:calc(44px * var(--s));font-weight:600;color:#4f4759}
+
+/* Device frames */
+.device{position:absolute;z-index:2;background:linear-gradient(120deg,#f4f3f5,#a3a1a7 22%,#f2f0f3 40%,#c9c7cc 80%,#85828a);box-shadow:0 70px 140px #2a1a4a33,0 14px 34px #1c123026,0 0 0 4px #ddd9e2}
+.device .screen{position:relative;overflow:hidden;background:#0b0b0c;border:solid #0b0b0c}
+.device .screen img{display:block;width:100%;height:auto}
+.phone{width:1000px;padding:16px;border-radius:160px}
+.phone .screen{border-width:12px;border-radius:146px}
+.tablet{width:2000px;padding:20px;border-radius:110px}
+.tablet .screen{border-width:28px;border-radius:92px}
+.ipad .copy{top:110px;left:140px;right:140px}.ipad h1{margin-top:36px}.ipad h1 br{display:none}.ipad .sub{max-width:none;margin-top:26px}.ipad .chips{margin-top:40px}
+
+/* Callouts: magnified crops of the real capture */
+.callout{position:absolute;z-index:6;overflow:hidden;background-repeat:no-repeat;background-color:#1f1924;border:5px solid #fff;border-radius:calc(48px * var(--s));
+  box-shadow:0 44px 100px #2a1a4a40,0 10px 26px #1c12302b}
+.chips{display:flex;flex-wrap:wrap;gap:calc(22px * var(--s));margin-top:calc(54px * var(--s))}
+.chip{display:inline-flex;align-items:center;border-radius:999px;padding:calc(22px * var(--s)) calc(34px * var(--s));font-size:calc(44px * var(--s));font-weight:600;letter-spacing:-.4px;
+  background:#fff;color:#17121f;box-shadow:0 14px 34px #2a1a4a1c,0 0 0 2px #ebe4f3}
+.chip.p{background:var(--accent);color:#fff;box-shadow:0 18px 40px color-mix(in srgb,var(--accent) 35%,transparent)}
+.floating{position:absolute;z-index:7}
+.review .overview{display:grid;grid-template-columns:repeat(3,var(--tw))}
+
+body.duo{--W:2853px;--H:2007px;--s:1.1;--tw:713.25px;--th:501.75px}
+.duo .copy{top:100px;left:140px;right:140px}.duo h1{margin-top:34px;font-size:147px}.duo .sub{max-width:none;margin-top:24px;font-size:62px}.duo .chips{margin-top:42px}
+.duo .device{padding:16px;border-radius:85px}.duo .device .screen{border-width:16px;border-radius:70px}
+.duo .closed{padding:12px;border-radius:75px}.duo .closed .screen{border-width:12px;border-radius:64px}
+.duo .callout{border-radius:42px}.duo .value{padding:34px 46px 30px;border-radius:44px}
+.duo .value strong{font-size:160px}.duo .value span{font-size:42px}
+.duo .source-note{position:absolute;z-index:6;left:850px;top:1830px;padding:20px 32px;border-radius:30px;background:#fff;font-size:43px;font-weight:600;color:#4f4759}
+</style></head><body class="duo"><main class="overview" id="overview"></main><script>
+const q=new URLSearchParams(location.search);
+if(q.has('review'))document.body.classList.add('review');
+const root=q.get('sources');if(!root)throw Error('Pass the real Duo capture folder as sources');
+const src=n=>`${root.replace(/\/$/,'')}/duo-${n}.png`;
+const icon=`<div class="brand"><img src="${q.get('icon')}" alt="">PulseCanvas Studio</div>`;
+const frame=(img,x,y,width,cls='',rotation=0)=>`<div class="device ${cls}" style="left:${x}px;top:${y}px;width:${width}px;transform:rotate(${rotation}deg)"><div class="screen"><img src="${src(img)}" alt="Real PulseCanvas ${img} capture"></div></div>`;
+const value=(a,b,x,y,rotation=0)=>`<div class="value" style="left:${x}px;top:${y}px;transform:rotate(${rotation}deg)"><strong>${a}</strong><span>${b}</span></div>`;
+function callout(img,x,y,w,h,cx,cy,zoom,sourceWidth=2853){return `<div class="callout" style="left:${x}px;top:${y}px;width:${w}px;height:${h}px;background-image:url(${src(img)});background-size:${sourceWidth*zoom}px auto;background-position:${-cx*zoom}px ${-cy*zoom}px"></div>`}
+function backdrop(){return `<div class="glow" style="left:-10%;top:45%;width:80%;height:55%"></div><svg class="octagon" width="2853" height="2007"><polygon points="1426,520 2134,813 2427,1520 2134,2227 1426,2520 719,2227 426,1520 719,813" stroke-width="8"/></svg>`}
+const copy=(title,sub,extra='')=>`<div class="copy">${icon}<h1>${title}</h1>${sub?`<p class="sub">${sub}</p>`:''}${extra}</div>`;
+const slides=[
+{id:'music',accent:'#0b8f80',body:()=>copy('Your music. A <em>new world.</em>','Music-reactive tunnels, liquid, particles and kinetic worlds.')+frame('inner-fullscreen',330,620,2200)+frame('outer-radio',2220,1080,490,'closed',4)+value('300+','Metal visualizers',110,1460,-5)},
+{id:'studio',accent:'#3a5bd0',body:()=>copy('Build a visual <em>journey.</em>','Beat-aligned scenes. Individual bar lengths. Your creative mix.')+frame('inner-studio',330,620,2200)+callout('inner-studio',260,1420,2330,530,720,1390,1.13)},
+{id:'style',accent:'#7f3fe0',body:()=>copy('Shape every <em>look.</em>','Chaos, motion, zoom, brightness and depth. All at your fingertips.')+frame('outer-style',1780,595,820,'closed',3)+callout('inner-style',160,825,1660,980,510,675,.90)},
+{id:'radio',accent:'#d85a35',body:()=>copy('Tune in to <em>Radio.</em>','Stations paired with moving visuals. Heart the songs you love.')+frame('inner-radio',330,620,2200)+callout('inner-radio',160,1680,2530,310,25,1460,.90)},
+{id:'export',accent:'#b8690c',body:()=>copy('From your phone to <em>their feed.</em>','Save an MP4 with your music. Wide, phone or square.')+frame('inner-export',330,620,2200)+callout('inner-export',870,1140,1780,330,510,490,.96)+value('4K60','Maximum MP4 output',2180,1670,4)},
+{id:'free',accent:'#a43cd6',body:()=>copy('Completely <em>free.</em>','',`<div class="chips"><span class="chip p">No subscriptions</span><span class="chip">No ads</span><span class="chip">No account</span><span class="chip">No tracking</span></div>`)+frame('inner-library',330,620,2200)+frame('outer-studio',180,1130,530,'closed',-4)+`<div class="source-note">Source available on GitHub</div>`},
+];
+const main=document.getElementById('overview');
+slides.forEach(s=>{const t=document.createElement('div');t.className='thumb';t.innerHTML=`<section class="slide ${s.id}" style="--accent:${s.accent}">${backdrop()}${s.body()}</section>`;main.append(t)});
+const n=Number(q.get('slide'));if(n>=1&&n<=6){document.body.classList.add('single');[...main.children].forEach((e,i)=>{if(i!==n-1)e.remove()})}
+</script></body></html>

@@ -96,6 +96,29 @@ final class PulseCanvasMobileUITests: XCTestCase {
         app.buttons["720p"].tap(); app.buttons["Render video"].tap()
         XCTAssertTrue(app.buttons["Save video"].waitForExistence(timeout: 180), "Library songs must export with the normal Studio renderer")
     }
+    /// Real library and export UI for the Duo marketing artwork (no QA fixture data).
+    @MainActor func testCaptureDuoMarketingDetails() throws {
+        let app = XCUIApplication()
+        app.launch()
+        let library = app.buttons["mobileLibraryButton"]
+        XCTAssertTrue(library.waitForExistence(timeout: 30))
+        expectation(for: NSPredicate(format: "enabled == true"), evaluatedWith: library)
+        waitForExpectations(timeout: 90)
+        app.buttons["Studio"].tap()
+        library.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        XCTAssertTrue(app.textFields["modalVisualizerSearch"].waitForExistence(timeout: 10))
+        print("PC_MARKETING_CAPTURE library")
+        Thread.sleep(forTimeInterval: 8)
+        app.buttons["Done"].coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        app.buttons["Project actions"].coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        app.buttons["Export MP4"].tap()
+        XCTAssertTrue(app.buttons["4K"].waitForExistence(timeout: 15))
+        app.buttons["4K"].tap()
+        app.buttons["60 fps"].tap()
+        print("PC_MARKETING_CAPTURE export")
+        Thread.sleep(forTimeInterval: 8)
+        app.buttons["Done"].coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+    }
     @MainActor func testCaptureDuoStoreScreenshots() throws {
         let app = XCUIApplication()
         app.launch()
