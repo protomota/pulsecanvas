@@ -9,19 +9,20 @@ struct MobileRadio: View {
     @ObservedObject var audio: AudioController
     @ObservedObject private var library = ProjectMPresets.shared
     let present: () -> Void
+    let trailingControlInset: CGFloat
     @State private var favorites = false
     @State private var musicFolder = false
     @State private var folderError: String?
-    init(editor: MobileEditor, present: @escaping () -> Void) { self.editor = editor; radio = editor.radio; audio = editor.audio; self.present = present }
+    init(editor: MobileEditor, trailingControlInset: CGFloat = 0, present: @escaping () -> Void) { self.editor = editor; radio = editor.radio; audio = editor.audio; self.trailingControlInset = trailingControlInset; self.present = present }
     var body: some View {
         GeometryReader { geometry in
-            if UIDevice.current.userInterfaceIdiom == .pad && geometry.size.width > geometry.size.height {
+            if usesBoundedLayout(geometry.size) {
                 landscapeRadio
             } else {
                 ScrollView {
                     VStack(spacing: 16) {
-                        visualizerControls(inlinePicker: false)
-                        VisualizerRandomizerPicker(fillsWidth: true)
+                        visualizerControls(inlinePicker: false).padding(.trailing, trailingControlInset)
+                        VisualizerRandomizerPicker(fillsWidth: true).padding(.trailing, trailingControlInset)
                         VisualizerView(state: radio.visualizer).aspectRatio(16 / 9.0, contentMode: .fit)
                             .clipShape(RoundedRectangle(cornerRadius: 18))
                         songHeading
@@ -61,11 +62,17 @@ struct MobileRadio: View {
             }.task { await radio.refreshFavoriteSongs() }
         }
     }
-    // The preview takes only the space left after the controls. A width-driven
-    // 16:9 preview exceeds an iPad's available landscape height.
+    // Choose from the live window size so folding or rotating an iPhone Duo
+    // gets the same spacious preview as other wide or large windows.
+    private func usesBoundedLayout(_ size: CGSize) -> Bool {
+        size.width >= 520 && size.height >= 600
+            || size.width >= 650 && size.width > size.height && size.height >= 320
+    }
+    // The preview takes only the space left after the controls; deriving its
+    // height from the width can push transport controls outside a short window.
     private var landscapeRadio: some View {
         VStack(spacing: 10) {
-            visualizerControls(inlinePicker: true)
+            visualizerControls(inlinePicker: true).padding(.trailing, trailingControlInset)
             GeometryReader { preview in
                 VisualizerView(state: radio.visualizer)
                     .frame(width: preview.size.width, height: preview.size.height)

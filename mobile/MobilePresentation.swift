@@ -24,7 +24,7 @@ struct MobilePresentation: View {
                             .disabled(!radio.isActive || radio.isLoading)
                     }
                     Button { if editor.selectedTab == 1 { if radio.isActive { radio.togglePlayback() } else { radio.start() } } else { audio.playPause() } } label: { Image(systemName: audio.isPlaying ? "pause.fill" : "play.fill").frame(width: 30) }
-                        .accessibilityLabel(audio.isPlaying ? "Pause" : "Play")
+                        .accessibilityLabel(audio.isPlaying ? "Pause" : "Play").accessibilityIdentifier("presentationPlayback")
                 }.buttonStyle(MobileButton()).padding(12).background(.ultraThinMaterial)
             }
         }.tint(MobileTheme.accent).statusBarHidden()

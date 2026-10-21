@@ -55,26 +55,31 @@ struct MobileWorkspace: View {
         GeometryReader { geometry in
             VStack(spacing: 0) {
                 header(compact: geometry.size.width < 700)
+                    .padding(.trailing, geometry.safeAreaInsets.trailing)
                 Divider().overlay(.white.opacity(0.08))
                 if editor.selectedTab == 1 {
-                    MobileRadio(editor: editor, present: { editor.presenting = true })
+                    MobileRadio(editor: editor, trailingControlInset: geometry.safeAreaInsets.trailing, present: { editor.presenting = true })
                 } else {
                     HStack(spacing: 0) {
-                        if geometry.size.width >= 1050 {
-                            MobileLibrary(editor: editor, close: nil).frame(width: 255)
+                        if geometry.size.width >= 850 && geometry.size.height >= 500 {
+                            MobileLibrary(editor: editor, close: nil)
+                                .frame(width: min(255, geometry.size.width * 0.26))
                             Divider()
                         }
-                        ScrollView {
-                            VStack(spacing: 16) {
-                                MobilePreview(editor: editor, style: { sheet = .style }, present: { editor.presenting = true })
-                                    .frame(maxHeight: max(220, geometry.size.height * 0.52))
-                                MobileTransport(audio: editor.audio)
-                                timeline
-                            }.padding(geometry.size.width < 600 ? 12 : 20)
+                        if geometry.size.width >= 650 && geometry.size.width > geometry.size.height {
+                            studioContent(size: geometry.size, bounded: true)
+                                .accessibilityElement(children: .contain)
+                                .accessibilityIdentifier("mobileStudioLandscape")
+                        } else {
+                            ScrollView { studioContent(size: geometry.size, bounded: false) }
                         }
                     }
                 }
-            }.background(MobileTheme.background).tint(MobileTheme.accent)
+            }
+            // Media uses the space below Duo's side status region. Only the
+            // header reserves its trailing inset so buttons avoid system controls.
+            .ignoresSafeArea(.container, edges: .trailing)
+            .background(MobileTheme.background).tint(MobileTheme.accent)
         }
         .task { await editor.start() }
         .task { await editor.radio.refreshFavoriteSongs() }
@@ -141,6 +146,27 @@ struct MobileWorkspace: View {
         } message: { Text("This replaces the chosen visualizers or scene lengths throughout your Studio timeline.") }
         .fullScreenCover(isPresented: $editor.presenting) { MobilePresentation(editor: editor) }
     }
+    @ViewBuilder private func studioContent(size: CGSize, bounded: Bool) -> some View {
+        if bounded && size.height < 500 {
+            // The closed display in landscape is too short to stack a preview
+            // above full scene cards. Give each its own column instead.
+            HStack(spacing: 16) {
+                MobilePreview(editor: editor, style: { sheet = .style }, present: { editor.presenting = true })
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                VStack(spacing: 12) {
+                    MobileTransport(audio: editor.audio)
+                    timeline
+                }.frame(maxWidth: .infinity)
+            }.padding(12)
+        } else {
+            VStack(spacing: bounded ? 12 : 16) {
+                MobilePreview(editor: editor, style: { sheet = .style }, present: { editor.presenting = true })
+                    .frame(maxHeight: bounded ? .infinity : max(220, size.height * 0.52))
+                MobileTransport(audio: editor.audio)
+                timeline
+            }.padding(size.width < 600 ? 12 : bounded ? 16 : 20)
+        }
+    }
     private func title(_ item: MobileSheet) -> String {
         switch item {
         case .library: "Visualizers"
@@ -200,7 +226,7 @@ struct MobileWorkspace: View {
                             MobileClip(editor: editor, index: index, clip: clip, choose: { editor.selectClip(index); sheet = .library }).id(index)
                         }
                     }.padding(.vertical, 3)
-                }.accessibilityIdentifier("mobileStudioTimeline")
+                }.frame(height: 154).accessibilityIdentifier("mobileStudioTimeline")
                     .onChange(of: studio.selectedSegment) { _, index in
                         guard audio.isPlaying, studio.segments.indices.contains(index) else { return }
                         withAnimation(.easeInOut(duration: 0.25)) { proxy.scrollTo(index, anchor: .center) }
@@ -286,7 +312,7 @@ private struct MobileClip: View {
                 Button(action: choose) { HStack { Text(editor.library.sceneNames[clip.scene]).lineLimit(1); Spacer(); Image(systemName: "chevron.down") } }
                     .accessibilityLabel("Choose visualizer for scene \(index + 1)")
                 Stepper("\(studio.barCount(for: clip)) bars", value: Binding(get: { studio.barCount(for: clip) }, set: { editor.setBars($0, at: index) }), in: 1...64)
-                    .font(.caption)
+                    .font(.caption).accessibilityIdentifier("sceneBars-\(index)")
             }.padding(14)
         }.frame(width: 260, height: 148)
             .overlay(RoundedRectangle(cornerRadius: 15).strokeBorder(studio.selectedSegment == index ? MobileTheme.accent : .white.opacity(0.12), lineWidth: 1.5))
@@ -342,7 +368,7 @@ struct MobileStyle: View {
                     Button { editor.studio.randomize(render) } label: { Image(systemName: "dice.fill").font(.title2) }.accessibilityLabel("Randomize visual style")
                 }.buttonStyle(MobileButton())
                 Picker("Palette", selection: $render.palette) { ForEach(VisualPalette.allCases, id: \.rawValue) { Text($0.title).tag($0.rawValue) } }
-                    .pickerStyle(.menu)
+                    .pickerStyle(.menu).accessibilityIdentifier("mobilePalettePicker")
                 LazyVGrid(columns: [GridItem(.adaptive(minimum: 230), spacing: 24)], spacing: 24) {
                     control("Chaos", value: $render.chaos, range: 0...1)
                     control("Motion speed", value: $render.speed, range: 0.05...3)
@@ -353,14 +379,15 @@ struct MobileStyle: View {
                     control("Liquid detail", value: $render.liquidDetail, range: 0...1)
                     control("Content blur", value: $render.motionBlur, range: 0...1)
                 }
-                Toggle("Hi-hat strobe", isOn: $render.strobeEnabled)
+                Toggle("Hi-hat strobe", isOn: $render.strobeEnabled).accessibilityIdentifier("mobileStrobeToggle")
                 if render.strobeEnabled {
                     Text("Adds rapid flashes in time with high-frequency percussion.").font(.caption).foregroundStyle(.secondary)
                     control("Strobe sensitivity", value: $render.strobeSensitivity, range: 0.25...4)
                     control("Strobe strength", value: $render.strobeStrength, range: 0.1...1)
                 }
             }.padding(24)
-        }.onDisappear { editor.studio.save(render); editor.saveSession() }
+        }.accessibilityIdentifier("mobileStyleScroll")
+            .onDisappear { editor.studio.save(render); editor.saveSession() }
     }
     private func control(_ title: String, value: Binding<Float>, range: ClosedRange<Float>) -> some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -385,7 +412,7 @@ struct MobileApply: View {
         Form {
             Section("Change selected settings across the timeline") {
                 Toggle("Bars per scene", isOn: $useBars)
-                if useBars { Stepper("\(bars) bars", value: $bars, in: 1...64) }
+                if useBars { Stepper("\(bars) bars", value: $bars, in: 1...64).accessibilityIdentifier("mobileCommonBars") }
                 Toggle("Chaos", isOn: $useChaos)
                 if useChaos { Slider(value: $chaos, in: 0...1).accessibilityLabel("Common chaos") }
                 Toggle("Zoom speed", isOn: $useZoom)

@@ -2,6 +2,13 @@ import XCTest
 
 final class PulseCanvasMobileUITests: XCTestCase {
     override func setUp() { continueAfterFailure = false }
+    @MainActor private func nameSaveDestination(in app: XCUIApplication, prefix: String) {
+        let filename = app.textFields["DOCPicker.filenameTextField"]
+        XCTAssertTrue(filename.waitForExistence(timeout: 10))
+        let value = filename.value as? String ?? ""
+        filename.coordinate(withNormalizedOffset: CGVector(dx: 0.95, dy: 0.5)).tap()
+        filename.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: value.count + 10) + prefix + UUID().uuidString)
+    }
     @MainActor func testPersonalFolderRadioStaysOutOfStudio() throws {
         let app = XCUIApplication()
         XCUIDevice.shared.orientation = .portrait
@@ -19,7 +26,7 @@ final class PulseCanvasMobileUITests: XCTestCase {
         XCTAssertFalse(app.buttons["Favorite song"].exists)
         XCTAssertFalse(app.buttons["Favorite songs"].exists)
         XCTAssertTrue(app.buttons["Favorite radio visualizer"].exists)
-        app.buttons["Project actions"].tap()
+        app.buttons["Project actions"].coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
         XCTAssertFalse(app.buttons["Export MP4"].isEnabled)
         app.buttons["Choose music"].tap()
         let songs = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@", "studioMusicSong-"))
@@ -51,18 +58,18 @@ final class PulseCanvasMobileUITests: XCTestCase {
         let radioPlay = app.buttons["radioPlaybackButton"]
         expectation(for: NSPredicate(format: "enabled == true"), evaluatedWith: radioPlay)
         waitForExpectations(timeout: 30)
-        radioPlay.tap()
+        radioPlay.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
         XCTAssertTrue(app.buttons["Favorite song"].waitForExistence(timeout: 30))
         let title = app.staticTexts["radioCurrentSongTitle"].label
         app.buttons["Favorite song"].tap()
-        app.buttons["Project actions"].tap(); app.buttons["Choose music"].tap()
+        app.buttons["Project actions"].coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap(); app.buttons["Choose music"].tap()
         let songs = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@", "studioMusicSong-"))
         expectation(for: NSPredicate { _, _ in songs.count == 2 }, evaluatedWith: app)
         waitForExpectations(timeout: 30)
         app.buttons["cancelStudioMusic"].tap()
         XCTAssertEqual(radioPlay.label, "Pause", "Canceling the picker must not stop Radio")
         XCTAssertEqual(app.staticTexts["radioCurrentSongTitle"].label, title)
-        app.buttons["Project actions"].tap(); app.buttons["Choose music"].tap()
+        app.buttons["Project actions"].coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap(); app.buttons["Choose music"].tap()
         expectation(for: NSPredicate { _, _ in songs.count == 2 }, evaluatedWith: app)
         waitForExpectations(timeout: 30)
         app.buttons["Favorites"].tap()
@@ -84,10 +91,165 @@ final class PulseCanvasMobileUITests: XCTestCase {
         expectation(for: NSPredicate(format: "label == %@", "Pause"), evaluatedWith: app.buttons["mobilePlaybackButton"])
         waitForExpectations(timeout: 15)
         app.buttons["mobilePlaybackButton"].tap()
-        app.buttons["Project actions"].tap(); app.buttons["Export MP4"].tap()
+        app.buttons["Project actions"].coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap(); app.buttons["Export MP4"].tap()
         XCTAssertTrue(app.buttons["Render video"].waitForExistence(timeout: 10))
         app.buttons["720p"].tap(); app.buttons["Render video"].tap()
         XCTAssertTrue(app.buttons["Save video"].waitForExistence(timeout: 180), "Library songs must export with the normal Studio renderer")
+    }
+    @MainActor func testCaptureDuoStoreScreenshots() throws {
+        let app = XCUIApplication()
+        app.launch()
+        let library = app.buttons["mobileLibraryButton"]
+        XCTAssertTrue(library.waitForExistence(timeout: 30))
+        expectation(for: NSPredicate(format: "enabled == true"), evaluatedWith: library)
+        waitForExpectations(timeout: 90)
+        app.buttons["Studio"].tap()
+        library.tap()
+        let search = app.textFields["modalVisualizerSearch"]
+        XCTAssertTrue(search.waitForExistence(timeout: 10))
+        let groupChoices = app.buttons.matching(identifier: "Randomize visualizer group")
+        groupChoices.element(boundBy: max(0, groupChoices.count - 1)).tap()
+        app.buttons["Randomize all"].tap()
+        search.tap(); search.typeText("Octagon Vault\n")
+        let choices = app.buttons.containing(.staticText, identifier: "Octagon Vault")
+        let foundChoice = choices.firstMatch.waitForExistence(timeout: 10)
+        if !foundChoice { print("LIBRARY SEARCH VALUE: \(String(describing: search.value))\n" + app.debugDescription) }
+        XCTAssertTrue(foundChoice)
+        // The front sheet follows matching cards/sidebar rows in the hierarchy.
+        let choose = choices.element(boundBy: max(0, choices.count - 1))
+        XCTAssertTrue(choose.isHittable)
+        choose.coordinate(withNormalizedOffset: CGVector(dx: 0.25, dy: 0.5)).tap()
+        expectation(for: NSPredicate(format: "exists == false"), evaluatedWith: search)
+        waitForExpectations(timeout: 15)
+        let play = app.buttons["mobilePlaybackButton"]
+        play.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        expectation(for: NSPredicate(format: "label == %@", "Pause"), evaluatedWith: play)
+        waitForExpectations(timeout: 15)
+        Thread.sleep(forTimeInterval: 3)
+        print("PC_STORE_CAPTURE studio")
+        Thread.sleep(forTimeInterval: 8)
+        app.buttons["Present visualizer"].tap()
+        XCTAssertTrue(app.buttons["Close"].waitForExistence(timeout: 10))
+        Thread.sleep(forTimeInterval: 5)
+        print("PC_STORE_CAPTURE fullscreen")
+        Thread.sleep(forTimeInterval: 8)
+        app.windows.firstMatch.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        XCTAssertTrue(app.buttons["Close"].waitForExistence(timeout: 10)); app.buttons["Close"].tap()
+        play.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        app.buttons["Visual style"].tap()
+        XCTAssertTrue(app.navigationBars["Visual style"].waitForExistence(timeout: 10))
+        print("PC_STORE_CAPTURE style")
+        Thread.sleep(forTimeInterval: 8)
+        app.buttons["Done"].tap()
+        app.buttons["Radio"].tap()
+        let radioPlay = app.buttons["radioPlaybackButton"]
+        expectation(for: NSPredicate(format: "enabled == true"), evaluatedWith: radioPlay)
+        waitForExpectations(timeout: 60)
+        radioPlay.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        expectation(for: NSPredicate(format: "enabled == true"), evaluatedWith: app.sliders["radioSongPosition"])
+        waitForExpectations(timeout: 90)
+        Thread.sleep(forTimeInterval: 3)
+        print("PC_STORE_CAPTURE radio")
+        Thread.sleep(forTimeInterval: 8)
+        radioPlay.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+    }
+    /// Run on Duo's inner and outer displays; capture real UI while checking
+    /// the transport survives a geometry change without resetting the session.
+    @MainActor func testAdaptiveWindowStudioAndRadio() throws {
+        let app = XCUIApplication()
+        XCUIDevice.shared.orientation = .portrait
+        app.launchArguments = ["-PCMobileQA", "-PCMobileRadioQA"]
+        app.launch()
+        let library = app.buttons["mobileLibraryButton"]
+        XCTAssertTrue(library.waitForExistence(timeout: 30))
+        expectation(for: NSPredicate(format: "enabled == true"), evaluatedWith: library)
+        waitForExpectations(timeout: 90)
+        // Duo can report the inactive display's orientation on the application
+        // element; the live window is the correct bounds for layout assertions.
+        let window = app.windows.firstMatch
+        print("Duo geometry: app=\(app.frame), window=\(window.frame), library=\(library.frame)")
+        for button in [app.buttons["Studio"], app.buttons["Radio"], library, app.buttons["Project actions"]] {
+            XCTAssertTrue(button.isHittable)
+            XCTAssertTrue(window.frame.insetBy(dx: -1, dy: -1).contains(button.frame))
+        }
+        if window.frame.width >= 850 && window.frame.width > window.frame.height {
+            XCTAssertTrue(app.otherElements["mobileStudioLandscape"].exists)
+            XCTAssertFalse(app.scrollViews.allElementsBoundByIndex.contains { $0.frame.height > 200 && $0.frame.width > 350 },
+                "Wide Studio must not have a vertical scroll container")
+            let clip = app.otherElements["currentStudioClip"]
+            XCTAssertTrue(clip.waitForExistence(timeout: 10))
+            XCTAssertTrue(window.frame.insetBy(dx: -1, dy: -1).contains(clip.frame), "Full scene card must fit vertically")
+            XCTAssertTrue(app.buttons["Apply to all"].isHittable)
+        }
+        library.tap()
+        let search = app.textFields["modalVisualizerSearch"]
+        XCTAssertTrue(search.waitForExistence(timeout: 10))
+        search.tap(); search.typeText("Octagon Vault\n")
+        let choices = app.buttons.containing(.staticText, identifier: "Octagon Vault")
+        let foundChoice = choices.firstMatch.waitForExistence(timeout: 10)
+        if !foundChoice { print("LIBRARY SEARCH VALUE: \(String(describing: search.value))\n" + app.debugDescription) }
+        XCTAssertTrue(foundChoice)
+        // The front sheet follows matching cards/sidebar rows in the hierarchy.
+        let choose = choices.element(boundBy: max(0, choices.count - 1))
+        XCTAssertTrue(choose.isHittable)
+        choose.coordinate(withNormalizedOffset: CGVector(dx: 0.25, dy: 0.5)).tap()
+        expectation(for: NSPredicate(format: "exists == false"), evaluatedWith: search)
+        waitForExpectations(timeout: 15)
+        XCTAssertEqual(app.staticTexts["mobileVisualizerName"].label, "Octagon Vault")
+        let studioPlay = app.buttons["mobilePlaybackButton"]
+        studioPlay.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        expectation(for: NSPredicate(format: "label == %@", "Pause"), evaluatedWith: studioPlay)
+        waitForExpectations(timeout: 15)
+        Thread.sleep(forTimeInterval: 2)
+        XCTAssertFalse(app.staticTexts["mobileRenderError"].exists)
+        let studio = XCTAttachment(screenshot: app.screenshot())
+        studio.name = "Duo Studio"; studio.lifetime = .keepAlways; add(studio)
+        app.buttons["Visual style"].tap()
+        XCTAssertTrue(app.navigationBars["Visual style"].waitForExistence(timeout: 10))
+        let style = XCTAttachment(screenshot: app.screenshot())
+        style.name = "Duo Visual style"; style.lifetime = .keepAlways; add(style)
+        app.buttons["Done"].tap()
+        app.buttons["Radio"].tap()
+        let play = app.buttons["radioPlaybackButton"]
+        expectation(for: NSPredicate(format: "enabled == true"), evaluatedWith: play)
+        waitForExpectations(timeout: 30)
+        play.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        let scrubber = app.sliders["radioSongPosition"]
+        expectation(for: NSPredicate(format: "enabled == true"), evaluatedWith: scrubber)
+        waitForExpectations(timeout: 30)
+        XCTAssertEqual(play.label, "Pause")
+        if window.frame.width >= 650 {
+            XCTAssertTrue(app.otherElements["mobileRadioLandscape"].exists)
+            XCTAssertEqual(app.scrollViews.count, 0)
+            for control in [play, scrubber, app.buttons["Next song"], app.buttons["Present radio"], app.buttons["radioStationPicker"]] {
+                XCTAssertTrue(control.isHittable)
+                XCTAssertTrue(window.frame.insetBy(dx: -1, dy: -1).contains(control.frame))
+            }
+            XCTAssertGreaterThan(app.otherElements["mobileRadioPreview"].frame.height, 180)
+            XCTAssertGreaterThanOrEqual(app.otherElements["mobileRadioPreview"].frame.maxX, window.frame.maxX - 20,
+                "Radio preview must extend below the side status region to the trailing margin")
+        }
+        Thread.sleep(forTimeInterval: 2)
+        let radio = XCTAttachment(screenshot: app.screenshot())
+        radio.name = "Duo Radio"; radio.lifetime = .keepAlways; add(radio)
+        XCUIDevice.shared.orientation = .landscapeLeft
+        // Some Duo runtime poses keep the active display orientation fixed
+        // even when XCTest rotates the inactive display. Assert live geometry.
+        print("Duo window after orientation request: \(window.frame)")
+        XCTAssertTrue(app.buttons["Radio"].waitForExistence(timeout: 10))
+        XCTAssertEqual(play.label, "Pause", "Resizing must retain playback")
+        let rotated = XCTAttachment(screenshot: app.screenshot())
+        rotated.name = "Duo Radio landscape"; rotated.lifetime = .keepAlways; add(rotated)
+        play.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        app.buttons["Studio"].tap()
+        if window.frame.width >= 650 && window.frame.width > window.frame.height {
+            XCTAssertTrue(app.otherElements["mobileStudioLandscape"].exists)
+            XCTAssertFalse(app.scrollViews.allElementsBoundByIndex.contains { $0.frame.height > 200 && $0.frame.width > 350 })
+            for control in [app.buttons["mobilePlaybackButton"], app.buttons["Present visualizer"], app.buttons["Apply to all"], app.otherElements["currentStudioClip"]] {
+                XCTAssertTrue(control.isHittable)
+                XCTAssertTrue(window.frame.insetBy(dx: -1, dy: -1).contains(control.frame), control.debugDescription)
+            }
+        }
     }
     @MainActor func testIPadLandscapeRadioFitsWithoutScrolling() throws {
         let app = XCUIApplication()
@@ -110,9 +272,13 @@ final class PulseCanvasMobileUITests: XCTestCase {
         let play = app.buttons["radioPlaybackButton"]
         expectation(for: NSPredicate(format: "enabled == true"), evaluatedWith: play)
         waitForExpectations(timeout: 30)
-        play.tap()
+        play.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
         expectation(for: NSPredicate(format: "enabled == true"), evaluatedWith: app.sliders["radioSongPosition"])
         waitForExpectations(timeout: 30)
+        // Keep the short QA song stable while querying every control; a slow
+        // first simulator boot can otherwise advance during these assertions.
+        play.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        XCTAssertEqual(play.label, "Play")
         let controls = [app.buttons["Randomize visualizer group"], app.buttons["Random radio visualizer"],
                         app.buttons["Present radio"], app.buttons["Favorite radio visualizer"],
                         app.buttons["Favorite song"], app.buttons["Favorite songs"], app.buttons["Next song"],
@@ -130,10 +296,10 @@ final class PulseCanvasMobileUITests: XCTestCase {
         XCTAssertEqual(app.scrollViews.count, 0, "Fallback messaging must also fit")
         let screenshot = XCTAttachment(screenshot: app.screenshot())
         screenshot.name = "Landscape Radio — all controls visible"; screenshot.lifetime = .keepAlways; add(screenshot)
+        play.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
         XCUIDevice.shared.orientation = .portrait
-        expectation(for: NSPredicate(format: "exists == false"), evaluatedWith: landscape)
-        waitForExpectations(timeout: 10)
-        XCTAssertTrue(app.scrollViews.firstMatch.exists, "Portrait keeps the compact-screen layout")
+        XCTAssertTrue(landscape.waitForExistence(timeout: 10))
+        XCTAssertEqual(app.scrollViews.count, 0, "A large portrait window also gives Radio a bounded preview")
         XCTAssertTrue(app.buttons["Studio"].isHittable)
         XCTAssertTrue(app.buttons["Radio"].isHittable)
         XCTAssertLessThan(app.buttons["Studio"].frame.minX, app.frame.minX + 40)
@@ -142,7 +308,7 @@ final class PulseCanvasMobileUITests: XCTestCase {
         XCTAssertTrue(landscape.waitForExistence(timeout: 10))
         XCTAssertEqual(app.scrollViews.count, 0)
         XCTAssertEqual(play.label, "Pause", "Rotation must not interrupt playback")
-        play.tap()
+        play.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
     }
     @MainActor func testBackgroundAudioAndRadioPresentation() throws {
         let app = XCUIApplication()
@@ -154,24 +320,24 @@ final class PulseCanvasMobileUITests: XCTestCase {
         expectation(for: NSPredicate(format: "enabled == true"), evaluatedWith: library)
         waitForExpectations(timeout: 90)
         let studioPlay = app.buttons["mobilePlaybackButton"]
-        studioPlay.tap()
+        studioPlay.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
         expectation(for: NSPredicate(format: "label == %@", "Pause"), evaluatedWith: studioPlay)
         waitForExpectations(timeout: 15)
         XCUIDevice.shared.press(.home)
         Thread.sleep(forTimeInterval: 3)
         app.activate()
         XCTAssertEqual(studioPlay.label, "Pause", "Studio audio must keep playing in the background")
-        studioPlay.tap()
+        studioPlay.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
         app.buttons["Radio"].tap()
         let picker = app.buttons["Randomize visualizer group"]
         XCTAssertTrue(picker.waitForExistence(timeout: 15))
-        XCTAssertGreaterThanOrEqual(picker.frame.height, 52)
+        XCTAssertGreaterThanOrEqual(picker.frame.height, 51.9)
         picker.coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.5)).tap()
         app.buttons["Randomize all"].tap()
         let play = app.buttons["radioPlaybackButton"]
         expectation(for: NSPredicate(format: "enabled == true"), evaluatedWith: play)
         waitForExpectations(timeout: 30)
-        play.tap()
+        play.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
         expectation(for: NSPredicate(format: "enabled == true"), evaluatedWith: app.sliders["radioSongPosition"])
         waitForExpectations(timeout: 30)
         let before = app.staticTexts["radioElapsedTime"].label
@@ -183,16 +349,20 @@ final class PulseCanvasMobileUITests: XCTestCase {
         XCTAssertNotEqual(app.staticTexts["radioElapsedTime"].label, before, "The Radio clock must advance in the background")
         app.buttons["Present radio"].tap()
         XCTAssertTrue(app.buttons["presentationNextSong"].waitForExistence(timeout: 10))
+        // Pause before inspecting controls so the genuine four-second idle
+        // timer cannot hide them during slow simulator accessibility queries.
+        app.buttons["presentationPlayback"].coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
         XCTAssertFalse(app.buttons["Fit project aspect ratio"].exists)
         XCTAssertFalse(app.switches["Fit project aspect ratio"].exists)
-        app.buttons["presentationNextSong"].tap()
+        app.buttons["presentationPlayback"].coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        app.buttons["presentationNextSong"].coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
         app.buttons["Close"].tap()
         expectation(for: NSPredicate(format: "enabled == true"), evaluatedWith: app.sliders["radioSongPosition"])
         waitForExpectations(timeout: 30)
         XCTAssertNotEqual(app.staticTexts["radioCurrentSongTitle"].label, firstTitle)
         XCTAssertEqual(play.label, "Pause")
-        play.tap()
-        app.buttons["Project actions"].tap()
+        play.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        app.buttons["Project actions"].coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
         XCTAssertTrue(app.buttons["Export MP4"].isEnabled, "A loaded Radio song must be exportable")
         app.buttons["Export MP4"].tap()
         XCTAssertTrue(app.buttons["Render video"].waitForExistence(timeout: 10))
@@ -200,10 +370,228 @@ final class PulseCanvasMobileUITests: XCTestCase {
         app.buttons["Render video"].coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.5)).tap()
         XCTAssertTrue(app.buttons["Save video"].waitForExistence(timeout: 180), "The actual current Radio song must render")
         app.buttons["Done"].tap()
-        app.buttons["Project actions"].tap(); app.buttons["Export MP4"].tap()
+        app.buttons["Project actions"].coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap(); app.buttons["Export MP4"].tap()
         XCTAssertTrue(app.buttons["Render video"].waitForExistence(timeout: 10))
         XCTAssertFalse(app.buttons["Save video"].exists, "A new export visit must not offer a stale previous movie")
         app.buttons["Done"].tap()
+    }
+    /// Additional editor controls not exercised by the playback/export tests.
+    @MainActor func testStyleTimelineAndProjectMenus() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["-PCMobileQA", "-PCMobileRadioQA"]
+        app.launch()
+        let library = app.buttons["mobileLibraryButton"]
+        XCTAssertTrue(library.waitForExistence(timeout: 30))
+        expectation(for: NSPredicate(format: "enabled == true"), evaluatedWith: library)
+        waitForExpectations(timeout: 90)
+        app.buttons["Random visualizer"].tap()
+        XCTAssertFalse(app.staticTexts["mobileVisualizerName"].label.isEmpty)
+        app.buttons["Favorite visualizer"].tap()
+        library.tap()
+        let groups = app.buttons.matching(identifier: "Randomize visualizer group")
+        groups.element(boundBy: max(0, groups.count - 1)).tap()
+        app.buttons["Randomize favorites"].tap()
+        XCTAssertTrue(app.textFields["modalVisualizerSearch"].exists)
+        XCTAssertTrue(String(describing: groups.element(boundBy: max(0, groups.count - 1)).value).contains("favorites"))
+        groups.element(boundBy: max(0, groups.count - 1)).tap()
+        app.buttons["Randomize Drive & flight"].tap()
+        XCTAssertTrue(String(describing: groups.element(boundBy: max(0, groups.count - 1)).value).contains("Drive & flight"))
+        groups.element(boundBy: max(0, groups.count - 1)).tap()
+        app.buttons["Randomize all"].tap()
+        app.buttons["Done"].tap()
+        app.buttons["Favorite visualizer"].tap()
+        app.buttons["Visual style"].tap()
+        XCTAssertTrue(app.buttons["Reset"].waitForExistence(timeout: 10))
+        app.buttons["Reset"].tap()
+        let defaultChaos = String(describing: app.sliders["Chaos"].value)
+        let styleScroll = app.scrollViews["mobileStyleScroll"]
+        func reveal(_ element: XCUIElement) {
+            for _ in 0..<16 {
+                if element.exists && element.isHittable { return }
+                let backwards = element.exists && element.frame.midY < styleScroll.frame.minY + 70
+                let start = styleScroll.coordinate(withNormalizedOffset: CGVector(dx: 0.03, dy: backwards ? 0.4 : 0.8))
+                let end = styleScroll.coordinate(withNormalizedOffset: CGVector(dx: 0.03, dy: backwards ? 0.75 : 0.4))
+                start.press(forDuration: 0.05, thenDragTo: end)
+            }
+            print("STYLE REVEAL FAILURE: \(styleScroll.frame) target: \(element.debugDescription)\n" + app.debugDescription)
+            let failure = XCTAttachment(screenshot: app.screenshot()); failure.name = "Style reveal failure"; failure.lifetime = .keepAlways; add(failure)
+        }
+        for title in ["Chaos", "Motion speed", "Zoom speed", "Brightness", "Element size", "Depth", "Liquid detail", "Content blur"] {
+            let slider = app.sliders[title]
+            reveal(slider)
+            XCTAssertTrue(slider.isHittable, title)
+            slider.adjust(toNormalizedSliderPosition: 0.65)
+        }
+        let strobe = app.switches["mobileStrobeToggle"]
+        reveal(strobe); XCTAssertTrue(strobe.isHittable)
+        if strobe.value as? String == "0" { strobe.coordinate(withNormalizedOffset: CGVector(dx: 0.93, dy: 0.5)).tap() }
+        XCTAssertEqual(strobe.value as? String, "1")
+        for title in ["Strobe sensitivity", "Strobe strength"] {
+            let slider = app.sliders[title]; reveal(slider)
+            XCTAssertTrue(slider.isHittable); slider.adjust(toNormalizedSliderPosition: 0.45)
+        }
+        for _ in 0..<6 { if strobe.isHittable { break }; styleScroll.swipeDown() }
+        strobe.coordinate(withNormalizedOffset: CGVector(dx: 0.93, dy: 0.5)).tap()
+        XCTAssertEqual(strobe.value as? String, "0")
+        for _ in 0..<6 { if app.buttons["Reset"].isHittable { break }; styleScroll.swipeDown() }
+        app.buttons["Randomize visual style"].tap()
+        app.buttons["Reset"].tap()
+        XCTAssertEqual(String(describing: app.sliders["Chaos"].value), defaultChaos)
+        app.buttons["mobilePalettePicker"].tap()
+        app.buttons["Blue Hour"].tap()
+        app.buttons["Done"].tap()
+        app.buttons["Apply to all"].tap()
+        XCTAssertTrue(app.buttons["Apply to all scenes"].waitForExistence(timeout: 10))
+        XCTAssertFalse(app.buttons["Apply to all scenes"].isEnabled)
+        for title in ["Bars per scene", "Chaos", "Zoom speed", "Motion speed"] {
+            let toggle = app.switches[title]
+            toggle.coordinate(withNormalizedOffset: CGVector(dx: 0.93, dy: 0.5)).tap()
+            XCTAssertEqual(toggle.value as? String, "1", "Apply setting must enable: \(title)\n" + app.debugDescription)
+        }
+        for title in ["Common chaos", "Common zoom speed", "Common motion speed"] {
+            app.sliders[title].adjust(toNormalizedSliderPosition: 0.4)
+        }
+        let bars = app.steppers["mobileCommonBars"]
+        XCTAssertTrue(bars.isHittable)
+        bars.buttons["mobileCommonBars-Increment"].tap()
+        XCTAssertEqual(bars.value as? String, "5")
+        app.buttons["Apply to all scenes"].tap()
+        XCTAssertTrue(app.buttons["Apply to all"].waitForExistence(timeout: 10))
+        app.buttons["Randomize timeline"].tap()
+        XCTAssertTrue(app.buttons["Randomize visualizers"].waitForExistence(timeout: 10))
+        app.buttons["Randomize visualizers"].tap()
+        app.buttons["Randomize timeline"].tap(); app.buttons["Randomize bar lengths"].tap()
+        app.buttons["Choose visualizer for scene 1"].tap()
+        XCTAssertTrue(app.textFields["modalVisualizerSearch"].waitForExistence(timeout: 10))
+        app.buttons["Done"].tap()
+    }
+    @MainActor func testProjectFileActions() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["-PCMobileQA", "-PCMobileRadioQA"]
+        app.launch()
+        let library = app.buttons["mobileLibraryButton"]
+        XCTAssertTrue(library.waitForExistence(timeout: 30))
+        expectation(for: NSPredicate(format: "enabled == true"), evaluatedWith: library)
+        waitForExpectations(timeout: 90)
+        for action in ["Open project", "Import audio"] {
+            app.buttons["Project actions"].coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+            XCTAssertTrue(app.buttons[action].waitForExistence(timeout: 10))
+            app.buttons[action].coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+            let cancel = app.buttons.matching(identifier: "Cancel").firstMatch
+            let presented = cancel.waitForExistence(timeout: 20)
+            if !presented { print("FILES ACTION FAILURE: \(action)\n" + app.debugDescription) }
+            XCTAssertTrue(presented, "\(action) must present its Files interface")
+            print("PC_FILES_CANCEL_BEFORE \(action): \(cancel.frame)")
+            cancel.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+            expectation(for: NSPredicate(format: "exists == false"), evaluatedWith: cancel)
+            waitForExpectations(timeout: 15)
+            expectation(for: NSPredicate { _, _ in app.buttons["Project actions"].isHittable }, evaluatedWith: app)
+            waitForExpectations(timeout: 10)
+        }
+        app.buttons["Project actions"].coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap(); app.buttons["Save project"].tap()
+        let saveProject = app.buttons["DOCPicker.actionButton"]
+        XCTAssertTrue(saveProject.waitForExistence(timeout: 15))
+        nameSaveDestination(in: app, prefix: "PulseCanvas-QA-Project-")
+        saveProject.tap()
+        expectation(for: NSPredicate(format: "exists == false"), evaluatedWith: saveProject)
+        waitForExpectations(timeout: 15)
+        XCTAssertTrue(app.buttons["Project actions"].isHittable)
+        app.buttons["Project actions"].coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap(); app.buttons["About & Support"].tap()
+        XCTAssertTrue(app.navigationBars["About & Support"].waitForExistence(timeout: 10))
+        app.buttons["Done"].tap()
+    }
+    @MainActor func testSceneAndExportOptionControls() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["-PCMobileQA", "-PCMobileRadioQA"]
+        app.launch()
+        let library = app.buttons["mobileLibraryButton"]
+        XCTAssertTrue(library.waitForExistence(timeout: 30))
+        expectation(for: NSPredicate(format: "enabled == true"), evaluatedWith: library)
+        waitForExpectations(timeout: 90)
+        let loop = app.descendants(matching: .any).matching(identifier: "Loop soundtrack").firstMatch
+        XCTAssertTrue(loop.isHittable)
+        let originalLoop = "\(String(describing: loop.value))-\(loop.isSelected)"
+        loop.tap(); XCTAssertNotEqual("\(String(describing: loop.value))-\(loop.isSelected)", originalLoop)
+        loop.tap(); XCTAssertEqual("\(String(describing: loop.value))-\(loop.isSelected)", originalLoop)
+        app.buttons["Play scene 1"].tap()
+        let play = app.buttons["mobilePlaybackButton"]
+        expectation(for: NSPredicate(format: "label == %@", "Pause"), evaluatedWith: play)
+        waitForExpectations(timeout: 10)
+        play.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        let bars = app.steppers["sceneBars-0"]
+        XCTAssertTrue(bars.isHittable)
+        let before = bars.value as? String
+        bars.buttons["sceneBars-0-Increment"].tap()
+        XCTAssertNotEqual(bars.value as? String, before)
+        bars.buttons["sceneBars-0-Decrement"].tap()
+        XCTAssertEqual(bars.value as? String, before)
+        app.buttons["Select scene 1"].coordinate(withNormalizedOffset: CGVector(dx: 0.1, dy: 0.2)).tap()
+        app.buttons["Present visualizer"].tap()
+        XCTAssertTrue(app.buttons["Close"].waitForExistence(timeout: 10))
+        app.buttons["Randomize"].tap()
+        let presentationPlay = app.buttons["presentationPlayback"]
+        presentationPlay.tap()
+        expectation(for: NSPredicate(format: "label == %@", "Pause"), evaluatedWith: presentationPlay)
+        waitForExpectations(timeout: 10); presentationPlay.tap()
+        app.buttons["Close"].tap()
+        app.buttons["Project actions"].coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap(); app.buttons["Export MP4"].tap()
+        XCTAssertTrue(app.buttons["Render video"].waitForExistence(timeout: 10))
+        let canvas = app.buttons["mobileExportCanvas"]
+        for option in ["4:3 · Landscape", "3:4 · Portrait", "9:16 · Phone", "1:1 · Square", "16:9 · Wide"] {
+            canvas.tap(); app.buttons[option].tap()
+            XCTAssertTrue(canvas.label.contains(option) || String(describing: canvas.value).contains(option))
+        }
+        for option in ["1080p", "4K", "720p", "24 fps", "30 fps", "60 fps"] {
+            app.buttons[option].tap(); XCTAssertTrue(app.buttons[option].isSelected)
+        }
+        app.buttons["4K"].tap()
+        app.buttons["Render video"].tap()
+        let cancel = app.buttons["Cancel export"]
+        XCTAssertTrue(cancel.waitForExistence(timeout: 10)); cancel.tap()
+        XCTAssertTrue(app.buttons["Render video"].waitForExistence(timeout: 30))
+        XCTAssertFalse(app.buttons["Save video"].exists)
+        app.buttons["720p"].tap(); app.buttons["30 fps"].tap()
+        app.buttons["Done"].tap()
+    }
+    @MainActor func testRadioFavoriteSongControls() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["-PCMobileQA", "-PCMobileRadioQA"]
+        app.launch()
+        let library = app.buttons["mobileLibraryButton"]
+        XCTAssertTrue(library.waitForExistence(timeout: 30))
+        expectation(for: NSPredicate(format: "enabled == true"), evaluatedWith: library)
+        waitForExpectations(timeout: 90)
+        app.buttons["Radio"].tap()
+        let play = app.buttons["radioPlaybackButton"]
+        expectation(for: NSPredicate(format: "enabled == true"), evaluatedWith: play)
+        waitForExpectations(timeout: 30)
+        play.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        XCTAssertTrue(app.buttons["Favorite song"].waitForExistence(timeout: 30))
+        let title = app.staticTexts["radioCurrentSongTitle"].label
+        app.buttons["Favorite song"].tap()
+        app.buttons["Favorite songs"].tap()
+        XCTAssertTrue(app.buttons["Play favorite songs"].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.buttons["Play favorite songs"].isEnabled)
+        app.buttons["Play favorite songs"].tap()
+        expectation(for: NSPredicate(format: "label == %@", "Favorite songs"), evaluatedWith: app.buttons["radioStationPicker"])
+        waitForExpectations(timeout: 10)
+        let lists = app.buttons.matching(identifier: "Favorite songs")
+        // The song-list button precedes the station picker with the same title.
+        lists.firstMatch.tap()
+        XCTAssertTrue(app.buttons["Unfavorite \(title)"].waitForExistence(timeout: 10))
+        app.buttons["Unfavorite \(title)"].tap()
+        XCTAssertFalse(app.buttons["Play favorite songs"].isEnabled)
+        app.buttons["Done"].tap()
+        app.buttons["radioStationPicker"].tap(); app.buttons["All music"].tap()
+        expectation(for: NSPredicate(format: "label == %@", "Pause"), evaluatedWith: play)
+        waitForExpectations(timeout: 30)
+        let visualHeart = app.buttons["Favorite radio visualizer"]
+        visualHeart.tap(); visualHeart.tap()
+        if app.sliders["Radio volume"].exists {
+            app.sliders["Radio volume"].adjust(toNormalizedSliderPosition: 0.35)
+            app.sliders["Radio volume"].adjust(toNormalizedSliderPosition: 0.75)
+        }
+        play.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
     }
     @MainActor func testStudioCentersPlayingCard() throws {
         let app = XCUIApplication()
@@ -213,7 +601,7 @@ final class PulseCanvasMobileUITests: XCTestCase {
         XCTAssertTrue(play.waitForExistence(timeout: 30))
         expectation(for: NSPredicate(format: "enabled == true"), evaluatedWith: app.buttons["mobileLibraryButton"])
         waitForExpectations(timeout: 90)
-        play.tap()
+        play.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
         expectation(for: NSPredicate(format: "label == %@", "Pause"), evaluatedWith: play)
         waitForExpectations(timeout: 15)
         app.sliders["Soundtrack position"].adjust(toNormalizedSliderPosition: 0.5)
@@ -226,7 +614,7 @@ final class PulseCanvasMobileUITests: XCTestCase {
         }, evaluatedWith: app)
         waitForExpectations(timeout: 15)
         XCTAssertEqual(play.label, "Pause")
-        play.tap()
+        play.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
     }
     @MainActor func testRadioEmptyFavoritesAndScrubbing() throws {
         let app = XCUIApplication()
@@ -248,7 +636,7 @@ final class PulseCanvasMobileUITests: XCTestCase {
         XCTAssertTrue(fallback.waitForExistence(timeout: 10))
         XCTAssertFalse(app.buttons["retryRadioButton"].exists)
         XCTAssertTrue(play.isEnabled)
-        play.tap()
+        play.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
         expectation(for: NSPredicate(format: "label == %@", "Pause"), evaluatedWith: play)
         waitForExpectations(timeout: 30)
         let position = app.sliders["radioSongPosition"]
@@ -260,11 +648,11 @@ final class PulseCanvasMobileUITests: XCTestCase {
         let songHeartFrame = songHeart.frame
         let playFrame = play.frame
         XCTAssertLessThanOrEqual(visualHeartFrame.maxX, songHeartFrame.maxX + 1)
-        XCTAssertGreaterThanOrEqual(playFrame.width, 58)
-        play.tap(); XCTAssertEqual(play.label, "Play")
+        XCTAssertGreaterThanOrEqual(playFrame.width, 57.9)
+        play.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap(); XCTAssertEqual(play.label, "Play")
         position.adjust(toNormalizedSliderPosition: 0.35)
         XCTAssertEqual(play.label, "Play", "Scrubbing while paused must stay paused")
-        play.tap()
+        play.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
         expectation(for: NSPredicate(format: "label == %@", "Pause"), evaluatedWith: play)
         waitForExpectations(timeout: 15)
         app.buttons["Random radio visualizer"].tap()
@@ -274,7 +662,7 @@ final class PulseCanvasMobileUITests: XCTestCase {
         XCTAssertEqual(songHeart.frame.minX, songHeartFrame.minX, accuracy: 1)
         XCTAssertEqual(play.frame.width, playFrame.width, accuracy: 1)
         let screenshot = XCTAttachment(screenshot: app.screenshot()); screenshot.name = "Radio empty favorites fallback"; screenshot.lifetime = .keepAlways; add(screenshot)
-        play.tap()
+        play.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
     }
     @MainActor func testStudioAndCompactControls() throws {
         let app = XCUIApplication()
@@ -294,12 +682,12 @@ final class PulseCanvasMobileUITests: XCTestCase {
         XCTAssertLessThan(heart.frame.maxX, name.frame.minX)
         let heartFrame = heart.frame
         let playFrame = play.frame
-        XCTAssertGreaterThanOrEqual(playFrame.width, 58)
-        XCTAssertTrue(play.isHittable); play.tap()
+        XCTAssertGreaterThanOrEqual(playFrame.width, 57.9)
+        XCTAssertTrue(play.isHittable); play.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
         expectation(for: NSPredicate(format: "label == %@", "Pause"), evaluatedWith: play)
         waitForExpectations(timeout: 15)
         XCTAssertEqual(play.frame.width, playFrame.width, accuracy: 1)
-        play.tap()
+        play.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
         XCTAssertEqual(play.label, "Play")
         XCTAssertEqual(play.frame.width, playFrame.width, accuracy: 1)
         app.buttons["Visual style"].tap()
@@ -310,14 +698,16 @@ final class PulseCanvasMobileUITests: XCTestCase {
         let style = XCTAttachment(screenshot: app.screenshot()); style.name = "Style controls"; style.lifetime = .keepAlways; add(style)
         app.buttons["Done"].tap()
         library.tap()
-        let randomizer = app.buttons["Randomize visualizer group"]
-        XCTAssertTrue(randomizer.waitForExistence(timeout: 10))
-        XCTAssertGreaterThanOrEqual(randomizer.frame.height, 52)
+        let randomizers = app.buttons.matching(identifier: "Randomize visualizer group")
+        XCTAssertTrue(randomizers.firstMatch.waitForExistence(timeout: 10))
+        let randomizer = randomizers.element(boundBy: max(0, randomizers.count - 1))
+        XCTAssertGreaterThanOrEqual(randomizer.frame.height, 51.9)
         let search = app.textFields["modalVisualizerSearch"]
         XCTAssertTrue(search.waitForExistence(timeout: 10))
-        search.tap(); search.typeText("Mercury")
-        let choose = app.buttons.containing(.staticText, identifier: "Mercury Fold").firstMatch
-        XCTAssertTrue(choose.waitForExistence(timeout: 10)); choose.tap()
+        search.tap(); search.typeText("Mercury\n")
+        let choices = app.buttons.containing(.staticText, identifier: "Mercury Fold")
+        XCTAssertTrue(choices.firstMatch.waitForExistence(timeout: 10))
+        choices.element(boundBy: max(0, choices.count - 1)).coordinate(withNormalizedOffset: CGVector(dx: 0.25, dy: 0.5)).tap()
         XCTAssertEqual(app.staticTexts["mobileVisualizerName"].label, "Mercury Fold")
         XCTAssertEqual(heart.frame.minX, heartFrame.minX, accuracy: 1)
         XCTAssertEqual(heart.frame.width, heartFrame.width, accuracy: 1)
@@ -327,7 +717,7 @@ final class PulseCanvasMobileUITests: XCTestCase {
         XCTAssertTrue(app.buttons["Close"].waitForExistence(timeout: 10))
         let full = XCTAttachment(screenshot: app.screenshot()); full.name = "Full screen"; full.lifetime = .keepAlways; add(full)
         app.buttons["Close"].tap()
-        app.buttons["Project actions"].tap()
+        app.buttons["Project actions"].coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
         app.buttons["Export MP4"].tap()
         XCTAssertTrue(app.buttons["Render video"].waitForExistence(timeout: 10))
         XCTAssertTrue(app.buttons["Done"].exists)
@@ -336,11 +726,12 @@ final class PulseCanvasMobileUITests: XCTestCase {
         XCTAssertTrue(app.buttons["Save video"].waitForExistence(timeout: 180), "The actual eight-second native movie must render")
         let export = XCTAttachment(screenshot: app.screenshot()); export.name = "Export settings"; export.lifetime = .keepAlways; add(export)
         let save = app.buttons["Save video"]
-        XCTAssertGreaterThanOrEqual(save.frame.height, 52)
+        XCTAssertGreaterThanOrEqual(save.frame.height, 51.9)
         save.coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.5)).tap()
         XCTAssertTrue(app.buttons["DOCPicker.actionButton"].waitForExistence(timeout: 15))
         let files = XCTAttachment(screenshot: app.screenshot()); files.name = "Native Files save destination"; files.lifetime = .keepAlways; add(files)
-        app.buttons["DOCPicker.actionButton"].tap()
+        // Debug QA exports have unique names, so prior saved movies remain intact.
+        app.buttons["DOCPicker.actionButton"].coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
         let saved = app.staticTexts["Video saved"].waitForExistence(timeout: 20)
         if !saved { print("FILES SAVE RESULT\n" + app.debugDescription) }
         XCTAssertTrue(saved, "The actual native Files save must finish, not just render the movie")

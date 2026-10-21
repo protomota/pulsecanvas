@@ -3,8 +3,11 @@
 A native SwiftUI interface for the same Metal, soundtrack analysis, Studio,
 Radio, favorite-settings and video-export models used by the Mac app.
 
-- Wide tablet windows show a visualizer library beside the preview. Compact
-  windows and phones use sheets for the library and slider controls.
+- Wide windows show a visualizer library beside the preview. Compact windows
+  use sheets for the library and slider controls. Layout responds to live window
+  dimensions, including iPhone Duo folding and rotation, rather than device type.
+- Landscape Studio keeps the preview, transport and complete scene cards visible
+  without vertical scrolling; short wide windows place the preview beside the timeline.
 - Studio includes per-scene bar lengths, scene playback, common settings,
   timeline randomization, autosave and Mac-compatible `.pulsecanvas` files.
 - Radio uses the server's station directory, category/favorites music queues,
@@ -14,7 +17,7 @@ Radio, favorite-settings and video-export models used by the Mac app.
   visualizer-favorites selection falls back to random visuals with a status
   message; saved category/collection limits still apply. Retry is shown only
   after a catalog-loading failure.
-- Full-screen viewing includes playback, randomization and aspect fit. Controls
+- Full-screen viewing fills the display and includes playback and randomization. Controls
   hide after four seconds while playing; tap to reveal them.
 - Export offers 720p, 1080p and 4K, at 24/30/60 fps with audio, progress, ETA,
   cancellation and a Files destination picker. There is no embedded movie player.
@@ -45,3 +48,5 @@ This is an initial mobile implementation. Simulator results do not establish
 physical-device performance, Files-provider behavior or sustained 4K export.
 Signing, TestFlight distribution and App Store listing preparation are separate
 from local builds. The Mac and Vision review submissions are not changed.
+
+Duo layout, simulator capture notes and regression coverage: [iPhone Duo](../docs/development/iphone-duo.md).

@@ -16,7 +16,7 @@ struct MobileExport: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
                 if !exporter.isExporting {
-                    Picker("Canvas", selection: $exporter.aspect) { ForEach(SocialAspect.allCases) { Text($0.rawValue).tag($0) } }
+                    Picker("Canvas", selection: $exporter.aspect) { ForEach(SocialAspect.allCases) { Text($0.rawValue).tag($0) } }.accessibilityIdentifier("mobileExportCanvas")
                     Picker("Resolution", selection: $exporter.resolution) { Text("720p").tag(720); Text("1080p").tag(1080); Text("4K").tag(2160) }.pickerStyle(.segmented)
                     Picker("Frame rate", selection: $exporter.fps) { ForEach([24, 30, 60], id: \.self) { Text("\($0) fps").tag($0) } }.pickerStyle(.segmented)
                     Text(radio.isActive ? "Export the current Radio song with the visualizer you’re watching." : "Full soundtrack included. Higher resolutions take longer to render.").foregroundStyle(.secondary)
@@ -69,7 +69,14 @@ struct MobileExport: View {
         let render = radioExport ? radio.visualizer : editor.render
         let segments = !radioExport && editor.studio.isStudio ? editor.studio.segments : []
         saved = false; error = nil
-        let destination = FileManager.default.temporaryDirectory.appendingPathComponent("Mobile-video-\(UUID().uuidString)").appendingPathComponent("PulseCanvas Video.mp4")
+        #if DEBUG
+        // Repeated UI runs keep earlier Files exports; isolate their names too.
+        let filename = ProcessInfo.processInfo.arguments.contains("-PCMobileQA")
+            ? "PulseCanvas-QA-Video-\(UUID().uuidString).mp4" : "PulseCanvas Video.mp4"
+        #else
+        let filename = "PulseCanvas Video.mp4"
+        #endif
+        let destination = FileManager.default.temporaryDirectory.appendingPathComponent("Mobile-video-\(UUID().uuidString)").appendingPathComponent(filename)
         do { try FileManager.default.createDirectory(at: destination.deletingLastPathComponent(), withIntermediateDirectories: true) }
         catch { self.error = error.localizedDescription; return }
         Task { renderStarted = true; await exporter.export(audioURL: audioURL, render: render, to: destination,

@@ -34,6 +34,7 @@ import CryptoKit
         documents = qa
             ? FileManager.default.temporaryDirectory.appendingPathComponent("Mobile-QA-\(UUID().uuidString)") : base
         if qa {
+            ProjectMPresets.shared.setRandomizerGroup(.all)
             let suite = "PulseCanvas.MobileRadio.QA"
             let defaults = UserDefaults(suiteName: suite)!
             defaults.removePersistentDomain(forName: suite)
