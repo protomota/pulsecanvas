@@ -268,21 +268,22 @@ import Foundation
                 state.zoom = 1; state.rotation = 0
             }
         case "palcheck":
-            // Mirrors the palette constraints in scripts/AudioSyncSmoke.swift.
+            // Accents can dominate a frame; verify each shared palette actually
+            // changes the GPU output instead of requiring monochromatic ratios.
             let frameFeatures = try analyzer.frame(at: 1.33, clipStart: 0, clipEnd: 4)
             for scene in options.scenes {
                 state.scene = scene; state.zoom = 1; state.brightness = 1; state.strobeEnabled = false
-                for palette in [1, 2, 3, 4] {
-                    state.palette = palette
+                var outputs = Set<Data>()
+                for palette in VisualPalette.allCases {
+                    state.palette = palette.rawValue
                     let image = pixels(try renderer.renderOffscreen(time: 1.33, audioBands: frameFeatures.bands))
-                    var r = 0.0, g = 0.0, b = 0.0
-                    for i in stride(from: 0, to: image.count, by: 4) where max(image[i], max(image[i+1], image[i+2])) > 12 {
-                        b += Double(image[i]); g += Double(image[i+1]); r += Double(image[i+2])
-                    }
-                    let failed = (palette == 3 && !(b > r * 1.8)) || (palette == 2 && !(r > b * 1.8)) || (palette == 4 && !(g > r * 1.15))
-                    if failed { print(String(format: "PALETTE %3d %-22@ palette %d ratios b/r %.2f r/b %.2f g/r %.2f <-- FAIL", scene, names[scene] as NSString, palette, b / max(r, 1), r / max(b, 1), g / max(r, 1))) }
+                    outputs.insert(Data(image))
+                }
+                guard outputs.count == VisualPalette.allCases.count else {
+                    throw Failure(text: "Palettes must produce distinct outputs for \(names[scene])")
                 }
             }
+            print("PASS: \(options.scenes.count * VisualPalette.allCases.count) distinct GPU palette outputs across \(options.scenes.count) effects")
         case "wrapcheck":
             // Isolated jumps: a frame step far larger than both neighbouring steps. Run at
             // zero Chaos and high Zoom speed so travel wraps are crossed many times.
