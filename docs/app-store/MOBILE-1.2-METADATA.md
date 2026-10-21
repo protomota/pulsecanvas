@@ -18,15 +18,15 @@ populated. The saved description contains the Duo update instead.
 
 The draft still selected the previous 1.1.6 (7) binary at verification time.
 The local 1.2 (8) build is not a TestFlight upload or a review submission.
-Do not submit this draft with the previous binary. Existing iPhone/iPad marketing
-artwork and other platforms' build/review selections are preserved.
+Do not submit this draft with the previous binary. Other platforms' build/review
+selections are preserved.
 
 ## Duo assets and verification
 
 The initial eight plain simulator screenshots were replaced with six designed
 marketing slides using the approved iPhone/iPad campaign template. Each canvas is
 2853×2007, opaque RGB, with headlines, device frames and enlarged UI details.
-Inner landscape and outer portrait captures show the actual 1.2 (8) app: music,
+The current inner landscape captures show the actual 1.2 (8) app: music,
 Studio, visual style, Radio, Export and Library. Screens retain their original
 aspect ratios, and callouts are crops of the same real UI. No QA fixtures or
 generated interface elements appear in the captures.
@@ -38,14 +38,15 @@ The ordered files are `duo-01-music.png`, `duo-02-studio.png`,
 Previous plain screenshots remain in the Asset Library; only their placements
 were removed. Fresh official API reads verified six ACTIVE placements, every image
 PREPARE_FOR_SUBMISSION, the correct Duo size specification, matching filenames
-and byte counts, and the six-slide order. All twelve existing iPhone/iPad
-placements are identical to the pre-upload snapshot. The existing header/search assets
+and byte counts, and the six-slide order. The iPhone/iPad placements were also
+refreshed with the current layout on October 21, 2026. The existing header/search assets
 are preserved. No review submission or binary upload is part of this change.
 
 Reviewer notes now describe 1.2 and omit the obsolete 1.1.5 (5) build reference.
 Fresh API reads verified the exact promotion, description, keywords, URLs and
 reviewer notes against the JSON. The shared name/subtitle, existing header/search
-assets, approved iPhone/iPad artwork and other platforms were not changed.
+assets and other platforms were not changed. The approved iPhone/iPad marketing
+design and copy are retained with fresh app captures.
 
 | Saved field | Characters | Limit |
 |---|---:|---:|
@@ -62,6 +63,35 @@ placement IDs, accepted size specification and final observed order. Apple does
 not expose a matching SHA-256; server verification covers filenames, byte counts,
 size specifications and processing/placement states.
 
-The replacement marketing set, contact sheet, local source/output SHA-256 manifest
-and server placement verification are in:
-`/Volumes/Music/Codex Media/PulseCanvas Studio/App Store/1.2/Duo-marketing/`.
+## Current layout screenshot refresh — October 21, 2026
+
+All 18 English screenshot placements now show the expanded Studio workspace:
+visual controls above the larger preview, playback and scene actions below it,
+and bottom-aligned timeline cards. Duo uses the full-width workspace with Library
+available from its header button. Radio uses its current large preview and
+separate visualizer and song controls.
+
+Six slides each cover music, Studio, style, Radio, export and free use:
+
+| Group | Canvas | Captured source |
+|---|---|---|
+| iPhone Dynamic Island, large | 1320×2868 | iPhone 17 Pro Max, portrait |
+| iPhone Duo | 2853×2007 | Duo inner display, landscape |
+| iPad 13-inch | 2752×2064 | iPad Pro 13-inch M5, landscape |
+
+The normal 1.2 (8) app uses its real bundled soundtrack and live Radio catalog.
+`testCaptureCurrentMarketingLayout` passed on the three source device types.
+The test build succeeded. All PNGs passed RGB/native canvas checks, image decode,
+local SHA-256 verification and visual review. All 18 replacement placements were
+verified ACTIVE with images PREPARE_FOR_SUBMISSION; ordered filenames, exact byte
+sizes and accepted specifications matched. The previous placements were removed
+without deleting their recoverable Asset Library images. No release was submitted.
+
+Editable templates and delivered manifests:
+[`mobile-marketing-1.2`](../../assets/app-store/mobile-marketing-1.2/README.md) and
+[`duo-marketing-1.2`](../../assets/app-store/duo-marketing-1.2/README.md).
+
+Current raw captures, output PNGs, contact sheets, test logs and upload receipt:
+`/Volumes/Music/Codex Media/PulseCanvas Studio/App Store/1.2/Layout-refresh/`.
+The receipt records every new placement/image ID, local SHA-256, byte count,
+Apple specification and processing state. Older output folders are preserved.

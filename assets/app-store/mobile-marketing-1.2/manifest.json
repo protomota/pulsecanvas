@@ -1,0 +1,141 @@
+{
+  "appVersion": "1.2",
+  "appBuild": "8",
+  "renderedAt": "2026-10-21T21:43:18.124Z",
+  "sources": [
+    {
+      "file": "iphone-studio.png",
+      "sha256": "475fff9f484c632c0aefa6a1f08b7510d50918160579b843be7076649fd1b403"
+    },
+    {
+      "file": "iphone-fullscreen.png",
+      "sha256": "c927ed9f0018d614e9a7b5561dd760678ac7f00c1b2bf797155deecd03d874f9"
+    },
+    {
+      "file": "iphone-style.png",
+      "sha256": "965fa32d1da35c89fbc2f87a46bdabdf0ae10ddf2d25f6be274a1b788fba3fff"
+    },
+    {
+      "file": "iphone-radio.png",
+      "sha256": "959ba28b4da02bb3a3b22e07d9dd248b90a9910e7e8556718efdd37389c3fd20"
+    },
+    {
+      "file": "iphone-library.png",
+      "sha256": "edcfdd4688ed8b3c0bdad4d1c2cc2f411a0c8056688a1ea649cf25a4056735fe"
+    },
+    {
+      "file": "iphone-export.png",
+      "sha256": "3d03725ea21a1eba8b78c088897875da006ff1b5c821970876191db3953c1b33"
+    },
+    {
+      "file": "ipad-studio.png",
+      "sha256": "28e8a283022ce4d9d4a16a89fccce6a2482dd4b89ae4a952a1cc1984ef55a99a"
+    },
+    {
+      "file": "ipad-fullscreen.png",
+      "sha256": "d28eae313f44ce05da49740e35dfe38dc45780ad923068bc111c44fdb89e9850"
+    },
+    {
+      "file": "ipad-style.png",
+      "sha256": "e5cb1e1c9569111ee03c6e50f652a83d680489a474d3cb531174b1f357ea7676"
+    },
+    {
+      "file": "ipad-radio.png",
+      "sha256": "b3e61ed0cb03a08f1f960af5ab12261b4de57718fa961eb6423d26c037ec9d2f"
+    },
+    {
+      "file": "ipad-library.png",
+      "sha256": "ec7e9538285ea4fbc297b044dcb1fd79cc542d0d13d746f077ecf0386a1efca9"
+    },
+    {
+      "file": "ipad-export.png",
+      "sha256": "001a031b90cfad655d335e4ae7c6ef51db548d677aadfa7f05c850adf153d82f"
+    }
+  ],
+  "slides": [
+    {
+      "file": "iphone-01-music.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 1860289,
+      "sha256": "7fdd14b51bcfa7ecd287c2797f9c06a7a81173b7bd3c2ca2da7a938398b2516f"
+    },
+    {
+      "file": "iphone-02-studio.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 1313646,
+      "sha256": "6ee8fe5219ecda6920af110b7b78a0f135993ec67d4bada50cd057309bab6c4a"
+    },
+    {
+      "file": "iphone-03-style.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 495336,
+      "sha256": "0e6848a0b27c41a34744bde86146467dd8422b1234fe453d583f009f6c1fec07"
+    },
+    {
+      "file": "iphone-04-radio.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 796523,
+      "sha256": "d245410dadf84fae8d9e5f53d6ceeb10094f65033928e3dc0fa2fee0fb01ea64"
+    },
+    {
+      "file": "iphone-05-export.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 530276,
+      "sha256": "995556ead3201ccae3b9cf59bd2d2ddef1a66cb08a07bd9cc3727819541168ec"
+    },
+    {
+      "file": "iphone-06-free.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 497860,
+      "sha256": "a3e307ba6aa82f694ab8f3ca634fab75f0eb5110bdea4b44a3d28e58f7ad7085"
+    },
+    {
+      "file": "ipad-01-music.png",
+      "width": 2752,
+      "height": 2064,
+      "bytes": 2461498,
+      "sha256": "9565a4bcbe28254bf94b709bff22b0dfa66b2efcf93eac807ef76cf78b8fec9a"
+    },
+    {
+      "file": "ipad-02-studio.png",
+      "width": 2752,
+      "height": 2064,
+      "bytes": 1797963,
+      "sha256": "21f9838eea6ffe32f6294463ef4e65d80a59f82bfa69fdaa435c28e3dbe6a45b"
+    },
+    {
+      "file": "ipad-03-style.png",
+      "width": 2752,
+      "height": 2064,
+      "bytes": 908007,
+      "sha256": "a2cd09ab35e9ad9db66761a42c16a95a4e07785cac20b33c05596c9be588cb52"
+    },
+    {
+      "file": "ipad-04-radio.png",
+      "width": 2752,
+      "height": 2064,
+      "bytes": 1561877,
+      "sha256": "a253f16ea1e1f5ddb45f8ff48e4ca72eb7d0378e20f60607d72ea01ec0b12ae0"
+    },
+    {
+      "file": "ipad-05-export.png",
+      "width": 2752,
+      "height": 2064,
+      "bytes": 930758,
+      "sha256": "66ccc20d5f6b34be29f0dff0feb38da9755930f24310f306b9fb02de899a552a"
+    },
+    {
+      "file": "ipad-06-free.png",
+      "width": 2752,
+      "height": 2064,
+      "bytes": 1053900,
+      "sha256": "a86b382780ba3ef0898d16f67ba7daca8abe3ac3c7992fee9cfe13e20bc50079"
+    }
+  ]
+}

@@ -6,41 +6,42 @@ UI callouts. The original untracked `mobile-marketing-1.1.5` artwork is preserve
 
 Order: music / 300+ Metal visualizers; Studio; visual style; Radio; MP4 / 4K60;
 completely free. Every final canvas is 2853 × 2007, opaque RGB PNG. Wide inner
-captures and portrait outer captures appear in minimal device frames. These are
+captures appear in minimal device frames. These are
 presentation frames, not a claim to reproduce the physical Duo hardware.
 
 ## Real app sources
 
-Captures are from the native mobile 1.2 (8) app on the owned Duo inner/outer
-simulators. Studio uses the included soundtrack; Radio uses the real catalog.
+Captures are from the native mobile 1.2 (8) app on the owned Duo inner-display
+simulator. Studio uses the included soundtrack; Radio uses the real catalog.
 No QA fixtures or generated app UI appear in the artwork. Enlarged controls are
 crops of these same captures; screen images retain their original aspect ratios.
 
-`testCaptureDuoStoreScreenshots` captures Studio, full screen, style and Radio.
-`testCaptureDuoMarketingDetails` captures the Library and the Export sheet with
-4K and 60 fps selected. The latter passed on October 21, 2026. Active-display
+`testCaptureCurrentMarketingLayout` captures Studio, full screen, style, Radio,
+Library and the Export sheet with 4K and 60 fps selected. It passed on
+October 21, 2026. Active-display
 `simctl io … screenshot --display=…` capture is required: XCTest's screenshot
 attachment can select Duo's inactive display.
 
 Raw source folder (outside Git):
-`/Volumes/Music/Codex Media/PulseCanvas Studio/App Store/1.2/Duo/raw/`
+`/Volumes/Music/Codex Media/PulseCanvas Studio/App Store/1.2/Layout-refresh/raw/`
 
 Artwork, contact sheet, source/output hashes and App Store upload evidence:
-`/Volumes/Music/Codex Media/PulseCanvas Studio/App Store/1.2/Duo-marketing/`
+`/Volumes/Music/Codex Media/PulseCanvas Studio/App Store/1.2/Layout-refresh/duo/`
 
 ## Rebuild
 
 ```sh
 PLAYWRIGHT=/Users/brad/Documents/GIT_SOURCE/jotley-site/node_modules/playwright/index.mjs \
   node assets/app-store/duo-marketing-1.2/render.mjs \
-  '/Volumes/Music/Codex Media/PulseCanvas Studio/App Store/1.2/Duo/raw' \
-  '/Volumes/Music/Codex Media/PulseCanvas Studio/App Store/1.2/Duo-marketing'
+  '/Volumes/Music/Codex Media/PulseCanvas Studio/App Store/1.2/Layout-refresh/raw' \
+  '/Volumes/Music/Codex Media/PulseCanvas Studio/App Store/1.2/Layout-refresh/duo'
 ```
 
 The renderer checks copy bounds and image decoding, renders six full-resolution
 slides plus a contact sheet, and writes SHA-256 hashes for every capture used and
 every output. PNG dimensions and RGB mode are verified separately before upload.
 
-The slides replace only the plain screenshots in the English iPhone Duo group.
-Previous images remain recoverable in Apple's Asset Library. Existing iPhone,
-iPad, header and search artwork stay unchanged. This does not submit a release.
+These slides refresh the English iPhone Duo group. Matching iPhone and iPad
+refreshes use `../mobile-marketing-1.2/`. Previous images remain recoverable in
+Apple's Asset Library. Header and search assets are preserved. This does not
+submit a release.

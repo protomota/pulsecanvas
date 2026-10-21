@@ -172,6 +172,67 @@ final class PulseCanvasMobileUITests: XCTestCase {
         Thread.sleep(forTimeInterval: 8)
         app.buttons["Done"].coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
     }
+    /// Current production layout with the real soundtrack and live Radio catalog.
+    /// The host captures the active display at each marker; no QA fixture UI.
+    @MainActor func testCaptureCurrentMarketingLayout() throws {
+        if let pose = ProcessInfo.processInfo.environment["PC_MARKETING_ORIENTATION"] {
+            XCUIDevice.shared.orientation = pose == "landscape" ? .landscapeLeft : .portrait
+        }
+        let app = XCUIApplication()
+        app.launch()
+        func tap(_ element: XCUIElement) {
+            element.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        }
+        func capture(_ name: String) {
+            print("PC_CURRENT_CAPTURE \(name) window=\(app.windows.firstMatch.frame)")
+            Thread.sleep(forTimeInterval: 7)
+        }
+        let library = app.buttons["mobileLibraryButton"]
+        XCTAssertTrue(library.waitForExistence(timeout: 30))
+        expectation(for: NSPredicate(format: "enabled == true"), evaluatedWith: library)
+        waitForExpectations(timeout: 90)
+        tap(app.buttons["Studio"]); tap(library)
+        let search = app.textFields["modalVisualizerSearch"]
+        XCTAssertTrue(search.waitForExistence(timeout: 10))
+        let groups = app.buttons.matching(identifier: "Randomize visualizer group")
+        tap(groups.element(boundBy: max(0, groups.count - 1))); app.buttons["Randomize all"].tap()
+        search.tap(); search.typeText("LED Corridor\n")
+        let choices = app.buttons.containing(.staticText, identifier: "LED Corridor")
+        XCTAssertTrue(choices.firstMatch.waitForExistence(timeout: 10))
+        let choice = choices.element(boundBy: max(0, choices.count - 1))
+        choice.coordinate(withNormalizedOffset: CGVector(dx: 0.25, dy: 0.5)).tap()
+        expectation(for: NSPredicate(format: "exists == false"), evaluatedWith: search); waitForExpectations(timeout: 15)
+        tap(app.buttons["Visual style"])
+        XCTAssertTrue(app.buttons["mobilePalettePicker"].waitForExistence(timeout: 10))
+        tap(app.buttons["mobilePalettePicker"]); app.buttons["Blue Hour"].tap()
+        app.sliders["Chaos"].adjust(toNormalizedSliderPosition: 0.8)
+        tap(app.buttons["Done"])
+        tap(app.buttons["Play scene 1"])
+        expectation(for: NSPredicate(format: "label == %@", "Pause"), evaluatedWith: app.buttons["mobilePlaybackButton"])
+        waitForExpectations(timeout: 15)
+        Thread.sleep(forTimeInterval: 2); capture("studio")
+        tap(app.buttons["Present visualizer"])
+        XCTAssertTrue(app.buttons["Close"].waitForExistence(timeout: 10))
+        Thread.sleep(forTimeInterval: 5); capture("fullscreen")
+        app.windows.firstMatch.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        XCTAssertTrue(app.buttons["Close"].waitForExistence(timeout: 10)); tap(app.buttons["Close"])
+        tap(app.buttons["mobilePlaybackButton"])
+        tap(app.buttons["Visual style"])
+        XCTAssertTrue(app.navigationBars["Visual style"].waitForExistence(timeout: 10)); capture("style")
+        tap(app.buttons["Done"]); tap(app.buttons["Radio"])
+        let play = app.buttons["radioPlaybackButton"]
+        expectation(for: NSPredicate(format: "enabled == true"), evaluatedWith: play); waitForExpectations(timeout: 60)
+        tap(play)
+        expectation(for: NSPredicate(format: "enabled == true"), evaluatedWith: app.sliders["radioSongPosition"]); waitForExpectations(timeout: 90)
+        Thread.sleep(forTimeInterval: 2); capture("radio"); tap(play)
+        tap(app.buttons["Studio"]); tap(library)
+        XCTAssertTrue(search.waitForExistence(timeout: 10)); capture("library"); tap(app.buttons["Done"])
+        tap(app.buttons["Project actions"]); app.buttons["Export MP4"].tap()
+        XCTAssertTrue(app.buttons["4K"].waitForExistence(timeout: 15))
+        app.buttons["4K"].tap(); app.buttons["60 fps"].tap(); capture("export")
+        tap(app.buttons["Done"])
+    }
+
     @MainActor func testCaptureDuoStoreScreenshots() throws {
         let app = XCUIApplication()
         app.launch()

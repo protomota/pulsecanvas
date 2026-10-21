@@ -1,44 +1,32 @@
 {
   "appVersion": "1.2",
   "appBuild": "8",
-  "renderedAt": "2026-10-21T19:48:26.725Z",
+  "renderedAt": "2026-10-21T21:45:45.633Z",
   "renderer": "Playwright Chromium, real simulator captures",
   "sources": [
     {
       "file": "duo-inner-fullscreen.png",
-      "sha256": "7251a9d09833eb65a0dfb045f5a5c5967be4cb6dca849f17fae5079efc8c8c09"
+      "sha256": "db26c9161b7b3d0e2bbcb3ecc7c55e5890163a6dc1cb950035f9ff3ea9cb830e"
     },
     {
       "file": "duo-inner-studio.png",
-      "sha256": "38cd523ab2a8897874d83c5c96960402540cc16c4bfe5fbde065957f413675d0"
+      "sha256": "a8727674614eeafd7c573f58eb36a51d009928a54f22c74f475d61ea390419a2"
     },
     {
       "file": "duo-inner-style.png",
-      "sha256": "00644798d5b46263893d7f3a82d189fe93b393c9a0c215eae06197b850f7f1e5"
+      "sha256": "da8849e540e3e11f5390ffc2765e42766d24edffa4561b2ee498c4da26ae064f"
     },
     {
       "file": "duo-inner-radio.png",
-      "sha256": "ff47f95da9535311d1deb8a0a43067a7bf9fd38d5d75f484994cc9d0938dffdd"
+      "sha256": "5ac059997aee1655a9bc1c453a5e86b3131afceb4d69c35b23d6c3c0d360e434"
     },
     {
       "file": "duo-inner-export.png",
-      "sha256": "26694b1bfcaa1758acdb9105efd4e0b2a550bbff5c8687d064a91fcda5eeef23"
+      "sha256": "fb20118146f6e6473e52c624fc430b992465d8a5be1f953cd0e21afbce3dcf0c"
     },
     {
       "file": "duo-inner-library.png",
-      "sha256": "a0bb8187ae699a7d04be93930447cd58ab9b8c1375de7b162b3595f8dc6f2371"
-    },
-    {
-      "file": "duo-outer-radio.png",
-      "sha256": "00ad3f7d5351fb0aa283c48b00588f78562e8e7b8fc54a0007939b6a3bd3abaf"
-    },
-    {
-      "file": "duo-outer-style.png",
-      "sha256": "b8f357f800ffcadc77826ff9f6ba59ef1ed418aa8d9d625259c420cd07615ef8"
-    },
-    {
-      "file": "duo-outer-studio.png",
-      "sha256": "05c9f5d9fdaf4ab69acba0261097640a97aa5f81cb24eada64ee4bc5a6c349c2"
+      "sha256": "c6e54d7da8170d4d4d2d7539ea8628b679904b658bfff160a052193ee5f298ac"
     }
   ],
   "slides": [
@@ -46,8 +34,8 @@
       "file": "duo-01-music.png",
       "width": 2853,
       "height": 2007,
-      "bytes": 2172269,
-      "sha256": "a17b227fbe56a9e0a5ace053fa34060d45f249beb13ceb6781d5b10f232f345a",
+      "bytes": 2799311,
+      "sha256": "8ef227ba9b6bed8fed92eb7b3e63c8cb696d68645257f5642b5fad33c2e98d18",
       "copyBottom": 481.828125,
       "title": "Your music. A new world."
     },
@@ -55,8 +43,8 @@
       "file": "duo-02-studio.png",
       "width": 2853,
       "height": 2007,
-      "bytes": 1138960,
-      "sha256": "84167678ebf27568877c08437a28fd274debde137862fa59944d9e35f18c0e1e",
+      "bytes": 1657576,
+      "sha256": "e54c473b0fd719caf5087af71899ad530229b3b15e683ed84f43636207e45b61",
       "copyBottom": 481.828125,
       "title": "Build a visual journey."
     },
@@ -64,8 +52,8 @@
       "file": "duo-03-style.png",
       "width": 2853,
       "height": 2007,
-      "bytes": 866665,
-      "sha256": "d14a456c3451f161e2d4f50be634ac030a2bb74b69198787524acb3113f3fb4c",
+      "bytes": 809198,
+      "sha256": "d92dc102ff8f0b9407261e3360b4dccc0f2b4574e356ee9e5026d93a721cbd03",
       "copyBottom": 481.828125,
       "title": "Shape every look."
     },
@@ -73,8 +61,8 @@
       "file": "duo-04-radio.png",
       "width": 2853,
       "height": 2007,
-      "bytes": 1771660,
-      "sha256": "fc36495b7e90a6500c9c17e7dfed631546e88e1839af612943883777fd3311e1",
+      "bytes": 1368911,
+      "sha256": "c9650b4aacbe9f69c58c80314d132c0526413982bacfae6be1677bcdd6808b9a",
       "copyBottom": 481.828125,
       "title": "Tune in to Radio."
     },
@@ -82,8 +70,8 @@
       "file": "duo-05-export.png",
       "width": 2853,
       "height": 2007,
-      "bytes": 739950,
-      "sha256": "b7798b77280a37b78d3ff8bc6493d3276b99f0d43185dd93301231b8ea3b6948",
+      "bytes": 793820,
+      "sha256": "93c1b23af70427fcdaf6b15540ce02f843f0191a2e6138a5298c5d769746673a",
       "copyBottom": 481.828125,
       "title": "From your phone to their feed."
     },
@@ -91,8 +79,8 @@
       "file": "duo-06-free.png",
       "width": 2853,
       "height": 2007,
-      "bytes": 984715,
-      "sha256": "7a53a1e226cc5692c4031b712e3e2fefe537e1f06334a134c6356ab905ba00e5",
+      "bytes": 801652,
+      "sha256": "b1033d88f780cbfb80fb46f2f5a09eba96add37da9942277d96c1ff01cb93b79",
       "copyBottom": 538.578125,
       "title": "Completely free."
     }
