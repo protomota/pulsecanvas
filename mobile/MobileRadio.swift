@@ -37,7 +37,7 @@ struct MobileRadio: View {
                     }.padding(16)
                 }
             }
-        }.onAppear { radio.loadSavedCatalogIfNeeded(refresh: !radio.isActive) }
+        }.onAppear { radio.loadSavedCatalogIfNeeded() }
         .fileImporter(isPresented: $musicFolder, allowedContentTypes: [.folder]) { result in
             switch result {
             case .success(let url): radio.importMusicFolder(url)

@@ -135,6 +135,7 @@ import Foundation
         precondition(audio.load(url: audioDirectory.appendingPathComponent("0.m4a")))
         audio.seek(fraction: 0.4)
         let originalURL = audio.selectedURL, originalProgress = audio.progress
+        let originalPrepared = audio.retainedSoundtrack()!
         studio.isStudio = true
         studio.makeTimeline(audio.segmentPlan()!, render: render)
         let originalTimeline = studio.segments
@@ -287,7 +288,10 @@ import Foundation
             "Restore: \(String(describing: audio.selectedURL)) / \(String(describing: originalURL)), progress \(audio.progress) / \(originalProgress)")
         precondition(studio.segments.map(\.scene) == originalTimeline.map(\.scene))
         precondition(studio.segments.map(\.end) == originalTimeline.map(\.end))
-        print("PASS cancellation: rapid skips advance independently, leaving cancels pending work and restores the editor paused")
+        precondition(audio.retainedSoundtrack()?.analyzer === originalPrepared.analyzer,
+            "Returning to Studio must reuse its analyzed song instead of decoding it on the UI actor")
+        precondition(audio.retainedSoundtrack()?.file === originalPrepared.file)
+        print("PASS cancellation: rapid skips, paused Studio restore and retained audio file/analysis reuse")
 
         radio.selectStation("future-genre")
         try await wait("future station") { !radio.isCatalogLoading && radio.stationID == "future-genre" }

@@ -621,7 +621,7 @@ private struct VisionTimelineView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
-                Label("Studio", systemImage: "rectangle.split.3x1").font(.headline)
+
                 Text("\(studio.project.clips.count) sections · \(Int(studio.project.bpm)) BPM").foregroundStyle(.secondary)
                 Spacer()
                 Button("Randomize timeline", systemImage: "shuffle") { randomizing = true }

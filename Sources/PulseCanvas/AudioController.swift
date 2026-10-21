@@ -100,6 +100,13 @@ final class AudioController: ObservableObject {
         } catch { status = "Cannot open soundtrack: \(error.localizedDescription)"; return false }
     }
 
+    /// Retain the already analyzed Studio song while Radio temporarily owns playback.
+    /// The snapshot is used on the same actor after Radio has stopped its player.
+    func retainedSoundtrack() -> PreparedSoundtrack? {
+        guard let url = selectedURL, let access = soundtrackAccess, let file, let analyzer else { return nil }
+        return PreparedSoundtrack(url: url, access: access, file: file, analyzer: analyzer)
+    }
+
     func clear() {
         stop(); file = nil; analyzer = nil; selectedURL = nil; title = "Add a soundtrack"; duration = 0
         soundtrackAccess = nil; soundtrackBookmark = nil
@@ -273,6 +280,9 @@ final class PreparedSoundtrack: @unchecked Sendable {
     let access: SecurityScopedAccess
     let file: AVAudioFile
     let analyzer: SoundtrackAnalyzer
+    fileprivate init(url: URL, access: SecurityScopedAccess, file: AVAudioFile, analyzer: SoundtrackAnalyzer) {
+        self.url = url; self.access = access; self.file = file; self.analyzer = analyzer
+    }
     init(url: URL) throws {
         self.url = url
         access = SecurityScopedAccess(url: url)

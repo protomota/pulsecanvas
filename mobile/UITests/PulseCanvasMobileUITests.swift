@@ -96,6 +96,59 @@ final class PulseCanvasMobileUITests: XCTestCase {
         app.buttons["720p"].tap(); app.buttons["Render video"].tap()
         XCTAssertTrue(app.buttons["Save video"].waitForExistence(timeout: 180), "Library songs must export with the normal Studio renderer")
     }
+    @MainActor func testExpandedWorkspaceAndTabSwitching() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["-PCMobileQA", "-PCMobileRadioQA"]
+        app.launch()
+        let library = app.buttons["mobileLibraryButton"]
+        XCTAssertTrue(library.waitForExistence(timeout: 30))
+        expectation(for: NSPredicate(format: "enabled == true"), evaluatedWith: library)
+        waitForExpectations(timeout: 90)
+        let window = app.windows.firstMatch
+        print("EXPANDED window: \(window.frame)")
+        print("EXPANDED header: \(app.otherElements["mobileWorkspaceHeader"].frame)")
+        if window.frame.width >= 520 && window.frame.width > window.frame.height
+            || window.frame.width >= 350 && window.frame.height >= 600 {
+            let card = app.otherElements["currentStudioClip"]
+            XCTAssertTrue(card.waitForExistence(timeout: 10))
+            XCTAssertGreaterThan(card.frame.maxY, window.frame.maxY - 25, "Cards should sit at the bottom of the display")
+            XCTAssertLessThanOrEqual(card.frame.maxY, window.frame.maxY + 1)
+            XCTAssertTrue(app.buttons["Apply to all"].isHittable)
+            XCTAssertTrue(app.buttons["Randomize timeline"].isHittable)
+        }
+        let sidebar = app.descendants(matching: .any)["sidebarVisualizerList"]
+        if sidebar.exists {
+            XCTAssertGreaterThan(sidebar.frame.maxY, window.frame.maxY - 5, "Sidebar list should reach the display bottom")
+        }
+        library.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        let modal = app.descendants(matching: .any)["modalVisualizerList"]
+        XCTAssertTrue(modal.waitForExistence(timeout: 10))
+        XCTAssertGreaterThan(modal.frame.maxY, window.frame.maxY - 5, "Library picker should use its full height")
+        print("PC_EXPANDED_CAPTURE library")
+        Thread.sleep(forTimeInterval: 5)
+        app.buttons["Done"].coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        for round in 0..<3 {
+            let start = Date()
+            app.buttons["Radio"].coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+            let play = app.buttons["radioPlaybackButton"]
+            XCTAssertTrue(play.waitForExistence(timeout: 10))
+            print("TAB_SWITCH Radio \(round): \(Date().timeIntervalSince(start)) seconds")
+            expectation(for: NSPredicate(format: "enabled == true"), evaluatedWith: play)
+            waitForExpectations(timeout: 30)
+            if round == 0 {
+                play.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+                expectation(for: NSPredicate(format: "enabled == true"), evaluatedWith: app.sliders["radioSongPosition"])
+                waitForExpectations(timeout: 45)
+            }
+            let back = Date()
+            app.buttons["Studio"].coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+            XCTAssertTrue(app.buttons["mobilePlaybackButton"].waitForExistence(timeout: 10))
+            print("TAB_SWITCH Studio \(round): \(Date().timeIntervalSince(back)) seconds")
+        }
+        print("PC_EXPANDED_CAPTURE studio")
+        Thread.sleep(forTimeInterval: 6)
+    }
+
     /// Real library and export UI for the Duo marketing artwork (no QA fixture data).
     @MainActor func testCaptureDuoMarketingDetails() throws {
         let app = XCUIApplication()
@@ -302,6 +355,7 @@ final class PulseCanvasMobileUITests: XCTestCase {
         // first simulator boot can otherwise advance during these assertions.
         play.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
         XCTAssertEqual(play.label, "Play")
+        if !app.buttons["Favorite radio visualizer"].exists { print("RADIO_CONTROL_DEBUG \(app.debugDescription)") }
         let controls = [app.buttons["Randomize visualizer group"], app.buttons["Random radio visualizer"],
                         app.buttons["Present radio"], app.buttons["Favorite radio visualizer"],
                         app.buttons["Favorite song"], app.buttons["Favorite songs"], app.buttons["Next song"],

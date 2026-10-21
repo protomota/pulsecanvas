@@ -36,7 +36,7 @@ struct StudioTimelineView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 10 - 4 * compactness) {
             HStack(spacing: 8) {
-                Label("Studio", systemImage: "rectangle.split.3x1").font(.system(size: 14, weight: .semibold))
+
                 if !studio.segments.isEmpty {
                     Text("\(studio.segments.count) sections").font(.system(size: 11)).foregroundStyle(.secondary).layoutPriority(-1)
                     if let bpm = studio.detectedBPM { Text("\(Int(bpm.rounded())) BPM").font(.system(size: 11)).foregroundStyle(.secondary).layoutPriority(-1) }

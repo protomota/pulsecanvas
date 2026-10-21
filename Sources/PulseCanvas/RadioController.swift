@@ -88,6 +88,7 @@ final class RadioController: ObservableObject {
     private weak var audio: AudioController?
     private var snapshot: Snapshot?
     private struct Snapshot {
+        let prepared: PreparedSoundtrack?
         let url: URL?
         let bookmark: Data?
         let progress: Double
@@ -364,7 +365,7 @@ final class RadioController: ObservableObject {
         guard canStart, let audio else { return }
         if !isActive {
             hasRadioAudio = false
-            snapshot = Snapshot(url: audio.selectedURL, bookmark: audio.soundtrackBookmark, progress: audio.progress,
+            snapshot = Snapshot(prepared: audio.retainedSoundtrack(), url: audio.selectedURL, bookmark: audio.soundtrackBookmark, progress: audio.progress,
                 title: audio.title, loop: audio.loopEnabled, volume: audio.volume)
             isActive = true
             audio.volume = volume
@@ -424,7 +425,9 @@ final class RadioController: ObservableObject {
         guard isActive, let audio else { return }
         audio.onSoundtrackFinished = nil; audio.pause(); isActive = false
         if let saved = snapshot {
-            if let url = saved.url {
+            if let prepared = saved.prepared {
+                if audio.install(prepared, title: saved.title) { audio.seek(fraction: saved.progress) }
+            } else if let url = saved.url {
                 if audio.load(url: url, bookmark: saved.bookmark) { audio.seek(fraction: saved.progress) }
             } else { audio.clear() }
             audio.loopEnabled = saved.loop

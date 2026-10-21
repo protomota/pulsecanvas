@@ -53,32 +53,38 @@ struct MobileWorkspace: View {
     }
     var body: some View {
         GeometryReader { geometry in
+            // Duo's large phone windows have a corner status cluster, rather than
+            // a full-width status bar. Reuse the clear part of that top region.
+            let cornerHeader = UIDevice.current.userInterfaceIdiom == .phone && geometry.size.width >= 460
             VStack(spacing: 0) {
                 header(compact: geometry.size.width < 700)
-                    .padding(.trailing, geometry.safeAreaInsets.trailing)
+                    .padding(.top, cornerHeader ? 16 : 0)
+                    .padding(.leading, geometry.safeAreaInsets.leading)
+                    .padding(.trailing, cornerHeader ? max(116, geometry.safeAreaInsets.trailing) : geometry.safeAreaInsets.trailing)
                 Divider().overlay(.white.opacity(0.08))
                 if editor.selectedTab == 1 {
                     MobileRadio(editor: editor, trailingControlInset: geometry.safeAreaInsets.trailing, present: { editor.presenting = true })
                 } else {
                     HStack(spacing: 0) {
-                        if geometry.size.width >= 850 && geometry.size.height >= 500 {
+                        if UIDevice.current.userInterfaceIdiom == .pad && geometry.size.width >= 850 && geometry.size.height >= 500 {
                             MobileLibrary(editor: editor, close: nil)
                                 .frame(width: min(255, geometry.size.width * 0.26))
                             Divider()
                         }
-                        if geometry.size.width >= 650 && geometry.size.width > geometry.size.height {
-                            studioContent(size: geometry.size, bounded: true)
+                        if geometry.size.width >= 520 && geometry.size.width > geometry.size.height
+                            || geometry.size.width >= 350 && geometry.size.height >= 600 {
+                            studioContent(size: geometry.size, bounded: true, trailingControlInset: geometry.safeAreaInsets.trailing)
                                 .accessibilityElement(children: .contain)
                                 .accessibilityIdentifier("mobileStudioLandscape")
                         } else {
-                            ScrollView { studioContent(size: geometry.size, bounded: false) }
+                            ScrollView { studioContent(size: geometry.size, bounded: false, trailingControlInset: geometry.safeAreaInsets.trailing) }
                         }
                     }
                 }
             }
-            // Media uses the space below Duo's side status region. Only the
-            // header reserves its trailing inset so buttons avoid system controls.
-            .ignoresSafeArea(.container, edges: .trailing)
+            // Media and the bottom timeline use the whole Duo display in either
+            // rotation. Only the header reserves side insets around the camera.
+            .ignoresSafeArea(.container, edges: cornerHeader ? .all : [.leading, .trailing, .bottom])
             .background(MobileTheme.background).tint(MobileTheme.accent)
         }
         .task { await editor.start() }
@@ -146,25 +152,27 @@ struct MobileWorkspace: View {
         } message: { Text("This replaces the chosen visualizers or scene lengths throughout your Studio timeline.") }
         .fullScreenCover(isPresented: $editor.presenting) { MobilePresentation(editor: editor) }
     }
-    @ViewBuilder private func studioContent(size: CGSize, bounded: Bool) -> some View {
+    @ViewBuilder private func studioContent(size: CGSize, bounded: Bool, trailingControlInset: CGFloat) -> some View {
         if bounded && size.height < 500 {
             // The closed display in landscape is too short to stack a preview
             // above full scene cards. Give each its own column instead.
             HStack(spacing: 16) {
-                MobilePreview(editor: editor, style: { sheet = .style }, present: { editor.presenting = true })
+                MobilePreview(editor: editor, fillsAvailableSpace: bounded, style: { sheet = .style }, present: { editor.presenting = true })
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                 VStack(spacing: 12) {
-                    MobileTransport(audio: editor.audio)
-                    timeline
-                }.frame(maxWidth: .infinity)
-            }.padding(12)
+                    MobileTransport(audio: editor.audio, apply: { sheet = .apply }, randomize: { randomizePrompt = true })
+                    timeline(edgeInset: 12)
+                }.frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
+            }.padding(.horizontal, 12).padding(.top, 12).padding(.bottom, 8)
         } else {
             VStack(spacing: bounded ? 12 : 16) {
-                MobilePreview(editor: editor, style: { sheet = .style }, present: { editor.presenting = true })
+                MobilePreview(editor: editor, fillsAvailableSpace: bounded, trailingControlInset: trailingControlInset, style: { sheet = .style }, present: { editor.presenting = true })
                     .frame(maxHeight: bounded ? .infinity : max(220, size.height * 0.52))
-                MobileTransport(audio: editor.audio)
-                timeline
-            }.padding(size.width < 600 ? 12 : bounded ? 16 : 20)
+                MobileTransport(audio: editor.audio, apply: { sheet = .apply }, randomize: { randomizePrompt = true })
+                timeline(edgeInset: size.width < 600 ? 12 : 16)
+            }.padding(.horizontal, size.width < 600 ? 12 : 16)
+                .padding(.top, bounded ? 12 : 20).padding(.bottom, 8)
+                .frame(maxWidth: .infinity, maxHeight: bounded ? .infinity : nil, alignment: .bottom)
         }
     }
     private func title(_ item: MobileSheet) -> String {
@@ -207,15 +215,10 @@ struct MobileWorkspace: View {
             // Keep the tabs leading, below iPadOS's window-control strip.
             .padding(.top, windowControlClearance)
             .disabled(editor.loading || editor.exporter.isExporting)
+            .accessibilityElement(children: .contain).accessibilityIdentifier("mobileWorkspaceHeader")
     }
-    private var timeline: some View {
+    private func timeline(edgeInset: CGFloat) -> some View {
         VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Label("Studio", systemImage: "rectangle.split.3x1").font(.headline)
-                Spacer()
-                Button { sheet = .apply } label: { Image(systemName: "slider.horizontal.3") }.accessibilityLabel("Apply to all")
-                Button { randomizePrompt = true } label: { Image(systemName: "shuffle") }.accessibilityLabel("Randomize timeline")
-            }.buttonStyle(MobileButton())
             if editor.needsSoundtrack {
                 Button("Locate soundtrack", systemImage: "waveform.badge.plus") { audioPicker = true }.buttonStyle(MobileButton(prominent: true))
             }
@@ -225,8 +228,9 @@ struct MobileWorkspace: View {
                         ForEach(Array(editor.studio.segments.enumerated()), id: \.offset) { index, clip in
                             MobileClip(editor: editor, index: index, clip: clip, choose: { editor.selectClip(index); sheet = .library }).id(index)
                         }
-                    }.padding(.vertical, 3)
-                }.frame(height: 154).accessibilityIdentifier("mobileStudioTimeline")
+                    }.padding(.vertical, 3).padding(.horizontal, edgeInset)
+                }.frame(height: 154).padding(.horizontal, -edgeInset)
+                    .accessibilityIdentifier("mobileStudioTimeline")
                     .onChange(of: studio.selectedSegment) { _, index in
                         guard audio.isPlaying, studio.segments.indices.contains(index) else { return }
                         withAnimation(.easeInOut(duration: 0.25)) { proxy.scrollTo(index, anchor: .center) }
@@ -240,16 +244,15 @@ private struct MobilePreview: View {
     @ObservedObject var editor: MobileEditor
     @ObservedObject var render: RenderState
     @ObservedObject private var library = ProjectMPresets.shared
+    let fillsAvailableSpace: Bool
+    let trailingControlInset: CGFloat
     let style: () -> Void
     let present: () -> Void
-    init(editor: MobileEditor, style: @escaping () -> Void, present: @escaping () -> Void) {
-        self.editor = editor; self.render = editor.render; self.style = style; self.present = present
+    init(editor: MobileEditor, fillsAvailableSpace: Bool = false, trailingControlInset: CGFloat = 0, style: @escaping () -> Void, present: @escaping () -> Void) {
+        self.editor = editor; self.render = editor.render; self.fillsAvailableSpace = fillsAvailableSpace; self.trailingControlInset = trailingControlInset; self.style = style; self.present = present
     }
     var body: some View {
         VStack(spacing: 10) {
-            VisualizerView(state: render).aspectRatio(16 / 9.0, contentMode: .fit)
-                .clipShape(RoundedRectangle(cornerRadius: 16)).accessibilityIdentifier("mobileVisualizerPreview")
-            if let error = render.errorMessage { Text(error).foregroundStyle(.red).accessibilityIdentifier("mobileRenderError") }
             HStack(spacing: 8) {
                 Button { library.toggleFavorite(render.scene, appearance: VisualPreset(render: render)) } label: {
                     Image(systemName: library.isFavorite(render.scene) ? "heart.fill" : "heart").frame(width: 16)
@@ -260,19 +263,36 @@ private struct MobilePreview: View {
                 Button { editor.studio.randomizeScene(render); editor.saveSession() } label: { Image(systemName: "shuffle") }.accessibilityLabel("Random visualizer")
                 Button(action: style) { Image(systemName: "slider.horizontal.3") }.accessibilityLabel("Visual style")
                 Button(action: present) { Image(systemName: "arrow.up.left.and.arrow.down.right") }.accessibilityLabel("Present visualizer")
-            }.buttonStyle(MobileButton())
+            }.buttonStyle(MobileButton()).padding(.trailing, trailingControlInset)
+            Group {
+                if fillsAvailableSpace {
+                    GeometryReader { geometry in
+                        VisualizerView(state: render).frame(width: geometry.size.width, height: geometry.size.height)
+                    }.frame(minHeight: 80, maxHeight: .infinity)
+                } else {
+                    VisualizerView(state: render).aspectRatio(16 / 9.0, contentMode: .fit)
+                }
+            }.clipShape(RoundedRectangle(cornerRadius: 16)).accessibilityIdentifier("mobileVisualizerPreview")
+            if let error = render.errorMessage { Text(error).foregroundStyle(.red).accessibilityIdentifier("mobileRenderError") }
         }
     }
 }
 
 struct MobileTransport: View {
     @ObservedObject var audio: AudioController
+    var apply: (() -> Void)? = nil
+    var randomize: (() -> Void)? = nil
     @State private var fraction = 0.0
     @State private var seconds = 0.0
     @State private var seeking = false
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text(audio.title).font(.subheadline.weight(.medium)).lineLimit(1)
+            HStack(spacing: 8) {
+                Text(audio.title).font(.subheadline.weight(.medium)).lineLimit(1)
+                Spacer(minLength: 0)
+                if let apply { Button(action: apply) { Label("Apply to all", systemImage: "square.stack.3d.up").lineLimit(1) }.accessibilityLabel("Apply to all") }
+                if let randomize { Button(action: randomize) { Label("Shuffle scenes", systemImage: "rectangle.3.group").lineLimit(1) }.accessibilityLabel("Randomize timeline") }
+            }.buttonStyle(MobileButton())
             HStack(spacing: 12) {
                 Button { audio.playPause() } label: { Image(systemName: audio.isPlaying ? "pause.fill" : "play.fill").frame(width: 30) }
                     .buttonStyle(MobileButton(prominent: true)).accessibilityLabel(audio.isPlaying ? "Pause" : "Play").accessibilityIdentifier("mobilePlaybackButton")
@@ -350,7 +370,12 @@ struct MobileLibrary: View {
                     }.listRowBackground(MobileTheme.panel)
                 }
             }.listStyle(.plain).scrollContentBackground(.hidden)
-        }.padding(12)
+                .contentMargins(.bottom, 0, for: .scrollContent)
+                .frame(maxHeight: .infinity)
+                .accessibilityIdentifier(close == nil ? "sidebarVisualizerList" : "modalVisualizerList")
+        }.padding(.horizontal, 12).padding(.top, 12)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .ignoresSafeArea(.container, edges: .bottom)
     }
 }
 

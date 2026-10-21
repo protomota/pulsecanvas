@@ -210,6 +210,21 @@ final class VisualizerRenderer: NSObject, MTKViewDelegate {
     private var strobePipeline: MTLRenderPipelineState?
     private let flightSlots = DispatchSemaphore(value: 3)
 
+    // Share immutable compiled GPU programs across previews and exports. Textures,
+    // frame clocks, command queues and audio state remain owned by each renderer.
+    private struct CompiledAssets {
+        let strobe, zoom, blur, canvas, point, spatial: MTLRenderPipelineState?
+        #if !STORE_BUILD
+        let projectM: MTLRenderPipelineState?
+        #endif
+        let depth: MTLDepthStencilState?
+        let libraries: [String: MTLLibrary]
+        let errors: [String: String]
+        var nativePipelines: [String: MTLRenderPipelineState]
+    }
+    private static var sharedAssets: [UInt64: CompiledAssets] = [:]
+    private(set) static var shaderResourceBuilds = 0
+
     init(state: RenderState) { self.state = state; super.init() }
 
     func attach(_ view: MTKView) {
@@ -218,6 +233,19 @@ final class VisualizerRenderer: NSObject, MTKViewDelegate {
                 throw RenderError("Metal is unavailable on this Mac")
             }
             self.device = device; self.queue = queue
+            if let cached = Self.sharedAssets[device.registryID] {
+                strobePipeline = cached.strobe; zoomPipeline = cached.zoom
+                contentBlurPipeline = cached.blur; canvasPipeline = cached.canvas
+                pointPipeline = cached.point; spatialPipeline = cached.spatial
+                #if !STORE_BUILD
+                projectMPipeline = cached.projectM
+                #endif
+                depthState = cached.depth; nativeLibraries = cached.libraries
+                nativeCompileErrors = cached.errors; nativePipelines = cached.nativePipelines
+                lastError = nil
+                if state.errorMessage != nil { state.errorMessage = nil }
+                return
+            }
             let effectCandidates = [Bundle.module.url(forResource: "Strobe", withExtension: "metal", subdirectory: "NativeAssets"), Bundle.module.url(forResource: "Strobe", withExtension: "metal", subdirectory: "Resources"), Bundle.module.url(forResource: "Strobe", withExtension: "metal"), URL(fileURLWithPath: FileManager.default.currentDirectoryPath).appendingPathComponent("Sources/PulseCanvas/Resources/Strobe.metal")]
             guard let effectURL = effectCandidates.compactMap({ $0 }).first(where: { FileManager.default.fileExists(atPath: $0.path) }) else { throw RenderError("White flash shader is missing") }
             let effects = try device.makeLibrary(source: String(contentsOf: effectURL, encoding: .utf8), options: nil)
@@ -284,6 +312,17 @@ final class VisualizerRenderer: NSObject, MTKViewDelegate {
             nativePipelines = [:]
             let depth = MTLDepthStencilDescriptor(); depth.depthCompareFunction = .lessEqual; depth.isDepthWriteEnabled = true
             depthState = device.makeDepthStencilState(descriptor: depth)
+            #if !STORE_BUILD
+            let compiled = CompiledAssets(strobe: strobePipeline, zoom: zoomPipeline, blur: contentBlurPipeline,
+                canvas: canvasPipeline, point: pointPipeline, spatial: spatialPipeline, projectM: projectMPipeline,
+                depth: depthState, libraries: nativeLibraries, errors: nativeCompileErrors, nativePipelines: nativePipelines)
+            #else
+            let compiled = CompiledAssets(strobe: strobePipeline, zoom: zoomPipeline, blur: contentBlurPipeline,
+                canvas: canvasPipeline, point: pointPipeline, spatial: spatialPipeline,
+                depth: depthState, libraries: nativeLibraries, errors: nativeCompileErrors, nativePipelines: nativePipelines)
+            #endif
+            Self.sharedAssets[device.registryID] = compiled
+            Self.shaderResourceBuilds += 1
             lastError = nil
             if state.errorMessage != nil { state.errorMessage = nil }
         } catch { report(error.localizedDescription) }
@@ -322,11 +361,15 @@ final class VisualizerRenderer: NSObject, MTKViewDelegate {
 
     private func nativePipeline(for effect: NativeEffect) throws -> MTLRenderPipelineState {
         guard let shader = effect.shader else { throw RenderError("\(effect.name) is not a native Metal design") }
-        if let cached = nativePipelines[shader] { return cached }
+        if let cached = nativePipelines[shader] ?? device.flatMap({ Self.sharedAssets[$0.registryID]?.nativePipelines[shader] }) {
+            nativePipelines[shader] = cached
+            return cached
+        }
         if let file = effect.file, let error = nativeCompileErrors[file] { throw RenderError(error) }
         guard let device, let descriptor = nativeDescriptor(for: effect) else { throw RenderError("Native shader \(shader) is missing") }
         let pipeline = try device.makeRenderPipelineState(descriptor: descriptor)
         nativePipelines[shader] = pipeline
+        Self.sharedAssets[device.registryID]?.nativePipelines[shader] = pipeline
         return pipeline
     }
 
@@ -341,6 +384,7 @@ final class VisualizerRenderer: NSObject, MTKViewDelegate {
                 Task { @MainActor in
                     guard let self, self.nativePipelines[shader] == nil else { return }
                     self.nativePipelines[shader] = pipeline
+                    Self.sharedAssets[device.registryID]?.nativePipelines[shader] = pipeline
                 }
             }
         }
