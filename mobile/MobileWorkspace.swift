@@ -258,6 +258,8 @@ private struct MobilePreview: View {
 
                 Spacer(minLength: 0)
                 Button { editor.studio.randomizeScene(render); editor.saveSession() } label: { Image(systemName: "shuffle") }.accessibilityLabel("Random visualizer")
+                Button { editor.studio.randomize(render); editor.saveSession() } label: { Image(systemName: "dice.fill") }
+                    .accessibilityLabel("Randomize visual style").accessibilityIdentifier("mobileRandomizeStyleButton")
                 Button(action: style) { Image(systemName: "slider.horizontal.3") }.accessibilityLabel("Visual style")
                 Button(action: present) { Image(systemName: "arrow.up.left.and.arrow.down.right") }.accessibilityLabel("Present visualizer")
             }.buttonStyle(MobileButton()).padding(.trailing, trailingControlInset)

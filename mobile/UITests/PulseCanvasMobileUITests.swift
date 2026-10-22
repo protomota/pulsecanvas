@@ -2,6 +2,56 @@ import XCTest
 
 final class PulseCanvasMobileUITests: XCTestCase {
     override func setUp() { continueAfterFailure = false }
+    @MainActor func testPreviewDiceRandomizesStyleWithoutChangingVisualizer() {
+        let app = XCUIApplication()
+        app.launchArguments = ["-PCMobileQA"]
+        XCUIDevice.shared.orientation = .portrait
+        defer { XCUIDevice.shared.orientation = .portrait }
+        app.launch()
+        let library = app.buttons["mobileLibraryButton"]
+        XCTAssertTrue(library.waitForExistence(timeout: 30))
+        expectation(for: NSPredicate(format: "enabled == true"), evaluatedWith: library)
+        waitForExpectations(timeout: 90)
+        for orientation in [UIDeviceOrientation.portrait, .landscapeLeft] {
+            XCUIDevice.shared.orientation = orientation
+            let dice = app.buttons["mobileRandomizeStyleButton"]
+            let shuffle = app.buttons["Random visualizer"]
+            let style = app.buttons["Visual style"]
+            expectation(for: NSPredicate { _, _ in
+                let controls = [dice, shuffle, style, app.buttons["Present visualizer"]]
+                return controls.allSatisfy { $0.isHittable && $0.frame.width >= 44 && $0.frame.height >= 44 && app.windows.firstMatch.frame.contains($0.frame) }
+                    && abs(dice.frame.midY - shuffle.frame.midY) < 2
+            }, evaluatedWith: app)
+            waitForExpectations(timeout: 15)
+            for button in [dice, shuffle, style, app.buttons["Present visualizer"]] {
+                XCTAssertTrue(button.isHittable)
+                XCTAssertGreaterThanOrEqual(button.frame.width, 44)
+                XCTAssertGreaterThanOrEqual(button.frame.height, 44)
+                XCTAssertTrue(app.windows.firstMatch.frame.contains(button.frame))
+            }
+            XCTAssertEqual(dice.frame.midY, shuffle.frame.midY, accuracy: 2)
+            XCTAssertGreaterThan(dice.frame.midX, shuffle.frame.midX)
+            XCTAssertLessThan(dice.frame.midX, style.frame.midX)
+            let name = app.staticTexts["mobileVisualizerName"].label
+            style.tap()
+            XCTAssertTrue(app.buttons["Reset"].waitForExistence(timeout: 10))
+            app.buttons["Reset"].tap()
+            let before = ["Chaos", "Motion speed", "Zoom speed"].map { String(describing: app.sliders[$0].value) }
+            app.buttons["mobileSheetDone"].tap()
+            dice.tap()
+            XCTAssertEqual(app.staticTexts["mobileVisualizerName"].label, name)
+            style.tap()
+            XCTAssertTrue(app.buttons["Reset"].waitForExistence(timeout: 10))
+            let after = ["Chaos", "Motion speed", "Zoom speed"].map { String(describing: app.sliders[$0].value) }
+            XCTAssertNotEqual(after, before, "Dice changes the current look while keeping the selected visualizer")
+            app.buttons["mobileSheetDone"].tap()
+            let shot = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+            shot.name = orientation == .portrait ? "Preview-dice-portrait" : "Preview-dice-landscape"
+            shot.lifetime = .keepAlways
+            add(shot)
+        }
+    }
+
     @MainActor func testLibraryOnlyBrowsingAndSettingsAlwaysRestartOnboarding() {
         verifyLibraryAndOnboardingReplay(landscape: true)
     }

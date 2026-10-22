@@ -124,3 +124,23 @@ interaction remains unverified; this is not recorded as an app input fix.
 
 Evidence: `/Volumes/Music/Codex Media/PulseCanvas Studio/Platform Builds/vision-top-controls-20261022/`.
 No deployment or review submission was made.
+
+## Mobile preview dice
+
+Added the dice action immediately after shuffle in the shared Studio preview
+toolbar for iPhone, iPad and Duo. It randomizes and saves the current visual style
+without choosing a different visualizer, matching the existing style-panel action.
+The adjacent style and presentation controls remain available.
+
+The focused UI test passed on iPhone, iPad and the folded Duo display, checking
+44-point targets within the window, header order, and changed style parameters
+with the same visualizer. It requests both portrait and landscape; screenshot
+attachments preserve the actual layouts. The test waits for rotation to settle
+before measuring controls. On the open Duo, automation did not satisfy the frame
+expectation after unfolding; a direct native click on the dice changed the paused
+visualizer's appearance while retaining LED Corridor. A native 2853 × 2007
+screenshot confirms the open-display toolbar fits.
+
+Evidence: `/Volumes/Music/Codex Media/PulseCanvas Studio/Platform Builds/mobile-dice-20261022/`.
+The local screenshot review page is `http://127.0.0.1:8766/mobile-dice.html`.
+No deployment, TestFlight upload or App Store submission was made.
