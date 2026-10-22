@@ -1,47 +1,49 @@
 # iPhone Duo marketing screenshots — 1.2
 
-Six landscape App Store slides, using the approved iPhone/iPad campaign's HTML/CSS
-layout, Avenir Next typography, light background, accent colors, badges and real
-UI callouts. The original untracked `mobile-marketing-1.1.5` artwork is preserved.
+The six campaign slides use real native app captures: music, Studio, visual style,
+Radio, export and Completely free. Current captures retain the six Studio controls
+in two aligned rows. The original untracked mobile-marketing-1.1.5 folder is preserved.
 
-Order: music / 300+ Metal visualizers; Studio; visual style; Radio; MP4 / 4K60;
-completely free. Every final canvas is 2853 × 2007, opaque RGB PNG. Wide inner
-captures appear in minimal device frames. These are
-presentation frames, not a claim to reproduce the physical Duo hardware.
+## October 22 refinement
 
-## Real app sources
+Each feature has a different featured visualizer: Double Twist for full screen,
+Pearl Terrain for Studio, Aurora Fold for style, Orbit Loom behind Library, and
+Lotus Resonance behind export. Radio shows its live selection (Windowpane Drizzle
+on Duo, Mercury Fold on iPhone, Veil Passage Coaster on iPad). The full bundled
+2:54 soundtrack and live Radio are used, without shortened fixture content.
 
-Captures are from the native mobile 1.2 (8) app on the owned Duo inner-display
-simulator. Studio uses the included soundtrack; Radio uses the real catalog.
-No QA fixtures or generated app UI appear in the artwork. Enlarged controls are
-crops of these same captures; screen images retain their original aspect ratios.
+Completely free has only four pills: No subscriptions, No ads, No account and
+No tracking. The GitHub label is removed. All Duo slides omit the decorative
+outline that formed a triangle above the device.
 
-`testCaptureCurrentMarketingLayout` captures Studio, full screen, style, Radio,
-Library and the Export sheet with 4K and 60 fps selected. It passed on
-October 21, 2026. Active-display
-`simctl io … screenshot --display=…` capture is required: XCTest's screenshot
-attachment can select Duo's inactive display.
+Enlarged details use complete native control crops, with 48px padding for iPhone
+and 64px for iPad/Duo on every side. The wrapper background matches the native
+panel (#1f1924); it cannot expose an incomplete source-sheet background.
+The renderers verify equal padding, image decoding and callout bounds.
 
-Raw source folder (outside Git):
-`/Volumes/Music/Codex Media/PulseCanvas Studio/App Store/1.2/Layout-refresh/raw/`
+## Capture and rebuild
 
-Artwork, contact sheet, source/output hashes and App Store upload evidence:
-`/Volumes/Music/Codex Media/PulseCanvas Studio/App Store/1.2/Layout-refresh/duo/`
+Opt-in test: testCaptureVariedMarketingLayout in
+mobile/UITests/PulseCanvasMobileUITests.swift. Set PC_MARKETING_VARIETY=1 and
+PC_MARKETING_ACK_DIRECTORY to a host directory. The capture host saves each stage
+from simctl io screenshot before acknowledging it. Duo's active inner display is
+--display=3. iPhone uses portrait; iPad and Duo use landscape.
 
-## Rebuild
+All captures, cropped details, PNG outputs, contact sheets and acknowledgments stay
+outside Git:
+
+`/Users/brad/Documents/Codex/2026-10-22/pulsecanvas-controls-release-rescue/art/variety/`
+
+Generate complete control crops before rendering:
 
 ```sh
+python3 assets/app-store/shared/prepare-callouts.py '/Users/brad/Documents/Codex/2026-10-22/pulsecanvas-controls-release-rescue/art/variety/raw'
 PLAYWRIGHT=/Users/brad/Documents/GIT_SOURCE/jotley-site/node_modules/playwright/index.mjs \
-  node assets/app-store/duo-marketing-1.2/render.mjs \
-  '/Volumes/Music/Codex Media/PulseCanvas Studio/App Store/1.2/Layout-refresh/raw' \
-  '/Volumes/Music/Codex Media/PulseCanvas Studio/App Store/1.2/Layout-refresh/duo'
+node assets/app-store/duo-marketing-1.2/render.mjs \
+  '/Users/brad/Documents/Codex/2026-10-22/pulsecanvas-controls-release-rescue/art/variety/raw' '/Users/brad/Documents/Codex/2026-10-22/pulsecanvas-controls-release-rescue/art/variety/duo'
 ```
 
-The renderer checks copy bounds and image decoding, renders six full-resolution
-slides plus a contact sheet, and writes SHA-256 hashes for every capture used and
-every output. PNG dimensions and RGB mode are verified separately before upload.
-
-These slides refresh the English iPhone Duo group. Matching iPhone and iPad
-refreshes use `../mobile-marketing-1.2/`. Previous images remain recoverable in
-Apple's Asset Library. Header and search assets are preserved. This does not
-submit a release.
+The manifest records raw captures, derived control crops and rendered image hashes.
+Final canvases: iPhone 1320×2868, iPad 2752×2064, Duo 2853×2007, opaque RGB PNG.
+The numbered campaign images are followed by the all-device availability slide.
+Placements are saved to the English (U.S.) 1.2 draft; this does not submit review.

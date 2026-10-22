@@ -373,6 +373,72 @@ final class PulseCanvasMobileUITests: XCTestCase {
         tap(app.buttons["Done"])
     }
 
+    /// Opt-in native marketing captures with a different featured visualizer per slide.
+    @MainActor func testCaptureVariedMarketingLayout() throws {
+        let env = ProcessInfo.processInfo.environment
+        guard env["PC_MARKETING_VARIETY"] == "1" else { throw XCTSkip("Marketing capture is opt-in") }
+        XCUIDevice.shared.orientation = env["PC_MARKETING_ORIENTATION"] == "landscape" ? .landscapeLeft : .portrait
+        let app = XCUIApplication()
+        app.launchArguments = ["-PCMobileQA", "-PCMobileFullSoundtrackQA"]
+        app.launch()
+        func tap(_ e: XCUIElement) { e.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap() }
+        let library = app.buttons["mobileLibraryButton"]
+        XCTAssertTrue(library.waitForExistence(timeout: 30))
+        expectation(for: NSPredicate(format: "enabled == true"), evaluatedWith: library)
+        waitForExpectations(timeout: 90)
+        let search = app.textFields["modalVisualizerSearch"]
+        func choose(_ name: String) {
+            tap(library)
+            XCTAssertTrue(search.waitForExistence(timeout: 10))
+            let groups = app.buttons.matching(identifier: "Randomize visualizer group")
+            tap(groups.element(boundBy: max(0, groups.count - 1))); app.buttons["Randomize all"].tap()
+            search.tap(); search.typeText(name + "\n")
+            let choice = app.buttons.containing(.staticText, identifier: name).firstMatch
+            XCTAssertTrue(choice.waitForExistence(timeout: 10))
+            choice.coordinate(withNormalizedOffset: CGVector(dx: 0.25, dy: 0.5)).tap()
+            expectation(for: NSPredicate(format: "exists == false"), evaluatedWith: search); waitForExpectations(timeout: 15)
+        }
+        func capture(_ name: String, _ effect: String) {
+            Thread.sleep(forTimeInterval: 1)
+            print("PC_VARIETY_CAPTURE \(name) effect=\(effect) window=\(app.windows.firstMatch.frame)")
+            if let dir = env["PC_MARKETING_ACK_DIRECTORY"] {
+                let root = URL(fileURLWithPath: dir, isDirectory: true)
+                XCTAssertNoThrow(try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true))
+                XCTAssertNoThrow(try name.write(to: root.appendingPathComponent("stage.txt"), atomically: true, encoding: .utf8))
+                let ack = root.appendingPathComponent(name + ".ack").path
+                let deadline = Date().addingTimeInterval(90)
+                while !FileManager.default.fileExists(atPath: ack), Date() < deadline { Thread.sleep(forTimeInterval: 0.2) }
+                XCTAssertTrue(FileManager.default.fileExists(atPath: ack), "Native capture missing: " + name)
+            } else { Thread.sleep(forTimeInterval: 6) }
+        }
+        tap(app.buttons["Studio"])
+        choose("Pearl Terrain")
+        tap(app.buttons["Play scene 1"]); Thread.sleep(forTimeInterval: 2)
+        capture("studio", "Pearl Terrain"); tap(app.buttons["mobilePlaybackButton"])
+        choose("Double Twist")
+        tap(app.buttons["Play scene 1"]); tap(app.buttons["Present visualizer"])
+        XCTAssertTrue(app.buttons["Close"].waitForExistence(timeout: 10))
+        Thread.sleep(forTimeInterval: 5); capture("fullscreen", "Double Twist")
+        app.windows.firstMatch.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        tap(app.buttons["Close"]); tap(app.buttons["mobilePlaybackButton"])
+        choose("Aurora Fold"); tap(app.buttons["Visual style"])
+        XCTAssertTrue(app.navigationBars["Visual style"].waitForExistence(timeout: 10)); capture("style", "Aurora Fold")
+        tap(app.buttons["Done"]); tap(app.buttons["Radio"])
+        let play = app.buttons["radioPlaybackButton"]
+        expectation(for: NSPredicate(format: "enabled == true"), evaluatedWith: play); waitForExpectations(timeout: 90)
+        tap(play)
+        expectation(for: NSPredicate(format: "enabled == true"), evaluatedWith: app.sliders["radioSongPosition"]); waitForExpectations(timeout: 90)
+        capture("radio", "Live Radio selection"); tap(play)
+        tap(app.buttons["Studio"]); choose("Orbit Loom"); tap(library)
+        XCTAssertTrue(search.waitForExistence(timeout: 10)); capture("library", "Orbit Loom"); tap(app.buttons["Done"])
+        choose("Lotus Resonance")
+        tap(app.buttons["Project actions"]); app.buttons["Export MP4"].tap()
+        XCTAssertTrue(app.buttons["4K"].waitForExistence(timeout: 15)); app.buttons["4K"].tap(); app.buttons["60 fps"].tap()
+        capture("export", "Lotus Resonance"); tap(app.buttons["Done"])
+        let availability = env["PC_MARKETING_AVAILABILITY_EFFECT"] ?? "Ink Bloom"
+        choose(availability); capture("availability", availability)
+    }
+
     @MainActor func testCaptureDuoStoreScreenshots() throws {
         let app = XCUIApplication()
         app.launch()

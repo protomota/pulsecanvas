@@ -387,6 +387,41 @@ final class PulseCanvasVisionUITests: XCTestCase {
         appStoreCaptureMark("current-favorites")
     }
 
+    @MainActor func testCaptureVariedStoreLayouts() throws {
+        guard ProcessInfo.processInfo.environment["PULSECANVAS_CAPTURE_APPSTORE"] == "1" else { throw XCTSkip("Marketing capture is opt-in") }
+        let app = launch(["-PCVisualizer", "Mercury Fold"])
+        waitForSoundtrack(app)
+        func choose(_ name: String) {
+            app.buttons["visionLibraryButton"].tap()
+            let search = app.textFields["visualizerSearchField"]
+            XCTAssertTrue(search.waitForExistence(timeout: 10))
+            search.tap(); search.typeText(name + "\n")
+            let choice = app.buttons.containing(.staticText, identifier: name).firstMatch
+            XCTAssertTrue(choice.waitForExistence(timeout: 10)); choice.tap()
+            XCTAssertTrue(search.waitForNonExistence(timeout: 10))
+        }
+        appStoreCaptureMark("variety-studio")
+        choose("Prism Rain"); app.buttons["visionLibraryButton"].tap()
+        XCTAssertTrue(app.buttons["closeVisionLibraryButton"].waitForExistence(timeout: 10))
+        appStoreCaptureMark("variety-library"); app.buttons["closeVisionLibraryButton"].tap()
+        choose("Halo Engine"); app.buttons["exportMP4Button"].tap()
+        if app.buttons["Render another video"].waitForExistence(timeout: 2) { app.buttons["Render another video"].tap() }
+        XCTAssertTrue(app.buttons["Render video"].waitForExistence(timeout: 10))
+        app.buttons["4K"].tap(); app.buttons["60 fps"].tap()
+        appStoreCaptureMark("variety-export"); app.buttons["Done"].tap()
+        app.buttons["Radio"].tap(); let play = app.buttons["playPauseButton"]
+        XCTAssertTrue(waitForLabel(play, "Play Radio", timeout: 90)); play.tap()
+        XCTAssertTrue(waitForLabel(play, "Pause Radio", timeout: 120))
+        appStoreCaptureMark("variety-radio")
+        let before = app.staticTexts["selectedVisualizerName"].label
+        app.buttons["randomVisualizerButton"].tap()
+        let changed = expectation(for: NSPredicate(format: "label != %@", before), evaluatedWith: app.staticTexts["selectedVisualizerName"])
+        wait(for: [changed], timeout: 10)
+        app.buttons["favoriteRadioSongButton"].tap(); app.buttons["favoriteSongsLibraryButton"].tap()
+        XCTAssertTrue(app.buttons["playFavoriteSongsButton"].waitForExistence(timeout: 10))
+        appStoreCaptureMark("variety-favorites")
+    }
+
     private func appStoreCaptureMark(_ name: String) {
         let line = String(format: "APPSTORE-MARK %@ %.3f\n", name, Date().timeIntervalSince1970)
         print(line, terminator: "")

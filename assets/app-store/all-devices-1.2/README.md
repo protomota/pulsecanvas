@@ -19,3 +19,9 @@ writes five native-size PNGs and a checksum manifest.
 
 October 22 delivery: appended to all five screenshot groups, last in each group.
 See `docs/releases/controls-testflight-1.2-2026-10-22.md` for final counts and evidence.
+
+The refined montage uses four different effects: iPhone Ink Bloom, iPad Chrome
+Reef, Mac Octagon Vault and Vision Pro LED Corridor. Its source folder is
+`/Users/brad/Documents/Codex/2026-10-22/pulsecanvas-controls-release-rescue/art/variety/montage-sources/`.
+The generic source filenames are retained for the renderer; their SHA-256 hashes
+identify the exact native captures.

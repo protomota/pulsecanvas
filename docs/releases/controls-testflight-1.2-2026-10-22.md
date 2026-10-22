@@ -32,8 +32,8 @@ processing state and local/uploaded file sizes.
 | iPhone large Dynamic Island | 7 | Six current campaign images plus availability slide |
 | iPad 13-inch | 7 | Six current campaign images plus availability slide |
 | iPhone Duo | 7 | Six current campaign images plus availability slide |
-| Mac | 8 | Existing seven retained; availability slide appended |
-| Vision Pro | 7 | Existing immersion image retained; five native UI captures refreshed; availability slide appended |
+| Mac | 5 | Three campaign images and Aurora Fold retained; redundant raw repeats removed; availability refreshed |
+| Vision Pro | 6 | Immersion retained; four varied native UI captures and availability refreshed |
 
 Each final slide reads **On all your devices.** and names **iPhone · iPad · Mac ·
 Vision Pro**, with real captures of all four apps. The iOS search-results graphic
@@ -45,18 +45,40 @@ the six controls in two aligned rows (Library / Presentation / More above Shuffl
 `PREPARE_FOR_SUBMISSION`, 3840 × 2560. The existing header video and all Mac/Vision
 preview videos were retained. Medium iPhone sizes inherit the large group.
 
+## Screenshot refinement
+
+The October 22 follow-up replaces repeated featured effects across the mobile
+campaign with Double Twist, Pearl Terrain, Aurora Fold, live Radio selections,
+Lotus Resonance and Orbit Loom. The six Studio controls remain visible. Magnified
+controls use full native crops with an opaque matching panel background and equal
+padding on all sides (48px iPhone, 64px iPad/Duo). All Duo decorative outline
+triangles and the Completely free GitHub label are removed; only the four privacy
+and pricing pills remain.
+
+All final placements completed Apple processing. File order, dimensions and file
+sizes were read back through the official API. iPad delivery uses high-quality
+JPEG copies (quality 97, no chroma subsampling) after PNG ingestion stalled; the
+lossless originals remain preserved. No pending images remain in the final sets.
+
+The availability montage uses Ink Bloom on iPhone, Chrome Reef on iPad, Octagon
+Vault on Mac and LED Corridor on Vision Pro. Mac's redundant raw LED, Molten Glass
+and Studio images were removed while their campaign versions and all preview
+videos were retained. Vision now shows Mercury Fold in Studio, Prism Rain behind
+Library, Candy Cathedral behind favorites and Vector Tube in Radio, alongside the
+existing immersion image. The captured Halo Engine export view had a blank native
+preview and was excluded from the marketing set.
+
 ## Capture verification
 
-- iPhone and iPad current marketing-layout capture scenarios passed.
-- Duo's current capture scenario passed, six stages, 151.3 seconds. Capture the
-  active inner screen with `simctl io <UDID> screenshot --display=3`; the default
-  outer screen can be inactive/black. Final images were visually checked after
-  correcting this simulator capture issue. The Studio timeline retains the QA
-  simulator's short existing project; these are native app pixels.
-- Vision's opt-in current-store-layout test passed, five stages, 249.8 seconds.
-  An optional acknowledgment directory holds each stage for its native screenshot.
-- Campaign contact sheets, individual availability slides and uploaded artwork
-  were visually reviewed. Layout renderers check decoded images and bounds.
+- The opt-in varied mobile capture scenario passed on iPhone (176.3 seconds),
+  iPad (173.8 seconds) and Duo (199.0 seconds). An initial iPad run terminated under
+  concurrent simulator load; its sequential rerun passed all seven capture stages.
+- Duo captures use the active inner display (--display=3), not the inactive outer
+  display. The final captures use the full bundled soundtrack in isolated QA storage.
+- Vision's opt-in varied capture scenario passed (62.7 seconds). Each host capture
+  is acknowledged before the scenario advances.
+- Eighteen mobile/Duo campaign renders passed bounds, decoding and equal-padding
+  checks. Contact sheets and the native control crops were visually reviewed.
 
 App Store Review was not resubmitted. All three 1.2 versions remain
 **Developer Rejected**; their previous selected draft builds were left in place.
@@ -68,13 +90,14 @@ tester membership were unchanged by this delivery.
 Primary internal artifact folder:
 `/Users/brad/Documents/Codex/2026-10-22/pulsecanvas-controls-release-rescue/`
 
-- `art/raw/`: native captures; `art/mobile/` and `art/duo/`: rendered campaigns.
-- `art/all-devices/`: five availability slides and checksum manifest.
+- `art/variety/raw/`: final native captures and control crops; `art/variety/mobile/` and `art/variety/duo/`: final campaigns.
+- `art/variety/all-devices/`: final availability slides and checksum manifest.
 - `art/search-variety/`: final search-results image and checksum manifest.
 - `delivery/testflight-delivery-receipt.json`: successful build delivery receipt.
-- `delivery/screenshots-delivery-receipt.json`: all five final ordered sets.
+- `delivery/screenshots-variety-delivery-receipt.json`: final ordered sets after refinement.
 - `delivery/ios-variety-placements-final.json`: final search-results placement readback.
-- `delivery/app-store-search-proof.png`, `app-store-all-devices-proof.png`: web proof.
+- `delivery/app-store-free-no-github-proof.png`: actual saved App Store preview.
+- `art/variety/*-final-contact.jpg`: final iPad/Duo visual review sheets.
 
 Original archives, exports, upload logs and validation evidence remain at
 `/Volumes/Music/Codex Media/PulseCanvas Studio/Platform Builds/control-release-1.2-20261022/`.

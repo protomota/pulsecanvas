@@ -1,40 +1,51 @@
-# Mobile marketing screenshots — current 1.2 layout
+# Mobile marketing screenshots — 1.2
 
-Six slides each for iPhone (1320×2868) and iPad (2752×2064). The approved
-1.1.5 marketing design and copy are retained; the real app captures and enlarged
-detail crops now show 1.2 (8), including visualizer controls above the preview,
-playback/scene actions below, and the bottom timeline. The original untracked
-1.1.5 artwork folder is preserved separately.
+The six campaign slides use real native app captures: music, Studio, visual style,
+Radio, export and Completely free. Current captures retain the six Studio controls
+in two aligned rows. The original untracked mobile-marketing-1.1.5 folder is preserved.
 
-Captures, rendered PNGs, contact sheets and upload receipts stay outside Git:
+## October 22 refinement
 
-`/Volumes/Music/Codex Media/PulseCanvas Studio/App Store/1.2/Layout-refresh/`
+Each feature has a different featured visualizer: Double Twist for full screen,
+Pearl Terrain for Studio, Aurora Fold for style, Orbit Loom behind Library, and
+Lotus Resonance behind export. Radio shows its live selection (Windowpane Drizzle
+on Duo, Mercury Fold on iPhone, Veil Passage Coaster on iPad). The full bundled
+2:54 soundtrack and live Radio are used, without shortened fixture content.
 
-`raw/` contains real simulator screenshots from the normal app and bundled
-soundtrack/live Radio, without QA fixture content. The UI capture scenario is
-`testCaptureCurrentMarketingLayout` in `mobile/UITests/PulseCanvasMobileUITests.swift`.
-It prints `PC_CURRENT_CAPTURE <stage>` and holds each view for seven seconds so
-the host can capture the active native framebuffer with `simctl io screenshot`.
-Use the active display's native resolution; an inactive Duo display can contain
-stale content and must not be used. Capture to `/tmp` first, then copy to Music
-if Simulator is denied direct access to the volume.
+Completely free has only four pills: No subscriptions, No ads, No account and
+No tracking. The GitHub label is removed. All Duo slides omit the decorative
+outline that formed a triangle above the device.
 
-Required names: `iphone-{studio,fullscreen,style,radio,library,export}.png` and
-`ipad-{studio,fullscreen,style,radio,library,export}.png`. Use portrait iPhone and
-landscape 13-inch iPad. `TEST_RUNNER_PC_MARKETING_ORIENTATION=portrait` or
-`landscape` selects the pose for the capture test.
+Enlarged details use complete native control crops, with 48px padding for iPhone
+and 64px for iPad/Duo on every side. The wrapper background matches the native
+panel (#1f1924); it cannot expose an incomplete source-sheet background.
+The renderers verify equal padding, image decoding and callout bounds.
 
-Rebuild from the repository root:
+## Capture and rebuild
+
+Opt-in test: testCaptureVariedMarketingLayout in
+mobile/UITests/PulseCanvasMobileUITests.swift. Set PC_MARKETING_VARIETY=1 and
+PC_MARKETING_ACK_DIRECTORY to a host directory. The capture host saves each stage
+from simctl io screenshot before acknowledging it. Duo's active inner display is
+--display=3. iPhone uses portrait; iPad and Duo use landscape.
+
+All captures, cropped details, PNG outputs, contact sheets and acknowledgments stay
+outside Git:
+
+`/Users/brad/Documents/Codex/2026-10-22/pulsecanvas-controls-release-rescue/art/variety/`
+
+Generate complete control crops before rendering:
 
 ```sh
+python3 assets/app-store/shared/prepare-callouts.py '/Users/brad/Documents/Codex/2026-10-22/pulsecanvas-controls-release-rescue/art/variety/raw'
 PLAYWRIGHT=/Users/brad/Documents/GIT_SOURCE/jotley-site/node_modules/playwright/index.mjs \
 node assets/app-store/mobile-marketing-1.2/render.mjs \
-  '/Volumes/Music/Codex Media/PulseCanvas Studio/App Store/1.2/Layout-refresh/raw' \
-  '/Volumes/Music/Codex Media/PulseCanvas Studio/App Store/1.2/Layout-refresh/mobile'
+  '/Users/brad/Documents/Codex/2026-10-22/pulsecanvas-controls-release-rescue/art/variety/raw' '/Users/brad/Documents/Codex/2026-10-22/pulsecanvas-controls-release-rescue/art/variety/mobile'
 ```
 
-The renderer writes `release/en-US/`, two contact sheets, and a SHA-256 manifest.
-`manifest.json` here records the delivered source and output hashes. Upload the
-numbered slides in order: music, Studio, style, Radio, export, free. Review all
-slides visually and verify opaque RGB, dimensions, file sizes, server processing
-states and placement order. Save only; review submission is a separate action.
+The manifest records raw captures, derived control crops and rendered image hashes.
+Final canvases: iPhone 1320×2868, iPad 2752×2064, Duo 2853×2007, opaque RGB PNG.
+The uploaded iPad copies are JPEG quality 97 with chroma subsampling disabled;
+Apple stalled on some PNG uploads. Lossless originals remain preserved.
+The numbered campaign images are followed by the all-device availability slide.
+Placements are saved to the English (U.S.) 1.2 draft; this does not submit review.

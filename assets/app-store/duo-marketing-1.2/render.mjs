@@ -1,5 +1,5 @@
 // Same approved HTML/Playwright rendering method as the iPhone/iPad set.
-// Captures and rendered assets stay outside Git on the Music volume.
+// Captures and rendered assets stay outside Git.
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { dirname, join, resolve } from 'node:path';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
@@ -28,6 +28,7 @@ for(const [index,name] of names.entries()){
   const copy=document.querySelector('.copy');const r=copy.getBoundingClientRect();
   if(r.bottom>595)throw Error('Marketing copy overlaps devices: '+r.bottom);
   if(copy.scrollWidth>copy.clientWidth)throw Error('Copy overflows');
+  for(const box of document.querySelectorAll('.callout')){const cs=getComputedStyle(box),r=box.getBoundingClientRect();if(new Set([cs.paddingTop,cs.paddingRight,cs.paddingBottom,cs.paddingLeft]).size!==1)throw Error('Unequal callout padding');if(r.right>innerWidth||r.bottom>innerHeight)throw Error('Callout outside canvas');}
   return {copyBottom:r.bottom,title:document.querySelector('h1').textContent};
  });
  const file=`duo-${String(index+1).padStart(2,'0')}-${name}.png`;
@@ -39,7 +40,7 @@ url.searchParams.delete('slide');url.searchParams.set('review','1');
 await page.setViewportSize({width:2300,height:1500});await page.goto(url.href);
 await page.evaluate(()=>Promise.all([...document.images].map(i=>i.decode())));
 await page.locator('#overview').screenshot({path:join(output,'duo-contact-sheet.png')});
-const sourceNames=['inner-fullscreen','inner-studio','inner-style','inner-radio','inner-export','inner-library'];
+const sourceNames=['inner-fullscreen','inner-studio','inner-style','inner-radio','inner-export','inner-library',...['studio','style','radio','export'].map(k=>'inner-callout-'+k)];
 const sources=sourceNames.map(n=>{const file='duo-'+n+'.png';return {file,sha256:createHash('sha256').update(readFileSync(join(captures,file))).digest('hex')};});
 if(errors.length)throw Error(errors.join('\n'));
 writeFileSync(join(output,'manifest.json'),JSON.stringify({appVersion:'1.2',appBuild:'10',renderedAt:new Date().toISOString(),renderer:'Playwright Chromium, real simulator captures',sources,slides:manifest},null,2)+'\n');

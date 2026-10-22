@@ -11,7 +11,6 @@ body.ipad{--W:2752px;--H:2064px;--s:1.15;--tw:688px;--th:516px}
 .slide{position:relative;isolation:isolate;width:var(--W);height:var(--H);overflow:hidden;transform:scale(.25);transform-origin:top left;
   background:linear-gradient(180deg,#fdfcfe 0%,#f8f5fb 55%,#f1ecf6 100%)}
 .glow{position:absolute;z-index:0;border-radius:50%;filter:blur(160px);opacity:.42;background:var(--accent)}
-.octagon{position:absolute;z-index:0;fill:none;stroke:var(--accent);opacity:.10}
 
 /* Copy block, mirrors the Mac slides: brand row, headline, subtitle, value stat */
 .copy{position:absolute;z-index:5;left:calc(100px * var(--s));right:calc(100px * var(--s));top:calc(150px * var(--s))}
@@ -51,7 +50,6 @@ body.duo{--W:2853px;--H:2007px;--s:1.1;--tw:713.25px;--th:501.75px}
 .duo .closed{padding:12px;border-radius:75px}.duo .closed .screen{border-width:12px;border-radius:64px}
 .duo .callout{border-radius:42px}.duo .value{padding:34px 46px 30px;border-radius:44px}
 .duo .value strong{font-size:160px}.duo .value span{font-size:42px}
-.duo .source-note{position:absolute;z-index:6;left:850px;top:1830px;padding:20px 32px;border-radius:30px;background:#fff;font-size:43px;font-weight:600;color:#4f4759}
 </style></head><body class="duo"><main class="overview" id="overview"></main><script>
 const q=new URLSearchParams(location.search);
 if(q.has('review'))document.body.classList.add('review');
@@ -60,16 +58,16 @@ const src=n=>`${root.replace(/\/$/,'')}/duo-${n}.png`;
 const icon=`<div class="brand"><img src="${q.get('icon')}" alt="">PulseCanvas Studio</div>`;
 const frame=(img,x,y,width,cls='',rotation=0)=>`<div class="device ${cls}" style="left:${x}px;top:${y}px;width:${width}px;transform:rotate(${rotation}deg)"><div class="screen"><img src="${src(img)}" alt="Real PulseCanvas ${img} capture"></div></div>`;
 const value=(a,b,x,y,rotation=0)=>`<div class="value" style="left:${x}px;top:${y}px;transform:rotate(${rotation}deg)"><strong>${a}</strong><span>${b}</span></div>`;
-function callout(img,x,y,w,h,cx,cy,zoom,sourceWidth=2853){return `<div class="callout" style="left:${x}px;top:${y}px;width:${w}px;height:${h}px;background-image:url(${src(img)});background-size:${sourceWidth*zoom}px auto;background-position:${-cx*zoom}px ${-cy*zoom}px"></div>`}
-function backdrop(){return `<div class="glow" style="left:-10%;top:45%;width:80%;height:55%"></div><svg class="octagon" width="2853" height="2007"><polygon points="1426,520 2134,813 2427,1520 2134,2227 1426,2520 719,2227 426,1520 719,813" stroke-width="8"/></svg>`}
+function callout(kind,x,y,width){return `<div class="callout" data-callout="${kind}" style="left:${x}px;top:${y}px;width:${width}px;padding:64px;background:#1f1924"><img src="${src('inner-callout-'+kind)}" style="display:block;width:100%;height:auto" alt="Magnified native ${kind} controls"></div>`}
+function backdrop(){return `<div class="glow" style="left:-10%;top:45%;width:80%;height:55%"></div>`}
 const copy=(title,sub,extra='')=>`<div class="copy">${icon}<h1>${title}</h1>${sub?`<p class="sub">${sub}</p>`:''}${extra}</div>`;
 const slides=[
 {id:'music',accent:'#0b8f80',body:()=>copy('Your music. A <em>new world.</em>','Music-reactive tunnels, liquid, particles and kinetic worlds.')+frame('inner-fullscreen',330,620,2200)+value('300+','Metal visualizers',110,1460,-5)},
-{id:'studio',accent:'#3a5bd0',body:()=>copy('Build a visual <em>journey.</em>','Beat-aligned scenes. Individual bar lengths. Your creative mix.')+frame('inner-studio',330,620,2200)+callout('inner-studio',260,1510,2330,400,0,1525,.82)},
-{id:'style',accent:'#7f3fe0',body:()=>copy('Shape every <em>look.</em>','Chaos, motion, zoom, brightness and depth. All at your fingertips.')+frame('inner-style',330,620,2200)+callout('inner-style',550,1080,1750,700,510,675,.90)},
-{id:'radio',accent:'#d85a35',body:()=>copy('Tune in to <em>Radio.</em>','Stations paired with moving visuals. Heart the songs you love.')+frame('inner-radio',330,620,2200)+callout('inner-radio',160,1620,2530,340,25,1570,.90)},
-{id:'export',accent:'#b8690c',body:()=>copy('From your phone to <em>their feed.</em>','Save an MP4 with your music. Wide, phone or square.')+frame('inner-export',330,620,2200)+callout('inner-export',870,1140,1780,330,510,490,.96)+value('4K60','Maximum MP4 output',2180,1670,4)},
-{id:'free',accent:'#a43cd6',body:()=>copy('Completely <em>free.</em>','',`<div class="chips"><span class="chip p">No subscriptions</span><span class="chip">No ads</span><span class="chip">No account</span><span class="chip">No tracking</span></div>`)+frame('inner-library',330,620,2200)+`<div class="source-note">Source available on GitHub</div>`},
+{id:'studio',accent:'#3a5bd0',body:()=>copy('Build a visual <em>journey.</em>','Beat-aligned scenes. Individual bar lengths. Your creative mix.')+frame('inner-studio',330,620,2200)+callout('studio',246,1450,2360)},
+{id:'style',accent:'#7f3fe0',body:()=>copy('Shape every <em>look.</em>','Chaos, motion, zoom, brightness and depth. All at your fingertips.')+frame('inner-style',330,620,2200)+callout('style',536,1050,1780)},
+{id:'radio',accent:'#d85a35',body:()=>copy('Tune in to <em>Radio.</em>','Stations paired with moving visuals. Heart the songs you love.')+frame('inner-radio',330,620,2200)+callout('radio',150,1510,2553)},
+{id:'export',accent:'#b8690c',body:()=>copy('From your phone to <em>their feed.</em>','Save an MP4 with your music. Wide, phone or square.')+frame('inner-export',330,620,2200)+callout('export',900,1110,1750)+value('4K60','Maximum MP4 output',2180,1670,4)},
+{id:'free',accent:'#a43cd6',body:()=>copy('Completely <em>free.</em>','',`<div class="chips"><span class="chip p">No subscriptions</span><span class="chip">No ads</span><span class="chip">No account</span><span class="chip">No tracking</span></div>`)+frame('inner-library',330,620,2200)},
 ];
 const main=document.getElementById('overview');
 slides.forEach(s=>{const t=document.createElement('div');t.className='thumb';t.innerHTML=`<section class="slide ${s.id}" style="--accent:${s.accent}">${backdrop()}${s.body()}</section>`;main.append(t)});
