@@ -13,7 +13,8 @@ node assets/app-store/all-devices-1.2/render.mjs /absolute/captures /absolute/ou
 
 Set `PLAYWRIGHT` to an absolute Playwright module path if it is not installed in
 the local Node environment. Required captures: `iphone-studio.png`,
-`ipad-studio.png`, `mac-studio.png`, `vision-studio.png`.
+`ipad-studio.png`, `mac-studio.png`, `vision-studio.png`, and
+`duo-closed-studio.png`.
 The renderer checks image decoding, text bounds and copy/device overlap, then
 writes five native-size PNGs and a checksum manifest.
 
@@ -25,3 +26,8 @@ Reef, Mac Octagon Vault and Vision Pro LED Corridor. Its source folder is
 `/Users/brad/Documents/Codex/2026-10-22/pulsecanvas-controls-release-rescue/art/variety/montage-sources/`.
 The generic source filenames are retained for the renderer; their SHA-256 hashes
 identify the exact native captures.
+
+The Duo-format slide uses the native closed Duo capture in its phone card, names
+it iPhone Duo and uses the same wording in the subtitle. The other four formats
+retain their existing phone card and are byte-identical. Current source folder:
+`/Users/brad/Documents/Codex/2026-10-22/pulsecanvas-controls-release-rescue/art/closed-duo/montage-sources/`.

@@ -15,7 +15,9 @@ repeating Mercury Fold). The full bundled
 
 Completely free has only four pills: No subscriptions, No ads, No account and
 No tracking. The GitHub label is removed. All Duo slides omit the decorative
-outline that formed a triangle above the device.
+outline that formed a triangle above the device. The six regular iPhone slides
+also omit all decorative octagon outlines; the renderer rejects any remaining
+iPhone outline elements. Existing iPad images are byte-identical.
 
 Enlarged details use complete native control crops, with 48px padding for iPhone
 and 64px for iPad/Duo on every side. The wrapper background matches the native
@@ -59,3 +61,7 @@ Placements are saved to the English (U.S.) 1.2 draft; this does not submit revie
 The delivered opening and Studio replacements use JPEG quality 97 without
 chroma subsampling. Lossless renders remain preserved. Other accepted screenshot
 placements and their ordering are retained.
+
+Latest iPhone renders and uploads are in:
+`/Users/brad/Documents/Codex/2026-10-22/pulsecanvas-controls-release-rescue/art/iphone-clean-background/`.
+The lossless capture folder remains art/liquid-tunnel/raw; the source hashes are unchanged.

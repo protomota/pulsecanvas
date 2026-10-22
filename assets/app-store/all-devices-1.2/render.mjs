@@ -14,5 +14,5 @@ for(const [kind,[width,height]] of Object.entries({iphone:[1320,2868],ipad:[2752
  await page.evaluate(()=>{for(const e of document.querySelectorAll('.copy,.tile,.name')){const r=e.getBoundingClientRect();if(r.left<0||r.top<0||r.right>innerWidth||r.bottom>innerHeight||e.scrollWidth>e.clientWidth+1)throw Error('Artwork overflow');}if(document.querySelector('.copy').getBoundingClientRect().bottom>document.querySelector('.devices').getBoundingClientRect().top-20)throw Error('Copy overlaps devices');});
  const file=`${kind}-all-devices.png`,path=join(out,file);await page.screenshot({path,omitBackground:false});slides.push({file,width,height,sha256:hash(path)});await page.close();console.log(file);
 }
-await browser.close();const captures=['iphone-studio.png','ipad-studio.png','mac-studio.png','vision-studio.png'].map(file=>({file,sha256:hash(join(sources,file))}));
+await browser.close();const captures=['iphone-studio.png','ipad-studio.png','mac-studio.png','vision-studio.png','duo-closed-studio.png'].map(file=>({file,sha256:hash(join(sources,file))}));
 writeFileSync(join(out,'manifest.json'),JSON.stringify({renderedAt:new Date().toISOString(),captures,slides},null,2)+'\n');

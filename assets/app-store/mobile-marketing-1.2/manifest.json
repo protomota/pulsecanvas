@@ -1,7 +1,7 @@
 {
   "appVersion": "1.2",
   "appBuild": "10",
-  "renderedAt": "2026-10-22T22:13:01.556Z",
+  "renderedAt": "2026-10-22T23:10:22.126Z",
   "sources": [
     {
       "file": "iphone-studio.png",
@@ -89,43 +89,43 @@
       "file": "iphone-01-music.png",
       "width": 1320,
       "height": 2868,
-      "bytes": 1652252,
-      "sha256": "05e85a10fffef5be0672178eb8de00e02c4dc3c6502cf6046ce025bb4d25158d"
+      "bytes": 1646304,
+      "sha256": "06d9818b56ad74e3abc9f38e24d35cf79940c30137cf225e91078657a815632f"
     },
     {
       "file": "iphone-02-studio.png",
       "width": 1320,
       "height": 2868,
-      "bytes": 1030811,
-      "sha256": "4fbe036d838f1a6c668e24d9ec99fbd3500f640face54effe8a4a534b8bef3f7"
+      "bytes": 1025196,
+      "sha256": "4e0e8e64b5bf3d61adba36a25b7f6b24ba4282f0c62217024f8d88c426bb95ca"
     },
     {
       "file": "iphone-03-style.png",
       "width": 1320,
       "height": 2868,
-      "bytes": 494274,
-      "sha256": "8e1ac596c17f1bfcfca82b1f197fd6972e46133f9adacfd43f400acf1edfd22c"
+      "bytes": 489797,
+      "sha256": "82fea9acbe9d3f2d8364e654675ee63c930643356bbd1d2a7ff61809c448d85b"
     },
     {
       "file": "iphone-04-radio.png",
       "width": 1320,
       "height": 2868,
-      "bytes": 668206,
-      "sha256": "4a3df916bf3b7b2b52e69d5bd96510f89d053d8cb551f3dfd22298e5adae29da"
+      "bytes": 665096,
+      "sha256": "7ba739547f7b253fa018eca738ea4076f533232e05c8e2cbca8265108dbb4491"
     },
     {
       "file": "iphone-05-export.png",
       "width": 1320,
       "height": 2868,
-      "bytes": 529369,
-      "sha256": "2c81b79fad756edb3cd1c1fe07836c58b36c565ae0f0eedf79144edec1bc29d0"
+      "bytes": 524796,
+      "sha256": "5a76b1748df57e72852ef3f47bbcbbb57ee0df35c816d9cb8b0ad533133c74c3"
     },
     {
       "file": "iphone-06-free.png",
       "width": 1320,
       "height": 2868,
-      "bytes": 499855,
-      "sha256": "0e6f178db2db36d93088dd1b5a38906feb6bc0131bf20f45f4926ef110fbb8e2"
+      "bytes": 494932,
+      "sha256": "bfe795ddc3547cccd0560c4c52bf9807d441e922c81a71941cdf52564d2b7e45"
     },
     {
       "file": "ipad-01-music.png",

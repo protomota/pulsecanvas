@@ -67,7 +67,7 @@ const slides=[
 {id:'style',accent:'#7f3fe0',body:()=>copy('Shape every <em>look.</em>','Chaos, motion, zoom, brightness and depth. All at your fingertips.')+frame('inner-style',330,620,2200)+callout('style',536,1050,1780)},
 {id:'radio',accent:'#d85a35',body:()=>copy('Tune in to <em>Radio.</em>','Stations paired with moving visuals. Heart the songs you love.')+frame('inner-radio',330,620,2200)+callout('radio',150,1510,2553)},
 {id:'export',accent:'#b8690c',body:()=>copy('From your phone to <em>their feed.</em>','Save an MP4 with your music. Wide, phone or square.')+frame('inner-export',330,620,2200)+callout('export',900,1110,1750)+value('4K60','Maximum MP4 output',2180,1670,4)},
-{id:'free',accent:'#a43cd6',body:()=>copy('Completely <em>free.</em>','',`<div class="chips"><span class="chip p">No subscriptions</span><span class="chip">No ads</span><span class="chip">No account</span><span class="chip">No tracking</span></div>`)+frame('inner-library',330,620,2200)},
+{id:'free',accent:'#a43cd6',body:()=>copy('Completely <em>free.</em>','',`<div class="chips"><span class="chip p">No subscriptions</span><span class="chip">No ads</span><span class="chip">No account</span><span class="chip">No tracking</span></div>`)+frame('closed-library',976,620,900,'closed')},
 ];
 const main=document.getElementById('overview');
 slides.forEach(s=>{const t=document.createElement('div');t.className='thumb';t.innerHTML=`<section class="slide ${s.id}" style="--accent:${s.accent}">${backdrop()}${s.body()}</section>`;main.append(t)});

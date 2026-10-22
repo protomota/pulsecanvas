@@ -38,15 +38,15 @@ Duo use landscape.
 All captures, cropped details, PNG outputs, contact sheets and acknowledgments stay
 outside Git:
 
-`/Users/brad/Documents/Codex/2026-10-22/pulsecanvas-controls-release-rescue/art/liquid-tunnel/`
+`/Users/brad/Documents/Codex/2026-10-22/pulsecanvas-controls-release-rescue/art/closed-duo/`
 
 Generate complete control crops before rendering:
 
 ```sh
-python3 assets/app-store/shared/prepare-callouts.py '/Users/brad/Documents/Codex/2026-10-22/pulsecanvas-controls-release-rescue/art/liquid-tunnel/raw'
+python3 assets/app-store/shared/prepare-callouts.py '/Users/brad/Documents/Codex/2026-10-22/pulsecanvas-controls-release-rescue/art/closed-duo/raw'
 PLAYWRIGHT=/Users/brad/Documents/GIT_SOURCE/jotley-site/node_modules/playwright/index.mjs \
 node assets/app-store/duo-marketing-1.2/render.mjs \
-  '/Users/brad/Documents/Codex/2026-10-22/pulsecanvas-controls-release-rescue/art/liquid-tunnel/raw' '/Users/brad/Documents/Codex/2026-10-22/pulsecanvas-controls-release-rescue/art/liquid-tunnel/duo'
+  '/Users/brad/Documents/Codex/2026-10-22/pulsecanvas-controls-release-rescue/art/closed-duo/raw' '/Users/brad/Documents/Codex/2026-10-22/pulsecanvas-controls-release-rescue/art/closed-duo/duo'
 ```
 
 The manifest records raw captures, derived control crops and rendered image hashes.
@@ -57,3 +57,10 @@ Placements are saved to the English (U.S.) 1.2 draft; this does not submit revie
 The delivered opening and Studio replacements use JPEG quality 97 without
 chroma subsampling. Lossless renders remain preserved. Other accepted screenshot
 placements and their ordering are retained.
+
+The Completely free slide now uses a native 1398×2034 closed-Duo Library capture,
+fully visible in a portrait frame. Capture it with PC_MARKETING_DUO_CLOSED=1,
+Duo set to Closed in Device Hub, portrait orientation and display 1. The same
+scenario captures Ink Bloom in Studio for the Duo-specific availability slide.
+Both are acknowledged before advancing. Other five Duo campaign slides retain
+their existing pixels.

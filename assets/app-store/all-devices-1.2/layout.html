@@ -17,7 +17,8 @@ const q=new URLSearchParams(location.search),kind=q.get('kind')||'iphone',root=q
 const presets={iphone:[1320,2868,90,54,84,144,62,710,46,30,48,48],ipad:[2752,2064,120,60,92,164,72,570,48,32,48,58],duo:[2853,2007,120,60,92,164,72,570,48,32,48,58],mac:[2880,1800,110,56,86,150,66,700,42,28,42,54],vision:[3840,2160,140,76,112,200,84,840,58,36,54,70]};
 const keys=['w','h','pad','brand','icon','title','sub','top','gap','tilepad','radius','label'];presets[kind].forEach((v,i)=>document.documentElement.style.setProperty('--'+keys[i],v+'px'));
 document.getElementById('icon').src=q.get('icon');
-for(const [name,file,cls] of [['iPhone','iphone-studio.png','phone'],['iPad','ipad-studio.png','tablet'],['Mac','mac-studio.png','mac'],['Vision Pro','vision-studio.png','vision']]){
+if(kind==='duo')document.querySelector('.sub').textContent='iPhone Duo · iPad · Mac · Vision Pro';
+for(const [name,file,cls] of [kind==='duo'?['iPhone Duo','duo-closed-studio.png','phone duo-closed']:['iPhone','iphone-studio.png','phone'],['iPad','ipad-studio.png','tablet'],['Mac','mac-studio.png','mac'],['Vision Pro','vision-studio.png','vision']]){
  const tile=document.createElement('article');tile.className='tile '+cls;tile.innerHTML=`<p class="name">${name}</p><div class="art"><img class="screen" src="${root}/${file}" alt="PulseCanvas Studio on ${name}"></div>`;document.querySelector('.devices').append(tile);
 }
 </script></body></html>

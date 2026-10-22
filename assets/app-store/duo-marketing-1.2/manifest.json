@@ -1,7 +1,7 @@
 {
   "appVersion": "1.2",
   "appBuild": "10",
-  "renderedAt": "2026-10-22T22:17:54.249Z",
+  "renderedAt": "2026-10-22T23:14:42.995Z",
   "renderer": "Playwright Chromium, real simulator captures",
   "sources": [
     {
@@ -27,6 +27,10 @@
     {
       "file": "duo-inner-library.png",
       "sha256": "05420b7df9866204b30b8c98fc796abd803fc6c6c7a6076d9bea98aa63c14fbe"
+    },
+    {
+      "file": "duo-closed-library.png",
+      "sha256": "c0cbb1d18cba9a01423c028a9f36ceb514daa4d181579c89102f1c9ee9c90e29"
     },
     {
       "file": "duo-inner-callout-studio.png",
@@ -95,8 +99,8 @@
       "file": "duo-06-free.png",
       "width": 2853,
       "height": 2007,
-      "bytes": 903856,
-      "sha256": "571a9e892b00e71f388f05d931572d29a939b9e4000b064c39e316f10821c9b8",
+      "bytes": 942001,
+      "sha256": "94c763cbf497b70c39c0d35153a12d4559afc1ae81ad4aaa7fb3e6875a751b9b",
       "copyBottom": 538.578125,
       "title": "Completely free."
     }

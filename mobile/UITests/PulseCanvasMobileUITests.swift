@@ -411,6 +411,13 @@ final class PulseCanvasMobileUITests: XCTestCase {
                 XCTAssertTrue(FileManager.default.fileExists(atPath: ack), "Native capture missing: " + name)
             } else { Thread.sleep(forTimeInterval: 6) }
         }
+        if env["PC_MARKETING_DUO_CLOSED"] == "1" {
+            choose("Ink Bloom"); capture("closed-studio", "Ink Bloom")
+            tap(library)
+            XCTAssertTrue(search.waitForExistence(timeout: 10))
+            capture("closed-library", "Ink Bloom")
+            return
+        }
         func style(_ palette: String) {
             tap(app.buttons["Visual style"])
             XCTAssertTrue(app.buttons["Reset"].waitForExistence(timeout: 10))

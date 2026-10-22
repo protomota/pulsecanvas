@@ -64,7 +64,7 @@ const frame=(img,style,cls)=>`<div class="device ${cls||(P?'phone':'tablet')}" s
 const dev=P?'left:160px;top:1130px':'left:376px;top:640px';
 // Complete native control crops receive equal padding in every direction.
 function callout(kind,x,y,width,padding){return `<div class="callout" data-callout="${kind}" style="left:${x}px;top:${y}px;width:${width}px;padding:${padding}px;background:#1f1924"><img src="${src('callout-'+kind)}" style="display:block;width:100%;height:auto" alt="Magnified native ${kind} controls"></div>`}
-function oct(x,y,r,sw){const p=[...Array(8)].map((_,i)=>{const a=Math.PI/8+i*Math.PI/4;return (x+r*Math.cos(a)).toFixed(0)+','+(y+r*Math.sin(a)).toFixed(0)}).join(' ');return `<svg class="octagon" width="100%" height="100%" style="inset:0;position:absolute"><polygon points="${p}" stroke-width="${sw}"/></svg>`}
+function oct(x,y,r,sw){if(P)return '';const p=[...Array(8)].map((_,i)=>{const a=Math.PI/8+i*Math.PI/4;return (x+r*Math.cos(a)).toFixed(0)+','+(y+r*Math.sin(a)).toFixed(0)}).join(' ');return `<svg class="octagon" width="100%" height="100%" style="inset:0;position:absolute"><polygon points="${p}" stroke-width="${sw}"/></svg>`}
 const C=Object.fromEntries(Object.entries((window.CALLOUTS||{})[device]||{}).map(([k,v])=>[k,v.map(a=>callout(...a)).join('')]));
 const slides=[
  {id:'music',accent:'#0b8f80',body:()=>`

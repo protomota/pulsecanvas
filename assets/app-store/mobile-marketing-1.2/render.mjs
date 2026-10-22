@@ -20,6 +20,7 @@ for(const [device,[width,height]] of Object.entries({iphone:[1320,2868],ipad:[27
   url.searchParams.set('slide',i+1);url.searchParams.delete('review');
   await page.goto(url.href);await page.evaluate(()=>Promise.all([...document.images].map(i=>i.decode())));await page.evaluate(()=>document.fonts.ready);
   await page.evaluate(()=>{for(const e of document.querySelectorAll('.callout')){const s=getComputedStyle(e),r=e.getBoundingClientRect();if(new Set([s.paddingTop,s.paddingRight,s.paddingBottom,s.paddingLeft]).size!==1)throw Error('Unequal callout padding');if(r.left<0||r.right>innerWidth||r.bottom>innerHeight)throw Error('Callout outside canvas');}});
+  if(device==='iphone' && await page.locator('.octagon').count())throw Error('Decorative outline remains behind iPhone');
   const file=`${device}-${String(i+1).padStart(2,'0')}-${name}.png`;const path=join(release,file);
   await page.screenshot({path,clip:{x:0,y:0,width,height},omitBackground:false});
   slides.push({file,width,height,bytes:readFileSync(path).length,sha256:hash(path)});console.log(file);

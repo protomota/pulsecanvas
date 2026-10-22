@@ -40,7 +40,7 @@ url.searchParams.delete('slide');url.searchParams.set('review','1');
 await page.setViewportSize({width:2300,height:1500});await page.goto(url.href);
 await page.evaluate(()=>Promise.all([...document.images].map(i=>i.decode())));
 await page.locator('#overview').screenshot({path:join(output,'duo-contact-sheet.png')});
-const sourceNames=['inner-fullscreen','inner-studio','inner-style','inner-radio','inner-export','inner-library',...['studio','style','radio','export'].map(k=>'inner-callout-'+k)];
+const sourceNames=['inner-fullscreen','inner-studio','inner-style','inner-radio','inner-export','inner-library','closed-library',...['studio','style','radio','export'].map(k=>'inner-callout-'+k)];
 const sources=sourceNames.map(n=>{const file='duo-'+n+'.png';return {file,sha256:createHash('sha256').update(readFileSync(join(captures,file))).digest('hex')};});
 if(errors.length)throw Error(errors.join('\n'));
 writeFileSync(join(output,'manifest.json'),JSON.stringify({appVersion:'1.2',appBuild:'10',renderedAt:new Date().toISOString(),renderer:'Playwright Chromium, real simulator captures',sources,slides:manifest},null,2)+'\n');

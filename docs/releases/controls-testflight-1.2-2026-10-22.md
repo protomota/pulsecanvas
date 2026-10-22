@@ -70,6 +70,13 @@ Library, Candy Cathedral behind favorites and Vector Tube in Radio, alongside th
 existing immersion image. The captured Halo Engine export view had a blank native
 preview and was excluded from the marketing set.
 
+The final regular iPhone campaign removes the decorative octagon outlines from
+all six slides. iPad artwork remains byte-identical. Duo’s Completely free slide
+now shows its actual closed outer display in a fully visible portrait frame.
+The Duo availability slide uses a closed Duo Studio capture and labels both the
+phone card and subtitle iPhone Duo. Other availability formats remain byte-identical.
+The closed-Duo capture scenario passed; native captures are 1398×2034, display 1.
+
 ## Capture verification
 
 - The opt-in varied mobile capture scenario passed on iPhone (176.3 seconds),
@@ -99,7 +106,7 @@ Primary internal artifact folder:
 - `art/variety/all-devices/`: final availability slides and checksum manifest.
 - `art/search-variety/`: final search-results image and checksum manifest.
 - `delivery/testflight-delivery-receipt.json`: successful build delivery receipt.
-- `delivery/screenshots-liquid-tunnel-delivery-receipt.json`: final ordered sets after liquid/tunnel refinement.
+- `delivery/screenshots-clean-closed-delivery-receipt.json`: final ordered sets after liquid/tunnel refinement.
 - `art/liquid-tunnel/`: final native opening/Studio captures, crops and campaign renders; previously accepted stages are preserved.
 - `delivery/ios-variety-placements-final.json`: final search-results placement readback.
 - `delivery/app-store-free-no-github-proof.png`: actual saved App Store preview.
@@ -111,3 +118,15 @@ Original archives, exports, upload logs and validation evidence remain at
 The external volume disconnected during capture work; evidence required to finish
 and verify artwork was copied to the internal artifact folder. Existing build
 caches and repository symlinks were preserved.
+
+Final background/closed-device artifact folders:
+
+- `art/iphone-clean-background/`: six cleaned iPhone slides, uploads and manifest.
+- `art/closed-duo/`: native closed-Duo captures, six Duo renders, availability
+  artwork, uploads and review sheet.
+
+Uploaded-image proof:
+
+- `delivery/app-store-iphone-clean-background-proof.png`
+- `delivery/app-store-closed-duo-free-proof.png`
+- `delivery/app-store-closed-duo-devices-proof.png`
