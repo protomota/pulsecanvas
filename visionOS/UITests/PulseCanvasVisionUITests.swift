@@ -277,6 +277,11 @@ final class PulseCanvasVisionUITests: XCTestCase {
         XCTAssertTrue(app.buttons["randomizeStyleButton"].isHittable)
         XCTAssertTrue(app.buttons["randomVisualizerButton"].isHittable)
         XCTAssertTrue(app.buttons["visionLibraryButton"].isHittable)
+        let style = app.buttons["visionStyleButton"]
+        let dice = app.buttons["randomizeStyleButton"]
+        XCTAssertEqual(style.frame.midY, dice.frame.midY, accuracy: 2)
+        XCTAssertGreaterThan(style.frame.midX, dice.frame.midX)
+        XCTAssertLessThan(style.frame.midX, app.buttons["visionLibraryButton"].frame.midX)
         app.buttons["visionStyleButton"].tap()
         XCTAssertTrue(app.buttons["closeVisionStyleButton"].waitForExistence(timeout: 10))
         let chaos = app.sliders["Chaos"], zoom = app.sliders["Zoom speed"], motion = app.sliders["Motion speed"]

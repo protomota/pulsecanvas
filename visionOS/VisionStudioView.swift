@@ -165,9 +165,6 @@ struct VisionStudioView: View {
                     .accessibilityIdentifier("exportMP4Button")
                     .help("Export MP4")
                 Divider().frame(height: 28)
-                Button("Visual style", systemImage: "slider.horizontal.3") { showStyle = true }
-                    .accessibilityIdentifier("visionStyleButton")
-                    .help("Visual style")
             }
             Button("Settings", systemImage: "gearshape") { legal = true }
                 .accessibilityIdentifier("visionInfoButton")
@@ -220,6 +217,9 @@ struct VisionStudioView: View {
                     .accessibilityLabel("Random visualizer").accessibilityIdentifier("randomVisualizerButton")
                 Button { studio.randomizeLook() } label: { Image(systemName: "dice.fill") }
                     .accessibilityLabel("Randomize current visual style").accessibilityIdentifier("randomizeStyleButton")
+                Button { showStyle = true } label: { Image(systemName: "slider.horizontal.3") }
+                    .accessibilityLabel("Visual style").accessibilityIdentifier("visionStyleButton")
+                    .help("Visual style")
             }
             Button("Library", systemImage: "square.grid.2x2") { showLibrary = true }
                 .accessibilityIdentifier("visionLibraryButton")

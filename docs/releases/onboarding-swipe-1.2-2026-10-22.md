@@ -107,3 +107,20 @@ simulator window with the bundled demo for the owner to test. No deployment or
 App Store submission was made.
 
 Evidence: `/Volumes/Music/Codex Media/PulseCanvas Studio/Platform Builds/vision-layout-20261022/`.
+
+## Vision Pro top Visual Style button
+
+Moved Visual Style from the floating lower bar into the top-right header, between
+the dice and Library buttons. The same slider panel opens from this button.
+The focused simulator UI test passed: header alignment and order, opening and
+closing the style panel, slider accessibility, preview size, and timeline
+randomization. The updated Debug app is open in the dedicated Vision QA simulator.
+
+The local browser preview is a static PNG, not an interactive app. Automated
+spatial taps passed, but native mouse injection through the computer-use tool
+did not activate either PulseCanvas controls or the simulator's system Settings
+app, including after a data-preserving simulator restart. Direct physical mouse
+interaction remains unverified; this is not recorded as an app input fix.
+
+Evidence: `/Volumes/Music/Codex Media/PulseCanvas Studio/Platform Builds/vision-top-controls-20261022/`.
+No deployment or review submission was made.
