@@ -32,8 +32,12 @@ enum PulseCanvasOnboarding {
         #endif
     }
     static var fixture: Bool {
+        #if DEBUG
         let args = ProcessInfo.processInfo.arguments
         return !forced && (args.contains("-PCMobileQA") || args.contains("-PCUITesting"))
+        #else
+        return false
+        #endif
     }
 }
 
