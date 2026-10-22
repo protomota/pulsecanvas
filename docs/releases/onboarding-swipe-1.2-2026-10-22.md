@@ -144,3 +144,28 @@ screenshot confirms the open-display toolbar fits.
 Evidence: `/Volumes/Music/Codex Media/PulseCanvas Studio/Platform Builds/mobile-dice-20261022/`.
 The local screenshot review page is `http://127.0.0.1:8766/mobile-dice.html`.
 No deployment, TestFlight upload or App Store submission was made.
+
+## Mobile control placement and presentation spacing
+
+Moved the presentation launcher into the shared mobile header between Library
+and More, for both Studio and Radio. In Studio the six actions form two aligned
+rows of three: Library / Presentation / More over Shuffle / Dice / Visual Style.
+All six use 48 × 44-point buttons and the same eight-point horizontal gaps.
+Both rows share their trailing inset, including Duo's corner status area.
+Short landscape windows keep the action row above the preview/timeline columns,
+with tighter spacing to keep the timeline inside the screen.
+
+The full-screen presentation bar now sits at the bottom edge with eight points
+of vertical padding and 44-point buttons. It no longer reserves an additional
+bottom safe-area strip. This also applies to Radio presentation.
+
+The focused iPhone and iPad UI checks passed in portrait and landscape for button
+alignment and sizing, opening/closing Studio and Radio presentation, current-style
+randomization, and the compact bar's lower placement. Native Duo open/folded
+captures confirm the aligned editor columns, and a direct click on the relocated
+launcher opened presentation on the inner display. Native presentation capture
+shows the reduced bottom padding.
+
+Evidence: `/Volumes/Music/Codex Media/PulseCanvas Studio/Platform Builds/mobile-controls-20261022/`.
+Screenshot gallery: `http://127.0.0.1:8766/mobile-controls.html`.
+No deployment, upload or App Store submission was made.

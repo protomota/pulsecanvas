@@ -8,12 +8,11 @@ struct MobileRadio: View {
     @ObservedObject var radio: RadioController
     @ObservedObject var audio: AudioController
     @ObservedObject private var library = ProjectMPresets.shared
-    let present: () -> Void
     let trailingControlInset: CGFloat
     @State private var favorites = false
     @State private var musicFolder = false
     @State private var folderError: String?
-    init(editor: MobileEditor, trailingControlInset: CGFloat = 0, present: @escaping () -> Void) { self.editor = editor; radio = editor.radio; audio = editor.audio; self.trailingControlInset = trailingControlInset; self.present = present }
+    init(editor: MobileEditor, trailingControlInset: CGFloat = 0) { self.editor = editor; radio = editor.radio; audio = editor.audio; self.trailingControlInset = trailingControlInset }
     var body: some View {
         GeometryReader { geometry in
             if usesBoundedLayout(geometry.size) {
@@ -107,7 +106,6 @@ struct MobileRadio: View {
             if inlinePicker { VisualizerRandomizerPicker(fillsWidth: true).frame(maxWidth: 320) }
             Button { radio.randomizeCurrentVisualizer() } label: { Image(systemName: "shuffle") }
                 .disabled(!radio.canRandomizeVisualizer).accessibilityLabel("Random radio visualizer")
-            Button(action: present) { Image(systemName: "arrow.up.left.and.arrow.down.right") }.accessibilityLabel("Present radio")
         }.buttonStyle(MobileButton())
     }
     private var songHeading: some View {

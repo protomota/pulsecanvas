@@ -25,9 +25,10 @@ struct MobilePresentation: View {
                     }
                     Button { if editor.selectedTab == 1 { if radio.isActive { radio.togglePlayback() } else { radio.start() } } else { audio.playPause() } } label: { Image(systemName: audio.isPlaying ? "pause.fill" : "play.fill").frame(width: 30) }
                         .accessibilityLabel(audio.isPlaying ? "Pause" : "Play").accessibilityIdentifier("presentationPlayback")
-                }.buttonStyle(MobileButton()).padding(12).background(.ultraThinMaterial)
+                }.buttonStyle(MobileButton()).padding(.horizontal, 12).padding(.vertical, 8).background(.ultraThinMaterial)
             }
-        }.tint(MobileTheme.accent).statusBarHidden()
+        }.ignoresSafeArea(.container, edges: .bottom)
+            .tint(MobileTheme.accent).statusBarHidden()
             .task(id: autoHide) {
                 guard autoHide else { return }
                 do { try await Task.sleep(for: .seconds(4)) } catch { return }

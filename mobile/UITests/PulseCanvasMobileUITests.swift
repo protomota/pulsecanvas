@@ -32,6 +32,29 @@ final class PulseCanvasMobileUITests: XCTestCase {
             XCTAssertEqual(dice.frame.midY, shuffle.frame.midY, accuracy: 2)
             XCTAssertGreaterThan(dice.frame.midX, shuffle.frame.midX)
             XCTAssertLessThan(dice.frame.midX, style.frame.midX)
+            let presentation = app.buttons["mobilePresentationButton"]
+            let more = app.buttons["Project actions"]
+            XCTAssertEqual(presentation.frame.midY, library.frame.midY, accuracy: 2)
+            XCTAssertGreaterThan(presentation.frame.midX, library.frame.midX)
+            XCTAssertLessThan(presentation.frame.midX, more.frame.midX)
+            for (top, bottom) in [(library, shuffle), (presentation, dice), (more, style)] {
+                XCTAssertEqual(top.frame.midX, bottom.frame.midX, accuracy: 1)
+                XCTAssertEqual(top.frame.width, bottom.frame.width, accuracy: 1)
+                XCTAssertEqual(top.frame.height, bottom.frame.height, accuracy: 1)
+            }
+            let timeline = app.scrollViews["mobileStudioTimeline"]
+            XCTAssertTrue(timeline.exists)
+            XCTAssertTrue(app.windows.firstMatch.frame.contains(timeline.frame), "The timeline must remain inside the screen after aligning the controls")
+            presentation.tap()
+            XCTAssertTrue(app.buttons["Close"].waitForExistence(timeout: 10))
+            let close = app.buttons["Close"]
+            XCTAssertGreaterThanOrEqual(close.frame.height, 44)
+            XCTAssertLessThanOrEqual(app.windows.firstMatch.frame.maxY - close.frame.maxY, 16)
+            let presentationShot = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+            presentationShot.name = orientation == .portrait ? "Compact-presentation-portrait" : "Compact-presentation-landscape"
+            presentationShot.lifetime = .keepAlways
+            add(presentationShot)
+            app.buttons["Close"].tap()
             let name = app.staticTexts["mobileVisualizerName"].label
             style.tap()
             XCTAssertTrue(app.buttons["Reset"].waitForExistence(timeout: 10))
@@ -49,6 +72,12 @@ final class PulseCanvasMobileUITests: XCTestCase {
             shot.name = orientation == .portrait ? "Preview-dice-portrait" : "Preview-dice-landscape"
             shot.lifetime = .keepAlways
             add(shot)
+            app.buttons["Radio"].tap()
+            XCTAssertEqual(presentation.label, "Present radio")
+            presentation.tap()
+            XCTAssertTrue(app.buttons["Close"].waitForExistence(timeout: 10))
+            app.buttons["Close"].tap()
+            app.buttons["Studio"].tap()
         }
     }
 
