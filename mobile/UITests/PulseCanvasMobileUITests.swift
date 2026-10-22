@@ -318,6 +318,7 @@ final class PulseCanvasMobileUITests: XCTestCase {
             XCUIDevice.shared.orientation = pose == "landscape" ? .landscapeLeft : .portrait
         }
         let app = XCUIApplication()
+        app.launchArguments = ["-PCUITesting"] // Skip onboarding, retaining the real soundtrack and live Radio.
         app.launch()
         func tap(_ element: XCUIElement) {
             element.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()

@@ -1,0 +1,26 @@
+// Keep the approved search campaign, refreshing only real app captures.
+import {fileURLToPath,pathToFileURL} from 'node:url';
+import {dirname,resolve,join} from 'node:path';
+import {mkdirSync,readFileSync,writeFileSync} from 'node:fs';
+import {createHash} from 'node:crypto';
+const {chromium}=await import(process.env.PLAYWRIGHT??'playwright');
+const here=dirname(fileURLToPath(import.meta.url));
+const sources=resolve(process.argv[2]),out=resolve(process.argv[3]);
+mkdirSync(out,{recursive:true});
+const url=new URL(pathToFileURL(join(here,'layout.html')));
+url.searchParams.set('sources',pathToFileURL(sources).href);
+url.searchParams.set('icon',pathToFileURL(resolve(here,'../../../mobile/Assets.xcassets/AppIcon.appiconset/AppIcon.png')).href);
+const browser=await chromium.launch();
+const page=await browser.newPage({viewport:{width:3840,height:2560},deviceScaleFactor:1});
+const errors=[];page.on('pageerror',e=>errors.push(String(e)));
+await page.goto(url.href);
+await page.evaluate(()=>Promise.all([...document.images].map(i=>i.decode())));
+await page.evaluate(()=>document.fonts.ready);
+await page.evaluate(()=>{for(const image of document.images){if(!image.naturalWidth)throw Error('Missing capture');const r=image.getBoundingClientRect();if(r.bottom>innerHeight||r.right>innerWidth)throw Error('Device overflow');}});
+if(errors.length)throw Error(errors.join('\n'));
+const file='pulsecanvas-search-current-1.2.png';
+await page.screenshot({path:join(out,file),omitBackground:false});
+await browser.close();
+const hash=p=>createHash('sha256').update(readFileSync(p)).digest('hex');
+writeFileSync(join(out,'manifest.json'),JSON.stringify({renderedAt:new Date().toISOString(),appVersion:'1.2',appBuild:'10',file,width:3840,height:2560,sha256:hash(join(out,file)),captures:['iphone-fullscreen.png','iphone-radio.png'].map(file=>({file,sha256:hash(join(sources,file))}))},null,2)+'\n');
+console.log(file);

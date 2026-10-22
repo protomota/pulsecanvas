@@ -28,4 +28,4 @@ for(const [device,[width,height]] of Object.entries({iphone:[1320,2868],ipad:[27
  await page.close();
 }
 await browser.close();if(errors.length)throw Error(errors.join('\n'));
-writeFileSync(join(output,'manifest.json'),JSON.stringify({appVersion:'1.2',appBuild:'8',renderedAt:new Date().toISOString(),sources,slides},null,2)+'\n');
+writeFileSync(join(output,'manifest.json'),JSON.stringify({appVersion:'1.2',appBuild:'10',renderedAt:new Date().toISOString(),sources,slides},null,2)+'\n');

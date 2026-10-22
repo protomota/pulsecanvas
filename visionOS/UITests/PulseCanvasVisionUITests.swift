@@ -358,9 +358,49 @@ final class PulseCanvasVisionUITests: XCTestCase {
 
     // MARK: - Recorded demo (opt-in)
 
+    @MainActor func testCaptureCurrentStoreLayouts() throws {
+        guard ProcessInfo.processInfo.environment["PULSECANVAS_CAPTURE_APPSTORE"] == "1" else {
+            throw XCTSkip("App Store capture runs only when requested")
+        }
+        let app = launch()
+        waitForSoundtrack(app)
+        appStoreCaptureMark("current-studio")
+        app.buttons["visionLibraryButton"].tap()
+        XCTAssertTrue(app.buttons["closeVisionLibraryButton"].waitForExistence(timeout: 10))
+        appStoreCaptureMark("current-library")
+        app.buttons["closeVisionLibraryButton"].tap()
+        app.buttons["exportMP4Button"].tap()
+        if app.buttons["Render another video"].waitForExistence(timeout: 2) { app.buttons["Render another video"].tap() }
+        XCTAssertTrue(app.buttons["Render video"].waitForExistence(timeout: 10))
+        app.buttons["4K"].tap(); app.buttons["60 fps"].tap()
+        appStoreCaptureMark("current-export")
+        app.buttons["Done"].tap()
+        app.buttons["Radio"].tap()
+        let play = app.buttons["playPauseButton"]
+        XCTAssertTrue(waitForLabel(play, "Play Radio", timeout: 90))
+        play.tap()
+        XCTAssertTrue(waitForLabel(play, "Pause Radio", timeout: 120))
+        appStoreCaptureMark("current-radio")
+        app.buttons["favoriteRadioSongButton"].tap()
+        app.buttons["favoriteSongsLibraryButton"].tap()
+        XCTAssertTrue(app.buttons["playFavoriteSongsButton"].waitForExistence(timeout: 10))
+        appStoreCaptureMark("current-favorites")
+    }
+
     private func appStoreCaptureMark(_ name: String) {
         let line = String(format: "APPSTORE-MARK %@ %.3f\n", name, Date().timeIntervalSince1970)
         print(line, terminator: "")
+        if let directory = ProcessInfo.processInfo.environment["PULSECANVAS_CAPTURE_ACK_DIRECTORY"] {
+            let root = URL(fileURLWithPath: directory, isDirectory: true)
+            XCTAssertNoThrow(try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true))
+            XCTAssertNoThrow(try name.write(to: root.appendingPathComponent("stage.txt"), atomically: true, encoding: .utf8))
+            let acknowledgment = root.appendingPathComponent(name + ".ack").path
+            let deadline = Date().addingTimeInterval(180)
+            while !FileManager.default.fileExists(atPath: acknowledgment), Date() < deadline {
+                Thread.sleep(forTimeInterval: 0.2)
+            }
+            XCTAssertTrue(FileManager.default.fileExists(atPath: acknowledgment), "Native screenshot was not acknowledged: \(name)")
+        }
         // Opt-in still-capture hold gives Device Hub time to save a native 4K screenshot.
         if let raw = ProcessInfo.processInfo.environment["PULSECANVAS_CAPTURE_STILL_HOLD"],
            let seconds = Double(raw), seconds > 0, seconds <= 60 {
