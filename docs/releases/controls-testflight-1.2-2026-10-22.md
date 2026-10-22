@@ -38,7 +38,9 @@ processing state and local/uploaded file sizes.
 Each final slide reads **On all your devices.** and names **iPhone · iPad · Mac ·
 Vision Pro**, with real captures of all four apps. The iOS search-results graphic
 was also replaced at the owner's follow-up request, retaining its campaign design
-with current fullscreen and Radio captures. Its final state is
+with current fullscreen and Studio captures. The Studio phone explicitly shows
+the six controls in two aligned rows (Library / Presentation / More above Shuffle
+/ Dice / Visual Style), and is labeled Studio. Its final state is
 `PREPARE_FOR_SUBMISSION`, 3840 × 2560. The existing header video and all Mac/Vision
 preview videos were retained. Medium iPhone sizes inherit the large group.
 
@@ -67,10 +69,10 @@ Primary internal artifact folder:
 
 - `art/raw/`: native captures; `art/mobile/` and `art/duo/`: rendered campaigns.
 - `art/all-devices/`: five availability slides and checksum manifest.
-- `art/search/`: refreshed search-results image and checksum manifest.
+- `art/search-six-controls/`: final search-results image and checksum manifest.
 - `delivery/testflight-delivery-receipt.json`: successful build delivery receipt.
 - `delivery/screenshots-delivery-receipt.json`: all five final ordered sets.
-- `delivery/ios-all-placements-final.json`: search-results placement readback.
+- `delivery/ios-six-controls-placements-final.json`: corrected search-results placement readback.
 - `delivery/app-store-search-proof.png`, `app-store-all-devices-proof.png`: web proof.
 
 Original archives, exports, upload logs and validation evidence remain at

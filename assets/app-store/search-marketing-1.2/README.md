@@ -1,15 +1,15 @@
 # Current iOS search-results graphic
 
 Retains the approved campaign layout, typography, colors and feature copy while
-refreshing both phone images from the current app. The Radio image shows the
-presentation button in the top header. No app UI is reconstructed.
+refreshing both phone images from the current app. The Studio image shows all six actions in two
+aligned rows: Library, Presentation, More, Shuffle, Dice and Visual Style. No app UI is reconstructed.
 
 ```sh
 node assets/app-store/search-marketing-1.2/render.mjs /absolute/captures /absolute/output
 ```
 
 Set `PLAYWRIGHT` to an absolute Playwright module path if necessary. Required
-captures: `iphone-fullscreen.png` and `iphone-radio.png`. The renderer uses the
+captures: `iphone-fullscreen.png` and `iphone-studio.png`. The renderer uses the
 current app icon, checks decoded images and device bounds, and writes the
 3840 × 2560 PNG with a source/output checksum manifest. Keep renders outside Git.
 
