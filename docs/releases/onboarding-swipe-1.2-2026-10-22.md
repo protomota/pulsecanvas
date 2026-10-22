@@ -1,0 +1,57 @@
+# Onboarding gestures — October 22, 2026
+
+At the owner's request, all three pending App Store Review submissions were
+withdrawn before adding swipe navigation. App Store Connect's UI and API confirm
+**Developer Rejected** for Mac 1.2 (29), iPhone/iPad 1.2 (9), and Vision Pro
+1.2 (16). Their submission receipts now show Removed. Apple TV was not submitted
+or uploaded, and Vision Pro's existing live 1.1.5 was retained.
+
+## Changes
+
+- Swipe left to advance one page and right to go back on iPhone, iPad, Duo and
+  Vision Pro. Mac supports dragging and horizontal trackpad navigation.
+- Swipes stop at the first and last pages. Completion still requires Start
+  creating or Skip onboarding. A drag takes priority over button taps so a swipe
+  across Continue or Start creating cannot also activate the button.
+- Small drags and vertical movement do not change pages. Existing buttons,
+  reduced-motion behavior and Settings replay remain available. The progress
+  indicator also supports accessibility increment/decrement actions.
+- Lesson icons align with the center of their headings, independent of the
+  descriptive text below them. All five pages still fit without scrolling.
+
+The next local Release builds are version 1.2: Mac **30**, mobile **10**, and
+Vision Pro **17**. All three unsigned device Release builds compiled, retained
+the exact transparent onboarding artwork, and passed the check excluding debug
+capture/test hooks. These are local engineering builds; no replacement was
+uploaded, resubmitted to review or deployed to the website in this follow-up.
+Existing TestFlight builds and marketing screenshots were retained.
+
+## Verification
+
+- iPhone: all five onboarding UI tests passed, including immediate Skip with the
+  full bundled soundtrack, button navigation/completion/Settings replay,
+  landscape with large text, horizontal swipe navigation/boundaries, and dragging
+  over the final primary button without finishing onboarding.
+- iPad: both gesture and primary-button drag tests passed.
+- Duo: both tests passed on the open inner display and the folded outer display.
+  The latter was explicitly selected with Device Hub's Closed control; its test
+  screenshot is 1398 × 2034, verifying coverage of the outer display.
+- Vision Pro: its onboarding swipe/navigation/completion test passed using the
+  actual content element as the spatial gesture target.
+- Mac: native UI checks verified forward/back dragging, all five pages, stopping
+  at the final page, advancing exactly one page when dragging over Continue,
+  and leaving the final page open when dragging over Start creating.
+
+The iPhone, iPad, both Duo display states and Vision Pro checks above run in
+simulators. Physical touch/pinch and two-finger Mac trackpad hardware were not
+tested; Mac click-and-drag was exercised through native UI control.
+
+Thirty updated native screenshots cover all five pages on Mac, iPhone, iPad,
+Duo open/closed and Vision Pro. The local screenshot gallery was refreshed;
+Apple TV's earlier screenshots remain separate from this update.
+
+Evidence, local builds, screenshots, API withdrawal receipts and test results
+are outside Git at:
+`/Volumes/Music/Codex Media/PulseCanvas Studio/Platform Builds/onboarding-swipe-1.2-20261022/`.
+Generated project build/cache folders were preserved there and linked from their
+original workspace paths after the internal disk filled up during testing.

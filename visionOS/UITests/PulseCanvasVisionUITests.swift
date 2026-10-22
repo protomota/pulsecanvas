@@ -6,6 +6,41 @@ import XCTest
 final class PulseCanvasVisionUITests: XCTestCase {
     override func setUpWithError() throws { continueAfterFailure = false }
 
+    @MainActor func testOnboardingSwipesNavigateAndKeepFinalActionExplicit() {
+        let app = launch(["-PCOnboardingQA"])
+        let progress = app.otherElements["onboardingProgress"]
+        XCTAssertTrue(progress.waitForExistence(timeout: 30))
+        // Target the window's content: visionOS has no application-wide scene
+        // for XCTest to use when synthesizing a spatial swipe.
+        let page = app.staticTexts["onboardingTitle"]
+        XCTAssertTrue(page.exists)
+        func expectStep(_ step: Int) {
+            let change = expectation(for: NSPredicate(format: "label BEGINSWITH %@", "Step \(step) of 5"), evaluatedWith: progress)
+            wait(for: [change], timeout: 5)
+            XCTAssertTrue(app.buttons["onboardingContinue"].isHittable)
+        }
+        page.swipeRight()
+        expectStep(1)
+        page.swipeLeft()
+        expectStep(2)
+        page.swipeRight()
+        expectStep(1)
+        for step in 2...5 { page.swipeLeft(); expectStep(step) }
+        XCTAssertTrue(app.buttons["onboardingRate"].isHittable)
+        page.swipeLeft()
+        expectStep(5)
+        let attachment = XCTAttachment(screenshot: app.screenshot())
+        attachment.name = "Vision-onboarding-swipe-to-support"
+        attachment.lifetime = .keepAlways
+        add(attachment)
+        page.swipeRight()
+        expectStep(4)
+        app.buttons["onboardingContinue"].tap()
+        expectStep(5)
+        app.buttons["onboardingContinue"].tap()
+        XCTAssertTrue(app.buttons["playPauseButton"].waitForExistence(timeout: 90))
+    }
+
     private func launch(_ extra: [String] = []) -> XCUIApplication {
         let app = XCUIApplication()
         app.launchArguments = ["-PCUITesting"] + extra

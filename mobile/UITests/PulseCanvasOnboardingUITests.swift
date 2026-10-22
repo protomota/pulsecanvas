@@ -3,6 +3,67 @@ import XCTest
 final class PulseCanvasOnboardingUITests: XCTestCase {
     override func setUp() { continueAfterFailure = false; executionTimeAllowance = 180 }
 
+    @MainActor func testSwipingOverContinueDoesNotFinishOnboarding() {
+        let app = XCUIApplication()
+        app.launchArguments = ["-PCMobileQA", "-PCOnboardingQA", "-PCOnboardingStep", "4"]
+        app.launch()
+        let next = app.buttons["onboardingContinue"]
+        XCTAssertTrue(next.waitForExistence(timeout: 30))
+        next.coordinate(withNormalizedOffset: CGVector(dx: 0.8, dy: 0.5))
+            .press(forDuration: 0.05, thenDragTo: next.coordinate(withNormalizedOffset: CGVector(dx: 0.2, dy: 0.5)))
+        XCTAssertTrue(app.otherElements["onboardingProgress"].label.contains("Step 5 of 5"))
+        next.tap()
+        XCTAssertTrue(app.buttons["mobileLibraryButton"].waitForExistence(timeout: 30))
+    }
+
+    @MainActor func testSwipesNavigateWithoutSkippingPagesOrFinishing() {
+        let app = XCUIApplication()
+        app.launchArguments = ["-PCMobileQA", "-PCOnboardingQA"]
+        app.launch()
+        let progress = app.otherElements["onboardingProgress"]
+        XCTAssertTrue(progress.waitForExistence(timeout: 30))
+        // Use actual content bounds, including on Duo's inner display where
+        // the system status region sits beside the application surface.
+        let page = app.staticTexts["onboardingTitle"]
+        XCTAssertTrue(page.exists)
+        func expectStep(_ step: Int) {
+            let expected = NSPredicate(format: "label BEGINSWITH %@", "Step \(step) of 5")
+            let change = expectation(for: expected, evaluatedWith: progress)
+            wait(for: [change], timeout: 5)
+            XCTAssertEqual(app.scrollViews.count, 0)
+            XCTAssertTrue(app.buttons["onboardingContinue"].isHittable)
+        }
+        expectStep(1)
+        page.swipeRight()
+        expectStep(1)
+        app.swipeUp()
+        expectStep(1)
+        let middle = app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.45))
+        middle.press(forDuration: 0.05, thenDragTo: middle.withOffset(CGVector(dx: -16, dy: 0)))
+        expectStep(1)
+        page.swipeLeft()
+        expectStep(2)
+        page.swipeRight()
+        expectStep(1)
+        for step in 2...5 {
+            page.swipeLeft()
+            expectStep(step)
+        }
+        XCTAssertTrue(app.buttons["onboardingRate"].isHittable)
+        page.swipeLeft()
+        expectStep(5)
+        let attachment = XCTAttachment(screenshot: app.screenshot())
+        attachment.name = "Onboarding-swipe-to-support"
+        attachment.lifetime = .keepAlways
+        add(attachment)
+        page.swipeRight()
+        expectStep(4)
+        app.buttons["onboardingContinue"].tap()
+        expectStep(5)
+        app.buttons["onboardingContinue"].tap()
+        XCTAssertTrue(app.buttons["mobileLibraryButton"].waitForExistence(timeout: 30))
+    }
+
     @MainActor func testImmediateSkipKeepsSettingsResponsiveWithFullSoundtrack() throws {
         let app = XCUIApplication()
         // Isolated storage, but use the real 2:54 bundled song rather than the

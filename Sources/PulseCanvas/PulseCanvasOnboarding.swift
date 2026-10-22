@@ -181,6 +181,22 @@ struct PulseCanvasOnboardingView: View {
             .padding(.bottom, isTV ? 40 : 18)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(background.ignoresSafeArea())
+            #if !os(tvOS)
+            .contentShape(Rectangle())
+            // A recognized drag takes precedence over button taps so swiping
+            // across Continue cannot also activate it. Ordinary taps still work.
+            .highPriorityGesture(DragGesture(minimumDistance: 20).onEnded { value in
+                let distance = value.translation
+                guard abs(distance.width) >= 44,
+                      abs(distance.width) > abs(distance.height) * 1.25 else { return }
+                changeStep(step + (distance.width < 0 ? 1 : -1))
+            })
+            #if os(macOS)
+            .background(OnboardingTrackpadNavigation { direction in
+                changeStep(step + direction)
+            })
+            #endif
+            #endif
         }
         .dynamicTypeSize(.xSmall ... .xxxLarge)
         .foregroundStyle(ink).tint(accent).preferredColorScheme(.dark).environment(\.colorScheme, .dark)
@@ -282,11 +298,12 @@ struct PulseCanvasOnboardingView: View {
             else {
                 VStack(alignment: .leading, spacing: compact ? 12 : (isTV ? 24 : 18)) {
                     ForEach(lessons, id: \.0) { icon, title, detail in
-                        HStack(alignment: .top, spacing: 14) {
+                        HStack(alignment: .onboardingLessonTitle, spacing: 14) {
                             Image(systemName: icon).font(.system(size: isTV ? 30 : 22)).foregroundStyle(accent)
                                 .frame(width: isTV ? 40 : 28).accessibilityHidden(true)
                             VStack(alignment: .leading, spacing: 5) {
                                 Text(title).font(isTV ? .system(size: compact ? 23 : 26, weight: .semibold) : (compact ? .subheadline.weight(.semibold) : .headline))
+                                    .alignmentGuide(.onboardingLessonTitle) { $0[VerticalAlignment.center] }
                                 Text(detail).font(isTV ? .system(size: compact ? 20 : 22) : (compact ? .caption : .subheadline)).foregroundStyle(ink.opacity(0.92))
                                     .fixedSize(horizontal: false, vertical: true)
                             }
@@ -372,6 +389,16 @@ struct PulseCanvasOnboardingView: View {
         .accessibilityElement(children: .ignore)
         .accessibilityLabel("Step \(step + 1) of 5, \(names[step])")
         .accessibilityIdentifier("onboardingProgress")
+        #if !os(tvOS)
+        .accessibilityHint("Adjust to move between onboarding pages")
+        .accessibilityAdjustableAction { direction in
+            switch direction {
+            case .increment: changeStep(step + 1)
+            case .decrement: changeStep(step - 1)
+            @unknown default: break
+            }
+        }
+        #endif
     }
     private var navigation: some View {
         HStack(spacing: 12) {
@@ -391,12 +418,89 @@ struct PulseCanvasOnboardingView: View {
         }
     }
     private func changeStep(_ value: Int) {
+        let next = min(names.count - 1, max(0, value))
+        guard next != step else { return }
         #if os(tvOS)
         supportURL = nil
         #endif
-        withAnimation(reduceMotion ? nil : .easeInOut(duration: 0.18)) { step = value }
+        withAnimation(reduceMotion ? nil : .easeInOut(duration: 0.18)) { step = next }
     }
 }
+
+private extension VerticalAlignment {
+    struct OnboardingLessonTitleAlignment: AlignmentID {
+        static func defaultValue(in dimensions: ViewDimensions) -> CGFloat { dimensions[VerticalAlignment.center] }
+    }
+    static let onboardingLessonTitle = VerticalAlignment(OnboardingLessonTitleAlignment.self)
+}
+
+#if os(macOS)
+/// SwiftUI's DragGesture covers click-and-drag. AppKit delivers two-finger
+/// trackpad navigation as scroll events, so observe those only while this
+/// onboarding surface is visible in its own window.
+private struct OnboardingTrackpadNavigation: NSViewRepresentable {
+    var navigate: (Int) -> Void
+
+    func makeNSView(context: Context) -> TrackpadView {
+        let view = TrackpadView()
+        view.navigate = navigate
+        return view
+    }
+    func updateNSView(_ view: TrackpadView, context: Context) { view.navigate = navigate }
+    static func dismantleNSView(_ view: TrackpadView, coordinator: ()) { view.stopObserving() }
+
+    final class TrackpadView: NSView {
+        var navigate: (Int) -> Void = { _ in }
+        private var monitor: Any?
+        private var travel = CGSize.zero
+
+        override func hitTest(_ point: NSPoint) -> NSView? { nil }
+
+        override func viewDidMoveToWindow() {
+            super.viewDidMoveToWindow()
+            stopObserving()
+            guard window != nil else { return }
+            monitor = NSEvent.addLocalMonitorForEvents(matching: [.scrollWheel, .swipe]) { [weak self] event in
+                self?.handle(event)
+                return event
+            }
+        }
+
+        func stopObserving() {
+            if let monitor { NSEvent.removeMonitor(monitor) }
+            monitor = nil
+            travel = .zero
+        }
+
+        private func handle(_ event: NSEvent) {
+            guard let window, event.window === window, window.isKeyWindow,
+                  !isHiddenOrHasHiddenAncestor,
+                  bounds.contains(convert(event.locationInWindow, from: nil)) else {
+                travel = .zero
+                return
+            }
+            if event.type == .swipe {
+                // NSEvent uses +1 for a left swipe and -1 for a right swipe.
+                if abs(event.deltaX) > abs(event.deltaY) { navigate(event.deltaX > 0 ? 1 : -1) }
+                travel = .zero
+                return
+            }
+            guard event.hasPreciseScrollingDeltas, event.momentumPhase.isEmpty,
+                  !event.phase.isEmpty else { return }
+            if event.phase.contains(.began) { travel = .zero }
+            if event.phase.contains(.cancelled) { travel = .zero; return }
+            travel.width += event.scrollingDeltaX
+            travel.height += event.scrollingDeltaY
+            if event.phase.contains(.ended) {
+                defer { travel = .zero }
+                guard abs(travel.width) >= 44,
+                      abs(travel.width) > abs(travel.height) * 1.25 else { return }
+                navigate(travel.width < 0 ? 1 : -1)
+            }
+        }
+    }
+}
+#endif
 
 private struct OnboardingButtonStyle: ButtonStyle {
     var primary: Bool

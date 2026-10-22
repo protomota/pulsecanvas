@@ -1,5 +1,9 @@
 # App Store Review — October 22, 2026
 
+These submissions were subsequently withdrawn at the owner's request for the
+[onboarding gesture update](onboarding-swipe-1.2-2026-10-22.md). The receipts below
+record the earlier submission; their current status is Removed.
+
 All three new version 1.2 builds were submitted and verified through App Store
 Connect's UI and API as **Waiting for Review**. Apple approval is pending.
 The existing automatic release after approval setting was retained.
