@@ -5,6 +5,12 @@
 	};
 	"objectVersion" = 56;
 	"objects" = {
+		"267585C701FE24385C4A7730" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"path" = "Sources/PulseCanvas/PulseCanvasOnboarding.swift";
+			"sourceTree" = "<group>";
+		};
 		"E76D1B93B17DC49DF3364355" = {
 			"isa" = "PBXFileReference";
 			"lastKnownFileType" = "sourcecode.swift";
@@ -65,6 +71,12 @@
 			"path" = "Sources/PulseCanvas/SecurityScopedAccess.swift";
 			"sourceTree" = "<group>";
 		};
+		"E55D030A48044A68741CD7E3" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"path" = "Sources/PulseCanvas/CreatorEngagement.swift";
+			"sourceTree" = "<group>";
+		};
 		"AEB3E1F4EFCEE89846DDB6F1" = {
 			"isa" = "PBXFileReference";
 			"lastKnownFileType" = "sourcecode.swift";
@@ -111,6 +123,12 @@
 			"isa" = "PBXFileReference";
 			"lastKnownFileType" = "sourcecode.swift";
 			"path" = "tvOS/TVPlayerView.swift";
+			"sourceTree" = "<group>";
+		};
+		"58B93EBF9D77801602DBED7F" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "folder";
+			"path" = "Sources/PulseCanvas/Resources/Onboarding";
 			"sourceTree" = "<group>";
 		};
 		"64C9BABB1186F43251BD2196" = {
@@ -166,6 +184,7 @@
 		"0D6E4079E36703EBD37C0072" = {
 			"isa" = "PBXGroup";
 			"children" = (
+				"267585C701FE24385C4A7730",
 				"E76D1B93B17DC49DF3364355",
 				"5209D7B8FE7DB3E851C09177",
 				"100CD0DC00C64B0B646E69DC",
@@ -176,6 +195,7 @@
 				"D061672D180E0CC713D8F100",
 				"3810E7AB9E8DF14917E34477",
 				"CB8C52BD5C2A06B60EC6768B",
+				"E55D030A48044A68741CD7E3",
 				"AEB3E1F4EFCEE89846DDB6F1",
 				"038813F19FA1E4A37CCCA0C4",
 				"1074610367B0B6A094EA470C",
@@ -184,6 +204,7 @@
 				"626B8220DDE84F8C0548AA48",
 				"36E49CE190785C7B950DCD98",
 				"10AD34EEE557C03C61FA3CA5",
+				"58B93EBF9D77801602DBED7F",
 				"64C9BABB1186F43251BD2196",
 				"DCCFEDDF17D15AEE42699F5E",
 				"D049B87330D9336CCA40CA78",
@@ -208,6 +229,10 @@
 			"shellScript" = "\"$SRCROOT/scripts/prepare-tv-resources.sh\"\n";
 			"name" = "Prepare native Metal resources only";
 			"alwaysOutOfDate" = 1;
+		};
+		"AF9CE3E468D5BC4C85C8FF68" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "267585C701FE24385C4A7730";
 		};
 		"A7CE383E14BB29514D2DD0C2" = {
 			"isa" = "PBXBuildFile";
@@ -249,6 +274,10 @@
 			"isa" = "PBXBuildFile";
 			"fileRef" = "CB8C52BD5C2A06B60EC6768B";
 		};
+		"F6FCE060BF290ECA844D9D14" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "E55D030A48044A68741CD7E3";
+		};
 		"751BBC7AFA2EC0105700402A" = {
 			"isa" = "PBXBuildFile";
 			"fileRef" = "AEB3E1F4EFCEE89846DDB6F1";
@@ -285,6 +314,7 @@
 			"isa" = "PBXSourcesBuildPhase";
 			"buildActionMask" = 2147483647;
 			"files" = (
+				"AF9CE3E468D5BC4C85C8FF68",
 				"A7CE383E14BB29514D2DD0C2",
 				"59F9215D16187F2AAD43D7B8",
 				"F11FE05286D083962ACFFC9E",
@@ -295,6 +325,7 @@
 				"D03D42F4A68816AE8C471677",
 				"1857C14A0B38C2D8BBE2A813",
 				"DE69E89DD3EEAAD604860B0B",
+				"F6FCE060BF290ECA844D9D14",
 				"751BBC7AFA2EC0105700402A",
 				"423EB9B902DA957AE39D9B50",
 				"D5EA31B0949757348F1FFD2B",
@@ -312,6 +343,10 @@
 			"files" = (
 			);
 			"runOnlyForDeploymentPostprocessing" = 0;
+		};
+		"3E690DB03FA3E95A14237948" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "58B93EBF9D77801602DBED7F";
 		};
 		"3F38CED5DE6AE31F71BA3B0A" = {
 			"isa" = "PBXBuildFile";
@@ -333,6 +368,7 @@
 			"isa" = "PBXResourcesBuildPhase";
 			"buildActionMask" = 2147483647;
 			"files" = (
+				"3E690DB03FA3E95A14237948",
 				"3F38CED5DE6AE31F71BA3B0A",
 				"069560CE78FC63D590E35CDB",
 				"D42FC03D7CA1BA78494D7F9F",
@@ -347,6 +383,7 @@
 				"CLANG_ENABLE_MODULES" = "YES";
 				"SWIFT_OPTIMIZATION_LEVEL" = "-Onone";
 				"SWIFT_EMIT_LOC_STRINGS" = "NO";
+				"SWIFT_ACTIVE_COMPILATION_CONDITIONS" = "$(inherited) DEBUG";
 			};
 			"name" = "Debug";
 			"baseConfigurationReference" = "60F6C8C99ED0A00047EC92EE";
@@ -358,6 +395,7 @@
 				"CLANG_ENABLE_MODULES" = "YES";
 				"SWIFT_OPTIMIZATION_LEVEL" = "-O";
 				"SWIFT_EMIT_LOC_STRINGS" = "NO";
+				"SWIFT_ACTIVE_COMPILATION_CONDITIONS" = "$(inherited)";
 			};
 			"name" = "Release";
 			"baseConfigurationReference" = "60F6C8C99ED0A00047EC92EE";

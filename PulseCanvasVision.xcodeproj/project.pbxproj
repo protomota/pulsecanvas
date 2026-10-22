@@ -5,6 +5,12 @@
 	};
 	"objectVersion" = 56;
 	"objects" = {
+		"267585C701FE24385C4A7730" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"path" = "Sources/PulseCanvas/PulseCanvasOnboarding.swift";
+			"sourceTree" = "<group>";
+		};
 		"E76D1B93B17DC49DF3364355" = {
 			"isa" = "PBXFileReference";
 			"lastKnownFileType" = "sourcecode.swift";
@@ -191,6 +197,12 @@
 			"path" = "visionOS/VisionVideoSavePicker.swift";
 			"sourceTree" = "<group>";
 		};
+		"58B93EBF9D77801602DBED7F" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "folder";
+			"path" = "Sources/PulseCanvas/Resources/Onboarding";
+			"sourceTree" = "<group>";
+		};
 		"5DE058E997E17FB6E1C96D5F" = {
 			"isa" = "PBXFileReference";
 			"lastKnownFileType" = "folder.assetcatalog";
@@ -263,6 +275,7 @@
 		"0D6E4079E36703EBD37C0072" = {
 			"isa" = "PBXGroup";
 			"children" = (
+				"267585C701FE24385C4A7730",
 				"E76D1B93B17DC49DF3364355",
 				"5209D7B8FE7DB3E851C09177",
 				"100CD0DC00C64B0B646E69DC",
@@ -295,6 +308,7 @@
 				"0DA04F35AB86E5951F47166B",
 				"0C8CC87581FC28D19B7207E0",
 				"0938440A5586EF11FC09A444",
+				"58B93EBF9D77801602DBED7F",
 				"5DE058E997E17FB6E1C96D5F",
 				"C2C9DC46EEABB4403C4F54B6",
 				"74BF9E81D47C493AB795ED7C",
@@ -320,6 +334,10 @@
 			"shellScript" = "\"$SRCROOT/scripts/prepare-vision-resources.sh\"\n";
 			"name" = "Prepare native Metal resources only";
 			"alwaysOutOfDate" = 1;
+		};
+		"AF9CE3E468D5BC4C85C8FF68" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "267585C701FE24385C4A7730";
 		};
 		"A7CE383E14BB29514D2DD0C2" = {
 			"isa" = "PBXBuildFile";
@@ -449,6 +467,7 @@
 			"isa" = "PBXSourcesBuildPhase";
 			"buildActionMask" = 2147483647;
 			"files" = (
+				"AF9CE3E468D5BC4C85C8FF68",
 				"A7CE383E14BB29514D2DD0C2",
 				"59F9215D16187F2AAD43D7B8",
 				"F11FE05286D083962ACFFC9E",
@@ -490,6 +509,10 @@
 			);
 			"runOnlyForDeploymentPostprocessing" = 0;
 		};
+		"3E690DB03FA3E95A14237948" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "58B93EBF9D77801602DBED7F";
+		};
 		"2D7895A1E2294744321D631F" = {
 			"isa" = "PBXBuildFile";
 			"fileRef" = "5DE058E997E17FB6E1C96D5F";
@@ -510,6 +533,7 @@
 			"isa" = "PBXResourcesBuildPhase";
 			"buildActionMask" = 2147483647;
 			"files" = (
+				"3E690DB03FA3E95A14237948",
 				"2D7895A1E2294744321D631F",
 				"EC74FBEC6AC5E1009BAB2F25",
 				"DCCB0BA9E0E0EC365CD60623",
@@ -524,6 +548,7 @@
 				"CLANG_ENABLE_MODULES" = "YES";
 				"SWIFT_OPTIMIZATION_LEVEL" = "-Onone";
 				"SWIFT_EMIT_LOC_STRINGS" = "NO";
+				"SWIFT_ACTIVE_COMPILATION_CONDITIONS" = "$(inherited) DEBUG";
 			};
 			"name" = "Debug";
 			"baseConfigurationReference" = "98C8D67F698DEFBBE6078282";
@@ -535,6 +560,7 @@
 				"CLANG_ENABLE_MODULES" = "YES";
 				"SWIFT_OPTIMIZATION_LEVEL" = "-O";
 				"SWIFT_EMIT_LOC_STRINGS" = "NO";
+				"SWIFT_ACTIVE_COMPILATION_CONDITIONS" = "$(inherited)";
 			};
 			"name" = "Release";
 			"baseConfigurationReference" = "98C8D67F698DEFBBE6078282";

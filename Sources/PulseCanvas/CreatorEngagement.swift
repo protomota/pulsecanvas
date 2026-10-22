@@ -172,7 +172,7 @@ final class CreatorEngagement: ObservableObject {
 
 enum PulseCanvasCommunity {
     static let website = URL(string: "https://pulsecanvas.si/")!
-    static let tips = URL(string: "https://pulsecanvas.si/tips")!
+    static let tips = URL(string: "https://buymeacoffee.com/protomotalab")!
     static let feedback = URL(string: "https://pulsecanvas.si/support/")!
     static let review = URL(string: "https://apps.apple.com/app/id6821642700?action=write-review")!
 }

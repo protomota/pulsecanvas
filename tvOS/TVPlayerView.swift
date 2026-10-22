@@ -79,7 +79,7 @@ private struct TVControls: View {
                 Text(Duration.seconds(transport.seconds).formatted(.time(pattern: .minuteSecond))).monospacedDigit()
                 Button("Music & Radio", systemImage: "radio") { panel = .music }
                 Button("Next song", systemImage: "forward.end.fill") { player.nextSong() }.disabled(player.loading)
-                Button("About", systemImage: "info.circle") { panel = .legal }
+                Button("Settings", systemImage: "gearshape") { panel = .legal }
             }.font(.callout)
             ProgressView(value: transport.seconds, total: max(1, transport.duration)).tint(tvAccent)
         }
@@ -175,6 +175,10 @@ private struct TVLegal: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 30) {
             HStack { Text("PulseCanvas Studio").font(.largeTitle.bold()); Spacer(); Button("Done") { dismiss() } }
+            Button("Welcome to PulseCanvas Studio", systemImage: "sparkles") {
+                dismiss()
+                NotificationCenter.default.post(name: .pulseCanvasOnboarding, object: nil)
+            }.accessibilityIdentifier("settingsWelcomePulseCanvas")
             Text("Copyright © 2026 Protomota, LLC")
             Text("Source: github.com/protomota/pulsecanvas").foregroundStyle(tvAccent)
             ScrollView { Text(Bundle.main.url(forResource: "PulseCanvas-LICENSE", withExtension: "txt", subdirectory: "Legal").flatMap { try? String(contentsOf: $0, encoding: .utf8) } ?? "License unavailable").font(.callout) }

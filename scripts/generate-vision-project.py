@@ -13,13 +13,13 @@ def obj(label, isa, **values):
 def ref(path, kind):
     return obj('file:' + path, 'PBXFileReference', lastKnownFileType=kind, path=path, sourceTree='<group>')
 def build(key): return obj('build:' + key, 'PBXBuildFile', fileRef=key)
-shared = ['VisualPreset', 'VisualPalette', 'OriginalGeometry', 'NativeEffects', 'ProjectMPresets', 'StrobeDetector',
+shared = ['PulseCanvasOnboarding', 'VisualPreset', 'VisualPalette', 'OriginalGeometry', 'NativeEffects', 'ProjectMPresets', 'StrobeDetector',
           'VisualizerRenderer', 'AudioAnalysis', 'StudioTimeline', 'VisualizerPoolControls', 'RadioLibrary', 'StudioMusicPicker',
           'StudioStore', 'SocialExportController', 'SecurityScopedAccess', 'CreatorEngagement']
 sources = ['Sources/PulseCanvas/' + name + '.swift' for name in shared] + ['macOS/BundleResources.swift']
 sources += sorted(str(p.relative_to(root)) for p in (root / 'visionOS').glob('*.swift'))
 source_refs = [ref(p, 'sourcecode.swift') for p in sources]
-resources = [ref('visionOS/Assets.xcassets', 'folder.assetcatalog'), ref('.build/vision-resources/NativeAssets', 'folder'), ref('.build/vision-resources/Legal', 'folder'),
+resources = [ref('Sources/PulseCanvas/Resources/Onboarding', 'folder'), ref('visionOS/Assets.xcassets', 'folder.assetcatalog'), ref('.build/vision-resources/NativeAssets', 'folder'), ref('.build/vision-resources/Legal', 'folder'),
              ref('macOS/PrivacyInfo.xcprivacy', 'text.xml')]
 config = ref('visionOS/Release.xcconfig', 'text.xcconfig')
 info = ref('visionOS/Info.plist', 'text.plist.xml')
@@ -40,7 +40,7 @@ def configurations(label, target=False):
     keys = []
     for name in ['Debug', 'Release']:
         values = dict(SDKROOT='xros', CLANG_ENABLE_MODULES='YES')
-        if target: values.update(SWIFT_OPTIMIZATION_LEVEL='-Onone' if name == 'Debug' else '-O', SWIFT_EMIT_LOC_STRINGS='NO')
+        if target: values.update(SWIFT_OPTIMIZATION_LEVEL='-Onone' if name == 'Debug' else '-O', SWIFT_EMIT_LOC_STRINGS='NO', SWIFT_ACTIVE_COMPILATION_CONDITIONS='$(inherited) DEBUG' if name == 'Debug' else '$(inherited)')
         keys.append(obj(label + name, 'XCBuildConfiguration', buildSettings=values, name=name,
                         **({'baseConfigurationReference': config} if target else {})))
     return obj(label + 'list', 'XCConfigurationList', buildConfigurations=keys, defaultConfigurationIsVisible=0, defaultConfigurationName='Release')

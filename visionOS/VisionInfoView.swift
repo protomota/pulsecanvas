@@ -30,6 +30,10 @@ struct VisionInfoView: View {
 
     private var support: some View {
         VStack(alignment: .leading, spacing: 20) {
+            Button("Welcome to PulseCanvas Studio", systemImage: "sparkles") {
+                close()
+                NotificationCenter.default.post(name: .pulseCanvasOnboarding, object: nil)
+            }.accessibilityIdentifier("settingsWelcomePulseCanvas")
             Text("Free software.\nSupported by people.").font(.largeTitle.bold())
             Text("PulseCanvas Studio is free, with every feature included. Your ratings, sharing and feedback help more people discover the app and help us keep building.")
                 .font(.body).foregroundStyle(.secondary)
@@ -39,7 +43,7 @@ struct VisionInfoView: View {
                 }.buttonStyle(.plain).accessibilityIdentifier("visionSupportReview")
                 if engagement.offersWebsiteTip {
                     Button { visit(.tip, url: PulseCanvasCommunity.tips) } label: {
-                        row("Tip the Developer", detail: "Support development at pulsecanvas.si/tips", icon: "heart.circle", action: .tip)
+                        row("Tip the Developer", detail: "Support development on Buy Me a Coffee", icon: "heart.circle", action: .tip)
                     }.buttonStyle(.plain).accessibilityIdentifier("visionSupportTip")
                 }
                 ShareLink(item: PulseCanvasCommunity.website) {

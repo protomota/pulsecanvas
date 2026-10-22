@@ -33,7 +33,7 @@ def configs(label,target=False):
     for name in ['Debug','Release']:
         settings={'SDKROOT':'macosx','CLANG_ENABLE_MODULES':'YES'}
         if target:
-            settings.update(SWIFT_OPTIMIZATION_LEVEL='-Onone' if name=='Debug' else '-O',DEBUG_INFORMATION_FORMAT='dwarf' if name=='Debug' else 'dwarf-with-dsym',SWIFT_EMIT_LOC_STRINGS='NO')
+            settings.update(SWIFT_OPTIMIZATION_LEVEL='-Onone' if name=='Debug' else '-O',DEBUG_INFORMATION_FORMAT='dwarf' if name=='Debug' else 'dwarf-with-dsym',SWIFT_EMIT_LOC_STRINGS='NO',SWIFT_ACTIVE_COMPILATION_CONDITIONS='$(inherited) DEBUG' if name=='Debug' else '$(inherited)')
         keys.append(obj(label+name,'XCBuildConfiguration',buildSettings=settings,name=name,**({'baseConfigurationReference':config} if target else {})))
     return obj(label+'list','XCConfigurationList',buildConfigurations=keys,defaultConfigurationIsVisible=0,defaultConfigurationName='Release')
 target=obj('target','PBXNativeTarget',buildConfigurationList=configs('targetconfig',True),buildPhases=[prepare,srcphase,frameworkphase,resphase],buildRules=[],dependencies=[],name='PulseCanvas',productName='PulseCanvas Studio',productReference=product,productType='com.apple.product-type.application')

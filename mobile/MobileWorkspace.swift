@@ -180,7 +180,7 @@ struct MobileWorkspace: View {
         case .library: "Visualizers"
         case .style: "Visual style"
         case .export: "Export video"
-        case .about: "About & Support"
+        case .about: "Settings"
         case .apply: "Apply to all"
         case .music: "Choose music"
         }
@@ -209,7 +209,7 @@ struct MobileWorkspace: View {
                 Button("Export MP4", systemImage: "film") { sheet = .export }
                     .disabled(audio.selectedURL == nil || radio.isActive && (!radio.canSeek || radio.isPersonalMusic))
                 Divider()
-                Button("About & Support", systemImage: "info.circle") { sheet = .about }
+                Button("Settings", systemImage: "gearshape") { sheet = .about }
             } label: { Image(systemName: "ellipsis").frame(width: 20) }.accessibilityLabel("Project actions")
         }.buttonStyle(MobileButton()).padding(.horizontal, 16).padding(.vertical, 10)
             // Keep the tabs leading, below iPadOS's window-control strip.

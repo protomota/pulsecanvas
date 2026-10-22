@@ -114,6 +114,11 @@ struct MobileAbout: View {
                 Text("Music into moving visuals. Free to use, with no account or subscription.")
                 Text("© 2026 Protomota, LLC").foregroundStyle(.secondary)
             }
+            Section("Onboarding") {
+                Button("Welcome to PulseCanvas Studio", systemImage: "sparkles") {
+                    NotificationCenter.default.post(name: .pulseCanvasOnboarding, object: nil)
+                }.accessibilityIdentifier("settingsWelcomePulseCanvas")
+            }
             Section("Support PulseCanvas") {
                 Button("Rate on the App Store", systemImage: "heart.circle") { engagement.recordClick(.review); openURL(PulseCanvasCommunity.review) }
                 if engagement.offersWebsiteTip { Button("Tip the Developer", systemImage: "cup.and.saucer") { engagement.recordClick(.tip); openURL(PulseCanvasCommunity.tips) } }

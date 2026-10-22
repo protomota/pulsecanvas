@@ -46,7 +46,7 @@ struct CreatorThanksView: View {
                 }.buttonStyle(StudioButtonStyle(treatment: .primary))
                 if offersWebsiteTip {
                     Button { visit(.tip, url: PulseCanvasCommunity.tips) } label: {
-                        action("Tip the Developer", detail: "Opens pulsecanvas.si/tips in your browser", icon: "heart.circle", kind: .tip)
+                        action("Tip the Developer", detail: "Opens Buy Me a Coffee in your browser", icon: "heart.circle", kind: .tip)
                     }.buttonStyle(StudioButtonStyle())
                 }
                 Button {

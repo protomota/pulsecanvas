@@ -77,7 +77,7 @@ struct VisionStudioView: View {
                         .disabled(studio.loading || session.radioMode)
                         .accessibilityIdentifier("exportMP4Button")
                     }
-                    Button("About & Support", systemImage: "info.circle") { legal = true }
+                    Button("Settings", systemImage: "gearshape") { legal = true }
                         .accessibilityIdentifier("visionInfoButton")
                     Spacer()
                     if studio.loading { ProgressView("Analyzing music…") }

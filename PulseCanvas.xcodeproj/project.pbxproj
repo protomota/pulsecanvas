@@ -77,6 +77,12 @@
 			"path" = "Sources/PulseCanvas/PulseCanvasApp.swift";
 			"sourceTree" = "<group>";
 		};
+		"267585C701FE24385C4A7730" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"path" = "Sources/PulseCanvas/PulseCanvasOnboarding.swift";
+			"sourceTree" = "<group>";
+		};
 		"CED40C63C78F355A3E299D3F" = {
 			"isa" = "PBXFileReference";
 			"lastKnownFileType" = "sourcecode.swift";
@@ -269,6 +275,7 @@
 				"100CD0DC00C64B0B646E69DC",
 				"2DF77FDA9C8372B7840DB84B",
 				"C21BFB46BEED9116F0743542",
+				"267585C701FE24385C4A7730",
 				"CED40C63C78F355A3E299D3F",
 				"A49A1847A6C656BBBFECDB8E",
 				"A7107BA039EA8BCCF0F232A8",
@@ -363,6 +370,10 @@
 			"isa" = "PBXBuildFile";
 			"fileRef" = "C21BFB46BEED9116F0743542";
 		};
+		"AF9CE3E468D5BC4C85C8FF68" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "267585C701FE24385C4A7730";
+		};
 		"97093D2BC86E4D8ABD384FFB" = {
 			"isa" = "PBXBuildFile";
 			"fileRef" = "CED40C63C78F355A3E299D3F";
@@ -455,6 +466,7 @@
 				"F11FE05286D083962ACFFC9E",
 				"9AAD59C9AF6056DDF96C21D9",
 				"F63D8A506117BA23ABD7FB92",
+				"AF9CE3E468D5BC4C85C8FF68",
 				"97093D2BC86E4D8ABD384FFB",
 				"437A5D46901E04F456D232F5",
 				"2F22B5B3D3EBCB9655A17ACE",
@@ -519,6 +531,7 @@
 				"SWIFT_OPTIMIZATION_LEVEL" = "-Onone";
 				"DEBUG_INFORMATION_FORMAT" = "dwarf";
 				"SWIFT_EMIT_LOC_STRINGS" = "NO";
+				"SWIFT_ACTIVE_COMPILATION_CONDITIONS" = "$(inherited) DEBUG";
 			};
 			"name" = "Debug";
 			"baseConfigurationReference" = "17EF7EA6E4B2C028C8FFD997";
@@ -531,6 +544,7 @@
 				"SWIFT_OPTIMIZATION_LEVEL" = "-O";
 				"DEBUG_INFORMATION_FORMAT" = "dwarf-with-dsym";
 				"SWIFT_EMIT_LOC_STRINGS" = "NO";
+				"SWIFT_ACTIVE_COMPILATION_CONDITIONS" = "$(inherited)";
 			};
 			"name" = "Release";
 			"baseConfigurationReference" = "17EF7EA6E4B2C028C8FFD997";

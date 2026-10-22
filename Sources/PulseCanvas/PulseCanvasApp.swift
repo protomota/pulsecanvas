@@ -59,10 +59,11 @@ struct PulseCanvasApp: App {
     var body: some Scene {
         WindowGroup("PulseCanvas Studio") {
             CreatorView(render: render, audio: audio, radio: radio, studio: studio, exporter: exporter, presentation: presentation, lifecycle: lifecycle)
+                .preferredColorScheme(.dark)
+                .modifier(PulseCanvasOnboardingPresentation(onReplay: { audio.pause() }))
                 #if DIRECT_BUILD && canImport(Sparkle) && !LOCAL_BUILD
                 .environmentObject(updater)
                 #endif
-                .preferredColorScheme(.dark)
                 .frame(minWidth: 1080, minHeight: 740)
                 .onReceive(audio.visualizationUpdated) {
                     let target = radio.isActive ? radio.visualizer : render
@@ -94,6 +95,10 @@ struct PulseCanvasApp: App {
         #endif
         .commands {
             CommandGroup(after: .appInfo) {
+                Button("Welcome to PulseCanvas Studio") {
+                    audio.pause()
+                    NotificationCenter.default.post(name: .pulseCanvasOnboarding, object: nil)
+                }
                 Button("Legal & Credits") { openWindow(id: "legal-credits") }
                 #if DIRECT_BUILD && canImport(Sparkle) && !LOCAL_BUILD
                 Button("Check for Updates…") { updater.checkForUpdates() }.disabled(!updater.canCheck)
@@ -117,16 +122,25 @@ struct PulseCanvasApp: App {
                 }
             }
         }
-        #if DIRECT_BUILD && canImport(Sparkle) && !LOCAL_BUILD
         Settings {
-            VStack(alignment: .leading, spacing: 16) {
-                Text("Updates").font(.title2)
-                Toggle("Automatically check for updates", isOn: $updater.automaticChecks)
-                Text("The direct-download edition checks pulsecanvas.si for signed updates. System profiling is disabled.").font(.callout).foregroundStyle(.secondary)
-                Button("Check for Updates…") { updater.checkForUpdates() }.disabled(!updater.canCheck)
-            }.padding(24).frame(width: 440)
+            Form {
+                Section("Onboarding") {
+                    Button("Welcome to PulseCanvas Studio", systemImage: "sparkles") {
+                        NSApp.keyWindow?.close()
+                        audio.pause()
+                        NotificationCenter.default.post(name: .pulseCanvasOnboarding, object: nil)
+                    }.accessibilityIdentifier("settingsWelcomePulseCanvas")
+                    Text("See the onboarding again, from the beginning.").font(.callout).foregroundStyle(.secondary)
+                }
+                #if DIRECT_BUILD && canImport(Sparkle) && !LOCAL_BUILD
+                Section("Updates") {
+                    Toggle("Automatically check for updates", isOn: $updater.automaticChecks)
+                    Text("The direct-download edition checks pulsecanvas.si for signed updates. System profiling is disabled.").font(.callout).foregroundStyle(.secondary)
+                    Button("Check for Updates…") { updater.checkForUpdates() }.disabled(!updater.canCheck)
+                }
+                #endif
+            }.formStyle(.grouped).padding(16).frame(width: 500, height: 300)
         }
-        #endif
         Window("Legal & Credits", id: "legal-credits") {
             LegalCreditsView()
         }.defaultSize(width: 560, height: 540)
@@ -319,6 +333,10 @@ struct CreatorView: View {
             } else {
             VStack(alignment: .leading, spacing: 18) {
                 Text("Create a music visual").font(.title2)
+                Button("Welcome to PulseCanvas Studio") {
+                    showHelp = false; audio.pause()
+                    NotificationCenter.default.post(name: .pulseCanvasOnboarding, object: nil)
+                }.buttonStyle(StudioButtonStyle())
                 Text("1. Choose a visualizer from the top row. Adjust its colors, motion, and camera on the right.")
                 Text("2. Add a soundtrack. Play or scrub it to preview how the visuals react to the music.")
                 Text("3. Open Project settings to choose your canvas shape and video quality. Save video lets you choose a folder and saves an MP4 with your full soundtrack and visuals.")

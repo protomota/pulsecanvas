@@ -104,7 +104,7 @@ import Foundation
             precondition(DeveloperSupportPolicy.allowsWebsiteTip(storeBuild: true, countryCode: code) == (code == "USA"))
             precondition(DeveloperSupportPolicy.allowsWebsiteTip(storeBuild: false, countryCode: code))
         }
-        precondition(PulseCanvasCommunity.tips.absoluteString == "https://pulsecanvas.si/tips")
+        precondition(PulseCanvasCommunity.tips.absoluteString == "https://buymeacoffee.com/protomotalab")
         #if STORE_BUILD
         precondition(!state.offersWebsiteTip && !state.availableActions.contains(.tip))
         #else

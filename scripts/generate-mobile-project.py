@@ -13,13 +13,13 @@ def obj(label, isa, **values):
 def ref(path, kind):
     return obj('file:' + path, 'PBXFileReference', lastKnownFileType=kind, path=path, sourceTree='<group>')
 def build(key): return obj('build:' + key, 'PBXBuildFile', fileRef=key)
-shared = ['VisualPreset', 'VisualPalette', 'OriginalGeometry', 'NativeEffects', 'ProjectMPresets', 'StrobeDetector',
+shared = ['PulseCanvasOnboarding', 'VisualPreset', 'VisualPalette', 'OriginalGeometry', 'NativeEffects', 'ProjectMPresets', 'StrobeDetector',
           'VisualizerRenderer', 'AudioAnalysis', 'StudioTimeline', 'VisualizerPoolControls', 'RadioLibrary', 'StudioMusicPicker',
           'StudioStore', 'SocialExportController', 'SecurityScopedAccess', 'CreatorEngagement', 'AudioController', 'RadioController', 'BundledSoundtrack']
 sources = ['Sources/PulseCanvas/' + name + '.swift' for name in shared] + ['macOS/BundleResources.swift']
 sources += sorted(str(p.relative_to(root)) for p in (root / 'mobile').glob('*.swift'))
 source_refs = [ref(p, 'sourcecode.swift') for p in sources]
-resources = [ref('mobile/Assets.xcassets', 'folder.assetcatalog'), ref('.build/mobile-resources/NativeAssets', 'folder'), ref('.build/mobile-resources/Legal', 'folder'),
+resources = [ref('Sources/PulseCanvas/Resources/Onboarding', 'folder'), ref('mobile/Assets.xcassets', 'folder.assetcatalog'), ref('.build/mobile-resources/NativeAssets', 'folder'), ref('.build/mobile-resources/Legal', 'folder'),
              ref('macOS/PrivacyInfo.xcprivacy', 'text.xml')]
 config = ref('mobile/Release.xcconfig', 'text.xcconfig')
 info = ref('mobile/Info.plist', 'text.plist.xml')
