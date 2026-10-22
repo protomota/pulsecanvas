@@ -67,3 +67,29 @@ existing QA flags bypass first launch unless onboarding QA is explicitly enabled
 Screenshots and local simulator results live in ignored `build/onboarding-review`.
 No archive, App Store upload, TestFlight delivery, or website deployment is part
 of this change. Release build numbers are unchanged.
+
+## Mobile transition performance
+
+Mobile prepares its soundtrack and shared GPU programs while onboarding is on
+screen. UIKit visualizer attachment awaits a shared worker compilation job; it
+does not compile all 27 libraries synchronously in `makeUIView`. The selected
+effect's first pipeline is also prepared on a worker before drawing begins.
+Each preview retains its own textures, frame clock and command queue. Dismantling
+a preview cancels its attachment without cancelling preparation used by other
+views. Offline exports retain their synchronous attachment path and reuse the
+same immutable program cache.
+
+Immediately skipping onboarding keeps Settings available while the soundtrack is
+still being analyzed. Music imports, project file actions and export remain disabled during preparation, and
+the editor displays progress instead of appearing unresponsive. Startup lives
+outside the conditional editor/onboarding view, so completing or replaying
+onboarding does not restart that work.
+
+`scripts/test-renderer-startup.sh` verifies that concurrent preparation requests
+share one compilation, the main actor continues processing tasks, and the cached
+programs produce nonempty GPU frames. The renderer reuse smoke test checks 28
+matching frames across independent renderers. The mobile onboarding UI suite
+also tests immediate Skip and Settings using the full bundled song with isolated
+storage (`-PCMobileFullSoundtrackQA`), rather than the usual eight-second fixture.
+Simulator timing is a responsiveness regression check, not a physical-device
+benchmark.

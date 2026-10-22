@@ -3,6 +3,27 @@ import XCTest
 final class PulseCanvasOnboardingUITests: XCTestCase {
     override func setUp() { continueAfterFailure = false; executionTimeAllowance = 180 }
 
+    @MainActor func testImmediateSkipKeepsSettingsResponsiveWithFullSoundtrack() throws {
+        let app = XCUIApplication()
+        // Isolated storage, but use the real 2:54 bundled song rather than the
+        // eight-second fixture so soundtrack startup isn't hidden by the test.
+        app.launchArguments = ["-PCMobileQA", "-PCMobileFullSoundtrackQA", "-PCOnboardingQA"]
+        app.launch()
+        XCTAssertTrue(app.buttons["onboardingSkip"].waitForExistence(timeout: 15))
+        let start = ContinuousClock.now
+        app.buttons["onboardingSkip"].tap()
+        let actions = app.buttons["Project actions"]
+        XCTAssertTrue(actions.waitForExistence(timeout: 3))
+        XCTAssertTrue(actions.isEnabled, "Soundtrack preparation must not disable Settings")
+        let transition = start.duration(to: .now)
+        print("Immediate onboarding skip to enabled editor controls: \(transition)")
+        XCTAssertLessThan(transition, .seconds(4), "Leaving onboarding blocked the interface")
+        actions.tap()
+        XCTAssertTrue(app.buttons["Settings"].waitForExistence(timeout: 3))
+        app.buttons["Settings"].tap()
+        XCTAssertTrue(app.buttons["settingsWelcomePulseCanvas"].waitForExistence(timeout: 3))
+    }
+
     @MainActor func testNavigationCompletionAndReplay() throws {
         let app = XCUIApplication()
         app.launchArguments = ["-PCMobileQA", "-PCOnboardingQA"]

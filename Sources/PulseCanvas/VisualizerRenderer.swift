@@ -67,19 +67,18 @@ struct VisualizerView: UIViewRepresentable {
         view.framebufferOnly = false
         view.preferredFramesPerSecond = 30
         view.delegate = context.coordinator
-        context.coordinator.attach(view)
-        #if os(iOS)
-        view.isPaused = phase != .active
-        #endif
+        view.isPaused = true
+        context.coordinator.attachLive(view)
         return view
     }
     func updateUIView(_ view: MTKView, context: Context) {
         context.coordinator.state = state
         #if os(iOS)
-        view.isPaused = phase != .active
+        view.isPaused = !context.coordinator.isReady || phase != .active
         #endif
     }
     static func dismantleUIView(_ view: MTKView, coordinator: VisualizerRenderer) {
+        coordinator.cancelLiveAttachment()
         view.isPaused = true; view.delegate = nil
     }
 }
@@ -212,7 +211,9 @@ final class VisualizerRenderer: NSObject, MTKViewDelegate {
 
     // Share immutable compiled GPU programs across previews and exports. Textures,
     // frame clocks, command queues and audio state remain owned by each renderer.
-    private struct CompiledAssets {
+    // Metal programs are immutable after creation. The worker relinquishes this
+    // value before the main actor installs it and updates the pipeline dictionary.
+    private struct CompiledAssets: @unchecked Sendable {
         let strobe, zoom, blur, canvas, point, spatial: MTLRenderPipelineState?
         #if !STORE_BUILD
         let projectM: MTLRenderPipelineState?
@@ -223,109 +224,204 @@ final class VisualizerRenderer: NSObject, MTKViewDelegate {
         var nativePipelines: [String: MTLRenderPipelineState]
     }
     private static var sharedAssets: [UInt64: CompiledAssets] = [:]
+    private static var preparingAssets: [UInt64: Task<CompiledAssets, Error>] = [:]
+    private var liveAttachment: Task<Void, Never>?
+    private(set) var isReady = false
     private(set) static var shaderResourceBuilds = 0
 
     init(state: RenderState) { self.state = state; super.init() }
 
+    /// Synchronous attachment remains available to offline exports. Live UIKit
+    /// previews prepare the same immutable programs on a worker instead.
     func attach(_ view: MTKView) {
         do {
             guard let device = view.device, let queue = device.makeCommandQueue() else {
-                throw RenderError("Metal is unavailable on this Mac")
+                throw RenderError("Metal is unavailable")
             }
-            self.device = device; self.queue = queue
-            if let cached = Self.sharedAssets[device.registryID] {
-                strobePipeline = cached.strobe; zoomPipeline = cached.zoom
-                contentBlurPipeline = cached.blur; canvasPipeline = cached.canvas
-                pointPipeline = cached.point; spatialPipeline = cached.spatial
-                #if !STORE_BUILD
-                projectMPipeline = cached.projectM
-                #endif
-                depthState = cached.depth; nativeLibraries = cached.libraries
-                nativeCompileErrors = cached.errors; nativePipelines = cached.nativePipelines
-                lastError = nil
-                if state.errorMessage != nil { state.errorMessage = nil }
-                return
+            let assets: CompiledAssets
+            if let cached = Self.sharedAssets[device.registryID] { assets = cached }
+            else {
+                assets = try Self.compileAssets(device: device)
+                Self.sharedAssets[device.registryID] = assets
+                Self.shaderResourceBuilds += 1
             }
-            let effectCandidates = [Bundle.module.url(forResource: "Strobe", withExtension: "metal", subdirectory: "NativeAssets"), Bundle.module.url(forResource: "Strobe", withExtension: "metal", subdirectory: "Resources"), Bundle.module.url(forResource: "Strobe", withExtension: "metal"), URL(fileURLWithPath: FileManager.default.currentDirectoryPath).appendingPathComponent("Sources/PulseCanvas/Resources/Strobe.metal")]
-            guard let effectURL = effectCandidates.compactMap({ $0 }).first(where: { FileManager.default.fileExists(atPath: $0.path) }) else { throw RenderError("White flash shader is missing") }
-            let effects = try device.makeLibrary(source: String(contentsOf: effectURL, encoding: .utf8), options: nil)
-            let effect = MTLRenderPipelineDescriptor()
-            effect.vertexFunction = effects.makeFunction(name: "whiteFlashVertex")
-            effect.fragmentFunction = effects.makeFunction(name: "whiteFlashFragment")
-            effect.colorAttachments[0].pixelFormat = .bgra8Unorm
-            effect.colorAttachments[0].isBlendingEnabled = true
-            effect.colorAttachments[0].sourceRGBBlendFactor = .sourceAlpha
-            effect.colorAttachments[0].destinationRGBBlendFactor = .oneMinusSourceAlpha
-            effect.colorAttachments[0].sourceAlphaBlendFactor = .one
-            effect.colorAttachments[0].destinationAlphaBlendFactor = .oneMinusSourceAlpha
-            strobePipeline = try device.makeRenderPipelineState(descriptor: effect)
-            #if !STORE_BUILD
-            let projectMEffect = MTLRenderPipelineDescriptor()
-            projectMEffect.vertexFunction = effects.makeFunction(name: "whiteFlashVertex")
-            projectMEffect.fragmentFunction = effects.makeFunction(name: "projectMFragment")
-            projectMEffect.colorAttachments[0].pixelFormat = .bgra8Unorm
-            projectMPipeline = try device.makeRenderPipelineState(descriptor: projectMEffect)
-            #endif
-            let zoomEffect = MTLRenderPipelineDescriptor()
-            zoomEffect.vertexFunction = effects.makeFunction(name: "whiteFlashVertex")
-            zoomEffect.fragmentFunction = effects.makeFunction(name: "forwardZoomFragment")
-            zoomEffect.colorAttachments[0].pixelFormat = .bgra8Unorm
-            zoomPipeline = try device.makeRenderPipelineState(descriptor: zoomEffect)
-            let blurEffect = MTLRenderPipelineDescriptor()
-            blurEffect.vertexFunction = effects.makeFunction(name: "whiteFlashVertex")
-            blurEffect.fragmentFunction = effects.makeFunction(name: "contentBlurFragment")
-            blurEffect.colorAttachments[0].pixelFormat = .bgra8Unorm
-            contentBlurPipeline = try device.makeRenderPipelineState(descriptor: blurEffect)
-            let canvasSource = effectURL.deletingLastPathComponent().appendingPathComponent("Canvas.metal")
-            let canvasLibrary = try device.makeLibrary(source: String(contentsOf: canvasSource, encoding: .utf8), options: nil)
-            let canvas = MTLRenderPipelineDescriptor()
-            canvas.vertexFunction = canvasLibrary.makeFunction(name: "canvasVertex")
-            canvas.fragmentFunction = canvasLibrary.makeFunction(name: "canvasFragment")
-            let descriptor = MTLVertexDescriptor()
-            descriptor.attributes[0].format = .float3; descriptor.attributes[0].offset = 0; descriptor.attributes[0].bufferIndex = 0
-            descriptor.attributes[1].format = .float4; descriptor.attributes[1].offset = 16; descriptor.attributes[1].bufferIndex = 0
-            descriptor.attributes[2].format = .float2; descriptor.attributes[2].offset = 32; descriptor.attributes[2].bufferIndex = 0
-            descriptor.attributes[3].format = .float3; descriptor.attributes[3].offset = MemoryLayout<VisualVertex>.offset(of: \.normal)!; descriptor.attributes[3].bufferIndex = 0
-            descriptor.layouts[0].stride = MemoryLayout<VisualVertex>.stride
-            canvas.depthAttachmentPixelFormat = .depth32Float
-            canvas.colorAttachments[0].pixelFormat = .bgra8Unorm
-            canvasPipeline = try device.makeRenderPipelineState(descriptor: canvas)
-            let point = MTLRenderPipelineDescriptor()
-            point.vertexFunction = canvasLibrary.makeFunction(name: "canvasPointVertex")
-            point.fragmentFunction = canvasLibrary.makeFunction(name: "canvasPointFragment")
-            point.vertexDescriptor = descriptor
-            point.inputPrimitiveTopology = .point
-            point.colorAttachments[0].pixelFormat = .bgra8Unorm
-            let blend = point.colorAttachments[0]!
-            blend.isBlendingEnabled = true
-            blend.sourceRGBBlendFactor = .sourceAlpha; blend.destinationRGBBlendFactor = .oneMinusSourceAlpha
-            blend.sourceAlphaBlendFactor = .one; blend.destinationAlphaBlendFactor = .oneMinusSourceAlpha
-            pointPipeline = try device.makeRenderPipelineState(descriptor: point)
-            let spatialSource = effectURL.deletingLastPathComponent().appendingPathComponent("SpatialVisuals.metal")
-            let spatialLibrary = try device.makeLibrary(source: String(contentsOf: spatialSource, encoding: .utf8), options: nil)
-            let spatial = MTLRenderPipelineDescriptor()
-            spatial.vertexFunction = spatialLibrary.makeFunction(name: "spatialVertex")
-            spatial.fragmentFunction = spatialLibrary.makeFunction(name: "spatialFragment")
-            spatial.colorAttachments[0].pixelFormat = .bgra8Unorm
-            spatialPipeline = try device.makeRenderPipelineState(descriptor: spatial)
-            try compileNativeLibraries(device: device, folder: effectURL.deletingLastPathComponent())
-            nativePipelines = [:]
-            let depth = MTLDepthStencilDescriptor(); depth.depthCompareFunction = .lessEqual; depth.isDepthWriteEnabled = true
-            depthState = device.makeDepthStencilState(descriptor: depth)
-            #if !STORE_BUILD
-            let compiled = CompiledAssets(strobe: strobePipeline, zoom: zoomPipeline, blur: contentBlurPipeline,
-                canvas: canvasPipeline, point: pointPipeline, spatial: spatialPipeline, projectM: projectMPipeline,
-                depth: depthState, libraries: nativeLibraries, errors: nativeCompileErrors, nativePipelines: nativePipelines)
-            #else
-            let compiled = CompiledAssets(strobe: strobePipeline, zoom: zoomPipeline, blur: contentBlurPipeline,
-                canvas: canvasPipeline, point: pointPipeline, spatial: spatialPipeline,
-                depth: depthState, libraries: nativeLibraries, errors: nativeCompileErrors, nativePipelines: nativePipelines)
-            #endif
-            Self.sharedAssets[device.registryID] = compiled
-            Self.shaderResourceBuilds += 1
-            lastError = nil
-            if state.errorMessage != nil { state.errorMessage = nil }
+            install(assets, device: device, queue: queue)
         } catch { report(error.localizedDescription) }
+    }
+
+    private func install(_ assets: CompiledAssets, device: MTLDevice, queue: MTLCommandQueue) {
+        self.device = device; self.queue = queue
+        strobePipeline = assets.strobe; zoomPipeline = assets.zoom
+        contentBlurPipeline = assets.blur; canvasPipeline = assets.canvas
+        pointPipeline = assets.point; spatialPipeline = assets.spatial
+        #if !STORE_BUILD
+        projectMPipeline = assets.projectM
+        #endif
+        depthState = assets.depth; nativeLibraries = assets.libraries
+        nativeCompileErrors = assets.errors; nativePipelines = assets.nativePipelines
+        lastError = nil; isReady = true
+        if state.errorMessage != nil { state.errorMessage = nil }
+    }
+
+    /// One shared compilation job, even when onboarding, a preview and another
+    /// window request preparation together. Cancellation of a view never cancels
+    /// the shared work needed by other views.
+    static func prepareLiveAssets() async throws {
+        guard let device = MTLCreateSystemDefaultDevice() else { throw RenderError("Metal is unavailable") }
+        try await prepareLiveAssets(device: device)
+    }
+
+    private static func prepareLiveAssets(device: MTLDevice) async throws {
+        if sharedAssets[device.registryID] != nil { return }
+        let task: Task<CompiledAssets, Error>
+        if let pending = preparingAssets[device.registryID] { task = pending }
+        else {
+            task = Task.detached(priority: .userInitiated) { try compileAssets(device: device) }
+            preparingAssets[device.registryID] = task
+        }
+        do {
+            let compiled = try await task.value
+            if sharedAssets[device.registryID] == nil {
+                sharedAssets[device.registryID] = compiled
+                shaderResourceBuilds += 1
+            }
+            preparingAssets[device.registryID] = nil
+        } catch {
+            preparingAssets[device.registryID] = nil
+            throw error
+        }
+    }
+
+    #if canImport(UIKit)
+    func attachLive(_ view: MTKView) {
+        let spinner = UIActivityIndicatorView(style: .large)
+        spinner.startAnimating()
+        let label = UILabel()
+        label.text = "Preparing your canvas…"; label.textColor = .white
+        label.font = .preferredFont(forTextStyle: .callout)
+        let loading = UIStackView(arrangedSubviews: [spinner, label])
+        loading.axis = .vertical; loading.spacing = 12; loading.alignment = .center
+        loading.isAccessibilityElement = true; loading.accessibilityLabel = label.text
+        loading.accessibilityIdentifier = "visualizerPreparing"
+        loading.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(loading)
+        NSLayoutConstraint.activate([loading.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+                                     loading.centerYAnchor.constraint(equalTo: view.centerYAnchor)])
+        liveAttachment = Task { @MainActor [weak self, weak view] in
+            guard let device = view?.device else { return }
+            do {
+                try await Self.prepareLiveAssets(device: device)
+                // Compile the first selected effect before starting the draw loop.
+                // Other scene changes retain the existing per-effect cache.
+                if let scene = self?.state.scene, NativeEffects.all.indices.contains(scene) {
+                    let effect = NativeEffects.all[scene]
+                    if let shader = effect.shader, let assets = Self.sharedAssets[device.registryID],
+                       assets.nativePipelines[shader] == nil,
+                       let descriptor = Self.nativeDescriptor(for: effect, libraries: assets.libraries) {
+                        let pipeline = try await Task.detached(priority: .userInitiated) {
+                            try device.makeRenderPipelineState(descriptor: descriptor)
+                        }.value
+                        Self.sharedAssets[device.registryID]?.nativePipelines[shader] = pipeline
+                    }
+                }
+                guard !Task.isCancelled, let self, let view,
+                      let assets = Self.sharedAssets[device.registryID] else { return }
+                guard let queue = device.makeCommandQueue() else { throw RenderError("Could not create the Metal command queue") }
+                self.install(assets, device: device, queue: queue)
+                loading.removeFromSuperview()
+                #if os(iOS)
+                view.isPaused = UIApplication.shared.applicationState != .active
+                #else
+                view.isPaused = false
+                #endif
+            } catch {
+                guard !Task.isCancelled else { return }
+                loading.removeFromSuperview()
+                self?.report(error.localizedDescription)
+            }
+        }
+    }
+    func cancelLiveAttachment() { liveAttachment?.cancel(); liveAttachment = nil }
+    #endif
+
+    /// This function only builds immutable GPU objects, with no renderer or UI state.
+    nonisolated private static func compileAssets(device: MTLDevice) throws -> CompiledAssets {
+        let effectCandidates = [Bundle.module.url(forResource: "Strobe", withExtension: "metal", subdirectory: "NativeAssets"), Bundle.module.url(forResource: "Strobe", withExtension: "metal", subdirectory: "Resources"), Bundle.module.url(forResource: "Strobe", withExtension: "metal"), URL(fileURLWithPath: FileManager.default.currentDirectoryPath).appendingPathComponent("Sources/PulseCanvas/Resources/Strobe.metal")]
+        guard let effectURL = effectCandidates.compactMap({ $0 }).first(where: { FileManager.default.fileExists(atPath: $0.path) }) else { throw RenderError("White flash shader is missing") }
+        let effects = try device.makeLibrary(source: String(contentsOf: effectURL, encoding: .utf8), options: nil)
+        let effect = MTLRenderPipelineDescriptor()
+        effect.vertexFunction = effects.makeFunction(name: "whiteFlashVertex")
+        effect.fragmentFunction = effects.makeFunction(name: "whiteFlashFragment")
+        effect.colorAttachments[0].pixelFormat = .bgra8Unorm
+        effect.colorAttachments[0].isBlendingEnabled = true
+        effect.colorAttachments[0].sourceRGBBlendFactor = .sourceAlpha
+        effect.colorAttachments[0].destinationRGBBlendFactor = .oneMinusSourceAlpha
+        effect.colorAttachments[0].sourceAlphaBlendFactor = .one
+        effect.colorAttachments[0].destinationAlphaBlendFactor = .oneMinusSourceAlpha
+        let strobePipeline = try device.makeRenderPipelineState(descriptor: effect)
+        #if !STORE_BUILD
+        let projectMEffect = MTLRenderPipelineDescriptor()
+        projectMEffect.vertexFunction = effects.makeFunction(name: "whiteFlashVertex")
+        projectMEffect.fragmentFunction = effects.makeFunction(name: "projectMFragment")
+        projectMEffect.colorAttachments[0].pixelFormat = .bgra8Unorm
+        let projectMPipeline = try device.makeRenderPipelineState(descriptor: projectMEffect)
+        #endif
+        let zoomEffect = MTLRenderPipelineDescriptor()
+        zoomEffect.vertexFunction = effects.makeFunction(name: "whiteFlashVertex")
+        zoomEffect.fragmentFunction = effects.makeFunction(name: "forwardZoomFragment")
+        zoomEffect.colorAttachments[0].pixelFormat = .bgra8Unorm
+        let zoomPipeline = try device.makeRenderPipelineState(descriptor: zoomEffect)
+        let blurEffect = MTLRenderPipelineDescriptor()
+        blurEffect.vertexFunction = effects.makeFunction(name: "whiteFlashVertex")
+        blurEffect.fragmentFunction = effects.makeFunction(name: "contentBlurFragment")
+        blurEffect.colorAttachments[0].pixelFormat = .bgra8Unorm
+        let contentBlurPipeline = try device.makeRenderPipelineState(descriptor: blurEffect)
+        let canvasSource = effectURL.deletingLastPathComponent().appendingPathComponent("Canvas.metal")
+        let canvasLibrary = try device.makeLibrary(source: String(contentsOf: canvasSource, encoding: .utf8), options: nil)
+        let canvas = MTLRenderPipelineDescriptor()
+        canvas.vertexFunction = canvasLibrary.makeFunction(name: "canvasVertex")
+        canvas.fragmentFunction = canvasLibrary.makeFunction(name: "canvasFragment")
+        let descriptor = MTLVertexDescriptor()
+        descriptor.attributes[0].format = .float3; descriptor.attributes[0].offset = 0; descriptor.attributes[0].bufferIndex = 0
+        descriptor.attributes[1].format = .float4; descriptor.attributes[1].offset = 16; descriptor.attributes[1].bufferIndex = 0
+        descriptor.attributes[2].format = .float2; descriptor.attributes[2].offset = 32; descriptor.attributes[2].bufferIndex = 0
+        descriptor.attributes[3].format = .float3; descriptor.attributes[3].offset = MemoryLayout<VisualVertex>.offset(of: \.normal)!; descriptor.attributes[3].bufferIndex = 0
+        descriptor.layouts[0].stride = MemoryLayout<VisualVertex>.stride
+        canvas.depthAttachmentPixelFormat = .depth32Float
+        canvas.colorAttachments[0].pixelFormat = .bgra8Unorm
+        let canvasPipeline = try device.makeRenderPipelineState(descriptor: canvas)
+        let point = MTLRenderPipelineDescriptor()
+        point.vertexFunction = canvasLibrary.makeFunction(name: "canvasPointVertex")
+        point.fragmentFunction = canvasLibrary.makeFunction(name: "canvasPointFragment")
+        point.vertexDescriptor = descriptor
+        point.inputPrimitiveTopology = .point
+        point.colorAttachments[0].pixelFormat = .bgra8Unorm
+        let blend = point.colorAttachments[0]!
+        blend.isBlendingEnabled = true
+        blend.sourceRGBBlendFactor = .sourceAlpha; blend.destinationRGBBlendFactor = .oneMinusSourceAlpha
+        blend.sourceAlphaBlendFactor = .one; blend.destinationAlphaBlendFactor = .oneMinusSourceAlpha
+        let pointPipeline = try device.makeRenderPipelineState(descriptor: point)
+        let spatialSource = effectURL.deletingLastPathComponent().appendingPathComponent("SpatialVisuals.metal")
+        let spatialLibrary = try device.makeLibrary(source: String(contentsOf: spatialSource, encoding: .utf8), options: nil)
+        let spatial = MTLRenderPipelineDescriptor()
+        spatial.vertexFunction = spatialLibrary.makeFunction(name: "spatialVertex")
+        spatial.fragmentFunction = spatialLibrary.makeFunction(name: "spatialFragment")
+        spatial.colorAttachments[0].pixelFormat = .bgra8Unorm
+        let spatialPipeline = try device.makeRenderPipelineState(descriptor: spatial)
+        let (nativeLibraries, nativeCompileErrors) = try compileNativeLibraries(device: device, folder: effectURL.deletingLastPathComponent())
+        let nativePipelines: [String: MTLRenderPipelineState] = [:]
+        let depth = MTLDepthStencilDescriptor(); depth.depthCompareFunction = .lessEqual; depth.isDepthWriteEnabled = true
+        let depthState = device.makeDepthStencilState(descriptor: depth)
+        #if !STORE_BUILD
+        let compiled = CompiledAssets(strobe: strobePipeline, zoom: zoomPipeline, blur: contentBlurPipeline,
+            canvas: canvasPipeline, point: pointPipeline, spatial: spatialPipeline, projectM: projectMPipeline,
+            depth: depthState, libraries: nativeLibraries, errors: nativeCompileErrors, nativePipelines: nativePipelines)
+        #else
+        let compiled = CompiledAssets(strobe: strobePipeline, zoom: zoomPipeline, blur: contentBlurPipeline,
+            canvas: canvasPipeline, point: pointPipeline, spatial: spatialPipeline,
+            depth: depthState, libraries: nativeLibraries, errors: nativeCompileErrors, nativePipelines: nativePipelines)
+        #endif
+        return compiled
     }
 
     private func report(_ text: String) {
@@ -335,10 +431,11 @@ final class VisualizerRenderer: NSObject, MTKViewDelegate {
     /// Each native file is compiled after the shared prelude, so effects can be added
     /// by writing one function and registering it in NativeEffects. A file that fails
     /// to compile disables only its own designs, which report the compiler message.
-    private func compileNativeLibraries(device: MTLDevice, folder: URL) throws {
+    nonisolated private static func compileNativeLibraries(device: MTLDevice, folder: URL) throws -> ([String: MTLLibrary], [String: String]) {
         let prelude = try String(contentsOf: folder.appendingPathComponent("NativeCommon.metal"), encoding: .utf8)
         let options = MTLCompileOptions()
-        nativeLibraries = [:]; nativeCompileErrors = [:]
+        var nativeLibraries: [String: MTLLibrary] = [:]
+        var nativeCompileErrors: [String: String] = [:]
         for file in NativeEffects.shaderFiles {
             do {
                 let source = try String(contentsOf: folder.appendingPathComponent(file), encoding: .utf8)
@@ -346,10 +443,14 @@ final class VisualizerRenderer: NSObject, MTKViewDelegate {
                 nativeLibraries[file] = try device.makeLibrary(source: activePrelude + "\n#line 1 \"\(file)\"\n" + source, options: options)
             } catch { nativeCompileErrors[file] = "Native shader \(file) failed to compile: \(error.localizedDescription)" }
         }
+        return (nativeLibraries, nativeCompileErrors)
     }
 
     private func nativeDescriptor(for effect: NativeEffect) -> MTLRenderPipelineDescriptor? {
-        guard let shader = effect.shader, let file = effect.file, let library = nativeLibraries[file],
+        Self.nativeDescriptor(for: effect, libraries: nativeLibraries)
+    }
+    nonisolated private static func nativeDescriptor(for effect: NativeEffect, libraries: [String: MTLLibrary]) -> MTLRenderPipelineDescriptor? {
+        guard let shader = effect.shader, let file = effect.file, let library = libraries[file],
               let vertex = library.makeFunction(name: "nativeVertex"),
               let fragment = library.makeFunction(name: shader + "Fragment") else { return nil }
         let descriptor = MTLRenderPipelineDescriptor()

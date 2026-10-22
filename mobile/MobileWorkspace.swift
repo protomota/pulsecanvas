@@ -87,7 +87,6 @@ struct MobileWorkspace: View {
             .ignoresSafeArea(.container, edges: cornerHeader ? .all : [.leading, .trailing, .bottom])
             .background(MobileTheme.background).tint(MobileTheme.accent)
         }
-        .task { await editor.start() }
         .task { await editor.radio.refreshFavoriteSongs() }
         .task { await engagement.observeStorefront() }
         .task(id: canRequestReview) {
@@ -194,27 +193,30 @@ struct MobileWorkspace: View {
         HStack(spacing: 12) {
             Picker("Workspace", selection: $editor.selectedTab) { Text("Studio").tag(0); Text("Radio").tag(1) }
                 .pickerStyle(.segmented).frame(maxWidth: compact ? 175 : 225)
+                .disabled(editor.loading || editor.exporter.isExporting)
                 .onChange(of: editor.selectedTab) { _, tab in if tab == 0 { editor.radio.leave() } else { editor.audio.pause() } }
             Spacer(minLength: 0)
             Button { sheet = .library } label: { Image(systemName: "square.grid.2x2").frame(width: 20) }
                 .accessibilityLabel("Open visualizer library").accessibilityIdentifier("mobileLibraryButton")
+                .disabled(editor.loading || editor.exporter.isExporting)
             Menu {
-                Button("Choose music", systemImage: "music.note.list") { sheet = .music }
-                Button("Import audio", systemImage: "waveform.badge.plus") { audioPicker = true }
-                Button("Open project", systemImage: "folder") { projectPicker = true }
-                Button("Save project", systemImage: "internaldrive") {
-                    do { projectDocument = MobileProjectDocument(data: try editor.projectData()); savingProject = true }
-                    catch { editor.message = error.localizedDescription }
-                }.disabled(radio.isActive && radio.isPersonalMusic)
-                Button("Export MP4", systemImage: "film") { sheet = .export }
-                    .disabled(audio.selectedURL == nil || radio.isActive && (!radio.canSeek || radio.isPersonalMusic))
+                Group {
+                    Button("Choose music", systemImage: "music.note.list") { sheet = .music }
+                    Button("Import audio", systemImage: "waveform.badge.plus") { audioPicker = true }
+                    Button("Open project", systemImage: "folder") { projectPicker = true }
+                    Button("Save project", systemImage: "internaldrive") {
+                        do { projectDocument = MobileProjectDocument(data: try editor.projectData()); savingProject = true }
+                        catch { editor.message = error.localizedDescription }
+                    }.disabled(radio.isActive && radio.isPersonalMusic)
+                    Button("Export MP4", systemImage: "film") { sheet = .export }
+                        .disabled(audio.selectedURL == nil || radio.isActive && (!radio.canSeek || radio.isPersonalMusic))
+                }.disabled(editor.loading || editor.exporter.isExporting)
                 Divider()
                 Button("Settings", systemImage: "gearshape") { sheet = .about }
             } label: { Image(systemName: "ellipsis").frame(width: 20) }.accessibilityLabel("Project actions")
         }.buttonStyle(MobileButton()).padding(.horizontal, 16).padding(.vertical, 10)
             // Keep the tabs leading, below iPadOS's window-control strip.
             .padding(.top, windowControlClearance)
-            .disabled(editor.loading || editor.exporter.isExporting)
             .accessibilityElement(children: .contain).accessibilityIdentifier("mobileWorkspaceHeader")
     }
     private func timeline(edgeInset: CGFloat) -> some View {
@@ -273,6 +275,10 @@ private struct MobilePreview: View {
                     VisualizerView(state: render).aspectRatio(16 / 9.0, contentMode: .fit)
                 }
             }.clipShape(RoundedRectangle(cornerRadius: 16)).accessibilityIdentifier("mobileVisualizerPreview")
+            if editor.loading {
+                ProgressView("Preparing your soundtrack…").font(.callout)
+                    .accessibilityIdentifier("mobileSoundtrackPreparing")
+            }
             if let error = render.errorMessage { Text(error).foregroundStyle(.red).accessibilityIdentifier("mobileRenderError") }
         }
     }

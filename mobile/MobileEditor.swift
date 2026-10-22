@@ -68,7 +68,7 @@ import CryptoKit
         }
         if let demo = BundledSoundtrack.url {
             #if DEBUG
-            if ProcessInfo.processInfo.arguments.contains("-PCMobileQA") {
+            if ProcessInfo.processInfo.arguments.contains("-PCMobileQA") && !ProcessInfo.processInfo.arguments.contains("-PCMobileFullSoundtrackQA") {
                 do {
                     try FileManager.default.createDirectory(at: documents, withIntermediateDirectories: true)
                     let sample = documents.appendingPathComponent("Demo.m4a")
