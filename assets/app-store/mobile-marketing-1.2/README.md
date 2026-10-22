@@ -6,10 +6,11 @@ in two aligned rows. The original untracked mobile-marketing-1.1.5 folder is pre
 
 ## October 22 refinement
 
-Each feature has a different featured visualizer: Double Twist for full screen,
-Pearl Terrain for Studio, Aurora Fold for style, Orbit Loom behind Library, and
+Each feature has a different featured visualizer: Mercury Fold for full screen,
+Plasma Bore for Studio, Aurora Fold for style, Orbit Loom behind Library, and
 Lotus Resonance behind export. Radio shows its live selection (Windowpane Drizzle
-on Duo, Mercury Fold on iPhone, Veil Passage Coaster on iPad). The full bundled
+on Duo and Veil Passage Coaster on iPad; iPhone uses Wind Tunnel to avoid
+repeating Mercury Fold). The full bundled
 2:54 soundtrack and live Radio are used, without shortened fixture content.
 
 Completely free has only four pills: No subscriptions, No ads, No account and
@@ -25,22 +26,27 @@ The renderers verify equal padding, image decoding and callout bounds.
 
 Opt-in test: testCaptureVariedMarketingLayout in
 mobile/UITests/PulseCanvasMobileUITests.swift. Set PC_MARKETING_VARIETY=1 and
-PC_MARKETING_ACK_DIRECTORY to a host directory. The capture host saves each stage
+PC_MARKETING_ACK_DIRECTORY to a host directory. Set PC_MARKETING_LEAD_ONLY=1 to
+capture just the liquid opening and tunnel Studio
+views, with PC_MARKETING_REFRESH_RADIO=1 to refresh iPhone Radio as well.
+The capture host saves each stage
 from simctl io screenshot before acknowledging it. Duo's active inner display is
---display=3. iPhone uses portrait; iPad and Duo use landscape.
+--display=3. Unfold Duo with Device Hub’s Open button before launching the test;
+a folded simulator has an inactive inner display. iPhone uses portrait; iPad and
+Duo use landscape.
 
 All captures, cropped details, PNG outputs, contact sheets and acknowledgments stay
 outside Git:
 
-`/Users/brad/Documents/Codex/2026-10-22/pulsecanvas-controls-release-rescue/art/variety/`
+`/Users/brad/Documents/Codex/2026-10-22/pulsecanvas-controls-release-rescue/art/liquid-tunnel/`
 
 Generate complete control crops before rendering:
 
 ```sh
-python3 assets/app-store/shared/prepare-callouts.py '/Users/brad/Documents/Codex/2026-10-22/pulsecanvas-controls-release-rescue/art/variety/raw'
+python3 assets/app-store/shared/prepare-callouts.py '/Users/brad/Documents/Codex/2026-10-22/pulsecanvas-controls-release-rescue/art/liquid-tunnel/raw'
 PLAYWRIGHT=/Users/brad/Documents/GIT_SOURCE/jotley-site/node_modules/playwright/index.mjs \
 node assets/app-store/mobile-marketing-1.2/render.mjs \
-  '/Users/brad/Documents/Codex/2026-10-22/pulsecanvas-controls-release-rescue/art/variety/raw' '/Users/brad/Documents/Codex/2026-10-22/pulsecanvas-controls-release-rescue/art/variety/mobile'
+  '/Users/brad/Documents/Codex/2026-10-22/pulsecanvas-controls-release-rescue/art/liquid-tunnel/raw' '/Users/brad/Documents/Codex/2026-10-22/pulsecanvas-controls-release-rescue/art/liquid-tunnel/mobile'
 ```
 
 The manifest records raw captures, derived control crops and rendered image hashes.
@@ -49,3 +55,7 @@ The uploaded iPad copies are JPEG quality 97 with chroma subsampling disabled;
 Apple stalled on some PNG uploads. Lossless originals remain preserved.
 The numbered campaign images are followed by the all-device availability slide.
 Placements are saved to the English (U.S.) 1.2 draft; this does not submit review.
+
+The delivered opening and Studio replacements use JPEG quality 97 without
+chroma subsampling. Lossless renders remain preserved. Other accepted screenshot
+placements and their ordering are retained.

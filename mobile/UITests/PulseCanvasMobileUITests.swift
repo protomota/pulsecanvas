@@ -393,7 +393,7 @@ final class PulseCanvasMobileUITests: XCTestCase {
             let groups = app.buttons.matching(identifier: "Randomize visualizer group")
             tap(groups.element(boundBy: max(0, groups.count - 1))); app.buttons["Randomize all"].tap()
             search.tap(); search.typeText(name + "\n")
-            let choice = app.buttons.containing(.staticText, identifier: name).firstMatch
+            let choice = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@", "libraryVisualizer-")).containing(.staticText, identifier: name).firstMatch
             XCTAssertTrue(choice.waitForExistence(timeout: 10))
             choice.coordinate(withNormalizedOffset: CGVector(dx: 0.25, dy: 0.5)).tap()
             expectation(for: NSPredicate(format: "exists == false"), evaluatedWith: search); waitForExpectations(timeout: 15)
@@ -411,14 +411,36 @@ final class PulseCanvasMobileUITests: XCTestCase {
                 XCTAssertTrue(FileManager.default.fileExists(atPath: ack), "Native capture missing: " + name)
             } else { Thread.sleep(forTimeInterval: 6) }
         }
+        func style(_ palette: String) {
+            tap(app.buttons["Visual style"])
+            XCTAssertTrue(app.buttons["Reset"].waitForExistence(timeout: 10))
+            tap(app.buttons["Reset"])
+            tap(app.buttons["mobilePalettePicker"]); app.buttons[palette].tap()
+            tap(app.buttons["Done"])
+        }
         tap(app.buttons["Studio"])
-        choose("Pearl Terrain")
-        tap(app.buttons["Play scene 1"]); Thread.sleep(forTimeInterval: 2)
-        capture("studio", "Pearl Terrain"); tap(app.buttons["mobilePlaybackButton"])
-        choose("Double Twist")
-        tap(app.buttons["Play scene 1"]); tap(app.buttons["Present visualizer"])
+        choose("Plasma Bore"); style("Ultraviolet")
+        let leadOnly = env["PC_MARKETING_LEAD_ONLY"] == "1"
+        if !leadOnly { tap(app.buttons["Play scene 1"]); Thread.sleep(forTimeInterval: 2) }
+        capture("studio", "Plasma Bore")
+        if !leadOnly { tap(app.buttons["mobilePlaybackButton"]) }
+        choose("Mercury Fold"); style("Ultraviolet")
+        if !leadOnly { tap(app.buttons["Play scene 1"]) }
+        tap(app.buttons["Present visualizer"])
         XCTAssertTrue(app.buttons["Close"].waitForExistence(timeout: 10))
-        Thread.sleep(forTimeInterval: 5); capture("fullscreen", "Double Twist")
+        Thread.sleep(forTimeInterval: 5); capture("fullscreen", "Mercury Fold")
+        if leadOnly {
+            if env["PC_MARKETING_REFRESH_RADIO"] == "1" {
+                tap(app.buttons["Close"]); tap(app.buttons["Radio"])
+                let play = app.buttons["radioPlaybackButton"]
+                expectation(for: NSPredicate(format: "enabled == true"), evaluatedWith: play); waitForExpectations(timeout: 90)
+                tap(play)
+                expectation(for: NSPredicate(format: "enabled == true"), evaluatedWith: app.sliders["radioSongPosition"]); waitForExpectations(timeout: 90)
+                if app.staticTexts["Mercury Fold"].isHittable { tap(app.buttons["Random radio visualizer"]) }
+                capture("radio", "Live Radio selection distinct from opening")
+            }
+            return
+        }
         app.windows.firstMatch.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
         tap(app.buttons["Close"]); tap(app.buttons["mobilePlaybackButton"])
         choose("Aurora Fold"); tap(app.buttons["Visual style"])

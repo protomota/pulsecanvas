@@ -48,8 +48,10 @@ preview videos were retained. Medium iPhone sizes inherit the large group.
 ## Screenshot refinement
 
 The October 22 follow-up replaces repeated featured effects across the mobile
-campaign with Double Twist, Pearl Terrain, Aurora Fold, live Radio selections,
-Lotus Resonance and Orbit Loom. The six Studio controls remain visible. Magnified
+campaign with Mercury Fold, Plasma Bore, Aurora Fold, live Radio selections,
+Lotus Resonance and Orbit Loom. The six Studio controls remain visible. The opening screenshot uses glossy
+liquid Mercury Fold; Studio uses the purple/cyan Plasma Bore tunnel. The iPhone
+Radio image uses Wind Tunnel so the set does not feature Mercury Fold twice. Magnified
 controls use full native crops with an opaque matching panel background and equal
 padding on all sides (48px iPhone, 64px iPad/Duo). All Duo decorative outline
 triangles and the Completely free GitHub label are removed; only the four privacy
@@ -77,6 +79,9 @@ preview and was excluded from the marketing set.
   display. The final captures use the full bundled soundtrack in isolated QA storage.
 - Vision's opt-in varied capture scenario passed (62.7 seconds). Each host capture
   is acknowledged before the scenario advances.
+- The focused liquid/tunnel capture scenario passed on iPhone, iPad and unfolded
+  Duo. iPhone also captured live Radio with Wind Tunnel. It uses the full bundled
+  soundtrack in isolated storage and actual native display captures.
 - Eighteen mobile/Duo campaign renders passed bounds, decoding and equal-padding
   checks. Contact sheets and the native control crops were visually reviewed.
 
@@ -94,10 +99,12 @@ Primary internal artifact folder:
 - `art/variety/all-devices/`: final availability slides and checksum manifest.
 - `art/search-variety/`: final search-results image and checksum manifest.
 - `delivery/testflight-delivery-receipt.json`: successful build delivery receipt.
-- `delivery/screenshots-variety-delivery-receipt.json`: final ordered sets after refinement.
+- `delivery/screenshots-liquid-tunnel-delivery-receipt.json`: final ordered sets after liquid/tunnel refinement.
+- `art/liquid-tunnel/`: final native opening/Studio captures, crops and campaign renders; previously accepted stages are preserved.
 - `delivery/ios-variety-placements-final.json`: final search-results placement readback.
 - `delivery/app-store-free-no-github-proof.png`: actual saved App Store preview.
-- `art/variety/*-final-contact.jpg`: final iPad/Duo visual review sheets.
+- `art/liquid-tunnel/duo-new-pair.jpg`: final liquid/tunnel comparison.
+- `delivery/app-store-liquid-tunnel-proof.png`: saved App Store gallery proof.
 
 Original archives, exports, upload logs and validation evidence remain at
 `/Volumes/Music/Codex Media/PulseCanvas Studio/Platform Builds/control-release-1.2-20261022/`.

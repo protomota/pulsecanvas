@@ -1,16 +1,16 @@
 {
   "appVersion": "1.2",
   "appBuild": "10",
-  "renderedAt": "2026-10-22T21:27:07.047Z",
+  "renderedAt": "2026-10-22T22:17:54.249Z",
   "renderer": "Playwright Chromium, real simulator captures",
   "sources": [
     {
       "file": "duo-inner-fullscreen.png",
-      "sha256": "371c85671e33dd7c3fd8b353ecb94bafc02a3ec8cd3172708be5f16e50c932ff"
+      "sha256": "2bded814411e60c6bb3827e26571b2601d382e3c12ba87d08a3cfe0b8390ced7"
     },
     {
       "file": "duo-inner-studio.png",
-      "sha256": "fa7e8be924297937361ff621dc253d3fe243049066724be05cd0ab9b77f4743d"
+      "sha256": "8087ed0c74a7cbed484e995abbbec9af4b7f186844c4d0360241e0ff4c135436"
     },
     {
       "file": "duo-inner-style.png",
@@ -30,7 +30,7 @@
     },
     {
       "file": "duo-inner-callout-studio.png",
-      "sha256": "e4a5ee5349ebdf45b85ef91e7c609be16a3b4960dd5fc035e22a45804bb3627d"
+      "sha256": "43724a81e790678cad33595581a84719a306bd35b43b3a703ca04f87464cc19f"
     },
     {
       "file": "duo-inner-callout-style.png",
@@ -50,8 +50,8 @@
       "file": "duo-01-music.png",
       "width": 2853,
       "height": 2007,
-      "bytes": 2958385,
-      "sha256": "917d8ac115880d7b131879352f8a3367abc910bc0ebd861990483822894019cf",
+      "bytes": 2698797,
+      "sha256": "d8023b3249d7ba313113d2e1d7403ac08a6d5dc0d9450d83021153365ddfe743",
       "copyBottom": 481.828125,
       "title": "Your music. A new world."
     },
@@ -59,8 +59,8 @@
       "file": "duo-02-studio.png",
       "width": 2853,
       "height": 2007,
-      "bytes": 1138693,
-      "sha256": "b550817712792bf7e1efb533403e0bf11e50bceb16cbf2fbd5e829fd09620c7b",
+      "bytes": 1376392,
+      "sha256": "cef3994ca8036bba1d041ae7468b47c505a76781c397f2fcc823f130579d3a6f",
       "copyBottom": 481.828125,
       "title": "Build a visual journey."
     },

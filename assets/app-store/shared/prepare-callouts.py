@@ -10,19 +10,19 @@ root = Path(sys.argv[1])
 # Bounds encompass whole controls; trim only surrounding flat panel background.
 regions = {
     'iphone': {
-        'studio': (36, 2145, 817, 2589),
+        'studio': (30, 2136, 822, 2604),
         'style': (72, 866, 1134, 1296),
         'radio': (48, 1480, 1158, 2210),
         'export': (72, 661, 1134, 925),
     },
     'ipad': {
-        'studio': (32, 1746, 2168, 2043),
+        'studio': (24, 1738, 2176, 2055),
         'style': (844, 810, 1908, 1306),
         'radio': (24, 1790, 2728, 1986),
         'export': (844, 640, 1908, 866),
     },
     'duo-inner': {
-        'studio': (48, 1530, 2448, 1977),
+        'studio': (40, 1520, 2456, 1992),
         'style': (518, 710, 2337, 1415),
         'radio': (36, 1595, 2817, 1895),
         'export': (518, 510, 2337, 775),
