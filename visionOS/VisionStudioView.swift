@@ -10,6 +10,7 @@ struct VisionStudioView: View {
     @Environment(\.dismissWindow) private var dismissWindow
     @Environment(\.scenePhase) private var phase
     @Environment(\.requestReview) private var requestReview
+    @Environment(\.pulseCanvasOnboardingActive) private var onboardingActive
     @StateObject private var engagement = CreatorEngagement(preferences: VisionLaunchOptions.current.uiTesting
         ? UserDefaults(suiteName: "PulseCanvasUITesting-\(ProcessInfo.processInfo.processIdentifier)")! : .standard)
     @State private var importAudio = false
@@ -21,6 +22,7 @@ struct VisionStudioView: View {
     @State private var exportVideo = false
     @State private var changingSpace = false
     @State private var showLibrary = false
+    @State private var showStyle = false
     @State private var legal = false
     @State private var replayOnboardingAfterSupport = false
     @State private var launchApplied = false
@@ -29,7 +31,7 @@ struct VisionStudioView: View {
     private var canAskForReview: Bool {
         (engagement.pendingExportThanks || (leftMilestoneRadio && engagement.pendingRadioThanks))
             && phase == .active && !exportVideo && !exportProject && !importAudio && !importProject
-            && !locateAudio && !chooseMusic && !showLibrary && !legal && !session.immersiveActive && !session.radioMode
+            && !locateAudio && !chooseMusic && !showLibrary && !showStyle && !legal && !session.immersiveActive && !session.radioMode
             && !studio.loading && !studio.transport.playing && studio.message == nil
     }
 
@@ -40,19 +42,36 @@ struct VisionStudioView: View {
                 radioSurface
             } else {
                 VStack(alignment: .leading, spacing: 12) {
-                    preview.frame(maxWidth: .infinity, maxHeight: .infinity)
+                    preview.aspectRatio(16.0 / 9, contentMode: .fit)
+                        .accessibilityIdentifier("visionVisualizerPreview")
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
                     VisionTransportView(studio: studio, transport: studio.transport)
                     if studio.needsSoundtrack {
                         Button("Locate soundtrack", systemImage: "waveform.badge.plus") { locateAudio = true }
                             .buttonStyle(.borderedProminent)
                     }
-                    VisionStyleControls(studio: studio)
                 }
             }
             if !session.radioMode { VisionTimelineView(studio: studio) }
-            editorControls
         }.padding(.vertical, 20).padding(.leading, 12).padding(.trailing, 20)
             .frame(minWidth: 1100, minHeight: 780)
+            .ornament(visibility: onboardingActive ? .hidden : .visible,
+                      attachmentAnchor: .scene(.bottom), contentAlignment: .top) {
+                editorControls.padding(12).glassBackgroundEffect().padding(.top, 12)
+            }
+            .sheet(isPresented: $showStyle) {
+                VStack(alignment: .leading, spacing: 20) {
+                    HStack {
+                        Text("Visual style").font(.title2.bold())
+                        Spacer()
+                        Button("Done") { showStyle = false }
+                            .accessibilityIdentifier("closeVisionStyleButton")
+                    }
+                    VisionStyleControls(studio: studio)
+                }.padding(32).frame(width: 1000, height: 720)
+                    .accessibilityElement(children: .contain)
+                    .accessibilityIdentifier("visionStylePanel")
+            }
             .sheet(isPresented: $showLibrary) {
                 VisionLibrary(studio: studio) { showLibrary = false }
                     .padding(24).frame(width: 760, height: 730)
@@ -121,40 +140,48 @@ struct VisionStudioView: View {
             } message: { Text(studio.message ?? "") }
     }
 
-    // Keep controls in the editor surface so replay restores every action reliably.
+    // A separate, neutral ornament leaves the window for the canvas and timeline.
     private var editorControls: some View {
         HStack(spacing: 12) {
             if !session.radioMode {
                 Button("Choose music", systemImage: "music.note.list") { chooseMusic = true }.disabled(studio.loading)
                     .accessibilityIdentifier("chooseStudioMusicButton")
+                    .help("Choose music")
                 Button("Import audio", systemImage: "tray.and.arrow.down") { importAudio = true }.disabled(studio.loading || session.radioMode)
-                    .labelStyle(.titleAndIcon)
                     .accessibilityIdentifier("importAudioButton")
+                    .help("Import audio")
                 Button("Open project", systemImage: "folder") { importProject = true }.disabled(studio.loading || session.radioMode)
-                    .labelStyle(.titleAndIcon)
+                    .help("Open project")
                 Button("Save project", systemImage: "internaldrive") {
                     do {
                         projectData = try studio.project.portableData(duration: studio.transport.duration, scene: studio.selectedScene)
                         exportProject = true
                     } catch { studio.message = "Couldn't save project: \(error.localizedDescription)" }
                 }.disabled(session.radioMode || studio.loading || studio.needsSoundtrack)
-                    .labelStyle(.titleAndIcon)
                     .accessibilityIdentifier("saveProjectButton")
+                    .help("Save project")
                 Button("Export MP4", systemImage: "film") { exportVideo = true }
                     .disabled(studio.loading || session.radioMode)
                     .accessibilityIdentifier("exportMP4Button")
+                    .help("Export MP4")
+                Divider().frame(height: 28)
+                Button("Visual style", systemImage: "slider.horizontal.3") { showStyle = true }
+                    .accessibilityIdentifier("visionStyleButton")
+                    .help("Visual style")
             }
             Button("Settings", systemImage: "gearshape") { legal = true }
                 .accessibilityIdentifier("visionInfoButton")
+                .help("Settings")
             if studio.loading { ProgressView("Analyzing music…") }
             HStack(spacing: 8) {
                 Text("Hide room").font(.callout)
                 Toggle("Hide room", isOn: $session.fullImmersion).labelsHidden()
                     .toggleStyle(.switch).disabled(session.immersiveActive)
                     .accessibilityIdentifier("hideRoomToggle")
+                    .tint(Color(red: 0.95, green: 0.68, blue: 0.55))
             }.fixedSize()
             immersiveButton
-        }.padding(12).background(.white.opacity(0.05), in: RoundedRectangle(cornerRadius: 20))
+        }.labelStyle(.iconOnly).buttonStyle(.borderless).tint(.white)
     }
 
     private var preview: some View {
@@ -597,6 +624,8 @@ private struct VisionStyleControls: View {
                             Toggle("Hi-hat strobe", isOn: Binding(get: { look.strobeEnabled }, set: { enabled in
                                 studio.updateLook(for: clipID) { $0.strobeEnabled = enabled }
                             })).labelsHidden().toggleStyle(.switch).fixedSize()
+                                .accessibilityLabel("Hi-hat strobe")
+                                .accessibilityIdentifier("visionStrobeToggle")
                         }.frame(maxWidth: .infinity, alignment: .leading)
                         if look.strobeEnabled {
                             LazyVGrid(columns: columns, alignment: .leading, spacing: 16) {
@@ -611,8 +640,8 @@ private struct VisionStyleControls: View {
                             control("Screen height", binding: $studio.screenHeight, range: 0.8...2)
                         }
                     }
-                }.padding(.trailing, 10)
-            }.scrollIndicators(.visible).frame(maxHeight: 250)
+                }.padding(.trailing, 10).padding(.bottom, 12)
+            }.scrollIndicators(.visible).frame(maxHeight: .infinity)
         }
     }
     private func control(_ title: String, binding: Binding<Float>, range: ClosedRange<Float>, step: Float? = nil, digits: Int = 2) -> some View {

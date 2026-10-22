@@ -13,6 +13,19 @@ extension Notification.Name {
     static let pulseCanvasOnboarding = Notification.Name("PulseCanvas.showOnboarding")
 }
 
+#if os(visionOS)
+private struct PulseCanvasOnboardingActiveKey: EnvironmentKey {
+    static let defaultValue = false
+}
+
+extension EnvironmentValues {
+    var pulseCanvasOnboardingActive: Bool {
+        get { self[PulseCanvasOnboardingActiveKey.self] }
+        set { self[PulseCanvasOnboardingActiveKey.self] = newValue }
+    }
+}
+#endif
+
 enum PulseCanvasOnboarding {
     static let completedKey = "PulseCanvas.onboarding.completed.v1"
     static var initialStep: Int {
@@ -59,6 +72,7 @@ struct PulseCanvasOnboardingPresentation: ViewModifier {
             ZStack {
                 if (completed || PulseCanvasOnboarding.fixture) && !force {
                     content.opacity(showingOnboarding ? 0 : 1)
+                        .environment(\.pulseCanvasOnboardingActive, showingOnboarding)
                         .allowsHitTesting(!showingOnboarding)
                         .accessibilityElement(children: showingOnboarding ? .ignore : .contain)
                         .accessibilityHidden(showingOnboarding)

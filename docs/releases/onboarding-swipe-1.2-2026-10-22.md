@@ -88,3 +88,22 @@ Latest evidence is outside Git in
 The local review gallery has an `updates.html` page with Mac support/replay and
 updated editor screenshots. No deployment, upload or review submission was made
 for this follow-up; the pending local version/build numbers remain unchanged.
+
+## Vision Pro layout correction
+
+Restored a separate floating control bar below the window. Its actions use neutral
+icons with hover labels instead of prominent text buttons. The top-right shuffle,
+dice and Library buttons remain unchanged. Visual Style opens a dedicated
+1000 × 720 control panel; its scroll area uses the available panel height rather
+than a 250-point strip in the editor. The Studio preview keeps its 16:9 proportions
+and has over 400 points of height in the default window.
+
+The ornament explicitly hides during onboarding and returns afterward. The
+repeated support replay UI test passed with the floating bar. The control-panel
+test passed for opening/closing the panel, the full slider grid, the additional
+strobe sliders, preview proportions, the retained top-right controls, and timeline
+randomization. The updated Debug app was launched in a separate Vision Pro
+simulator window with the bundled demo for the owner to test. No deployment or
+App Store submission was made.
+
+Evidence: `/Volumes/Music/Codex Media/PulseCanvas Studio/Platform Builds/vision-layout-20261022/`.

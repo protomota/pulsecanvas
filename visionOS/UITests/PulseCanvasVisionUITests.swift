@@ -269,6 +269,16 @@ final class PulseCanvasVisionUITests: XCTestCase {
         let app = launch()
         waitForSoundtrack(app)
         XCTAssertEqual(app.buttons["saveProjectButton"].label, "Save project")
+        let preview = app.descendants(matching: .any)["visionVisualizerPreview"]
+        XCTAssertTrue(preview.exists)
+        XCTAssertGreaterThan(preview.frame.height, 400, "The canvas must retain useful height")
+        XCTAssertEqual(preview.frame.width / preview.frame.height, 16.0 / 9, accuracy: 0.03)
+        XCTAssertFalse(app.sliders["Chaos"].exists, "Style controls belong in their own panel")
+        XCTAssertTrue(app.buttons["randomizeStyleButton"].isHittable)
+        XCTAssertTrue(app.buttons["randomVisualizerButton"].isHittable)
+        XCTAssertTrue(app.buttons["visionLibraryButton"].isHittable)
+        app.buttons["visionStyleButton"].tap()
+        XCTAssertTrue(app.buttons["closeVisionStyleButton"].waitForExistence(timeout: 10))
         let chaos = app.sliders["Chaos"], zoom = app.sliders["Zoom speed"], motion = app.sliders["Motion speed"]
         XCTAssertTrue(chaos.exists && zoom.exists && motion.exists)
         XCTAssertEqual(chaos.frame.midY, zoom.frame.midY, accuracy: 2)
@@ -276,8 +286,19 @@ final class PulseCanvasVisionUITests: XCTestCase {
         XCTAssertLessThan(chaos.frame.midX, zoom.frame.midX)
         XCTAssertLessThan(zoom.frame.midX, motion.frame.midX)
         for label in ["Brightness", "Depth / fog", "Camera zoom", "Camera rotation", "Blur"] {
-            XCTAssertTrue(app.sliders[label].exists, "Missing slider: \(label)")
+            XCTAssertTrue(app.sliders[label].isHittable, "Slider must be fully reachable: \(label)")
         }
+        let strobe = app.descendants(matching: .any)["visionStrobeToggle"]
+        XCTAssertTrue(strobe.isHittable)
+        if !app.sliders["Sensitivity"].exists { strobe.tap() }
+        XCTAssertTrue(app.sliders["Sensitivity"].isHittable)
+        XCTAssertTrue(app.sliders["Strength"].isHittable)
+        let controlsShot = XCTAttachment(screenshot: app.screenshot())
+        controlsShot.name = "Vision-style-controls-panel"
+        controlsShot.lifetime = .keepAlways
+        add(controlsShot)
+        app.buttons["closeVisionStyleButton"].tap()
+        XCTAssertTrue(app.sliders["Chaos"].waitForNonExistence(timeout: 10))
         let before = app.staticTexts["selectedVisualizerName"].label
         let button = app.buttons["randomizeTimelineButton"]
         XCTAssertTrue(button.isHittable)
