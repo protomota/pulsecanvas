@@ -55,3 +55,36 @@ are outside Git at:
 `/Volumes/Music/Codex Media/PulseCanvas Studio/Platform Builds/onboarding-swipe-1.2-20261022/`.
 Generated project build/cache folders were preserved there and linked from their
 original workspace paths after the internal disk filled up during testing.
+
+## Support replay and Library follow-up
+
+- Added **Welcome to PulseCanvas Studio** to the Mac's Ratings & Support page,
+  matching the existing entry in mobile and Vision Pro settings.
+- Every replay gets a fresh onboarding identity and explicitly starts at screen
+  one, including after completing the last page or interrupting an earlier replay.
+- On Vision Pro, support dismisses before onboarding opens. The established
+  spatial editor stays mounted, covered and inactive during replay, so its
+  controls remain usable afterward. Its actions now sit inside the editor window.
+- Removed the embedded visualizer list from iPad and Vision Pro. Mobile uses its
+  existing Library button; Vision Pro now opens its list from a Library button.
+  Mac browsing is unchanged. Apple TV already opens its browser separately and
+  was not changed.
+- Library search releases keyboard focus on selection, submission or dismissal;
+  the editor no longer has an inline search field that can leave the iPad keyboard
+  accessory bar onscreen.
+
+Validation: Mac Debug build and native support/restart checks passed. Focused
+mobile UI tests passed on iPhone, iPad portrait and landscape, and both Duo QA
+devices, covering Library search/selection/dismissal, keyboard removal and two
+successive Settings replays after completing screen five. Preview bounds fill
+the available mobile width. The Duo inner display was also explicitly opened
+and captured natively at 2853 × 2007; the outer capture is 1398 × 2034.
+Vision Pro Library selection and repeated support replay tests passed; replay
+starts at one, hides editor interactions, keeps Continue reachable, and restores
+Settings afterward. These checks use simulators, plus the native Mac app.
+
+Latest evidence is outside Git in
+`/Volumes/Music/Codex Media/PulseCanvas Studio/Platform Builds/onboarding-support-20261022/`.
+The local review gallery has an `updates.html` page with Mac support/replay and
+updated editor screenshots. No deployment, upload or review submission was made
+for this follow-up; the pending local version/build numbers remain unchanged.

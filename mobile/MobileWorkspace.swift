@@ -66,11 +66,6 @@ struct MobileWorkspace: View {
                     MobileRadio(editor: editor, trailingControlInset: geometry.safeAreaInsets.trailing, present: { editor.presenting = true })
                 } else {
                     HStack(spacing: 0) {
-                        if UIDevice.current.userInterfaceIdiom == .pad && geometry.size.width >= 850 && geometry.size.height >= 500 {
-                            MobileLibrary(editor: editor, close: nil)
-                                .frame(width: min(255, geometry.size.width * 0.26))
-                            Divider()
-                        }
                         if geometry.size.width >= 520 && geometry.size.width > geometry.size.height
                             || geometry.size.width >= 350 && geometry.size.height >= 600 {
                             studioContent(size: geometry.size, bounded: true, trailingControlInset: geometry.safeAreaInsets.trailing)
@@ -110,7 +105,7 @@ struct MobileWorkspace: View {
                             .toolbar(.hidden, for: .navigationBar)
                     }
                 }.navigationTitle(title(item)).navigationBarTitleDisplayMode(.inline)
-                    .toolbar { ToolbarItem(placement: .confirmationAction) { Button("Done") { sheet = nil }.disabled(editor.exporter.isExporting) } }
+                    .toolbar { ToolbarItem(placement: .confirmationAction) { Button("Done") { sheet = nil }.disabled(editor.exporter.isExporting).accessibilityIdentifier("mobileSheetDone") } }
                     .background(MobileTheme.background)
             }.tint(MobileTheme.accent).preferredColorScheme(.dark)
         }
@@ -350,38 +345,45 @@ private struct MobileClip: View {
 struct MobileLibrary: View {
     @ObservedObject var editor: MobileEditor
     @ObservedObject private var library = ProjectMPresets.shared
-    let close: (() -> Void)?
+    let close: () -> Void
     @State private var query = ""
+    @FocusState private var searchFocused: Bool
     var body: some View {
         VStack(spacing: 12) {
             TextField("Search visualizers", text: $query).textFieldStyle(.plain).padding(.horizontal, 12).frame(height: 48)
                 .background(MobileTheme.panel, in: RoundedRectangle(cornerRadius: 12))
-                .accessibilityIdentifier(close == nil ? "sidebarVisualizerSearch" : "modalVisualizerSearch")
+                .focused($searchFocused)
+                .submitLabel(.search).onSubmit { searchFocused = false }
+                .accessibilityIdentifier("modalVisualizerSearch")
             VisualizerRandomizerPicker(fillsWidth: true)
             List(library.filteredScenes(query: query, category: "", favoritesOnly: false), id: \.self) { scene in
                 if library.eligibleScenes.contains(scene) {
                     HStack {
                         Button {
                             if editor.radio.isActive { editor.radio.leave(); editor.selectedTab = 0 }
-                            editor.choose(scene); close?()
+                            searchFocused = false
+                            editor.choose(scene); close()
                         } label: {
                             HStack(spacing: 12) {
                                 Image(systemName: library.icon(for: scene)).foregroundStyle(MobileTheme.accent).frame(width: 28)
                                 Text(library.sceneNames[scene]).lineLimit(1).frame(maxWidth: .infinity, alignment: .leading)
                             }.frame(minHeight: 44).contentShape(Rectangle())
                         }.buttonStyle(.plain)
+                            .accessibilityIdentifier("libraryVisualizer-\(scene)")
                         Button { library.toggleFavorite(scene, appearance: editor.studio.presets[scene]) } label: {
                             Image(systemName: library.isFavorite(scene) ? "heart.fill" : "heart").frame(width: 44, height: 44)
                         }.buttonStyle(.borderless).accessibilityLabel("Favorite \(library.sceneNames[scene])")
                     }.listRowBackground(MobileTheme.panel)
                 }
             }.listStyle(.plain).scrollContentBackground(.hidden)
+                .scrollDismissesKeyboard(.interactively)
                 .contentMargins(.bottom, 0, for: .scrollContent)
                 .frame(maxHeight: .infinity)
-                .accessibilityIdentifier(close == nil ? "sidebarVisualizerList" : "modalVisualizerList")
+                .accessibilityIdentifier("modalVisualizerList")
         }.padding(.horizontal, 12).padding(.top, 12)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .ignoresSafeArea(.container, edges: .bottom)
+            .onDisappear { searchFocused = false }
     }
 }
 

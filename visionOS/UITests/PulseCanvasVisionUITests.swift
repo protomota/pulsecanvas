@@ -6,6 +6,63 @@ import XCTest
 final class PulseCanvasVisionUITests: XCTestCase {
     override func setUpWithError() throws { continueAfterFailure = false }
 
+    @MainActor func testLibraryIsTheOnlyVisualizerBrowser() {
+        let app = launch()
+        waitForSoundtrack(app)
+        let library = app.buttons["visionLibraryButton"]
+        XCTAssertTrue(library.exists)
+        XCTAssertFalse(app.textFields["visualizerSearchField"].exists)
+        XCTAssertFalse(app.scrollViews["visionVisualizerList"].exists)
+        library.tap()
+        let search = app.textFields["visualizerSearchField"]
+        XCTAssertTrue(search.waitForExistence(timeout: 10))
+        search.tap(); search.typeText("Aurora Fold")
+        app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@", "libraryVisualizer-")).firstMatch.tap()
+        XCTAssertTrue(search.waitForNonExistence(timeout: 10))
+        XCTAssertEqual(app.staticTexts["selectedVisualizerName"].label, "Aurora Fold")
+        XCTAssertTrue(app.buttons["visionInfoButton"].isHittable)
+        XCTAssertTrue(app.buttons["randomizeTimelineButton"].isHittable)
+        let shot = XCTAttachment(screenshot: app.screenshot())
+        shot.name = "Vision-editor-without-visualizer-sidebar"
+        shot.lifetime = .keepAlways
+        add(shot)
+    }
+
+    @MainActor func testSupportReplaysOnboardingFromTheBeginningEachTime() {
+        let app = launch(["-PCOnboardingQA", "-PCOnboardingStep", "4"])
+        XCTAssertTrue(app.buttons["onboardingContinue"].waitForExistence(timeout: 30))
+        XCTAssertTrue(app.otherElements["onboardingProgress"].label.contains("Step 5 of 5"))
+        app.buttons["onboardingContinue"].tap()
+        for _ in 0..<2 {
+            let settings = app.buttons["visionInfoButton"]
+            XCTAssertTrue(settings.waitForExistence(timeout: 30))
+            settings.tap()
+            let welcome = app.buttons["settingsWelcomePulseCanvas"]
+            XCTAssertTrue(welcome.waitForExistence(timeout: 10))
+            welcome.tap()
+            let progress = app.otherElements["onboardingProgress"]
+            XCTAssertTrue(progress.waitForExistence(timeout: 10))
+            XCTAssertTrue(progress.label.contains("Step 1 of 5"))
+            XCTAssertFalse(app.buttons["closeVisionInfoButton"].exists, "Support must close before full-screen onboarding")
+            let replayShot = app.screenshot()
+            let replayAttachment = XCTAttachment(screenshot: replayShot)
+            replayAttachment.name = "Replayed-onboarding-first-screen"
+            replayAttachment.lifetime = .keepAlways
+            add(replayAttachment)
+            XCTAssertFalse(app.buttons["visionInfoButton"].isHittable, "The editor must be covered while onboarding is visible")
+            XCTAssertTrue(app.buttons["onboardingContinue"].isHittable, "Replay actions must fit the spatial window")
+            app.staticTexts["onboardingTitle"].swipeLeft()
+            let secondPage = expectation(for: NSPredicate(format: "label BEGINSWITH %@", "Step 2 of 5"), evaluatedWith: progress)
+            wait(for: [secondPage], timeout: 5)
+            app.buttons["onboardingSkip"].tap()
+        }
+        XCTAssertTrue(app.buttons["visionInfoButton"].waitForExistence(timeout: 30))
+        let attachment = XCTAttachment(screenshot: app.screenshot())
+        attachment.name = "Editor-controls-after-two-onboarding-replays"
+        attachment.lifetime = .keepAlways
+        add(attachment)
+    }
+
     @MainActor func testOnboardingSwipesNavigateAndKeepFinalActionExplicit() {
         let app = launch(["-PCOnboardingQA"])
         let progress = app.otherElements["onboardingProgress"]
@@ -113,7 +170,8 @@ final class PulseCanvasVisionUITests: XCTestCase {
         let studioTab = app.buttons["Studio"]
         let pinnedFrame = studioTab.frame
         studioTab.tap()
-        XCTAssertTrue(app.textFields["visualizerSearchField"].waitForExistence(timeout: 20))
+        XCTAssertTrue(app.buttons["visionLibraryButton"].waitForExistence(timeout: 20))
+        XCTAssertFalse(app.textFields["visualizerSearchField"].exists)
         XCTAssertLessThan(abs(studioTab.frame.minX - pinnedFrame.minX), 2)
         XCTAssertLessThan(abs(studioTab.frame.minY - pinnedFrame.minY), 2)
         app.buttons["Radio"].tap()

@@ -20,14 +20,16 @@ struct VisionStudioView: View {
     @State private var locateAudio = false
     @State private var exportVideo = false
     @State private var changingSpace = false
+    @State private var showLibrary = false
     @State private var legal = false
+    @State private var replayOnboardingAfterSupport = false
     @State private var launchApplied = false
     @State private var leftMilestoneRadio = false
 
     private var canAskForReview: Bool {
         (engagement.pendingExportThanks || (leftMilestoneRadio && engagement.pendingRadioThanks))
             && phase == .active && !exportVideo && !exportProject && !importAudio && !importProject
-            && !locateAudio && !chooseMusic && !legal && !session.immersiveActive && !session.radioMode
+            && !locateAudio && !chooseMusic && !showLibrary && !legal && !session.immersiveActive && !session.radioMode
             && !studio.loading && !studio.transport.playing && studio.message == nil
     }
 
@@ -37,13 +39,9 @@ struct VisionStudioView: View {
             if session.radioMode {
                 radioSurface
             } else {
-            HStack(alignment: .top, spacing: 20) {
-                VStack(spacing: 12) {
-                    VisionLibrary(studio: studio)
-                }.frame(width: 340)
                 VStack(alignment: .leading, spacing: 12) {
-                    preview.aspectRatio(16.0 / 9, contentMode: .fit)
-                    VisionTransportView(studio: studio, transport: studio.transport, radio: session.radioMode ? session.radio : nil)
+                    preview.frame(maxWidth: .infinity, maxHeight: .infinity)
+                    VisionTransportView(studio: studio, transport: studio.transport)
                     if studio.needsSoundtrack {
                         Button("Locate soundtrack", systemImage: "waveform.badge.plus") { locateAudio = true }
                             .buttonStyle(.borderedProminent)
@@ -51,51 +49,28 @@ struct VisionStudioView: View {
                     VisionStyleControls(studio: studio)
                 }
             }
-            }
             if !session.radioMode { VisionTimelineView(studio: studio) }
+            editorControls
         }.padding(.vertical, 20).padding(.leading, 12).padding(.trailing, 20)
             .frame(minWidth: 1100, minHeight: 780)
-            .toolbar {
-                ToolbarItemGroup(placement: .bottomOrnament) {
-                    if !session.radioMode {
-                    Button("Choose music", systemImage: "music.note.list") { chooseMusic = true }.disabled(studio.loading)
-                        .accessibilityIdentifier("chooseStudioMusicButton")
-                    Button("Import audio", systemImage: "tray.and.arrow.down") { importAudio = true }.disabled(studio.loading || session.radioMode)
-                        .labelStyle(.titleAndIcon)
-                        .accessibilityIdentifier("importAudioButton")
-                    Button("Open project", systemImage: "folder") { importProject = true }.disabled(studio.loading || session.radioMode)
-                        .labelStyle(.titleAndIcon)
-                    Button("Save project", systemImage: "internaldrive") {
-                        do {
-                            projectData = try studio.project.portableData(duration: studio.transport.duration, scene: studio.selectedScene)
-                            exportProject = true
-                        } catch { studio.message = "Couldn't save project: \(error.localizedDescription)" }
-                    }.disabled(session.radioMode || studio.loading || studio.needsSoundtrack)
-                        .labelStyle(.titleAndIcon)
-                        .accessibilityIdentifier("saveProjectButton")
-                    Button("Export MP4", systemImage: "film") { exportVideo = true }
-                        .disabled(studio.loading || session.radioMode)
-                        .accessibilityIdentifier("exportMP4Button")
-                    }
-                    Button("Settings", systemImage: "gearshape") { legal = true }
-                        .accessibilityIdentifier("visionInfoButton")
-                    Spacer()
-                    if studio.loading { ProgressView("Analyzing music…") }
-                    HStack(spacing: 8) {
-                        Text("Hide room").font(.callout)
-                        Toggle("Hide room", isOn: $session.fullImmersion).labelsHidden()
-                            .toggleStyle(.switch).disabled(session.immersiveActive)
-                            .accessibilityIdentifier("hideRoomToggle")
-                    }.fixedSize()
-                    immersiveButton
-                }
+            .sheet(isPresented: $showLibrary) {
+                VisionLibrary(studio: studio) { showLibrary = false }
+                    .padding(24).frame(width: 760, height: 730)
             }
             .sheet(isPresented: $chooseMusic) {
                 VisionStudioMusicPicker(studio: session.editor, radio: session.radio) { chooseMusic = false }
                     .frame(width: 680, height: 640)
             }
-            .sheet(isPresented: $legal) {
-                VisionInfoView(engagement: engagement) { legal = false }
+            .sheet(isPresented: $legal, onDismiss: {
+                guard replayOnboardingAfterSupport else { return }
+                replayOnboardingAfterSupport = false
+                // Finish removing the support sheet before replacing its root view.
+                NotificationCenter.default.post(name: .pulseCanvasOnboarding, object: nil)
+            }) {
+                VisionInfoView(engagement: engagement, close: { legal = false }, replayOnboarding: {
+                    replayOnboardingAfterSupport = true
+                    legal = false
+                })
             }
             .sheet(isPresented: $exportVideo) { VisionVideoExportView(studio: studio, engagement: engagement) { exportVideo = false } }
             .task { await session.editor.start(); await applyLaunchOptions() }
@@ -146,6 +121,42 @@ struct VisionStudioView: View {
             } message: { Text(studio.message ?? "") }
     }
 
+    // Keep controls in the editor surface so replay restores every action reliably.
+    private var editorControls: some View {
+        HStack(spacing: 12) {
+            if !session.radioMode {
+                Button("Choose music", systemImage: "music.note.list") { chooseMusic = true }.disabled(studio.loading)
+                    .accessibilityIdentifier("chooseStudioMusicButton")
+                Button("Import audio", systemImage: "tray.and.arrow.down") { importAudio = true }.disabled(studio.loading || session.radioMode)
+                    .labelStyle(.titleAndIcon)
+                    .accessibilityIdentifier("importAudioButton")
+                Button("Open project", systemImage: "folder") { importProject = true }.disabled(studio.loading || session.radioMode)
+                    .labelStyle(.titleAndIcon)
+                Button("Save project", systemImage: "internaldrive") {
+                    do {
+                        projectData = try studio.project.portableData(duration: studio.transport.duration, scene: studio.selectedScene)
+                        exportProject = true
+                    } catch { studio.message = "Couldn't save project: \(error.localizedDescription)" }
+                }.disabled(session.radioMode || studio.loading || studio.needsSoundtrack)
+                    .labelStyle(.titleAndIcon)
+                    .accessibilityIdentifier("saveProjectButton")
+                Button("Export MP4", systemImage: "film") { exportVideo = true }
+                    .disabled(studio.loading || session.radioMode)
+                    .accessibilityIdentifier("exportMP4Button")
+            }
+            Button("Settings", systemImage: "gearshape") { legal = true }
+                .accessibilityIdentifier("visionInfoButton")
+            if studio.loading { ProgressView("Analyzing music…") }
+            HStack(spacing: 8) {
+                Text("Hide room").font(.callout)
+                Toggle("Hide room", isOn: $session.fullImmersion).labelsHidden()
+                    .toggleStyle(.switch).disabled(session.immersiveActive)
+                    .accessibilityIdentifier("hideRoomToggle")
+            }.fixedSize()
+            immersiveButton
+        }.padding(12).background(.white.opacity(0.05), in: RoundedRectangle(cornerRadius: 20))
+    }
+
     private var preview: some View {
         Group {
             if session.immersiveActive {
@@ -177,6 +188,14 @@ struct VisionStudioView: View {
                     .accessibilityIdentifier("selectedVisualizerName")
             }
             Spacer(minLength: 0)
+            if !session.radioMode {
+                Button { studio.randomizeVisualizer() } label: { Image(systemName: "shuffle") }
+                    .accessibilityLabel("Random visualizer").accessibilityIdentifier("randomVisualizerButton")
+                Button { studio.randomizeLook() } label: { Image(systemName: "dice.fill") }
+                    .accessibilityLabel("Randomize current visual style").accessibilityIdentifier("randomizeStyleButton")
+            }
+            Button("Library", systemImage: "square.grid.2x2") { showLibrary = true }
+                .accessibilityIdentifier("visionLibraryButton")
         }
     }
 
@@ -414,35 +433,27 @@ struct VisionRadioSongTitle: View {
 
 private struct VisionLibrary: View {
     @ObservedObject var studio: VisionStudio
+    let close: () -> Void
     @ObservedObject private var library = ProjectMPresets.shared
     @State private var query = ""
+    @FocusState private var searchFocused: Bool
     private var scenes: [Int] { library.filteredScenes(query: query) }
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Visualizers").font(.title2.bold())
-                .padding(.leading, 8)
-            VisualizerRandomizerPicker(compact: true, fillsWidth: true)
-            HStack(spacing: 8) {
-                Button { studio.randomizeVisualizer() } label: {
-                    Label("Random visualizer", systemImage: "shuffle")
-                        .frame(maxWidth: .infinity, minHeight: 32)
-                }.buttonStyle(.borderedProminent).disabled(library.eligibleScenes.isEmpty)
-                    .accessibilityIdentifier("randomVisualizerButton")
-                    .help("Choose a fresh look from this group, or restore a saved favorite.")
-                Button { studio.randomizeLook() } label: {
-                    Image(systemName: "dice.fill").font(.title3).frame(width: 32, height: 32)
-                }.buttonStyle(.bordered)
-                    .accessibilityLabel("Randomize current visual style")
-                    .accessibilityIdentifier("randomizeStyleButton")
-                    .help("Randomize the current visualizer's colors and motion settings")
+            HStack {
+                Text("Visualizers").font(.title2.bold())
+                Spacer()
+                Button("Done") { searchFocused = false; close() }.accessibilityIdentifier("closeVisionLibraryButton")
             }
+            VisualizerRandomizerPicker(compact: true, fillsWidth: true)
             TextField("Search visualizers", text: $query).textFieldStyle(.roundedBorder)
+                .focused($searchFocused).submitLabel(.search).onSubmit { searchFocused = false }
                 .accessibilityIdentifier("visualizerSearchField")
             ScrollView {
                 LazyVStack(spacing: 6) {
                     ForEach(scenes, id: \.self) { scene in
                         HStack(spacing: 0) {
-                            Button { studio.assign(scene) } label: {
+                            Button { searchFocused = false; studio.assign(scene); close() } label: {
                                 HStack(spacing: 10) {
                                     Image(systemName: library.icon(for: scene))
                                         .frame(width: 24).foregroundStyle(.tint)
@@ -455,6 +466,7 @@ private struct VisionLibrary: View {
                                     .frame(maxWidth: .infinity, minHeight: 52, alignment: .leading)
                                     .contentShape(Rectangle())
                             }.buttonStyle(.plain).hoverEffect(.highlight)
+                                .accessibilityIdentifier("libraryVisualizer-\(scene)")
                             Button { library.toggleFavorite(scene, appearance: studio.project.looks[scene]?.preset ?? VisualPreset.defaults(for: scene)) } label: {
                                 Image(systemName: library.isFavorite(scene) ? "heart.fill" : "heart")
                                     .frame(width: 44, height: 52).contentShape(Rectangle())
@@ -471,6 +483,7 @@ private struct VisionLibrary: View {
                     }
                 }.padding(.trailing, 6)
             }.scrollIndicators(.visible)
+                .accessibilityIdentifier("visionVisualizerList")
             Text("\(scenes.count) of \(NativeEffects.activeCount) effects")
                 .font(.caption).foregroundStyle(.secondary).padding(.leading, 8)
         }

@@ -46,24 +46,51 @@ struct PulseCanvasOnboardingPresentation: ViewModifier {
     var onReplay: () -> Void = {}
     @AppStorage(PulseCanvasOnboarding.completedKey) private var completed = false
     @State private var replay = false
+    @State private var presentationID = UUID()
     @State private var force = PulseCanvasOnboarding.forced
+    private var showingOnboarding: Bool {
+        replay || force || (!completed && !PulseCanvasOnboarding.fixture)
+    }
     func body(content: Content) -> some View {
         Group {
-            if replay || force || (!completed && !PulseCanvasOnboarding.fixture) {
-                PulseCanvasOnboardingView {
-                    completed = true
-                    replay = false
-                    force = false
+            #if os(visionOS)
+            // Keep the established spatial editor attached to its window during
+            // replay. Removing and reinserting it can leave its controls unhittable.
+            ZStack {
+                if (completed || PulseCanvasOnboarding.fixture) && !force {
+                    content.opacity(showingOnboarding ? 0 : 1)
+                        .allowsHitTesting(!showingOnboarding)
+                        .accessibilityElement(children: showingOnboarding ? .ignore : .contain)
+                        .accessibilityHidden(showingOnboarding)
                 }
-            } else { content }
+                if showingOnboarding { onboarding }
+            }
+            #else
+            if showingOnboarding { onboarding } else { content }
+            #endif
         }
-        .onReceive(NotificationCenter.default.publisher(for: .pulseCanvasOnboarding)) { _ in onReplay(); replay = true }
+        .onReceive(NotificationCenter.default.publisher(for: .pulseCanvasOnboarding)) { _ in
+            onReplay()
+            presentationID = UUID()
+            replay = true
+        }
+    }
+    private var onboarding: some View {
+        PulseCanvasOnboardingView(initialStep: replay ? 0 : PulseCanvasOnboarding.initialStep) {
+            completed = true
+            replay = false
+            force = false
+        }.id(presentationID)
     }
 }
 
 struct PulseCanvasOnboardingView: View {
     let finish: () -> Void
-    @State private var step = PulseCanvasOnboarding.initialStep
+    @State private var step: Int
+    init(initialStep: Int = PulseCanvasOnboarding.initialStep, finish: @escaping () -> Void) {
+        self.finish = finish
+        _step = State(initialValue: min(4, max(0, initialStep)))
+    }
     #if os(tvOS)
     @State private var supportURL: URL?
     #endif

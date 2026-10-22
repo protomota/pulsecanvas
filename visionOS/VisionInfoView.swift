@@ -4,6 +4,7 @@ import SwiftUI
 struct VisionInfoView: View {
     @ObservedObject var engagement: CreatorEngagement
     let close: () -> Void
+    let replayOnboarding: () -> Void
     @Environment(\.openURL) private var openURL
     @State private var page = Page.support
     @State private var didReset = false
@@ -31,8 +32,7 @@ struct VisionInfoView: View {
     private var support: some View {
         VStack(alignment: .leading, spacing: 20) {
             Button("Welcome to PulseCanvas Studio", systemImage: "sparkles") {
-                close()
-                NotificationCenter.default.post(name: .pulseCanvasOnboarding, object: nil)
+                replayOnboarding()
             }.accessibilityIdentifier("settingsWelcomePulseCanvas")
             Text("Free software.\nSupported by people.").font(.largeTitle.bold())
             Text("PulseCanvas Studio is free, with every feature included. Your ratings, sharing and feedback help more people discover the app and help us keep building.")

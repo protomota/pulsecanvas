@@ -33,6 +33,12 @@ struct CreatorThanksView: View {
                         .font(.system(size: 25, weight: .semibold, design: .rounded))
                 }
             }
+            Button("Welcome to PulseCanvas Studio", systemImage: "sparkles") {
+                done()
+                NotificationCenter.default.post(name: .pulseCanvasOnboarding, object: nil)
+            }.buttonStyle(StudioButtonStyle(compact: true))
+                .accessibilityIdentifier("supportWelcomePulseCanvas")
+                .help("Replay all five onboarding screens from the beginning")
             VStack(alignment: .leading, spacing: 10) {
                 Text("Your App Store rating makes a difference.")
                     .font(.system(size: 16, weight: .semibold))

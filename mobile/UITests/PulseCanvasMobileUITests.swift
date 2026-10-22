@@ -2,6 +2,68 @@ import XCTest
 
 final class PulseCanvasMobileUITests: XCTestCase {
     override func setUp() { continueAfterFailure = false }
+    @MainActor func testLibraryOnlyBrowsingAndSettingsAlwaysRestartOnboarding() {
+        verifyLibraryAndOnboardingReplay(landscape: true)
+    }
+
+    @MainActor func testPortraitLibraryAndOnboardingReplay() {
+        verifyLibraryAndOnboardingReplay(landscape: false)
+    }
+
+    @MainActor private func verifyLibraryAndOnboardingReplay(landscape: Bool) {
+        let app = XCUIApplication()
+        XCUIDevice.shared.orientation = landscape ? .landscapeLeft : .portrait
+        defer { XCUIDevice.shared.orientation = .portrait }
+        app.launchArguments = ["-PCMobileQA", "-PCOnboardingQA", "-PCOnboardingStep", "4"]
+        app.launch()
+        XCTAssertTrue(app.buttons["onboardingContinue"].waitForExistence(timeout: 30))
+        XCTAssertTrue(app.otherElements["onboardingProgress"].label.contains("Step 5 of 5"))
+        app.buttons["onboardingContinue"].tap()
+        let library = app.buttons["mobileLibraryButton"]
+        XCTAssertTrue(library.waitForExistence(timeout: 30))
+        expectation(for: NSPredicate(format: "enabled == true"), evaluatedWith: library)
+        waitForExpectations(timeout: 90)
+        XCTAssertFalse(app.descendants(matching: .any)["sidebarVisualizerList"].exists)
+        XCTAssertFalse(app.textFields["sidebarVisualizerSearch"].exists)
+        for chooseResult in [false, true] {
+            library.tap()
+            let search = app.textFields["modalVisualizerSearch"]
+            XCTAssertTrue(search.waitForExistence(timeout: 10))
+            search.tap(); search.typeText("LED Corridor")
+            if chooseResult {
+                app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@", "libraryVisualizer-")).firstMatch.tap()
+            } else {
+                app.buttons["mobileSheetDone"].tap()
+            }
+            XCTAssertTrue(search.waitForNonExistence(timeout: 10))
+            XCTAssertTrue(app.keyboards.firstMatch.waitForNonExistence(timeout: 10), "Closing Library must dismiss the keyboard and its accessory bar")
+            XCTAssertTrue(library.isHittable)
+        }
+        XCTAssertEqual(app.staticTexts["mobileVisualizerName"].label, "LED Corridor")
+        let preview = app.otherElements["mobileVisualizerPreview"]
+        XCTAssertTrue(preview.exists)
+        XCTAssertLessThan(preview.frame.minX - app.windows.firstMatch.frame.minX, 32)
+        XCTAssertLessThan(app.windows.firstMatch.frame.maxX - preview.frame.maxX, 32)
+        let editorShot = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+        editorShot.name = "Editor-without-sidebar-or-keyboard-bar"
+        editorShot.lifetime = .keepAlways
+        add(editorShot)
+        for _ in 0..<2 {
+            app.buttons["Project actions"].tap()
+            app.buttons["Settings"].tap()
+            let welcome = app.buttons["settingsWelcomePulseCanvas"]
+            XCTAssertTrue(welcome.waitForExistence(timeout: 10))
+            welcome.tap()
+            let progress = app.otherElements["onboardingProgress"]
+            XCTAssertTrue(progress.waitForExistence(timeout: 10))
+            XCTAssertTrue(progress.label.contains("Step 1 of 5"))
+            app.buttons["onboardingContinue"].tap()
+            XCTAssertTrue(progress.label.contains("Step 2 of 5"))
+            app.buttons["onboardingSkip"].tap()
+            XCTAssertTrue(library.waitForExistence(timeout: 30))
+        }
+    }
+
     @MainActor private func nameSaveDestination(in app: XCUIApplication, prefix: String) {
         let filename = app.textFields["DOCPicker.filenameTextField"]
         XCTAssertTrue(filename.waitForExistence(timeout: 10))
@@ -117,9 +179,7 @@ final class PulseCanvasMobileUITests: XCTestCase {
             XCTAssertTrue(app.buttons["Randomize timeline"].isHittable)
         }
         let sidebar = app.descendants(matching: .any)["sidebarVisualizerList"]
-        if sidebar.exists {
-            XCTAssertGreaterThan(sidebar.frame.maxY, window.frame.maxY - 5, "Sidebar list should reach the display bottom")
-        }
+        XCTAssertFalse(sidebar.exists, "Visualizer browsing belongs in Library on every mobile display")
         library.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
         let modal = app.descendants(matching: .any)["modalVisualizerList"]
         XCTAssertTrue(modal.waitForExistence(timeout: 10))
