@@ -148,7 +148,12 @@ phone bounds. Sources, renders, JPEG, and delivery record are preserved under
 `art/duo-free-hero/` and `delivery/duo-free-hero-delivery.json` in the internal
 artifact folder above.
 
-Upload of `duo-06-free-closed-hero.jpg` to position 6 is pending Apple Account
-sign-in; the browser session expired on October 23. No App Store placement was
-modified during this artwork change. No new app binaries or review submissions
-are part of this screenshot refinement.
+Uploaded `duo-06-free-closed-hero.jpg` to position 6 after Apple Account sign-in
+was restored on October 23. App Store Connect finished processing; the official
+API readback verifies filename, byte size, dimensions and all seven positions.
+The other six placement and image IDs are unchanged. The prior free artwork
+remains recoverable in the Asset Library. Saved browser proof:
+`delivery/app-store-duo-free-hero-proof.png`.
+
+No new app binaries or review submissions are part of this screenshot refinement.
+All three 1.2 review states remain Developer Rejected.
