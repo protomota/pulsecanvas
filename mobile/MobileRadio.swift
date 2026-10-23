@@ -24,7 +24,7 @@ struct MobileRadio: View {
                         VisualizerRandomizerPicker(fillsWidth: true).padding(.trailing, trailingControlInset)
                         VisualizerView(state: radio.visualizer).aspectRatio(16 / 9.0, contentMode: .fit)
                             .clipShape(RoundedRectangle(cornerRadius: 18))
-                        songHeading
+                        songHeading()
                         HStack {
                             stationPicker
                             Spacer()
@@ -80,9 +80,12 @@ struct MobileRadio: View {
                 .accessibilityElement(children: .ignore).accessibilityLabel("Radio visualization")
                 .accessibilityIdentifier("mobileRadioPreview")
             HStack(spacing: 12) {
-                songHeading
-                stationPicker.frame(maxWidth: 260)
-                nextSong
+                songHeading(includesFavoriteList: false)
+                HStack(spacing: 8) {
+                    if !radio.isPersonalMusic { favoriteSongs }
+                    stationPicker.frame(maxWidth: 220)
+                    nextSong
+                }.fixedSize(horizontal: true, vertical: false)
             }.buttonStyle(MobileButton())
             HStack(spacing: 20) {
                 MobileRadioTransport(radio: radio, audio: audio)
@@ -108,7 +111,7 @@ struct MobileRadio: View {
                 .disabled(!radio.canRandomizeVisualizer).accessibilityLabel("Random radio visualizer")
         }.buttonStyle(MobileButton())
     }
-    private var songHeading: some View {
+    private func songHeading(includesFavoriteList: Bool = true) -> some View {
         HStack {
             if let track = radio.currentTrack, radio.canFavoriteCurrentSong {
                 Button { radio.toggleFavoriteSong(track) } label: {
@@ -118,10 +121,14 @@ struct MobileRadio: View {
             Text(radio.currentTrack?.title ?? "PulseCanvas Radio").font(.headline).lineLimit(1)
                 .accessibilityIdentifier("radioCurrentSongTitle")
             Spacer(minLength: 0)
-            if !radio.isPersonalMusic {
-                Button { favorites = true } label: { Image(systemName: "heart.text.clipboard") }.accessibilityLabel("Favorite songs")
+            if includesFavoriteList && !radio.isPersonalMusic {
+                favoriteSongs
             }
         }.buttonStyle(MobileButton())
+    }
+    private var favoriteSongs: some View {
+        Button { favorites = true } label: { Image(systemName: "heart.text.clipboard") }
+            .accessibilityLabel("Favorite songs")
     }
     private var stationPicker: some View {
         Menu {

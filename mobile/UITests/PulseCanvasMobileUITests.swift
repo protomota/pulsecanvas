@@ -633,6 +633,16 @@ final class PulseCanvasMobileUITests: XCTestCase {
     }
     @MainActor func testIPadLandscapeRadioFitsWithoutScrolling() throws {
         let app = XCUIApplication()
+        defer { XCUIDevice.shared.orientation = .portrait }
+        func checkGroupedActions() {
+            let favorites = app.buttons["Favorite songs"].frame
+            let station = app.buttons["radioStationPicker"].frame
+            let next = app.buttons["Next song"].frame
+            XCTAssertEqual(station.minX - favorites.maxX, 8, accuracy: 1)
+            XCTAssertEqual(next.minX - station.maxX, 8, accuracy: 1)
+            XCTAssertEqual(favorites.midY, station.midY, accuracy: 1)
+            XCTAssertEqual(station.midY, next.midY, accuracy: 1)
+        }
         XCUIDevice.shared.orientation = .landscapeLeft
         app.launchArguments = ["-PCMobileQA", "-PCMobileRadioQA"]
         app.launch()
@@ -669,13 +679,14 @@ final class PulseCanvasMobileUITests: XCTestCase {
             XCTAssertTrue(app.frame.insetBy(dx: -1, dy: -1).contains(control.frame), "\(control.identifier) must stay on screen")
         }
         XCTAssertGreaterThan(app.otherElements["mobileRadioPreview"].frame.height, 200)
+        checkGroupedActions()
         app.buttons["Randomize visualizer group"].tap()
         app.buttons["Randomize favorites"].tap()
         let message = app.staticTexts["No saved favorite visualizers yet. Playing random visualizers from the full library."]
         XCTAssertTrue(message.waitForExistence(timeout: 10))
         XCTAssertTrue(message.isHittable)
         XCTAssertEqual(app.scrollViews.count, 0, "Fallback messaging must also fit")
-        let screenshot = XCTAttachment(screenshot: app.screenshot())
+        let screenshot = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
         screenshot.name = "Landscape Radio — all controls visible"; screenshot.lifetime = .keepAlways; add(screenshot)
         play.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
         XCUIDevice.shared.orientation = .portrait
@@ -685,6 +696,9 @@ final class PulseCanvasMobileUITests: XCTestCase {
         XCTAssertTrue(app.buttons["Radio"].isHittable)
         XCTAssertLessThan(app.buttons["Studio"].frame.minX, app.frame.minX + 40)
         XCTAssertGreaterThanOrEqual(app.buttons["Studio"].frame.minY, app.frame.minY + 60, "Portrait tabs must also sit below window controls")
+        checkGroupedActions()
+        let portrait = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+        portrait.name = "Portrait Radio — grouped actions"; portrait.lifetime = .keepAlways; add(portrait)
         XCUIDevice.shared.orientation = .landscapeRight
         XCTAssertTrue(landscape.waitForExistence(timeout: 10))
         XCTAssertEqual(app.scrollViews.count, 0)

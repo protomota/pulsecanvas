@@ -112,6 +112,11 @@ struct PulseCanvasOnboardingView: View {
     @Environment(\.openURL) private var openURL
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @ScaledMetric(relativeTo: .largeTitle) private var titleSize = 42
+    @ScaledMetric(relativeTo: .largeTitle) private var tabletTitleSize = 56
+    @ScaledMetric(relativeTo: .body) private var tabletBodySize = 24
+    @ScaledMetric(relativeTo: .headline) private var tabletLessonTitleSize = 23
+    @ScaledMetric(relativeTo: .subheadline) private var tabletDetailSize = 20
+    @ScaledMetric(relativeTo: .footnote) private var tabletNoteSize = 18
     private let accent = Color(red: 0.95, green: 0.68, blue: 0.55)
     private let background = Color(red: 50.0 / 255, green: 44.0 / 255, blue: 55.0 / 255)
     private let ink = Color.white
@@ -210,11 +215,16 @@ struct PulseCanvasOnboardingView: View {
         GeometryReader { geometry in
             let wide = geometry.size.width >= 760 || geometry.size.width > geometry.size.height
             let short = geometry.size.height < 500 && wide
+            #if os(iOS)
+            let largeTablet = UIDevice.current.userInterfaceIdiom == .pad && min(geometry.size.width, geometry.size.height) >= 900
+            #else
+            let largeTablet = false
+            #endif
             VStack(spacing: 0) {
                 header(wide: wide).zIndex(2)
                 GeometryReader { pageGeometry in
-                    OnboardingFittedContent {
-                        page(wide: wide, size: pageGeometry.size, compact: pageGeometry.size.height < 480)
+                    OnboardingFittedContent(alignment: locksTextPositions && !largeTablet ? .topLeading : .center) {
+                        page(wide: wide, size: pageGeometry.size, compact: pageGeometry.size.height < 480, largeTablet: largeTablet)
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .contentShape(Rectangle())
@@ -271,19 +281,21 @@ struct PulseCanvasOnboardingView: View {
         .onExitCommand { if step > 0 { changeStep(step - 1) } else { finish() } }
         #endif
     }
-    @ViewBuilder private func page(wide: Bool, size: CGSize, compact: Bool) -> some View {
+    @ViewBuilder private func page(wide: Bool, size: CGSize, compact: Bool, largeTablet: Bool) -> some View {
         if wide {
-            HStack(alignment: locksTextPositions ? .top : .center, spacing: compact ? 28 : (isTV ? 75 : 54)) {
+            HStack(alignment: locksTextPositions && !largeTablet ? .top : .center, spacing: compact ? 28 : (isTV ? 75 : 54)) {
                 illustration
-                    .frame(width: min(size.width * 0.44, isTV ? 620 : 510),
-                           height: min(size.height * (compact ? 0.75 : 0.94), isTV ? 620 : 510))
-                copy(wide: true, compact: compact).frame(maxWidth: isTV ? 660 : 490)
-            }.frame(maxWidth: isTV ? 1450 : 1120)
+                    .frame(width: min(size.width * 0.44, isTV || largeTablet ? 620 : 510),
+                           height: min(size.height * (compact ? 0.75 : 0.94), isTV || largeTablet ? 620 : 510))
+                copy(wide: true, compact: compact, largeTablet: largeTablet).frame(maxWidth: isTV ? 660 : (largeTablet ? 600 : 490))
+            }.frame(maxWidth: isTV ? 1450 : (largeTablet ? 1280 : 1120))
+                .accessibilityElement(children: .contain)
+                .accessibilityIdentifier("onboardingContent")
         } else {
             VStack(alignment: .leading, spacing: compact ? 12 : 20) {
                 illustration.frame(height: min(compact ? 110 : 220, size.height * (compact ? 0.22 : 0.32)))
                     .frame(maxWidth: .infinity)
-                copy(wide: false, compact: compact)
+                copy(wide: false, compact: compact, largeTablet: false)
             }.frame(maxWidth: 500)
         }
     }
@@ -342,15 +354,15 @@ struct PulseCanvasOnboardingView: View {
         return Image(uiImage: image)
         #endif
     }
-    private func copy(wide: Bool, compact: Bool) -> some View {
+    private func copy(wide: Bool, compact: Bool, largeTablet: Bool) -> some View {
         VStack(alignment: .leading, spacing: compact ? 12 : (isTV ? 26 : 20)) {
             copySection { index in
-                Text(title(for: index)).font(.system(size: isTV ? (compact ? 46 : 54) : min(titleSize, wide ? 52 : 38) * (compact ? 0.88 : 1), weight: .bold, design: .rounded))
+                Text(title(for: index)).font(.system(size: isTV ? (compact ? 46 : 54) : (largeTablet ? tabletTitleSize : min(titleSize, wide ? 52 : 38) * (compact ? 0.88 : 1)), weight: .bold, design: .rounded))
                     .tracking(-1.2).fixedSize(horizontal: false, vertical: true)
                     .accessibilityIdentifier("onboardingTitle").accessibilityAddTraits(.isHeader)
             }
             copySection { index in
-                Text(subtitle(for: index)).font(isTV ? .system(size: compact ? 24 : 28) : (compact ? .callout : .body)).foregroundStyle(ink.opacity(0.92))
+                Text(subtitle(for: index)).font(isTV ? .system(size: compact ? 24 : 28) : (largeTablet ? .system(size: tabletBodySize) : (compact ? .callout : .body))).foregroundStyle(ink.opacity(0.92))
                     .fixedSize(horizontal: false, vertical: true).lineSpacing(3)
                     .accessibilityIdentifier("onboardingSubtitle")
             }
@@ -359,12 +371,12 @@ struct PulseCanvasOnboardingView: View {
                 VStack(alignment: .leading, spacing: compact ? 12 : 18) {
                     ForEach(0..<2) { row in
                         copySection(steps: 0..<4) { index in
-                            lessonRow(lessons(for: index)[row], compact: compact)
+                            lessonRow(lessons(for: index)[row], compact: compact, largeTablet: largeTablet)
                         }.accessibilityIdentifier("onboardingLesson\(row)")
                     }
                 }.accessibilityHidden(step == 4)
-                if step == 4 { support }
-                else { support.hidden().accessibilityHidden(true) }
+                if step == 4 { support(largeTablet: largeTablet) }
+                else { support(largeTablet: largeTablet).hidden().accessibilityHidden(true) }
             }
             #else
             copySection { index in
@@ -393,7 +405,7 @@ struct PulseCanvasOnboardingView: View {
         #endif
     }
     @ViewBuilder private func details(for step: Int, compact: Bool) -> some View {
-        if step == 4 { support }
+        if step == 4 { support() }
         else {
             VStack(alignment: .leading, spacing: compact ? 12 : (isTV ? 24 : 18)) {
                 ForEach(lessons(for: step), id: \.0) { lesson in
@@ -402,19 +414,19 @@ struct PulseCanvasOnboardingView: View {
             }
         }
     }
-    private func lessonRow(_ lesson: (String, String, String), compact: Bool) -> some View {
+    private func lessonRow(_ lesson: (String, String, String), compact: Bool, largeTablet: Bool = false) -> some View {
         HStack(alignment: .onboardingLessonTitle, spacing: 14) {
-            Image(systemName: lesson.0).font(.system(size: isTV ? 30 : 22)).foregroundStyle(accent)
-                .frame(width: isTV ? 40 : 28).accessibilityHidden(true)
+            Image(systemName: lesson.0).font(.system(size: isTV ? 30 : (largeTablet ? 28 : 22))).foregroundStyle(accent)
+                .frame(width: isTV || largeTablet ? 40 : 28).accessibilityHidden(true)
             VStack(alignment: .leading, spacing: 5) {
-                Text(lesson.1).font(isTV ? .system(size: compact ? 23 : 26, weight: .semibold) : (compact ? .subheadline.weight(.semibold) : .headline))
+                Text(lesson.1).font(isTV ? .system(size: compact ? 23 : 26, weight: .semibold) : (largeTablet ? .system(size: tabletLessonTitleSize, weight: .semibold) : (compact ? .subheadline.weight(.semibold) : .headline)))
                     .alignmentGuide(.onboardingLessonTitle) { $0[VerticalAlignment.center] }
-                Text(lesson.2).font(isTV ? .system(size: compact ? 20 : 22) : (compact ? .caption : .subheadline)).foregroundStyle(ink.opacity(0.92))
+                Text(lesson.2).font(isTV ? .system(size: compact ? 20 : 22) : (largeTablet ? .system(size: tabletDetailSize) : (compact ? .caption : .subheadline))).foregroundStyle(ink.opacity(0.92))
                     .fixedSize(horizontal: false, vertical: true)
             }
         }.accessibilityElement(children: .combine)
     }
-    private var support: some View {
+    private func support(largeTablet: Bool = false) -> some View {
         VStack(alignment: .leading, spacing: 12) {
             #if os(tvOS)
             if engagement.offersWebsiteTip {
@@ -431,17 +443,17 @@ struct PulseCanvasOnboardingView: View {
                 Button {
                     engagement.recordClick(.tip); openURL(PulseCanvasCommunity.tips)
                 } label: { Label("Buy Me a Coffee", systemImage: "cup.and.saucer").frame(maxWidth: .infinity) }
-                    .buttonStyle(OnboardingButtonStyle(primary: false))
+                    .buttonStyle(OnboardingButtonStyle(primary: false, fontSize: largeTablet ? tabletLessonTitleSize : nil))
                     .accessibilityIdentifier("onboardingCoffee")
                     .accessibilityHint("Opens Buy Me a Coffee in your browser")
             }
             Button {
                 engagement.recordClick(.review); openURL(PulseCanvasCommunity.review)
             } label: { Label("Rate on the App Store", systemImage: "star").frame(maxWidth: .infinity) }
-                .buttonStyle(OnboardingButtonStyle(primary: false)).accessibilityIdentifier("onboardingRate")
+                .buttonStyle(OnboardingButtonStyle(primary: false, fontSize: largeTablet ? tabletLessonTitleSize : nil)).accessibilityIdentifier("onboardingRate")
             #endif
             Text("Always optional. Find onboarding and support again in \(supportLocation).")
-                .font(isTV ? .system(size: 20) : .footnote).foregroundStyle(ink.opacity(0.92))
+                .font(isTV ? .system(size: 20) : (largeTablet ? .system(size: tabletNoteSize) : .footnote)).foregroundStyle(ink.opacity(0.92))
                 .fixedSize(horizontal: false, vertical: true)
         }
     }
@@ -606,6 +618,7 @@ private struct OnboardingTrackpadNavigation: NSViewRepresentable {
 private struct OnboardingButtonStyle: ButtonStyle {
     var primary: Bool
     var compact = false
+    var fontSize: CGFloat? = nil
     @Environment(\.isEnabled) private var enabled
     @Environment(\.isFocused) private var focused
     func makeBody(configuration: Configuration) -> some View {
@@ -613,7 +626,7 @@ private struct OnboardingButtonStyle: ButtonStyle {
             #if os(tvOS)
             .font(.system(size: compact ? 24 : 26, weight: .semibold))
             #else
-            .font(compact ? .subheadline.weight(.medium) : .headline)
+            .font(fontSize.map { .system(size: $0, weight: .semibold) } ?? (compact ? .subheadline.weight(.medium) : .headline))
             #endif
             .padding(.horizontal, compact ? 16 : 22).padding(.vertical, compact ? 12 : 17)
             .foregroundStyle(primary ? Color(red: 0.16, green: 0.12, blue: 0.20) : .white)
@@ -629,25 +642,17 @@ private struct OnboardingButtonStyle: ButtonStyle {
 /// Fit lesson artwork and copy to the available space without scrolling or
 /// covering the header and navigation. Measure and transform in one layout pass.
 private struct OnboardingFittedContent<Content: View>: View {
+    var alignment: Alignment
     @ViewBuilder var content: () -> Content
     var body: some View {
         GeometryReader { available in
-            #if os(iOS)
-            let contentAlignment: Alignment = .topLeading
-            #else
-            let contentAlignment: Alignment = .center
-            #endif
             content()
                 .frame(width: available.size.width)
                 .fixedSize(horizontal: false, vertical: true)
                 .visualEffect { effect, measured in
-                    #if os(iOS)
-                    effect.scaleEffect(min(1, available.size.height / max(1, measured.size.height)), anchor: .topLeading)
-                    #else
-                    effect.scaleEffect(min(1, available.size.height / max(1, measured.size.height)))
-                    #endif
+                    effect.scaleEffect(min(1, available.size.height / max(1, measured.size.height)), anchor: alignment == .topLeading ? .topLeading : .center)
                 }
-                .frame(width: available.size.width, height: available.size.height, alignment: contentAlignment)
+                .frame(width: available.size.width, height: available.size.height, alignment: alignment)
                 .clipped()
         }
     }

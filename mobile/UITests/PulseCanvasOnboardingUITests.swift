@@ -34,6 +34,16 @@ final class PulseCanvasOnboardingUITests: XCTestCase {
                 XCTAssertEqual(title.frame.minX, subtitle.frame.minX, accuracy: 1)
                 XCTAssertEqual(app.buttons["onboardingContinue"].frame.minY, buttonOrigin.y, accuracy: 1)
                 XCTAssertTrue(app.buttons["onboardingContinue"].isHittable)
+                if UIDevice.current.userInterfaceIdiom == .pad && min(app.frame.width, app.frame.height) >= 1000 {
+                    let content = app.otherElements["onboardingContent"].frame
+                    let centerBetweenControls = (app.buttons["onboardingSkip"].frame.maxY + progress.frame.minY) / 2
+                    XCTAssertEqual(content.midY, centerBetweenControls, accuracy: 12, "Center the image and copy between the header and navigation")
+                    XCTAssertGreaterThan(title.frame.height, 110, "Large iPads should use the larger title typography")
+                }
+                let attachment = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+                attachment.name = "Onboarding-aligned-\(landscape ? "landscape" : "portrait")-\(step)"
+                attachment.lifetime = .keepAlways
+                add(attachment)
                 if step < 5 { title.swipeLeft() }
             }
             for step in (1...4).reversed() {
