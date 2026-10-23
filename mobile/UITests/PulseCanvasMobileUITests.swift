@@ -2,6 +2,125 @@ import XCTest
 
 final class PulseCanvasMobileUITests: XCTestCase {
     override func setUp() { continueAfterFailure = false }
+    @MainActor func testStudioPreviewSwipesKeepMusicAndCurrentScene() {
+        verifyPreviewSwipes(radioMode: false)
+    }
+
+    @MainActor func testRadioPreviewSwipesKeepCurrentSong() {
+        verifyPreviewSwipes(radioMode: true)
+    }
+
+    @MainActor private func verifyPreviewSwipes(radioMode: Bool) {
+        let app = XCUIApplication()
+        app.launchArguments = radioMode
+            ? ["-PCMobileQA", "-PCMobileRadioQA"]
+            : ["-PCMobileQA", "-PCMobileFullSoundtrackQA"]
+        app.launch()
+        let library = app.buttons["mobileLibraryButton"]
+        XCTAssertTrue(library.waitForExistence(timeout: 30))
+        expectation(for: NSPredicate(format: "enabled == true"), evaluatedWith: library)
+        waitForExpectations(timeout: 90)
+        if radioMode {
+            app.buttons["Radio"].tap()
+            app.buttons["Randomize visualizer group"].tap()
+            app.buttons["Randomize Drive & flight"].tap()
+        } else {
+            library.tap()
+            app.buttons["Randomize visualizer group"].tap()
+            app.buttons["Randomize Drive & flight"].tap()
+            app.buttons["Done"].tap()
+        }
+        let play = app.buttons[radioMode ? "radioPlaybackButton" : "mobilePlaybackButton"]
+        let position = radioMode ? app.sliders["radioSongPosition"] : app.sliders["Soundtrack position"]
+        if radioMode {
+            expectation(for: NSPredicate(format: "enabled == true"), evaluatedWith: play)
+            waitForExpectations(timeout: 30)
+            play.tap()
+            expectation(for: NSPredicate(format: "enabled == true"), evaluatedWith: position)
+            waitForExpectations(timeout: 30)
+            play.tap()
+        }
+        XCTAssertEqual(play.label, "Play")
+        let preview = app.otherElements[radioMode ? "mobileRadioPreview" : "mobileVisualizerPreview"]
+        XCTAssertTrue(preview.waitForExistence(timeout: 10))
+        let mode = radioMode ? "Radio" : "Studio"
+        func visualizer(_ element: XCUIElement) -> String { String(describing: element.value ?? "") }
+        func capture(_ name: String) {
+            let shot = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+            shot.name = name; shot.lifetime = .keepAlways; add(shot)
+        }
+        func expectChange(_ element: XCUIElement, from previous: String) {
+            expectation(for: NSPredicate { _, _ in
+                !visualizer(element).isEmpty && visualizer(element) != previous
+            }, evaluatedWith: element)
+            waitForExpectations(timeout: 5)
+        }
+        let originalPosition = String(describing: position.value)
+        let originalSong = radioMode ? app.staticTexts["radioCurrentSongTitle"].label : ""
+        let sceneChoice = app.otherElements["currentStudioClip"].buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Choose visualizer for scene")).firstMatch
+        let originalScene = radioMode ? "" : sceneChoice.label
+        let unchanged = visualizer(preview)
+        preview.swipeUp()
+        XCTAssertEqual(visualizer(preview), unchanged)
+        preview.swipeDown()
+        XCTAssertEqual(visualizer(preview), unchanged)
+        let middle = preview.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))
+        middle.press(forDuration: 0.05, thenDragTo: middle.withOffset(CGVector(dx: -16, dy: 0)))
+        XCTAssertEqual(visualizer(preview), unchanged)
+        capture("\(mode)-editor-before-swipe")
+        preview.swipeLeft()
+        expectChange(preview, from: unchanged)
+        capture("\(mode)-editor-after-swipe")
+        let afterLeft = visualizer(preview)
+        preview.swipeRight()
+        expectChange(preview, from: afterLeft)
+        XCTAssertEqual(String(describing: position.value), originalPosition, "Swipes must not seek the soundtrack")
+        XCTAssertEqual(play.label, "Play", "Swipes must preserve pause state")
+        if radioMode { XCTAssertEqual(app.staticTexts["radioCurrentSongTitle"].label, originalSong) }
+        else { XCTAssertEqual(sceneChoice.label, originalScene, "Swipes replace the look in the current scene") }
+
+        // The Library uses the selected group as its filter. The new name must
+        // be present there, rather than coming from the unrestricted catalog.
+        let chosen = visualizer(preview)
+        library.tap()
+        let group = app.buttons.matching(identifier: "Randomize visualizer group").firstMatch
+        XCTAssertTrue(String(describing: group.value).contains("Drive & flight"))
+        let search = app.textFields["modalVisualizerSearch"]
+        search.tap(); search.typeText(chosen + "\n")
+        let match = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@", "libraryVisualizer-")).firstMatch
+        XCTAssertTrue(match.waitForExistence(timeout: 5), "Swipes must stay within the selected group")
+        app.buttons["Done"].tap()
+
+        app.buttons["mobilePresentationButton"].tap()
+        let full = app.otherElements["mobilePresentationPreview"]
+        XCTAssertTrue(full.waitForExistence(timeout: 10))
+        let fullBefore = visualizer(full)
+        capture("\(mode)-full-screen-before-swipe")
+        full.swipeLeft()
+        expectChange(full, from: fullBefore)
+        XCTAssertTrue(app.buttons["Close"].isHittable, "A swipe must not also hide the controls")
+        let fullAfter = visualizer(full)
+        full.swipeRight()
+        expectChange(full, from: fullAfter)
+        capture("\(mode)-full-screen-after-swipe")
+        full.tap()
+        XCTAssertFalse(app.buttons["Close"].exists)
+        full.tap()
+        XCTAssertTrue(app.buttons["Close"].waitForExistence(timeout: 5))
+        app.buttons["Close"].tap()
+        XCTAssertEqual(String(describing: position.value), originalPosition)
+
+        position.adjust(toNormalizedSliderPosition: 0)
+        play.tap()
+        XCTAssertEqual(play.label, "Pause")
+        let playingBefore = visualizer(preview)
+        preview.swipeLeft()
+        expectChange(preview, from: playingBefore)
+        XCTAssertEqual(play.label, "Pause", "A swipe must keep the music playing")
+        if radioMode { XCTAssertEqual(app.staticTexts["radioCurrentSongTitle"].label, originalSong) }
+        play.tap()
+    }
+
     @MainActor func testPreviewDiceRandomizesStyleWithoutChangingVisualizer() {
         let app = XCUIApplication()
         app.launchArguments = ["-PCMobileQA"]

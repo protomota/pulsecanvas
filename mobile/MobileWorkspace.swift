@@ -270,7 +270,7 @@ private struct MobilePreview: View {
             Text(library.sceneNames[render.scene]).font(.headline).lineLimit(1).accessibilityIdentifier("mobileVisualizerName")
 
             Spacer(minLength: 0)
-            Button { editor.studio.randomizeScene(render); editor.saveSession() } label: { Image(systemName: "shuffle").frame(width: 20) }.accessibilityLabel("Random visualizer")
+            Button { editor.randomizePreviewVisualizer() } label: { Image(systemName: "shuffle").frame(width: 20) }.accessibilityLabel("Random visualizer")
             Button { editor.studio.randomize(render); editor.saveSession() } label: { Image(systemName: "dice.fill").frame(width: 20) }
                 .accessibilityLabel("Randomize visual style").accessibilityIdentifier("mobileRandomizeStyleButton")
             Button(action: style) { Image(systemName: "slider.horizontal.3").frame(width: 20) }.accessibilityLabel("Visual style")
@@ -286,13 +286,36 @@ private struct MobilePreview: View {
                 } else {
                     VisualizerView(state: render).aspectRatio(16 / 9.0, contentMode: .fit)
                 }
-            }.clipShape(RoundedRectangle(cornerRadius: 16)).accessibilityIdentifier("mobileVisualizerPreview")
+            }.clipShape(RoundedRectangle(cornerRadius: 16))
+                .accessibilityElement(children: .ignore).accessibilityLabel("Studio visualization")
+                .accessibilityValue(library.sceneNames[render.scene])
+                .accessibilityIdentifier("mobileVisualizerPreview")
+                .modifier(MobileVisualizerSwipe { editor.randomizePreviewVisualizer() })
             if editor.loading {
                 ProgressView("Preparing your soundtrack…").font(.callout)
                     .accessibilityIdentifier("mobileSoundtrackPreparing")
             }
             if let error = render.errorMessage { Text(error).foregroundStyle(.red).accessibilityIdentifier("mobileRenderError") }
         }
+    }
+}
+
+/// Listen alongside scrolling and taps; only a deliberate horizontal gesture
+/// changes the visualizer. The full-screen tap still reveals/hides controls.
+struct MobileVisualizerSwipe: ViewModifier {
+    let changeVisualizer: () -> Void
+    func body(content: Content) -> some View {
+        content.contentShape(Rectangle())
+            .simultaneousGesture(DragGesture(minimumDistance: 24).onEnded { value in
+                let travel = value.translation
+                let projected = value.predictedEndTranslation
+                guard abs(travel.width) >= 24,
+                      abs(travel.width) > abs(travel.height) * 1.25,
+                      abs(travel.width) >= 44 || (travel.width * projected.width > 0 && abs(projected.width) >= 80) else { return }
+                changeVisualizer()
+            })
+            .accessibilityHint("Swipe left or right to change the visualizer while keeping the current song")
+            .accessibilityAction(named: Text("Change visualizer"), changeVisualizer)
     }
 }
 

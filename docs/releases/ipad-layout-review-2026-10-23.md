@@ -39,5 +39,8 @@ Evidence and previews are outside Git:
 `/Users/brad/Documents/Codex/2026-10-23/pulsecanvas-ipad-onboarding-review/`.
 
 The owner reviewed the native onboarding and Radio previews and explicitly
-approved both changes for the next TestFlight build on October 23. Mobile build
-1.2 (12) is being prepared from the approved layout source (`46e3ce1`).
+approved both changes for the next TestFlight build on October 23. A signed
+1.2 (12) layout candidate was archived and exported from `c034fa3`, but the owner
+requested visualizer preview swipes before upload. That candidate was retained
+and never uploaded. The combined update now awaits confirmation of the new
+swipe behavior; see [preview swipe review](preview-swipes-review-2026-10-23.md).

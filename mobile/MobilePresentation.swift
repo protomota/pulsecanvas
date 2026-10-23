@@ -13,11 +13,15 @@ struct MobilePresentation: View {
             Color.black.ignoresSafeArea()
             VisualizerView(state: render).ignoresSafeArea()
                 .contentShape(Rectangle()).onTapGesture { showsControls.toggle() }
+                .accessibilityElement(children: .ignore).accessibilityLabel("Full-screen visualization")
+                .accessibilityValue(editor.library.sceneNames[render.scene])
+                .accessibilityIdentifier("mobilePresentationPreview")
+                .modifier(MobileVisualizerSwipe { editor.randomizePreviewVisualizer() })
             if showsControls {
                 HStack {
                     Button("Close", systemImage: "xmark") { editor.presenting = false }
                     Spacer(minLength: 0)
-                    Button { if editor.selectedTab == 1 { radio.randomizeCurrentVisualizer() } else { editor.studio.randomizeScene(render) } } label: { Image(systemName: "shuffle") }.accessibilityLabel("Randomize")
+                    Button { editor.randomizePreviewVisualizer() } label: { Image(systemName: "shuffle") }.accessibilityLabel("Randomize")
                     if editor.selectedTab == 1 {
                         Button { radio.next() } label: { Image(systemName: "forward.end.fill").frame(width: 22) }
                             .accessibilityLabel("Next song").accessibilityIdentifier("presentationNextSong")

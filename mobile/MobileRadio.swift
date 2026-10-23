@@ -24,6 +24,9 @@ struct MobileRadio: View {
                         VisualizerRandomizerPicker(fillsWidth: true).padding(.trailing, trailingControlInset)
                         VisualizerView(state: radio.visualizer).aspectRatio(16 / 9.0, contentMode: .fit)
                             .clipShape(RoundedRectangle(cornerRadius: 18))
+                            .accessibilityElement(children: .ignore).accessibilityLabel("Radio visualization")
+                            .accessibilityValue(radio.sceneTitle).accessibilityIdentifier("mobileRadioPreview")
+                            .modifier(MobileVisualizerSwipe { editor.randomizePreviewVisualizer() })
                         songHeading()
                         HStack {
                             stationPicker
@@ -79,6 +82,8 @@ struct MobileRadio: View {
             }.frame(minHeight: 0, maxHeight: .infinity)
                 .accessibilityElement(children: .ignore).accessibilityLabel("Radio visualization")
                 .accessibilityIdentifier("mobileRadioPreview")
+                .accessibilityValue(radio.sceneTitle)
+                .modifier(MobileVisualizerSwipe { editor.randomizePreviewVisualizer() })
             HStack(spacing: 12) {
                 songHeading(includesFavoriteList: false)
                 HStack(spacing: 8) {

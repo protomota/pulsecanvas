@@ -55,6 +55,16 @@ import CryptoKit
     }
     var currentRender: RenderState { selectedTab == 1 ? radio.visualizer : render }
 
+    /// Change only the current look. Audio and Studio scene boundaries stay intact.
+    func randomizePreviewVisualizer() {
+        guard !loading, !exporter.isExporting else { return }
+        if selectedTab == 1 { radio.randomizeCurrentVisualizer() }
+        else {
+            studio.randomizeScene(render)
+            saveSession()
+        }
+    }
+
     func start() async {
         guard !started else { return }; started = true
         do { try await Task.detached {
