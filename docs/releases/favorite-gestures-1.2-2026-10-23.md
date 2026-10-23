@@ -1,8 +1,14 @@
 # Favorites and full-screen player controls
 
-Release candidates: **iPhone/iPad 1.2 (13)** and **Mac 1.2 (31)**.
-Both packages are exported and locally verified. **Awaiting owner approval before
-TestFlight upload or distribution**, as required by the repository release rule.
+Delivered to internal TestFlight on October 23, 2026 after explicit owner approval:
+
+- [iPhone/iPad 1.2 (13)](https://appstoreconnect.apple.com/apps/6821642700/testflight/ios/d31af2b5-6f33-408e-9af4-06ed59f069eb)
+- [Mac 1.2 (31)](https://appstoreconnect.apple.com/apps/6821642700/testflight/macos/ae8cf158-6c0d-4663-afb1-01ea959d6a48)
+
+Both builds are **VALID** and **IN_BETA_TESTING** in the existing internal
+**PulseCanvas Mac Beta** group. English tester notes are published, and all 52
+prior group builds were preserved (54 builds after this delivery). Application
+source commit: `4d2302552cb7f1e795e920d8a1bf4a535aecea25`.
 
 ## Behavior
 
@@ -41,8 +47,11 @@ TestFlight upload or distribution**, as required by the repository release rule.
   including next-station playback and wraparound.
 - Exported IPA and expanded Mac installer payload passed distribution-signature,
   version, profile, resource, and Release test-hook checks. Mac sandbox and
-  installer signature checks passed. These are local package checks; no upload
-  or App Store submission has been performed.
+  installer signature checks passed. Apple's validation and both uploads then
+  succeeded without errors. App Store Connect processing, internal tester access,
+  exact tester notes, and preservation of the prior group builds were verified
+  through the API. This delivery did not submit an App Store review or update
+  Vision Pro/Apple TV builds.
 
 Native screenshots, test results and review gallery:
 `/Users/brad/Documents/Codex/2026-10-23/pulsecanvas-double-favorite-review/`.
