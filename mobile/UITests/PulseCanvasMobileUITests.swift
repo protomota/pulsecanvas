@@ -412,6 +412,14 @@ final class PulseCanvasMobileUITests: XCTestCase {
             } else { Thread.sleep(forTimeInterval: 6) }
         }
         if env["PC_MARKETING_DUO_CLOSED"] == "1" {
+            if env["PC_MARKETING_CLOSED_HERO"] == "1" {
+                choose("Oil Marble")
+                tap(app.buttons["Present visualizer"])
+                XCTAssertTrue(app.buttons["Close"].waitForExistence(timeout: 10))
+                Thread.sleep(forTimeInterval: 5)
+                capture("closed-hero", "Oil Marble")
+                return
+            }
             choose("Ink Bloom"); capture("closed-studio", "Ink Bloom")
             tap(library)
             XCTAssertTrue(search.waitForExistence(timeout: 10))

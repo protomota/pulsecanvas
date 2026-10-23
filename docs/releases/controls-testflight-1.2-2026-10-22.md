@@ -130,3 +130,25 @@ Uploaded-image proof:
 - `delivery/app-store-iphone-clean-background-proof.png`
 - `delivery/app-store-closed-duo-free-proof.png`
 - `delivery/app-store-closed-duo-devices-proof.png`
+
+
+## October 23 — fuller closed-Duo free artwork
+
+Replaced the sparse Completely free composition with a two-column layout: large
+closed Duo showing a full-screen Oil Marble capture, a larger headline, four
+equal-size value pills, and Visualizers / Radio / 4K export highlights. A subtle
+second chassis edge makes the folded form visible. The Library image is removed.
+The image is the native closed outer display (1398×2034, display 1), preserved at
+its original aspect ratio. Output remains 2853×2007. The other five Duo campaign
+slides are byte-identical and all-device artwork is unchanged.
+
+The focused native capture test and all six render checks passed. The renderer
+checks outer-display dimensions, copy bounds and clearance, and fully visible
+phone bounds. Sources, renders, JPEG, and delivery record are preserved under
+`art/duo-free-hero/` and `delivery/duo-free-hero-delivery.json` in the internal
+artifact folder above.
+
+Upload of `duo-06-free-closed-hero.jpg` to position 6 is pending Apple Account
+sign-in; the browser session expired on October 23. No App Store placement was
+modified during this artwork change. No new app binaries or review submissions
+are part of this screenshot refinement.

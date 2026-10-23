@@ -38,15 +38,15 @@ Duo use landscape.
 All captures, cropped details, PNG outputs, contact sheets and acknowledgments stay
 outside Git:
 
-`/Users/brad/Documents/Codex/2026-10-22/pulsecanvas-controls-release-rescue/art/closed-duo/`
+`/Users/brad/Documents/Codex/2026-10-22/pulsecanvas-controls-release-rescue/art/duo-free-hero/`
 
 Generate complete control crops before rendering:
 
 ```sh
-python3 assets/app-store/shared/prepare-callouts.py '/Users/brad/Documents/Codex/2026-10-22/pulsecanvas-controls-release-rescue/art/closed-duo/raw'
+python3 assets/app-store/shared/prepare-callouts.py '/Users/brad/Documents/Codex/2026-10-22/pulsecanvas-controls-release-rescue/art/duo-free-hero/raw'
 PLAYWRIGHT=/Users/brad/Documents/GIT_SOURCE/jotley-site/node_modules/playwright/index.mjs \
 node assets/app-store/duo-marketing-1.2/render.mjs \
-  '/Users/brad/Documents/Codex/2026-10-22/pulsecanvas-controls-release-rescue/art/closed-duo/raw' '/Users/brad/Documents/Codex/2026-10-22/pulsecanvas-controls-release-rescue/art/closed-duo/duo'
+  '/Users/brad/Documents/Codex/2026-10-22/pulsecanvas-controls-release-rescue/art/duo-free-hero/raw' '/Users/brad/Documents/Codex/2026-10-22/pulsecanvas-controls-release-rescue/art/duo-free-hero/duo'
 ```
 
 The manifest records raw captures, derived control crops and rendered image hashes.
@@ -58,9 +58,24 @@ The delivered opening and Studio replacements use JPEG quality 97 without
 chroma subsampling. Lossless renders remain preserved. Other accepted screenshot
 placements and their ordering are retained.
 
-The Completely free slide now uses a native 1398×2034 closed-Duo Library capture,
-fully visible in a portrait frame. Capture it with PC_MARKETING_DUO_CLOSED=1,
-Duo set to Closed in Device Hub, portrait orientation and display 1. The same
-scenario captures Ink Bloom in Studio for the Duo-specific availability slide.
-Both are acknowledged before advancing. Other five Duo campaign slides retain
-their existing pixels.
+## October 23 — closed Duo free hero
+
+Completely free now uses a large, fully visible closed outer display showing Oil
+Marble in presentation mode. A subtle second chassis edge makes the folded phone
+read clearly; its native 1398×2034 image is never stretched to the open display.
+The two-column composition pairs the phone with a larger headline, four equally
+sized privacy/value pills, and a compact Visualizers / Radio / 4K export row.
+The Library image is removed from this slide. Other five campaign slides retain
+their existing pixels, and the accepted availability slide is unchanged.
+
+To capture this hero, set PC_MARKETING_DUO_CLOSED=1 and
+PC_MARKETING_CLOSED_HERO=1 in the opt-in scenario, with Duo set to Closed in
+Device Hub, portrait orientation and display 1. The `closed-hero` stage must be
+acknowledged after the host saves `duo-closed-hero.png`. The focused native capture
+passed on October 23. Without PC_MARKETING_CLOSED_HERO, the existing closed Studio
+and Library capture pair remains available for reference.
+
+The renderer verifies the closed image dimensions, phone bounds, minimum clearance
+between the two columns, and copy bounds before exporting. The lossless render
+and upload JPEG (quality 97, no chroma subsampling) remain outside Git under
+`art/duo-free-hero/`.

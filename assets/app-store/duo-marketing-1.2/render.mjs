@@ -26,7 +26,14 @@ for(const [index,name] of names.entries()){
  await page.evaluate(()=>document.fonts.ready);
  const layout=await page.evaluate(()=>{
   const copy=document.querySelector('.copy');const r=copy.getBoundingClientRect();
-  if(r.bottom>595)throw Error('Marketing copy overlaps devices: '+r.bottom);
+  const free=document.querySelector('.slide.free');
+  if(free){
+   const device=free.querySelector('.device').getBoundingClientRect();
+   if(r.right+90>device.left||r.bottom>innerHeight-140)throw Error('Free hero copy lacks clearance');
+   if(device.left<0||device.top<0||device.right>innerWidth-40||device.bottom>innerHeight-160)throw Error('Closed phone outside safe bounds');
+   const image=free.querySelector('.device img');
+   if(image.naturalWidth!==1398||image.naturalHeight!==2034)throw Error('Free hero must use the closed Duo outer display');
+  }else if(r.bottom>595)throw Error('Marketing copy overlaps devices: '+r.bottom);
   if(copy.scrollWidth>copy.clientWidth)throw Error('Copy overflows');
   for(const box of document.querySelectorAll('.callout')){const cs=getComputedStyle(box),r=box.getBoundingClientRect();if(new Set([cs.paddingTop,cs.paddingRight,cs.paddingBottom,cs.paddingLeft]).size!==1)throw Error('Unequal callout padding');if(r.right>innerWidth||r.bottom>innerHeight)throw Error('Callout outside canvas');}
   return {copyBottom:r.bottom,title:document.querySelector('h1').textContent};
@@ -40,7 +47,7 @@ url.searchParams.delete('slide');url.searchParams.set('review','1');
 await page.setViewportSize({width:2300,height:1500});await page.goto(url.href);
 await page.evaluate(()=>Promise.all([...document.images].map(i=>i.decode())));
 await page.locator('#overview').screenshot({path:join(output,'duo-contact-sheet.png')});
-const sourceNames=['inner-fullscreen','inner-studio','inner-style','inner-radio','inner-export','inner-library','closed-library',...['studio','style','radio','export'].map(k=>'inner-callout-'+k)];
+const sourceNames=['inner-fullscreen','inner-studio','inner-style','inner-radio','inner-export','inner-library','closed-hero',...['studio','style','radio','export'].map(k=>'inner-callout-'+k)];
 const sources=sourceNames.map(n=>{const file='duo-'+n+'.png';return {file,sha256:createHash('sha256').update(readFileSync(join(captures,file))).digest('hex')};});
 if(errors.length)throw Error(errors.join('\n'));
 writeFileSync(join(output,'manifest.json'),JSON.stringify({appVersion:'1.2',appBuild:'10',renderedAt:new Date().toISOString(),renderer:'Playwright Chromium, real simulator captures',sources,slides:manifest},null,2)+'\n');
