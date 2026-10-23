@@ -38,5 +38,6 @@ review images. No physical-device performance claim is made.
 Evidence and previews are outside Git:
 `/Users/brad/Documents/Codex/2026-10-23/pulsecanvas-ipad-onboarding-review/`.
 
-No TestFlight upload, beta-group assignment or App Store review action was made
-for these changes. Approval is pending.
+The owner reviewed the native onboarding and Radio previews and explicitly
+approved both changes for the next TestFlight build on October 23. Mobile build
+1.2 (12) is being prepared from the approved layout source (`46e3ce1`).
