@@ -16,7 +16,12 @@ import Foundation
         #endif
         let first = NativeEffects.activeIDs[0], second = NativeEffects.activeIDs[1]
         let library = ProjectMPresets(defaults: defaults, favoritesBackupDirectory: directory)
-        library.toggleFavorite(first, appearance: VisualPreset(speed: 1.37, palette: 3, strobeEnabled: true, chaos: 0.82))
+        precondition(library.favorite(first, appearance: VisualPreset(speed: 1.37, palette: 3, strobeEnabled: true, chaos: 0.82)))
+        let gestureLook = library.favoriteAppearance(for: first)
+        precondition(library.favorite(first, appearance: VisualPreset(speed: 0.5, palette: 1)))
+        precondition(library.isFavorite(first) && library.favoriteAppearance(for: first) == gestureLook,
+                     "Repeated favorite gestures must preserve the saved look")
+        precondition(!library.favorite(-1) && !library.favorite(99999))
         let data = try library.exportFavorites()
         let backup = try FavoritesBackup.read(data)
         precondition(backup.favorites.map(\.id) == ["native:\(first)"])

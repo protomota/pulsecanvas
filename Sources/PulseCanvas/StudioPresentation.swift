@@ -98,6 +98,7 @@ struct StudioPresentationView: View {
     @ObservedObject var render: RenderState
     @ObservedObject var audio: AudioController
     @ObservedObject var studio: StudioStore
+    @ObservedObject private var library = ProjectMPresets.shared
     var mode: StudioPresentationController.Mode = .studio
     var aspect: SocialAspect = .wide
     let exit: () -> Void
@@ -115,8 +116,14 @@ struct StudioPresentationView: View {
                     .frame(width: width, height: height)
                     .clipped()
                     .frame(width: space.size.width, height: space.size.height)
+                    .modifier(VisualizerFavoriteGesture {
+                        ProjectMPresets.shared.favorite(render.scene, appearance: VisualPreset(render: render))
+                    })
                 if controlsVisible || !audio.isPlaying {
                     HStack(spacing: 16) {
+                        Button { library.toggleFavorite(render.scene, appearance: VisualPreset(render: render)) } label: {
+                            Image(systemName: library.isFavorite(render.scene) ? "heart.fill" : "heart")
+                        }.accessibilityLabel(library.isFavorite(render.scene) ? "Unfavorite visualizer" : "Favorite visualizer")
                         VStack(alignment: .leading, spacing: 4) {
                             Text(RenderState.sceneNames[render.scene]).font(.headline)
                             Text(mode == .studio ? "Studio · Section \(studio.selectedSegment + 1) of \(studio.segments.count) · Esc to exit" : "Visualizer · Esc to exit")

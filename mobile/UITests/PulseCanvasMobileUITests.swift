@@ -2,6 +2,140 @@ import XCTest
 
 final class PulseCanvasMobileUITests: XCTestCase {
     override func setUp() { continueAfterFailure = false }
+    @MainActor func testStudioDoubleTapFavoritesInEditorAndPresentation() {
+        verifyDoubleTapFavorites(radioMode: false)
+    }
+
+    @MainActor func testRadioDoubleTapFavoritesAndPresentationControls() {
+        verifyDoubleTapFavorites(radioMode: true)
+    }
+
+    @MainActor private func verifyDoubleTapFavorites(radioMode: Bool) {
+        XCUIDevice.shared.orientation = .portrait
+        defer { XCUIDevice.shared.orientation = .portrait }
+        let app = XCUIApplication()
+        app.launchArguments = radioMode
+            ? ["-PCMobileQA", "-PCMobileRadioQA", "-PCMobileStationsQA"]
+            : ["-PCMobileQA", "-PCMobileFullSoundtrackQA"]
+        app.launch()
+        let library = app.buttons["mobileLibraryButton"]
+        XCTAssertTrue(library.waitForExistence(timeout: 30))
+        expectation(for: NSPredicate(format: "enabled == true"), evaluatedWith: library)
+        waitForExpectations(timeout: 90)
+        if radioMode { app.buttons["Radio"].tap() }
+        let play = app.buttons[radioMode ? "radioPlaybackButton" : "mobilePlaybackButton"]
+        let position = radioMode ? app.sliders["radioSongPosition"] : app.sliders["Soundtrack position"]
+        if radioMode {
+            expectation(for: NSPredicate(format: "enabled == true"), evaluatedWith: play)
+            waitForExpectations(timeout: 30)
+            play.tap()
+            expectation(for: NSPredicate(format: "enabled == true"), evaluatedWith: position)
+            waitForExpectations(timeout: 30)
+            play.tap()
+        }
+        let preview = app.otherElements[radioMode ? "mobileRadioPreview" : "mobileVisualizerPreview"]
+        let heart = app.buttons[radioMode ? "Favorite radio visualizer" : "Favorite visualizer"]
+        func value(_ element: XCUIElement) -> String { String(describing: element.value ?? "") }
+        func expectValue(_ element: XCUIElement, _ expected: String) {
+            expectation(for: NSPredicate(format: "value == %@", expected), evaluatedWith: element)
+            waitForExpectations(timeout: 5)
+        }
+        func capture(_ name: String) {
+            let shot = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+            shot.name = name; shot.lifetime = .keepAlways; add(shot)
+        }
+        XCTAssertTrue(preview.waitForExistence(timeout: 10))
+        if value(heart) == "Favorited" { heart.tap() }
+        let originalName = value(preview), originalPosition = value(position)
+        let originalSong = radioMode ? app.staticTexts["radioCurrentSongTitle"].label : ""
+        preview.doubleTap()
+        expectValue(heart, "Favorited")
+        preview.doubleTap()
+        expectValue(heart, "Favorited")
+        XCTAssertEqual(value(preview), originalName)
+        XCTAssertEqual(value(position), originalPosition)
+        XCTAssertEqual(play.label, "Play")
+        capture("\(radioMode ? "Radio" : "Studio")-editor-double-tap")
+
+        app.buttons["mobilePresentationButton"].tap()
+        let full = app.otherElements["mobilePresentationPreview"]
+        XCTAssertTrue(full.waitForExistence(timeout: 10))
+        let fullHeart = app.buttons["presentationVisualizerFavorite"]
+        expectValue(fullHeart, "Favorited")
+        XCTAssertEqual(app.staticTexts["presentationVisualizerTitle"].label, originalName)
+        fullHeart.tap()
+        expectValue(fullHeart, "Not favorited")
+        full.doubleTap()
+        expectValue(fullHeart, "Favorited")
+        XCTAssertTrue(app.buttons["Close"].isHittable, "Double-tap must not toggle presentation controls")
+        full.doubleTap()
+        expectValue(fullHeart, "Favorited")
+        capture("\(radioMode ? "Radio" : "Studio")-full-screen-double-tap")
+        if radioMode {
+            XCTAssertEqual(app.staticTexts["presentationSongTitle"].label, originalSong)
+            let songHeart = app.buttons["presentationSongFavorite"]
+            songHeart.tap(); expectValue(songHeart, "Favorited")
+            songHeart.tap(); expectValue(songHeart, "Not favorited")
+            let next = app.buttons["presentationNextSong"]
+            XCTAssertTrue(next.isHittable)
+            next.tap()
+            expectation(for: NSPredicate(format: "label != %@", originalSong), evaluatedWith: app.staticTexts["presentationSongTitle"])
+            waitForExpectations(timeout: 15)
+            XCTAssertEqual(app.buttons["presentationPlayback"].label, "Play", "Next must preserve pause state")
+            app.buttons["presentationStationPicker"].tap()
+            app.buttons["Next station"].tap()
+            expectation(for: NSPredicate(format: "value == %@", "Electronic"), evaluatedWith: app.buttons["presentationStationPicker"])
+            waitForExpectations(timeout: 20)
+            let fullPlay = app.buttons["presentationPlayback"]
+            XCTAssertEqual(fullPlay.label, "Pause")
+            fullPlay.tap()
+            XCTAssertEqual(app.staticTexts["presentationSongTitle"].label, "Radio test soundtrack 2")
+            app.buttons["presentationStationPicker"].tap()
+            app.buttons["All music"].tap()
+            expectation(for: NSPredicate(format: "value == %@", "All music"), evaluatedWith: app.buttons["presentationStationPicker"])
+            waitForExpectations(timeout: 20)
+            expectation(for: NSPredicate(format: "label == %@", "Pause"), evaluatedWith: fullPlay)
+            waitForExpectations(timeout: 20)
+            fullPlay.tap()
+        }
+        full.tap()
+        expectation(for: NSPredicate(format: "exists == false"), evaluatedWith: app.buttons["Close"])
+        waitForExpectations(timeout: 5)
+        full.doubleTap()
+        XCTAssertFalse(app.buttons["Close"].exists, "Double-tap while controls are hidden must keep them hidden")
+        full.tap()
+        XCTAssertTrue(app.buttons["Close"].waitForExistence(timeout: 5))
+        for orientation in [UIDeviceOrientation.portrait, .landscapeLeft] {
+            XCUIDevice.shared.orientation = orientation
+            expectation(for: NSPredicate { _, _ in
+                let window = app.windows.firstMatch.frame
+                let landscape = window.width > window.height
+                return landscape == (orientation == .landscapeLeft)
+                    && window.minX >= 0 && window.minY >= 0 && window.contains(fullHeart.frame)
+            }, evaluatedWith: app)
+            waitForExpectations(timeout: 10)
+            for control in [fullHeart, app.buttons["Close"], app.buttons["presentationPlayback"], app.buttons["Randomize"]] {
+                XCTAssertTrue(control.isHittable)
+                XCTAssertTrue(app.windows.firstMatch.frame.contains(control.frame), control.debugDescription)
+            }
+            if radioMode {
+                for control in [app.buttons["presentationSongFavorite"], app.buttons["presentationStationPicker"], app.buttons["presentationNextSong"]] {
+                    XCTAssertTrue(control.isHittable, control.debugDescription)
+                    XCTAssertTrue(app.windows.firstMatch.frame.contains(control.frame), control.debugDescription)
+                }
+            }
+            capture("\(radioMode ? "Radio" : "Studio")-presentation-controls-\(orientation.rawValue)")
+        }
+        app.buttons["Close"].tap()
+        if !radioMode { XCTAssertEqual(value(position), originalPosition) }
+        // Exercise the gesture while music is playing, without seeking or stopping it.
+        play.tap()
+        preview.doubleTap()
+        XCTAssertEqual(play.label, "Pause")
+        XCTAssertEqual(value(heart), "Favorited")
+        play.tap()
+    }
+
     @MainActor func testStudioPreviewSwipesKeepMusicAndCurrentScene() {
         verifyPreviewSwipes(radioMode: false)
     }
@@ -41,6 +175,7 @@ final class PulseCanvasMobileUITests: XCTestCase {
             play.tap()
         }
         XCTAssertEqual(play.label, "Play")
+        position.adjust(toNormalizedSliderPosition: 0)
         let preview = app.otherElements[radioMode ? "mobileRadioPreview" : "mobileVisualizerPreview"]
         XCTAssertTrue(preview.waitForExistence(timeout: 10))
         let mode = radioMode ? "Radio" : "Studio"
@@ -104,7 +239,8 @@ final class PulseCanvasMobileUITests: XCTestCase {
         expectChange(full, from: fullAfter)
         capture("\(mode)-full-screen-after-swipe")
         full.tap()
-        XCTAssertFalse(app.buttons["Close"].exists)
+        expectation(for: NSPredicate(format: "exists == false"), evaluatedWith: app.buttons["Close"])
+        waitForExpectations(timeout: 5)
         full.tap()
         XCTAssertTrue(app.buttons["Close"].waitForExistence(timeout: 5))
         app.buttons["Close"].tap()

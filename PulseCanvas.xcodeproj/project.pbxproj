@@ -173,6 +173,12 @@
 			"path" = "Sources/PulseCanvas/VisualizerBrowser.swift";
 			"sourceTree" = "<group>";
 		};
+		"BDC70BBF14D9FA6AFF52EF57" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"path" = "Sources/PulseCanvas/VisualizerFavoriteGesture.swift";
+			"sourceTree" = "<group>";
+		};
 		"60524849AAB9510D72A785E5" = {
 			"isa" = "PBXFileReference";
 			"lastKnownFileType" = "sourcecode.swift";
@@ -291,6 +297,7 @@
 				"5209D7B8FE7DB3E851C09177",
 				"E76D1B93B17DC49DF3364355",
 				"2DC8FA731B0E69EFBE8C5F23",
+				"BDC70BBF14D9FA6AFF52EF57",
 				"60524849AAB9510D72A785E5",
 				"708BBBB95AD63DC7E6DBA5CE",
 				"7958DCE0804231A319D26CD8",
@@ -434,6 +441,10 @@
 			"isa" = "PBXBuildFile";
 			"fileRef" = "2DC8FA731B0E69EFBE8C5F23";
 		};
+		"3639C00CF5450A6B8B0ECFD1" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "BDC70BBF14D9FA6AFF52EF57";
+		};
 		"1E4F77C1404DCB61DFAB398B" = {
 			"isa" = "PBXBuildFile";
 			"fileRef" = "60524849AAB9510D72A785E5";
@@ -482,6 +493,7 @@
 				"59F9215D16187F2AAD43D7B8",
 				"A7CE383E14BB29514D2DD0C2",
 				"69442A0AA42CCF182DE4D40C",
+				"3639C00CF5450A6B8B0ECFD1",
 				"1E4F77C1404DCB61DFAB398B",
 				"3B47F2807476B0478D4672B9",
 				"80C0D081FE8F82B6B5025265",

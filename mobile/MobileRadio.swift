@@ -27,6 +27,7 @@ struct MobileRadio: View {
                             .accessibilityElement(children: .ignore).accessibilityLabel("Radio visualization")
                             .accessibilityValue(radio.sceneTitle).accessibilityIdentifier("mobileRadioPreview")
                             .modifier(MobileVisualizerSwipe { editor.randomizePreviewVisualizer() })
+                            .modifier(VisualizerFavoriteGesture(favorite: editor.favoritePreviewVisualizer))
                         songHeading()
                         HStack {
                             stationPicker
@@ -84,6 +85,7 @@ struct MobileRadio: View {
                 .accessibilityIdentifier("mobileRadioPreview")
                 .accessibilityValue(radio.sceneTitle)
                 .modifier(MobileVisualizerSwipe { editor.randomizePreviewVisualizer() })
+                            .modifier(VisualizerFavoriteGesture(favorite: editor.favoritePreviewVisualizer))
             HStack(spacing: 12) {
                 songHeading(includesFavoriteList: false)
                 HStack(spacing: 8) {
@@ -108,6 +110,7 @@ struct MobileRadio: View {
                 Button { library.toggleFavorite(radio.visualizer.scene, appearance: VisualPreset(render: radio.visualizer)) } label: {
                     Image(systemName: library.isFavorite(radio.visualizer.scene) ? "heart.fill" : "heart").frame(width: 16)
                 }.accessibilityLabel("Favorite radio visualizer")
+                    .accessibilityValue(library.isFavorite(radio.visualizer.scene) ? "Favorited" : "Not favorited")
             }
             Text(radio.sceneTitle.isEmpty ? "Radio" : radio.sceneTitle).font(.headline).lineLimit(1)
             Spacer(minLength: 0)
@@ -122,6 +125,7 @@ struct MobileRadio: View {
                 Button { radio.toggleFavoriteSong(track) } label: {
                     Image(systemName: radio.isFavoriteSong(track) ? "heart.fill" : "heart").frame(width: 16)
                 }.accessibilityLabel("Favorite song")
+                    .accessibilityValue(radio.isFavoriteSong(track) ? "Favorited" : "Not favorited")
             }
             Text(radio.currentTrack?.title ?? "PulseCanvas Radio").font(.headline).lineLimit(1)
                 .accessibilityIdentifier("radioCurrentSongTitle")
@@ -136,23 +140,11 @@ struct MobileRadio: View {
             .accessibilityLabel("Favorite songs")
     }
     private var stationPicker: some View {
-        Menu {
-            Button("All music") { radio.selectMusicGroup("all-music", startPlayback: true) }
-            Button("Favorite songs") { radio.playFavoriteStation() }
-            Divider()
-            if radio.hasPersonalMusic { Button("My music folder") { radio.usePersonalMusic() } }
-            Button("Choose music folder…", systemImage: "folder.badge.plus") { musicFolder = true }
-            Toggle("Shuffle songs", isOn: $radio.shuffle)
-            ForEach(radio.isPersonalMusic ? [] : radio.stations.filter { $0.id != "all-music" }) { station in
-                Button(station.title) { radio.selectMusicGroup(station.id, startPlayback: true) }
-            }
-        } label: {
-            Label(radio.favoriteSongsOnly ? "Favorite songs" : radio.stationTitle, systemImage: "antenna.radiowaves.left.and.right")
-                .lineLimit(1)
-        }.disabled(radio.isCatalogLoading).accessibilityIdentifier("radioStationPicker")
+        MobileRadioStationPicker(radio: radio, chooseMusicFolder: { musicFolder = true })
     }
+
     private var nextSong: some View {
-        Button { radio.next() } label: { Image(systemName: "forward.end.fill") }
+        Button { radio.next() } label: { Label("Next", systemImage: "forward.end.fill") }
             .disabled(!radio.isActive || radio.isLoading).accessibilityLabel("Next song")
     }
     private var volume: some View {
@@ -179,6 +171,34 @@ struct MobileRadio: View {
 
 }
 
+/// Keep station selection available in both the workspace and presentation.
+struct MobileRadioStationPicker: View {
+    @ObservedObject var radio: RadioController
+    var chooseMusicFolder: (() -> Void)? = nil
+    var identifier = "radioStationPicker"
+    var body: some View {
+        Menu {
+            Button("Next station", systemImage: "forward.frame") { radio.nextStation() }
+                .disabled(!radio.canSkipStation)
+            Divider()
+            Button("All music") { radio.selectMusicGroup("all-music", startPlayback: true) }
+            Button("Favorite songs") { radio.playFavoriteStation() }
+            Divider()
+            if radio.hasPersonalMusic { Button("My music folder") { radio.usePersonalMusic() } }
+            if let chooseMusicFolder { Button("Choose music folder…", systemImage: "folder.badge.plus", action: chooseMusicFolder) }
+            Toggle("Shuffle songs", isOn: $radio.shuffle)
+            ForEach(radio.stations.filter { $0.id != "all-music" }) { station in
+                Button(station.title) { radio.selectMusicGroup(station.id, startPlayback: true) }
+            }
+        } label: {
+            Label(radio.favoriteSongsOnly ? "Favorite songs" : radio.stationTitle, systemImage: "antenna.radiowaves.left.and.right")
+                .lineLimit(1)
+        }.disabled(radio.isCatalogLoading).accessibilityIdentifier(identifier)
+            .accessibilityLabel("Radio station")
+            .accessibilityValue(radio.favoriteSongsOnly ? "Favorite songs" : radio.stationTitle)
+    }
+}
+
 /// Observe only the small transport at playback cadence, not the Metal preview
 /// and catalog. Seeking commits on release and preserves play/pause state.
 private struct MobileRadioTransport: View {
@@ -203,7 +223,8 @@ private struct MobileRadioTransport: View {
             }).disabled(!radio.canSeek).accessibilityLabel("Radio song position")
                 .accessibilityIdentifier("radioSongPosition")
             Text(MobileTransport.time(radio.canSeek ? audio.duration : 0)).monospacedDigit().font(.caption)
-        }.onReceive(audio.visualizationUpdated.throttle(for: .milliseconds(100), scheduler: RunLoop.main, latest: true)) { _ in
+        }.onAppear { fraction = radio.canSeek ? audio.progress : 0 }
+        .onReceive(audio.visualizationUpdated.throttle(for: .milliseconds(100), scheduler: RunLoop.main, latest: true)) { _ in
             if !seeking { fraction = radio.canSeek ? audio.progress : 0 }
         }
     }

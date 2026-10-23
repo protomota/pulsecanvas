@@ -241,6 +241,9 @@ struct RadioPlayerView: View {
         ZStack(alignment: .bottom) {
             Color.black.ignoresSafeArea()
             VisualizerView(state: render).ignoresSafeArea()
+                .modifier(VisualizerFavoriteGesture {
+                    presets.favorite(render.scene, appearance: VisualPreset(render: render))
+                })
             if controlsVisible || !radio.isPlaybackRequested || radio.isLoading {
             controls.padding(20)
             .transition(.opacity)

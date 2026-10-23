@@ -177,6 +177,15 @@ final class RadioController: ObservableObject {
 
     func playFavoriteStation() { selectMusicGroup("favorite-songs", startPlayback: true) }
 
+    var canSkipStation: Bool { !isCatalogLoading && stations.contains { $0.id != musicGroupID } }
+
+    func nextStation() {
+        guard canSkipStation else { return }
+        let index = stations.firstIndex { $0.id == musicGroupID }
+        let next = stations[((index ?? -1) + 1) % stations.count]
+        selectMusicGroup(next.id, startPlayback: true)
+    }
+
     func attach(audio: AudioController) { self.audio = audio }
     /// Preserve the requested transport state through a temporary download/decode pause.
     var isPlaybackRequested: Bool { isLoading ? wantsPlayback : audio?.isPlaying == true }

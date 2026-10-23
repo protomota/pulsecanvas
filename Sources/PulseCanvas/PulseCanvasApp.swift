@@ -433,6 +433,9 @@ struct CreatorView: View {
                     Rectangle().fill(Color.black)
                     if !exporter.isExporting {
                         VisualizerView(state: render)
+                            .modifier(VisualizerFavoriteGesture {
+                                presetLibrary.favorite(render.scene, appearance: studio.preset(render))
+                            })
                     }
                 }.frame(width: layout.preview.width, height: layout.preview.height)
                     .clipShape(RoundedRectangle(cornerRadius: 3))

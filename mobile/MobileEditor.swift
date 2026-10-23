@@ -55,6 +55,11 @@ import CryptoKit
     }
     var currentRender: RenderState { selectedTab == 1 ? radio.visualizer : render }
 
+    func favoritePreviewVisualizer() -> Bool {
+        guard !loading, !exporter.isExporting else { return false }
+        return library.favorite(currentRender.scene, appearance: VisualPreset(render: currentRender))
+    }
+
     /// Change only the current look. Audio and Studio scene boundaries stay intact.
     func randomizePreviewVisualizer() {
         guard !loading, !exporter.isExporting else { return }
@@ -96,6 +101,17 @@ import CryptoKit
                         let second = RadioTrack(id: "00000000-0000-4000-8000-000000000002", title: "Radio test soundtrack 2", genre: track.genre, duration: track.duration,
                             audio: track.audio, sha256: track.sha256, byteCount: track.byteCount)
                         try JSONEncoder().encode(RadioCatalog(version: 1, title: "Test Radio", tracks: [track, second])).write(to: url)
+                        if ProcessInfo.processInfo.arguments.contains("-PCMobileStationsQA") {
+                            let genreURL = documents.appendingPathComponent("genre.json")
+                            try JSONEncoder().encode(RadioCatalog(version: 1, title: "Test Electronic", tracks: [second])).write(to: genreURL)
+                            let directoryURL = documents.appendingPathComponent("stations.json")
+                            try JSONEncoder().encode(RadioStationDirectory(version: 1, stations: [
+                                RadioStation(id: "all-music", title: "All music", description: "Test library", catalog: url.lastPathComponent),
+                                RadioStation(id: "electronic", title: "Electronic", description: "Test station", catalog: genreURL.lastPathComponent)
+                            ])).write(to: directoryURL)
+                            radio.loadCatalog(at: directoryURL)
+                            return
+                        }
                         if ProcessInfo.processInfo.arguments.contains("-PCMobileFolderQA") {
                             selectedTab = 1
                             let album = documents.appendingPathComponent("My album")

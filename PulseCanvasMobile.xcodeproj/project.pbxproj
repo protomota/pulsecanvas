@@ -11,6 +11,12 @@
 			"path" = "Sources/PulseCanvas/PulseCanvasOnboarding.swift";
 			"sourceTree" = "<group>";
 		};
+		"BDC70BBF14D9FA6AFF52EF57" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"path" = "Sources/PulseCanvas/VisualizerFavoriteGesture.swift";
+			"sourceTree" = "<group>";
+		};
 		"E76D1B93B17DC49DF3364355" = {
 			"isa" = "PBXFileReference";
 			"lastKnownFileType" = "sourcecode.swift";
@@ -264,6 +270,7 @@
 			"isa" = "PBXGroup";
 			"children" = (
 				"267585C701FE24385C4A7730",
+				"BDC70BBF14D9FA6AFF52EF57",
 				"E76D1B93B17DC49DF3364355",
 				"5209D7B8FE7DB3E851C09177",
 				"100CD0DC00C64B0B646E69DC",
@@ -324,6 +331,10 @@
 		"AF9CE3E468D5BC4C85C8FF68" = {
 			"isa" = "PBXBuildFile";
 			"fileRef" = "267585C701FE24385C4A7730";
+		};
+		"3639C00CF5450A6B8B0ECFD1" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "BDC70BBF14D9FA6AFF52EF57";
 		};
 		"A7CE383E14BB29514D2DD0C2" = {
 			"isa" = "PBXBuildFile";
@@ -442,6 +453,7 @@
 			"buildActionMask" = 2147483647;
 			"files" = (
 				"AF9CE3E468D5BC4C85C8FF68",
+				"3639C00CF5450A6B8B0ECFD1",
 				"A7CE383E14BB29514D2DD0C2",
 				"59F9215D16187F2AAD43D7B8",
 				"F11FE05286D083962ACFFC9E",

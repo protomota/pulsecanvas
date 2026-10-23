@@ -145,6 +145,7 @@ struct MobileWorkspace: View {
                 if let grid = editor.audio.segmentPlan(beatsPerSection: 4) { _ = editor.studio.randomizeBars(grid: grid, render: editor.render); editor.saveSession() }
             }
         } message: { Text("This replaces the chosen visualizers or scene lengths throughout your Studio timeline.") }
+        .accessibilityHidden(editor.presenting)
         .fullScreenCover(isPresented: $editor.presenting) { MobilePresentation(editor: editor) }
     }
     @ViewBuilder private func studioContent(size: CGSize, bounded: Bool, trailingControlInset: CGFloat) -> some View {
@@ -267,6 +268,7 @@ private struct MobilePreview: View {
             Button { library.toggleFavorite(render.scene, appearance: VisualPreset(render: render)) } label: {
                 Image(systemName: library.isFavorite(render.scene) ? "heart.fill" : "heart").frame(width: 16)
             }.accessibilityLabel("Favorite visualizer")
+                .accessibilityValue(library.isFavorite(render.scene) ? "Favorited" : "Not favorited")
             Text(library.sceneNames[render.scene]).font(.headline).lineLimit(1).accessibilityIdentifier("mobileVisualizerName")
 
             Spacer(minLength: 0)
@@ -291,6 +293,7 @@ private struct MobilePreview: View {
                 .accessibilityValue(library.sceneNames[render.scene])
                 .accessibilityIdentifier("mobileVisualizerPreview")
                 .modifier(MobileVisualizerSwipe { editor.randomizePreviewVisualizer() })
+                .modifier(VisualizerFavoriteGesture(favorite: editor.favoritePreviewVisualizer))
             if editor.loading {
                 ProgressView("Preparing your soundtrack…").font(.callout)
                     .accessibilityIdentifier("mobileSoundtrackPreparing")
@@ -314,7 +317,7 @@ struct MobileVisualizerSwipe: ViewModifier {
                       abs(travel.width) >= 44 || (travel.width * projected.width > 0 && abs(projected.width) >= 80) else { return }
                 changeVisualizer()
             })
-            .accessibilityHint("Swipe left or right to change the visualizer while keeping the current song")
+            .accessibilityHint("Swipe left or right to change the visualizer while keeping the current song. Double-tap to favorite the visualizer.")
             .accessibilityAction(named: Text("Change visualizer"), changeVisualizer)
     }
 }

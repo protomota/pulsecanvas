@@ -293,8 +293,14 @@ import Foundation
         precondition(audio.retainedSoundtrack()?.file === originalPrepared.file)
         print("PASS cancellation: rapid skips, paused Studio restore and retained audio file/analysis reuse")
 
-        radio.selectStation("future-genre")
+        precondition(radio.canSkipStation)
+        radio.nextStation()
         try await wait("future station") { !radio.isCatalogLoading && radio.stationID == "future-genre" }
+        try await wait("station skip starts music") { radio.isActive && !radio.isLoading && audio.isPlaying }
+        radio.nextStation()
+        try await wait("station skip wraps") { !radio.isCatalogLoading && radio.stationID == "all-music" && radio.isActive && !radio.isLoading }
+        radio.selectStation("future-genre")
+        try await wait("restore future station") { !radio.isCatalogLoading && radio.stationID == "future-genre" }
         precondition(radio.catalog?.tracks.count == 1 && radio.sourceText == stationsURL.absoluteString)
         favorites.toggleFavorite(NativeEffects.activeIDs[0]); favorites.toggleFavorite(NativeEffects.activeIDs[1])
         radio.selectVisualizerGroup(.favorites)

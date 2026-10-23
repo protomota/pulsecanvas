@@ -42,7 +42,17 @@ struct VisualizerPool: Codable, Equatable, Sendable {
 
 @MainActor
 final class ProjectMPresets: ObservableObject {
-    static let shared = ProjectMPresets()
+    static let shared: ProjectMPresets = {
+        #if DEBUG && os(iOS)
+        if ProcessInfo.processInfo.arguments.contains("-PCMobileQA") {
+            let suite = "PulseCanvas.MobileVisualizers.QA"
+            let defaults = UserDefaults(suiteName: suite)!
+            defaults.removePersistentDomain(forName: suite)
+            return ProjectMPresets(defaults: defaults)
+        }
+        #endif
+        return ProjectMPresets()
+    }()
     @Published private(set) var pool = VisualizerPool()
     @Published private(set) var poolRevision = 0
     @Published private(set) var entries: [ProjectMPreset] = []
@@ -172,6 +182,14 @@ final class ProjectMPresets: ObservableObject {
             favoriteAppearances[id] = appearance.flatMap { $0.isValid ? $0 : nil } ?? VisualPreset.defaults(for: scene)
         }
         persistFavorites()
+    }
+
+    /// Gestures only add favorites. Repeating one preserves the originally saved look.
+    @discardableResult
+    func favorite(_ scene: Int, appearance: VisualPreset? = nil) -> Bool {
+        guard availableScenes.contains(scene) else { return false }
+        if !isFavorite(scene) { toggleFavorite(scene, appearance: appearance) }
+        return true
     }
 
     /// Upgrade ID-only favorites once from the editor's existing saved looks.
