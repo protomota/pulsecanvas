@@ -1,7 +1,7 @@
 # Visualizer preview swipes — October 23, 2026
 
-Prepared for owner review before TestFlight delivery. Includes the previously
-approved large-iPad onboarding and grouped Radio controls.
+Reviewed and approved by the owner before TestFlight delivery. Includes the
+previously approved large-iPad onboarding and grouped Radio controls.
 
 ## Behavior
 
@@ -38,11 +38,14 @@ suite; the test process completed successfully.
 Evidence and screenshots remain outside Git:
 `/Users/brad/Documents/Codex/2026-10-23/pulsecanvas-preview-swipes-review/`.
 
-## Delivery hold
+## Delivery
 
-TestFlight 1.2 (11) is still the existing delivery. No new upload or beta-group
-assignment was made. The earlier signed 1.2 (12) layout-only candidate in
+The owner explicitly approved the combined changes after reviewing the swipe
+captures. A fresh signed 1.2 (12) archive/export from `a5aef74` was uploaded,
+processed and enabled for the existing internal TestFlight group. See the
+[verified delivery](mobile-testflight-1.2-12.md).
+
+The earlier signed 1.2 (12) layout-only candidate in
 `/Volumes/Music/Codex Media/PulseCanvas Studio/Platform Builds/ipad-layout-1.2-12-20261023/`
-is superseded and does not contain these gestures. After owner confirmation,
-create a new signed archive/export from the combined source; do not upload that
-earlier candidate. Build number 12 remains unused in App Store Connect.
+is superseded, does not contain these gestures, and was never uploaded. The
+delivery above uses the separate fresh combined-source artifact folder.

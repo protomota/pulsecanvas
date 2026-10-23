@@ -1,7 +1,7 @@
 # iPad onboarding and Radio layout review — October 23, 2026
 
-Prepared for owner confirmation before another TestFlight upload. The existing
-TestFlight 1.2 (11) delivery is unchanged.
+Native layout review completed before owner approval. These layouts are included
+in the [verified TestFlight 1.2 (12) delivery](mobile-testflight-1.2-12.md).
 
 ## Changes
 
@@ -42,5 +42,6 @@ The owner reviewed the native onboarding and Radio previews and explicitly
 approved both changes for the next TestFlight build on October 23. A signed
 1.2 (12) layout candidate was archived and exported from `c034fa3`, but the owner
 requested visualizer preview swipes before upload. That candidate was retained
-and never uploaded. The combined update now awaits confirmation of the new
-swipe behavior; see [preview swipe review](preview-swipes-review-2026-10-23.md).
+and never uploaded. The owner subsequently approved the new swipe behavior and
+the combined update was delivered as TestFlight 1.2 (12); see the
+[preview swipe review](preview-swipes-review-2026-10-23.md).
