@@ -157,3 +157,22 @@ remains recoverable in the Asset Library. Saved browser proof:
 
 No new app binaries or review submissions are part of this screenshot refinement.
 All three 1.2 review states remain Developer Rejected.
+
+
+## October 23 — recognizable folded shell and caption removal
+
+Corrected the hardware framing on the Duo free and availability images to match
+the closed Device Hub reference: straight hinge edge on the left, rounded outer
+corners on the right and the outer camera cutout. The real closed-display captures
+and native proportions are unchanged. Removed the device-name caption beneath
+the phone on Completely free.
+
+Uploaded `duo-06-free-folded.jpg` and `duo-07-all-devices-folded.jpg` to positions
+6 and 7. Both processed successfully; API readback verified the seven-image
+order, native output dimensions, file sizes and unchanged first-five placement
+and image IDs. The other four availability renders and first five Duo campaign
+renders are byte-identical. All three 1.2 review states remain Developer Rejected.
+
+Evidence: `art/duo-folded-shell/`, `delivery/duo-folded-shell-delivery.json`,
+`delivery/duo-folded-shell-final-placements.json`, and actual browser proof
+`delivery/app-store-duo-folded-free-proof.png` in the internal artifact folder.

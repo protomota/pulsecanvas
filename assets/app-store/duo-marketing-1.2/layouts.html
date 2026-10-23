@@ -59,8 +59,12 @@ body.duo{--W:2853px;--H:2007px;--s:1.1;--tw:713.25px;--th:501.75px}
 .duo .free .benefits{display:flex;gap:60px;margin-top:100px;padding-top:54px;border-top:3px solid #dfd6e8;width:1190px}
 .duo .free .benefit{font-size:39px;line-height:1.4;color:#5b5066;white-space:nowrap}
 .duo .free .benefit strong{display:block;font-size:68px;line-height:1.15;color:#2e203d;letter-spacing:-2px;margin-bottom:14px}
-.duo .free .closed{box-shadow:15px 5px 0 #29222f,21px 7px 0 #b7b1bf,28px 9px 0 #49414f,0 70px 140px #2a1a4a40,0 14px 34px #1c123026,0 0 0 4px #ddd9e2}
-.duo .free .device-label{position:absolute;left:1650px;top:1830px;width:1030px;text-align:center;font-size:42px;font-weight:600;letter-spacing:4px;color:#75677e}
+/* Match Device Hub's closed shell: straight left hinge, rounded outer edge,
+   and the outer display's camera cutout. The app capture keeps its native ratio. */
+.duo .free .closed{border-radius:24px 150px 150px 24px;background:linear-gradient(90deg,#8e8b93,#3c3941 2%,#aaa6af 98%,#57525d);box-shadow:0 70px 140px #2a1a4a40,0 14px 34px #1c123026,0 0 0 4px #68626e}
+.duo .free .closed:before{content:"";position:absolute;left:-30px;top:12px;bottom:12px;width:30px;background:linear-gradient(90deg,#66616a,#3c3741 35%,#827b88 70%,#2e2933);border-radius:12px 0 0 12px;box-shadow:-5px 0 0 #a7a1ae}
+.duo .free .closed .screen{border-radius:12px 136px 136px 12px}
+.duo .free .closed .screen:after{content:"";position:absolute;top:58px;right:75px;width:74px;height:74px;border-radius:50%;background:#000;box-shadow:0 0 0 2px #17131c}
 </style></head><body class="duo"><main class="overview" id="overview"></main><script>
 const q=new URLSearchParams(location.search);
 if(q.has('review'))document.body.classList.add('review');
@@ -78,7 +82,7 @@ const slides=[
 {id:'style',accent:'#7f3fe0',body:()=>copy('Shape every <em>look.</em>','Chaos, motion, zoom, brightness and depth. All at your fingertips.')+frame('inner-style',330,620,2200)+callout('style',536,1050,1780)},
 {id:'radio',accent:'#d85a35',body:()=>copy('Tune in to <em>Radio.</em>','Stations paired with moving visuals. Heart the songs you love.')+frame('inner-radio',330,620,2200)+callout('radio',150,1510,2553)},
 {id:'export',accent:'#b8690c',body:()=>copy('From your phone to <em>their feed.</em>','Save an MP4 with your music. Wide, phone or square.')+frame('inner-export',330,620,2200)+callout('export',900,1110,1750)+value('4K60','Maximum MP4 output',2180,1670,4)},
-{id:'free',accent:'#a43cd6',body:()=>copy('Completely<br><em>free.</em>','Your music. Your canvas.<br>Every feature is yours.',`<div class="chips"><span class="chip p">No subscriptions</span><span class="chip">No ads</span><span class="chip">No account</span><span class="chip">No tracking</span></div><div class="benefits"><div class="benefit"><strong>300+</strong>Visualizers</div><div class="benefit"><strong>Radio</strong>Listen & discover</div><div class="benefit"><strong>4K</strong>Video export</div></div>`)+frame('closed-hero',1650,240,1030,'closed',4)+`<div class="device-label">iPhone Duo</div>`},
+{id:'free',accent:'#a43cd6',body:()=>copy('Completely<br><em>free.</em>','Your music. Your canvas.<br>Every feature is yours.',`<div class="chips"><span class="chip p">No subscriptions</span><span class="chip">No ads</span><span class="chip">No account</span><span class="chip">No tracking</span></div><div class="benefits"><div class="benefit"><strong>300+</strong>Visualizers</div><div class="benefit"><strong>Radio</strong>Listen & discover</div><div class="benefit"><strong>4K</strong>Video export</div></div>`)+frame('closed-hero',1650,240,1030,'closed',4)},
 ];
 const main=document.getElementById('overview');
 slides.forEach(s=>{const t=document.createElement('div');t.className='thumb';t.innerHTML=`<section class="slide ${s.id}" style="--accent:${s.accent}">${backdrop()}${s.body()}</section>`;main.append(t)});

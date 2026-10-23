@@ -1,7 +1,7 @@
 {
   "appVersion": "1.2",
   "appBuild": "10",
-  "renderedAt": "2026-10-23T09:47:37.117Z",
+  "renderedAt": "2026-10-23T11:22:00.343Z",
   "renderer": "Playwright Chromium, real simulator captures",
   "sources": [
     {
@@ -99,8 +99,8 @@
       "file": "duo-06-free.png",
       "width": 2853,
       "height": 2007,
-      "bytes": 2171567,
-      "sha256": "77a34640c9c2b581902c271746fc504aab91a44747dfc3a902a26fe173c886de",
+      "bytes": 2169798,
+      "sha256": "8416d3656230a4ab985bc7e5e204fad9ea42c3db58992d6ca890d784cceeaefd",
       "copyBottom": 1594.921875,
       "title": "Completelyfree."
     }

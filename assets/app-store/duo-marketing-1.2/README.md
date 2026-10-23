@@ -38,15 +38,15 @@ Duo use landscape.
 All captures, cropped details, PNG outputs, contact sheets and acknowledgments stay
 outside Git:
 
-`/Users/brad/Documents/Codex/2026-10-22/pulsecanvas-controls-release-rescue/art/duo-free-hero/`
+`/Users/brad/Documents/Codex/2026-10-22/pulsecanvas-controls-release-rescue/art/duo-folded-shell/`
 
 Generate complete control crops before rendering:
 
 ```sh
-python3 assets/app-store/shared/prepare-callouts.py '/Users/brad/Documents/Codex/2026-10-22/pulsecanvas-controls-release-rescue/art/duo-free-hero/raw'
+python3 assets/app-store/shared/prepare-callouts.py '/Users/brad/Documents/Codex/2026-10-22/pulsecanvas-controls-release-rescue/art/duo-folded-shell/raw'
 PLAYWRIGHT=/Users/brad/Documents/GIT_SOURCE/jotley-site/node_modules/playwright/index.mjs \
 node assets/app-store/duo-marketing-1.2/render.mjs \
-  '/Users/brad/Documents/Codex/2026-10-22/pulsecanvas-controls-release-rescue/art/duo-free-hero/raw' '/Users/brad/Documents/Codex/2026-10-22/pulsecanvas-controls-release-rescue/art/duo-free-hero/duo'
+  '/Users/brad/Documents/Codex/2026-10-22/pulsecanvas-controls-release-rescue/art/duo-folded-shell/raw' '/Users/brad/Documents/Codex/2026-10-22/pulsecanvas-controls-release-rescue/art/duo-folded-shell/duo'
 ```
 
 The manifest records raw captures, derived control crops and rendered image hashes.
@@ -61,8 +61,8 @@ placements and their ordering are retained.
 ## October 23 — closed Duo free hero
 
 Completely free now uses a large, fully visible closed outer display showing Oil
-Marble in presentation mode. A subtle second chassis edge makes the folded phone
-read clearly; its native 1398×2034 image is never stretched to the open display.
+Marble in presentation mode. The shell matches Device Hub’s closed reference, with a straight left hinge,
+rounded right corners and outer camera cutout; its native 1398×2034 image is never stretched to the open display.
 The two-column composition pairs the phone with a larger headline, four equally
 sized privacy/value pills, and a compact Visualizers / Radio / 4K export row.
 The Library image is removed from this slide. Other five campaign slides retain
@@ -79,3 +79,10 @@ The renderer verifies the closed image dimensions, phone bounds, minimum clearan
 between the two columns, and copy bounds before exporting. The lossless render
 and upload JPEG (quality 97, no chroma subsampling) remain outside Git under
 `art/duo-free-hero/`.
+
+
+The free slide has no device-name caption beneath the phone. The corrected shell
+is also used for the closed Duo card in the Duo availability image. These two
+replacements were processed and verified at positions 6 and 7; the first five
+placement/image IDs remain unchanged. See `delivery/duo-folded-shell-delivery.json`
+and `delivery/app-store-duo-folded-free-proof.png` in the internal artifact folder.

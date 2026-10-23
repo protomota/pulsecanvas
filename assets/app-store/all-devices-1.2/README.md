@@ -31,3 +31,10 @@ The Duo-format slide uses the native closed Duo capture in its phone card, names
 it iPhone Duo and uses the same wording in the subtitle. The other four formats
 retain their existing phone card and are byte-identical. Current source folder:
 `/Users/brad/Documents/Codex/2026-10-22/pulsecanvas-controls-release-rescue/art/closed-duo/montage-sources/`.
+
+
+October 23 shell correction: the Duo card now follows Device Hub’s closed form:
+straight left hinge, rounded right corners and outer camera cutout. The native
+closed-display image and its aspect ratio are preserved. Only the Duo-format
+output changes; the other four formats remain byte-identical. Corrected renders
+are under `art/duo-folded-shell/all-devices/` in the internal artifact folder.
