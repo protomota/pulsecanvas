@@ -123,12 +123,17 @@ struct PulseCanvasOnboardingView: View {
         #endif
     }
     private let assets = ["welcome", "visuals", "studio", "share", "support"]
+    #if os(iOS)
+    private let locksTextPositions = true
+    #else
+    private let locksTextPositions = false
+    #endif
     #if os(tvOS)
     private let isTV = true
     #else
     private let isTV = false
     #endif
-    private var title: String {
+    private func title(for step: Int) -> String {
         switch step {
         case 0: return "Your music.\nYour visual world."
         case 1: return "Find a look.\nMake it yours."
@@ -149,7 +154,7 @@ struct PulseCanvasOnboardingView: View {
         default: return "Free to create.\nSupported by you."
         }
     }
-    private var subtitle: String {
+    private func subtitle(for step: Int) -> String {
         switch step {
         case 0: return "Turn sound into moving art with PulseCanvas Studio. A few basics, then the canvas is yours."
         case 1: return "Explore the visualizer library, save your favorites, and shape the colors and motion to suit your music."
@@ -170,7 +175,7 @@ struct PulseCanvasOnboardingView: View {
         default: return "Every feature is free, with no account or subscription. Your support helps us keep building."
         }
     }
-    private var lessons: [(String, String, String)] {
+    private func lessons(for step: Int) -> [(String, String, String)] {
         switch step {
         case 0: return [("waveform", "Start with a song", "Try the included music or discover a station in Radio."),
                         ("sparkles", "Watch the music move", "Visuals respond to the rhythm as you listen.")]
@@ -228,8 +233,17 @@ struct PulseCanvasOnboardingView: View {
             // across Continue cannot also activate it. Ordinary taps still work.
             .highPriorityGesture(DragGesture(minimumDistance: 20).onEnded { value in
                 let distance = value.translation
+                #if os(iOS)
+                // Accept a deliberate short flick as well as a longer drag.
+                // Require real horizontal travel before consulting momentum.
+                let projected = value.predictedEndTranslation
+                guard abs(distance.width) >= 24,
+                      abs(distance.width) > abs(distance.height) * 1.25,
+                      abs(distance.width) >= 44 || (distance.width * projected.width > 0 && abs(projected.width) >= 80) else { return }
+                #else
                 guard abs(distance.width) >= 44,
                       abs(distance.width) > abs(distance.height) * 1.25 else { return }
+                #endif
                 changeStep(step + (distance.width < 0 ? 1 : -1))
             })
             #if os(macOS)
@@ -259,7 +273,7 @@ struct PulseCanvasOnboardingView: View {
     }
     @ViewBuilder private func page(wide: Bool, size: CGSize, compact: Bool) -> some View {
         if wide {
-            HStack(spacing: compact ? 28 : (isTV ? 75 : 54)) {
+            HStack(alignment: locksTextPositions ? .top : .center, spacing: compact ? 28 : (isTV ? 75 : 54)) {
                 illustration
                     .frame(width: min(size.width * 0.44, isTV ? 620 : 510),
                            height: min(size.height * (compact ? 0.75 : 0.94), isTV ? 620 : 510))
@@ -330,29 +344,75 @@ struct PulseCanvasOnboardingView: View {
     }
     private func copy(wide: Bool, compact: Bool) -> some View {
         VStack(alignment: .leading, spacing: compact ? 12 : (isTV ? 26 : 20)) {
-            Text(title).font(.system(size: isTV ? (compact ? 46 : 54) : min(titleSize, wide ? 52 : 38) * (compact ? 0.88 : 1), weight: .bold, design: .rounded))
-                .tracking(-1.2).fixedSize(horizontal: false, vertical: true)
-                .accessibilityIdentifier("onboardingTitle").accessibilityAddTraits(.isHeader)
-            Text(subtitle).font(isTV ? .system(size: compact ? 24 : 28) : (compact ? .callout : .body)).foregroundStyle(ink.opacity(0.92))
-                .fixedSize(horizontal: false, vertical: true).lineSpacing(3)
-            if step == 4 { support }
-            else {
-                VStack(alignment: .leading, spacing: compact ? 12 : (isTV ? 24 : 18)) {
-                    ForEach(lessons, id: \.0) { icon, title, detail in
-                        HStack(alignment: .onboardingLessonTitle, spacing: 14) {
-                            Image(systemName: icon).font(.system(size: isTV ? 30 : 22)).foregroundStyle(accent)
-                                .frame(width: isTV ? 40 : 28).accessibilityHidden(true)
-                            VStack(alignment: .leading, spacing: 5) {
-                                Text(title).font(isTV ? .system(size: compact ? 23 : 26, weight: .semibold) : (compact ? .subheadline.weight(.semibold) : .headline))
-                                    .alignmentGuide(.onboardingLessonTitle) { $0[VerticalAlignment.center] }
-                                Text(detail).font(isTV ? .system(size: compact ? 20 : 22) : (compact ? .caption : .subheadline)).foregroundStyle(ink.opacity(0.92))
-                                    .fixedSize(horizontal: false, vertical: true)
-                            }
-                        }.accessibilityElement(children: .combine)
+            copySection { index in
+                Text(title(for: index)).font(.system(size: isTV ? (compact ? 46 : 54) : min(titleSize, wide ? 52 : 38) * (compact ? 0.88 : 1), weight: .bold, design: .rounded))
+                    .tracking(-1.2).fixedSize(horizontal: false, vertical: true)
+                    .accessibilityIdentifier("onboardingTitle").accessibilityAddTraits(.isHeader)
+            }
+            copySection { index in
+                Text(subtitle(for: index)).font(isTV ? .system(size: compact ? 24 : 28) : (compact ? .callout : .body)).foregroundStyle(ink.opacity(0.92))
+                    .fixedSize(horizontal: false, vertical: true).lineSpacing(3)
+                    .accessibilityIdentifier("onboardingSubtitle")
+            }
+            #if os(iOS)
+            ZStack(alignment: .topLeading) {
+                VStack(alignment: .leading, spacing: compact ? 12 : 18) {
+                    ForEach(0..<2) { row in
+                        copySection(steps: 0..<4) { index in
+                            lessonRow(lessons(for: index)[row], compact: compact)
+                        }.accessibilityIdentifier("onboardingLesson\(row)")
                     }
+                }.accessibilityHidden(step == 4)
+                if step == 4 { support }
+                else { support.hidden().accessibilityHidden(true) }
+            }
+            #else
+            copySection { index in
+                details(for: index, compact: compact)
+            }
+            #endif
+        }.frame(maxWidth: locksTextPositions ? .infinity : nil, alignment: .topLeading)
+    }
+    @ViewBuilder private func copySection<Content: View>(steps: Range<Int> = 0..<5, @ViewBuilder content: @escaping (Int) -> Content) -> some View {
+        #if os(iOS)
+        // Reserve the largest section across all slides in this layout pass.
+        // Titles, descriptions and details therefore keep the same top/left
+        // origins, including after rotation and Dynamic Type changes.
+        ZStack(alignment: .topLeading) {
+            ZStack(alignment: .topLeading) {
+                ForEach(steps, id: \.self) { index in
+                    content(index).hidden()
+                }
+            }.accessibilityElement(children: .ignore).accessibilityHidden(true)
+            if steps.contains(step) {
+                content(step)
+            }
+        }.frame(maxWidth: .infinity, alignment: .topLeading)
+        #else
+        content(step)
+        #endif
+    }
+    @ViewBuilder private func details(for step: Int, compact: Bool) -> some View {
+        if step == 4 { support }
+        else {
+            VStack(alignment: .leading, spacing: compact ? 12 : (isTV ? 24 : 18)) {
+                ForEach(lessons(for: step), id: \.0) { lesson in
+                    lessonRow(lesson, compact: compact)
                 }
             }
         }
+    }
+    private func lessonRow(_ lesson: (String, String, String), compact: Bool) -> some View {
+        HStack(alignment: .onboardingLessonTitle, spacing: 14) {
+            Image(systemName: lesson.0).font(.system(size: isTV ? 30 : 22)).foregroundStyle(accent)
+                .frame(width: isTV ? 40 : 28).accessibilityHidden(true)
+            VStack(alignment: .leading, spacing: 5) {
+                Text(lesson.1).font(isTV ? .system(size: compact ? 23 : 26, weight: .semibold) : (compact ? .subheadline.weight(.semibold) : .headline))
+                    .alignmentGuide(.onboardingLessonTitle) { $0[VerticalAlignment.center] }
+                Text(lesson.2).font(isTV ? .system(size: compact ? 20 : 22) : (compact ? .caption : .subheadline)).foregroundStyle(ink.opacity(0.92))
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }.accessibilityElement(children: .combine)
     }
     private var support: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -572,13 +632,22 @@ private struct OnboardingFittedContent<Content: View>: View {
     @ViewBuilder var content: () -> Content
     var body: some View {
         GeometryReader { available in
+            #if os(iOS)
+            let contentAlignment: Alignment = .topLeading
+            #else
+            let contentAlignment: Alignment = .center
+            #endif
             content()
                 .frame(width: available.size.width)
                 .fixedSize(horizontal: false, vertical: true)
                 .visualEffect { effect, measured in
+                    #if os(iOS)
+                    effect.scaleEffect(min(1, available.size.height / max(1, measured.size.height)), anchor: .topLeading)
+                    #else
                     effect.scaleEffect(min(1, available.size.height / max(1, measured.size.height)))
+                    #endif
                 }
-                .frame(width: available.size.width, height: available.size.height)
+                .frame(width: available.size.width, height: available.size.height, alignment: contentAlignment)
                 .clipped()
         }
     }

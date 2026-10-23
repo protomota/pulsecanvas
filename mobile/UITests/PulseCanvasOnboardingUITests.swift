@@ -3,6 +3,47 @@ import XCTest
 final class PulseCanvasOnboardingUITests: XCTestCase {
     override func setUp() { continueAfterFailure = false; executionTimeAllowance = 180 }
 
+    @MainActor func testTextStaysTopLeftAlignedAcrossSlidesAndRotation() {
+        let app = XCUIApplication()
+        app.launchArguments = ["-PCMobileQA", "-PCOnboardingQA"]
+        app.launch()
+        defer { XCUIDevice.shared.orientation = .portrait }
+        let progress = app.otherElements["onboardingProgress"]
+        XCTAssertTrue(progress.waitForExistence(timeout: 30))
+        for orientation in [UIDeviceOrientation.portrait, .landscapeLeft] {
+            XCUIDevice.shared.orientation = orientation
+            // Wait for the device's layout to settle before recording origins.
+            let landscape = orientation == .landscapeLeft
+            let rotated = NSPredicate { _, _ in
+                (app.frame.width > app.frame.height) == landscape
+            }
+            expectation(for: rotated, evaluatedWith: app)
+            waitForExpectations(timeout: 10)
+            let title = app.staticTexts["onboardingTitle"]
+            let subtitle = app.staticTexts["onboardingSubtitle"]
+            let titleOrigin = title.frame.origin
+            let subtitleOrigin = subtitle.frame.origin
+            let buttonOrigin = app.buttons["onboardingContinue"].frame.origin
+            for step in 1...5 {
+                expectation(for: NSPredicate(format: "label BEGINSWITH %@", "Step \(step) of 5"), evaluatedWith: progress)
+                waitForExpectations(timeout: 5)
+                XCTAssertEqual(title.frame.minX, titleOrigin.x, accuracy: 1)
+                XCTAssertEqual(title.frame.minY, titleOrigin.y, accuracy: 1)
+                XCTAssertEqual(subtitle.frame.minX, subtitleOrigin.x, accuracy: 1)
+                XCTAssertEqual(subtitle.frame.minY, subtitleOrigin.y, accuracy: 1)
+                XCTAssertEqual(title.frame.minX, subtitle.frame.minX, accuracy: 1)
+                XCTAssertEqual(app.buttons["onboardingContinue"].frame.minY, buttonOrigin.y, accuracy: 1)
+                XCTAssertTrue(app.buttons["onboardingContinue"].isHittable)
+                if step < 5 { title.swipeLeft() }
+            }
+            for step in (1...4).reversed() {
+                title.swipeRight()
+                expectation(for: NSPredicate(format: "label BEGINSWITH %@", "Step \(step) of 5"), evaluatedWith: progress)
+                waitForExpectations(timeout: 5)
+            }
+        }
+    }
+
     @MainActor func testSwipingOverContinueDoesNotFinishOnboarding() {
         let app = XCUIApplication()
         app.launchArguments = ["-PCMobileQA", "-PCOnboardingQA", "-PCOnboardingStep", "4"]
@@ -42,6 +83,11 @@ final class PulseCanvasOnboardingUITests: XCTestCase {
         middle.press(forDuration: 0.05, thenDragTo: middle.withOffset(CGVector(dx: -16, dy: 0)))
         expectStep(1)
         page.swipeLeft()
+        expectStep(2)
+        page.swipeRight()
+        expectStep(1)
+        let flickStart = page.coordinate(withNormalizedOffset: CGVector(dx: 0.6, dy: 0.5))
+        flickStart.press(forDuration: 0.01, thenDragTo: flickStart.withOffset(CGVector(dx: -32, dy: 0)), withVelocity: .fast, thenHoldForDuration: 0)
         expectStep(2)
         page.swipeRight()
         expectStep(1)
