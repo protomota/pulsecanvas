@@ -108,6 +108,9 @@ struct PulseCanvasOnboardingView: View {
     #if os(tvOS)
     @State private var supportURL: URL?
     #endif
+    #if STORE_BUILD && !os(tvOS)
+    @State private var showingNativeTips = false
+    #endif
     @StateObject private var engagement = CreatorEngagement()
     @Environment(\.openURL) private var openURL
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -266,6 +269,15 @@ struct PulseCanvasOnboardingView: View {
         .dynamicTypeSize(.xSmall ... .xxxLarge)
         .foregroundStyle(ink).tint(accent).preferredColorScheme(.dark).environment(\.colorScheme, .dark)
         .task { await engagement.observeStorefront() }
+        #if STORE_BUILD && !os(tvOS)
+        // Present outside the fitted lesson content so its scale and clipping
+        // cannot affect the sheet after an iPhone rotation.
+        .sheet(isPresented: $showingNativeTips) {
+            TipJarView(appName: "PulseCanvas", productPrefix: "com.protomota.pulsecanvas.tip",
+                       privacyURL: URL(string: "https://pulsecanvas.si/privacy/")!,
+                       onTipCompleted: { engagement.recordClick(.tip) })
+        }
+        #endif
         #if DEBUG
         .task(id: step) {
             // A capture waits for the actual page to appear before taking its screenshot.
@@ -440,7 +452,7 @@ struct PulseCanvasOnboardingView: View {
             Text("Choose an option, then scan the code with your phone.").font(.system(size: 20)).foregroundStyle(.secondary)
             #else
             #if STORE_BUILD
-            PulseCanvasTipButton(onTipCompleted: { engagement.recordClick(.tip) }) {
+            Button { showingNativeTips = true } label: {
                 Label("Tip the Developer", systemImage: "cup.and.saucer").frame(maxWidth: .infinity)
             }.buttonStyle(OnboardingButtonStyle(primary: false, fontSize: largeTablet ? tabletLessonTitleSize : nil))
                 .accessibilityIdentifier("onboardingCoffee")
