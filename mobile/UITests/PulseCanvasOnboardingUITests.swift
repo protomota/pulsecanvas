@@ -37,6 +37,58 @@ final class PulseCanvasOnboardingUITests: XCTestCase {
         XCTAssertTrue(settingsTip.isHittable)
     }
 
+    @MainActor func testTipSuccessConfirmationKeepsAnotherTipOptional() throws {
+        guard ProcessInfo.processInfo.environment["PROTOMOTA_RUN_SANDBOX_CATALOG_TESTS"] == "1" else {
+            throw XCTSkip("Explicitly enable the real catalog for success-presentation previews")
+        }
+        defer { XCUIDevice.shared.orientation = .portrait }
+        for state in ["none", "current", "previous"] {
+            XCUIDevice.shared.orientation = .portrait
+            let app = XCUIApplication()
+            app.launchArguments = ["-PCMobileQA", "-PCOnboardingQA", "-PCOnboardingStep", "4"]
+            app.launchEnvironment["PROTOMOTA_TEST_TIP_STATE"] = state
+            app.launch()
+            XCTAssertTrue(app.buttons["onboardingCoffee"].waitForExistence(timeout: 30))
+            app.buttons["onboardingCoffee"].tap()
+            for tier in ["small", "medium", "large"] {
+                XCTAssertTrue(app.buttons["tipJarProduct-com.protomota.pulsecanvas.tip." + tier].waitForExistence(timeout: 30))
+            }
+            for orientation in [UIDeviceOrientation.portrait, .landscapeLeft] {
+                XCUIDevice.shared.orientation = orientation
+                let landscape = orientation == .landscapeLeft
+                expectation(for: NSPredicate { _, _ in
+                    (app.frame.width > app.frame.height) == landscape
+                }, evaluatedWith: app)
+                waitForExpectations(timeout: 10)
+                expectation(for: NSPredicate(format: "hittable == true"), evaluatedWith: app.buttons["tipJarDone"])
+                waitForExpectations(timeout: 10)
+                if state == "none" {
+                    XCTAssertFalse(app.staticTexts["tipJarSuccessTitle"].exists)
+                } else {
+                    let title = app.staticTexts["tipJarSuccessTitle"]
+                    XCTAssertEqual(title.label, state == "current" ? "Tip completed" : "Thank you for your support")
+                    XCTAssertTrue(title.isHittable)
+                    XCTAssertTrue(app.staticTexts["tipJarSuccessDetail"].label.contains(state == "current" ? "no further action" : "previous tip"))
+                    XCTAssertTrue(app.staticTexts["Leave another tip (optional)"].exists)
+                }
+                let shot = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+                shot.name = "PulseCanvas-tip-presentation-\(state)-\(orientation.rawValue)"
+                shot.lifetime = .keepAlways; add(shot)
+                for tier in ["small", "medium", "large"] {
+                    let choice = app.buttons["tipJarProduct-com.protomota.pulsecanvas.tip." + tier]
+                    for _ in 0..<4 where !choice.isHittable {
+                        app.scrollViews["tipJarContent"].swipeUp()
+                    }
+                    XCTAssertTrue(choice.isEnabled && choice.isHittable, "Another tip stays optional and available")
+                }
+                XCTAssertTrue(app.buttons["tipJarDone"].isHittable)
+                if state != "none" { XCTAssertTrue(app.staticTexts["tipJarSuccessTitle"].isHittable) }
+            }
+            app.buttons["tipJarDone"].tap()
+            app.terminate()
+        }
+    }
+
     @MainActor func testSandboxTipCatalogLoadsThreeConsumables() throws {
         guard ProcessInfo.processInfo.environment["PROTOMOTA_RUN_SANDBOX_CATALOG_TESTS"] == "1" else {
             throw XCTSkip("Enable explicitly when testing the registered app against Apple's sandbox catalog")
