@@ -67,7 +67,8 @@ final class CreatorEngagement: ObservableObject {
     }
 
     var availableActions: [Action] {
-        offersWebsiteTip ? Action.allCases : [.review, .share, .feedback]
+        // App Store editions offer native tips in every supported storefront.
+        Action.allCases
     }
 
     func hasClicked(_ action: Action) -> Bool { storedClicks.contains(action) }

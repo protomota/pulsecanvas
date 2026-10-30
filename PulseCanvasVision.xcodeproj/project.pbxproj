@@ -107,6 +107,12 @@
 			"path" = "Sources/PulseCanvas/CreatorEngagement.swift";
 			"sourceTree" = "<group>";
 		};
+		"47AE9BAEA9A6BE8BB9D7A0CC" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"path" = "Sources/PulseCanvas/TipJar.swift";
+			"sourceTree" = "<group>";
+		};
 		"AEB3E1F4EFCEE89846DDB6F1" = {
 			"isa" = "PBXFileReference";
 			"lastKnownFileType" = "sourcecode.swift";
@@ -292,6 +298,7 @@
 				"4C15E8BE8F01FC4E793E0EE1",
 				"CB8C52BD5C2A06B60EC6768B",
 				"E55D030A48044A68741CD7E3",
+				"47AE9BAEA9A6BE8BB9D7A0CC",
 				"AEB3E1F4EFCEE89846DDB6F1",
 				"89C50894961A786737934E7B",
 				"CD0B7AD613C4E32D4FA778B6",
@@ -403,6 +410,10 @@
 			"isa" = "PBXBuildFile";
 			"fileRef" = "E55D030A48044A68741CD7E3";
 		};
+		"0159A1C29DDC2A9F144D42F6" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "47AE9BAEA9A6BE8BB9D7A0CC";
+		};
 		"751BBC7AFA2EC0105700402A" = {
 			"isa" = "PBXBuildFile";
 			"fileRef" = "AEB3E1F4EFCEE89846DDB6F1";
@@ -484,6 +495,7 @@
 				"31AACDF3704BA6FDA1C24B2F",
 				"DE69E89DD3EEAAD604860B0B",
 				"F6FCE060BF290ECA844D9D14",
+				"0159A1C29DDC2A9F144D42F6",
 				"751BBC7AFA2EC0105700402A",
 				"5D40AE704E511176C5DF5A8E",
 				"9B9C7F1384F6883379FC34D3",
@@ -506,6 +518,7 @@
 			"isa" = "PBXFrameworksBuildPhase";
 			"buildActionMask" = 2147483647;
 			"files" = (
+				"D560414CC5882D9E6E74D5D5",
 			);
 			"runOnlyForDeploymentPostprocessing" = 0;
 		};
@@ -591,6 +604,9 @@
 			"productName" = "PulseCanvas Vision";
 			"productReference" = "A8792157CB4F27FB949C035F";
 			"productType" = "com.apple.product-type.application";
+			"packageProductDependencies" = (
+				"D7CAD78A434F34E12FD777C7",
+			);
 		};
 		"35B7C0CC0F21DA3F0F098A64" = {
 			"isa" = "PBXContainerItemProxy";
@@ -746,6 +762,26 @@
 				"34A04005BCAF206EEC990BD9",
 				"9E53AA71467D2DE08E504D40",
 			);
+			"packageReferences" = (
+				"4F7CFD8AB490A2C6CCEA8FC6",
+			);
+		};
+		"4F7CFD8AB490A2C6CCEA8FC6" = {
+			"isa" = "XCRemoteSwiftPackageReference";
+			"repositoryURL" = "https://github.com/RevenueCat/purchases-ios.git";
+			"requirement" = {
+				"kind" = "exactVersion";
+				"version" = "5.99.0";
+			};
+		};
+		"D7CAD78A434F34E12FD777C7" = {
+			"isa" = "XCSwiftPackageProductDependency";
+			"package" = "4F7CFD8AB490A2C6CCEA8FC6";
+			"productName" = "RevenueCat";
+		};
+		"D560414CC5882D9E6E74D5D5" = {
+			"isa" = "PBXBuildFile";
+			"productRef" = "D7CAD78A434F34E12FD777C7";
 		};
 	};
 	"rootObject" = "244210E48437B6556980A702";

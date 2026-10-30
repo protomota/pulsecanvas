@@ -3,7 +3,7 @@ DEVELOPMENT_TEAM = 22HV69L32T
 // Proposed release values. Verify identifier availability before registration.
 PRODUCT_BUNDLE_IDENTIFIER = com.protomota.pulsecanvas
 #include "../Version.xcconfig"
-CURRENT_PROJECT_VERSION = 31
+CURRENT_PROJECT_VERSION = 32
 MACOSX_DEPLOYMENT_TARGET = 14.0
 ARCHS = arm64
 ONLY_ACTIVE_ARCH = NO
@@ -21,3 +21,6 @@ PRODUCT_NAME = PulseCanvas Studio
 EXECUTABLE_NAME = PulseCanvas
 COMBINE_HIDPI_IMAGES = YES
 LD_RUNPATH_SEARCH_PATHS = $(inherited) @executable_path/../Frameworks
+
+// Public RevenueCat client SDK key; not a secret REST key.
+REVENUECAT_API_KEY = appl_ggaqqDUSzuQTbXYmnxAgAPLawaI

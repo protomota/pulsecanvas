@@ -439,6 +439,13 @@ struct PulseCanvasOnboardingView: View {
             }.buttonStyle(OnboardingButtonStyle(primary: false)).accessibilityIdentifier("onboardingRate")
             Text("Choose an option, then scan the code with your phone.").font(.system(size: 20)).foregroundStyle(.secondary)
             #else
+            #if STORE_BUILD
+            PulseCanvasTipButton(onTipCompleted: { engagement.recordClick(.tip) }) {
+                Label("Tip the Developer", systemImage: "cup.and.saucer").frame(maxWidth: .infinity)
+            }.buttonStyle(OnboardingButtonStyle(primary: false, fontSize: largeTablet ? tabletLessonTitleSize : nil))
+                .accessibilityIdentifier("onboardingCoffee")
+                .accessibilityHint("Choose an optional one-time tip through the App Store")
+            #else
             if engagement.offersWebsiteTip {
                 Button {
                     engagement.recordClick(.tip); openURL(PulseCanvasCommunity.tips)
@@ -447,6 +454,7 @@ struct PulseCanvasOnboardingView: View {
                     .accessibilityIdentifier("onboardingCoffee")
                     .accessibilityHint("Opens Buy Me a Coffee in your browser")
             }
+            #endif
             Button {
                 engagement.recordClick(.review); openURL(PulseCanvasCommunity.review)
             } label: { Label("Rate on the App Store", systemImage: "star").frame(maxWidth: .infinity) }

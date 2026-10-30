@@ -106,7 +106,7 @@ import Foundation
         }
         precondition(PulseCanvasCommunity.tips.absoluteString == "https://buymeacoffee.com/protomotalab")
         #if STORE_BUILD
-        precondition(!state.offersWebsiteTip && !state.availableActions.contains(.tip))
+        precondition(!state.offersWebsiteTip && state.availableActions.contains(.tip))
         #else
         precondition(state.offersWebsiteTip && state.availableActions.count == 4)
         #endif
@@ -172,6 +172,6 @@ import Foundation
             state.showsThanks = true; precondition(state.showsThanks)
         }
         #endif
-        print("PASS: second-save eligibility, deduplicated exports, relaunch and concurrent windows; per-action clicks, completion, reset and upgrade; any one of Rate/Tip/Share/Feedback dismisses and persists; direct reminders repeat on later exports/Radio sessions until a click; Apple request stays ungated and one-time; hidden tips excluded; Radio reminders deduplicate each session and share the one Apple request")
+        print("PASS: second-save eligibility, deduplicated exports, relaunch and concurrent windows; per-action clicks, completion, reset and upgrade; any one of Rate/Tip/Share/Feedback dismisses and persists; direct reminders repeat on later exports/Radio sessions until a click; Apple request stays ungated and one-time; native tip action available; Radio reminders deduplicate each session and share the one Apple request")
     }
 }

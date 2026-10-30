@@ -14,5 +14,6 @@ for item in source.glob('*.metal'):
     shutil.copy2(item, target / item.name)
 shutil.copy2(source / 'Audio/PulseCanvas.mp3', target / 'Audio/PulseCanvas.mp3')
 shutil.copy2(Path('LICENSE'), Path('.build/mobile-resources/Legal/PulseCanvas-LICENSE.txt'))
+shutil.copy2(Path('docs/app-store/RevenueCat-LICENSE.txt'), Path('.build/mobile-resources/Legal/RevenueCat-LICENSE.txt'))
 PY
 python3 scripts/native-visualizer-catalog.py --output .build/mobile-resources/NativeAssets/NativeVisualizers.json

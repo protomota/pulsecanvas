@@ -21,6 +21,7 @@ PY
 xcrun swift scripts/build-icon.swift .build/store-resources/AppIcon.iconset
 xcrun iconutil -c icns .build/store-resources/AppIcon.iconset -o .build/store-resources/AppIcon.icns
 cp LICENSE .build/store-resources/Legal/PulseCanvas-LICENSE.txt
+cp docs/app-store/RevenueCat-LICENSE.txt .build/store-resources/Legal/RevenueCat-LICENSE.txt
 python3 scripts/native-visualizer-catalog.py --output .build/store-resources/Resources/NativeVisualizers.json
 python3 - <<'PY'
 import json

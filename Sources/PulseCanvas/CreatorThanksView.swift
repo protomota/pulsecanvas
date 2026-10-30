@@ -50,11 +50,17 @@ struct CreatorThanksView: View {
                 Button { visit(.review, url: PulseCanvasCommunity.review) } label: {
                     action("Rate on the App Store", detail: "Leave a rating and share your experience", icon: "star.bubble", kind: .review, primary: true)
                 }.buttonStyle(StudioButtonStyle(treatment: .primary))
+                #if STORE_BUILD
+                PulseCanvasTipButton(onTipCompleted: { engagement.recordClick(.tip) }) {
+                    action("Tip the Developer", detail: "Optional one-time App Store purchase", icon: "heart.circle", kind: .tip)
+                }.buttonStyle(StudioButtonStyle())
+                #else
                 if offersWebsiteTip {
                     Button { visit(.tip, url: PulseCanvasCommunity.tips) } label: {
                         action("Tip the Developer", detail: "Opens Buy Me a Coffee in your browser", icon: "heart.circle", kind: .tip)
                     }.buttonStyle(StudioButtonStyle())
                 }
+                #endif
                 Button {
                     let anchor = shareAnchor.window?.sheetParent?.contentView ?? NSApp.mainWindow?.contentView ?? shareAnchor
                     engagement.recordClick(.share)

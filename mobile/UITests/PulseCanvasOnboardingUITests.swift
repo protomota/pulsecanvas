@@ -3,6 +3,73 @@ import XCTest
 final class PulseCanvasOnboardingUITests: XCTestCase {
     override func setUp() { continueAfterFailure = false; executionTimeAllowance = 180 }
 
+    @MainActor func testNativeTipsOpenFromOnboardingAndSettings() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["-PCMobileQA", "-PCOnboardingQA", "-PCOnboardingStep", "4"]
+        app.launch()
+        let onboardingTip = app.buttons["onboardingCoffee"]
+        XCTAssertTrue(onboardingTip.waitForExistence(timeout: 30))
+        onboardingTip.tap()
+        let done = app.buttons["tipJarDone"]
+        XCTAssertTrue(done.waitForExistence(timeout: 10))
+        XCTAssertTrue(app.staticTexts["Support PulseCanvas"].exists)
+        let onboardingShot = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+        onboardingShot.name = "PulseCanvas-native-tips-onboarding"
+        onboardingShot.lifetime = .keepAlways; add(onboardingShot)
+        done.tap()
+        XCTAssertTrue(app.buttons["onboardingContinue"].isHittable)
+        app.buttons["onboardingContinue"].tap()
+        let actions = app.buttons["Project actions"]
+        XCTAssertTrue(actions.waitForExistence(timeout: 90))
+        expectation(for: NSPredicate(format: "enabled == true"), evaluatedWith: actions)
+        waitForExpectations(timeout: 90)
+        actions.tap()
+        app.buttons["Settings"].tap()
+        let settingsTip = app.buttons["settingsTipPulseCanvas"]
+        XCTAssertTrue(settingsTip.waitForExistence(timeout: 10))
+        settingsTip.tap()
+        XCTAssertTrue(done.waitForExistence(timeout: 10))
+        let settingsShot = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+        settingsShot.name = "PulseCanvas-native-tips-settings"
+        settingsShot.lifetime = .keepAlways; add(settingsShot)
+        done.tap()
+        XCTAssertTrue(settingsTip.waitForExistence(timeout: 5))
+        XCTAssertTrue(settingsTip.isHittable)
+    }
+
+    @MainActor func testSandboxTipCatalogLoadsThreeConsumables() throws {
+        guard ProcessInfo.processInfo.environment["PROTOMOTA_RUN_SANDBOX_CATALOG_TESTS"] == "1" else {
+            throw XCTSkip("Enable explicitly when testing the registered app against Apple's sandbox catalog")
+        }
+        let app = XCUIApplication()
+        app.launchArguments = ["-PCMobileQA", "-PCOnboardingQA", "-PCOnboardingStep", "4"]
+        app.launch()
+        XCTAssertTrue(app.buttons["onboardingCoffee"].waitForExistence(timeout: 30))
+        app.buttons["onboardingCoffee"].tap()
+        for tier in ["small", "medium", "large"] {
+            XCTAssertTrue(app.buttons["tipJarProduct-com.protomota.pulsecanvas.tip." + tier].waitForExistence(timeout: 30),
+                          "The real consumable catalog must load without mocked prices")
+        }
+        defer { XCUIDevice.shared.orientation = .portrait }
+        for orientation in [UIDeviceOrientation.portrait, .landscapeLeft] {
+            XCUIDevice.shared.orientation = orientation
+            let shot = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+            shot.name = "PulseCanvas-real-sandbox-tip-catalog-\(orientation.rawValue)"
+            shot.lifetime = .keepAlways; add(shot)
+            XCTAssertTrue(app.buttons["tipJarDone"].isHittable, "Done stays reachable when the tip sheet rotates")
+            for tier in ["small", "medium", "large"] {
+                let choice = app.buttons["tipJarProduct-com.protomota.pulsecanvas.tip." + tier]
+                for _ in 0..<3 where !choice.isHittable {
+                    let content = app.scrollViews["tipJarContent"]
+                    XCTAssertTrue(content.exists, "Overflowing choices need a scrollable sheet")
+                    content.swipeUp()
+                }
+                XCTAssertTrue(choice.isHittable, "Each tip remains reachable after rotation")
+            }
+        }
+        app.buttons["tipJarDone"].tap()
+    }
+
     @MainActor func testTextStaysTopLeftAlignedAcrossSlidesAndRotation() {
         let app = XCUIApplication()
         app.launchArguments = ["-PCMobileQA", "-PCOnboardingQA"]

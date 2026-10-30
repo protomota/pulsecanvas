@@ -41,11 +41,17 @@ struct VisionInfoView: View {
                 Button { visit(.review, url: PulseCanvasCommunity.review) } label: {
                     row("Rate on the App Store", detail: "Leave a rating and share your experience", icon: "star.bubble", action: .review)
                 }.buttonStyle(.plain).accessibilityIdentifier("visionSupportReview")
+                #if STORE_BUILD
+                PulseCanvasTipButton(onTipCompleted: { engagement.recordClick(.tip); didReset = false }) {
+                    row("Tip the Developer", detail: "Optional one-time App Store purchase", icon: "heart.circle", action: .tip)
+                }.buttonStyle(.plain).accessibilityIdentifier("visionSupportTip")
+                #else
                 if engagement.offersWebsiteTip {
                     Button { visit(.tip, url: PulseCanvasCommunity.tips) } label: {
                         row("Tip the Developer", detail: "Support development on Buy Me a Coffee", icon: "heart.circle", action: .tip)
                     }.buttonStyle(.plain).accessibilityIdentifier("visionSupportTip")
                 }
+                #endif
                 ShareLink(item: PulseCanvasCommunity.website) {
                     row("Share PulseCanvas", detail: "Help someone discover their next visual", icon: "square.and.arrow.up", action: .share)
                 }.buttonStyle(.plain).accessibilityIdentifier("visionSupportShare")

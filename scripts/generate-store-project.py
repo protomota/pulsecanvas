@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-"""Generate the deterministic, dependency-free macOS Xcode app project."""
+"""Generate the deterministic macOS Xcode app project."""
 from pathlib import Path
 import hashlib
 import json
+from xcode_revenuecat import add_revenuecat
 
 root = Path(__file__).resolve().parent.parent
 objects = {}
@@ -38,6 +39,7 @@ def configs(label,target=False):
     return obj(label+'list','XCConfigurationList',buildConfigurations=keys,defaultConfigurationIsVisible=0,defaultConfigurationName='Release')
 target=obj('target','PBXNativeTarget',buildConfigurationList=configs('targetconfig',True),buildPhases=[prepare,srcphase,frameworkphase,resphase],buildRules=[],dependencies=[],name='PulseCanvas',productName='PulseCanvas Studio',productReference=product,productType='com.apple.product-type.application')
 project=obj('project','PBXProject',attributes={'LastUpgradeCheck':'2700','TargetAttributes':{target:{'CreatedOnToolsVersion':'27.0','ProvisioningStyle':'Automatic','SystemCapabilities':{'com.apple.Sandbox':{'enabled':1}}}}},buildConfigurationList=configs('projectconfig'),compatibilityVersion='Xcode 14.0',developmentRegion='en',hasScannedForEncodings=0,knownRegions=['en','Base'],mainGroup=group,productRefGroup=products,projectDirPath='',projectRoot='',targets=[target])
+add_revenuecat(objects, obj, target, project)
 def encode(v,level=0):
     if isinstance(v,dict): return '{\n'+''.join('\t'*(level+1)+json.dumps(str(k))+' = '+encode(x,level+1)+';\n' for k,x in v.items())+'\t'*level+'}'
     if isinstance(v,list): return '(\n'+''.join('\t'*(level+1)+encode(x,level+1)+',\n' for x in v)+'\t'*level+')'

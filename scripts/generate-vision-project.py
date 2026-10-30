@@ -3,6 +3,7 @@
 from pathlib import Path
 import hashlib
 import json
+from xcode_revenuecat import add_revenuecat
 
 root = Path(__file__).resolve().parents[1]
 objects = {}
@@ -15,7 +16,7 @@ def ref(path, kind):
 def build(key): return obj('build:' + key, 'PBXBuildFile', fileRef=key)
 shared = ['PulseCanvasOnboarding', 'VisualPreset', 'VisualPalette', 'OriginalGeometry', 'NativeEffects', 'ProjectMPresets', 'StrobeDetector',
           'VisualizerRenderer', 'AudioAnalysis', 'StudioTimeline', 'VisualizerPoolControls', 'RadioLibrary', 'StudioMusicPicker',
-          'StudioStore', 'SocialExportController', 'SecurityScopedAccess', 'CreatorEngagement']
+          'StudioStore', 'SocialExportController', 'SecurityScopedAccess', 'CreatorEngagement', 'TipJar']
 sources = ['Sources/PulseCanvas/' + name + '.swift' for name in shared] + ['macOS/BundleResources.swift']
 sources += sorted(str(p.relative_to(root)) for p in (root / 'visionOS').glob('*.swift'))
 source_refs = [ref(p, 'sourcecode.swift') for p in sources]
@@ -69,6 +70,7 @@ project = obj('project', 'PBXProject', attributes={'LastUpgradeCheck': '2700', '
     compatibilityVersion='Xcode 14.0', developmentRegion='en', hasScannedForEncodings=0, knownRegions=['en', 'Base'],
     mainGroup=group, productRefGroup=products, projectDirPath='', projectRoot='', targets=[target, ui_target])
 assert project == project_key
+add_revenuecat(objects, obj, target, project)
 def encode(value, level=0):
     if isinstance(value, dict):
         return '{\n' + ''.join('\t' * (level + 1) + json.dumps(k) + ' = ' + encode(v, level + 1) + ';\n' for k, v in value.items()) + '\t' * level + '}'
