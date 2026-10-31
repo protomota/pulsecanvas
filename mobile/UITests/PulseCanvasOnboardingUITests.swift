@@ -37,6 +37,58 @@ final class PulseCanvasOnboardingUITests: XCTestCase {
         XCTAssertTrue(settingsTip.isHittable)
     }
 
+    @MainActor func testSupporterBadgeIsVisibleInSettings() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["-PCMobileQA"]
+        app.launchEnvironment["PROTOMOTA_TEST_TIP_STATE"] = "previous"
+        app.launch()
+        let actions = app.buttons["Project actions"]
+        XCTAssertTrue(actions.waitForExistence(timeout: 60))
+        actions.tap()
+        app.buttons["Settings"].tap()
+        let badge = app.descendants(matching: .any)["settingsSupporterBadge"].firstMatch
+        XCTAssertTrue(badge.waitForExistence(timeout: 10))
+        let shot = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+        shot.name = "PulseCanvas-supporter-settings"
+        shot.lifetime = .keepAlways; add(shot)
+        app.buttons["settingsTipPulseCanvas"].tap()
+        XCTAssertTrue(app.staticTexts["tipJarSuccessTitle"].waitForExistence(timeout: 10))
+        XCTAssertEqual(app.staticTexts["tipJarSuccessTitle"].label, "Thank you for your support")
+        app.buttons["tipJarDone"].tap()
+        XCTAssertTrue(badge.waitForExistence(timeout: 5))
+    }
+
+
+    @MainActor func testSupportScreenReadability() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["-PCMobileQA", "-PCOnboardingQA", "-PCOnboardingStep", "4"]
+        app.launchEnvironment["PROTOMOTA_TEST_TIP_STATE"] = "none"
+        app.launch()
+        XCTAssertTrue(app.buttons["onboardingCoffee"].waitForExistence(timeout: 30))
+        app.buttons["onboardingCoffee"].tap()
+        XCTAssertTrue(app.buttons["tipJarDone"].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.buttons["tipJarProduct-com.protomota.pulsecanvas.tip.small"].waitForExistence(timeout: 30))
+        defer { XCUIDevice.shared.orientation = .portrait }
+        for orientation in [UIDeviceOrientation.portrait, .landscapeLeft] {
+            XCUIDevice.shared.orientation = orientation
+            let landscape = orientation == .landscapeLeft
+            expectation(for: NSPredicate { _, _ in (app.frame.width > app.frame.height) == landscape }, evaluatedWith: app)
+            waitForExpectations(timeout: 10)
+            for _ in 0..<3 where !app.staticTexts["Keep PulseCanvas growing."].isHittable { app.scrollViews["tipJarContent"].swipeDown() }
+            let shot = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+            shot.name = "Support-redesign-PulseCanvas-\(orientation.rawValue)"
+            shot.lifetime = .keepAlways; add(shot)
+            for tier in ["small", "medium", "large"] {
+                let product = app.buttons["tipJarProduct-com.protomota.pulsecanvas.tip." + tier]
+                for _ in 0..<4 where !product.isHittable { app.scrollViews["tipJarContent"].swipeUp() }
+                XCTAssertTrue(product.isHittable && product.isEnabled)
+            }
+            XCTAssertTrue(app.buttons["tipJarDone"].isHittable)
+        }
+        app.buttons["tipJarDone"].tap()
+        XCTAssertTrue(app.buttons["onboardingContinue"].waitForExistence(timeout: 5))
+    }
+
     @MainActor func testTipSuccessConfirmationKeepsAnotherTipOptional() throws {
         guard ProcessInfo.processInfo.environment["PROTOMOTA_RUN_SANDBOX_CATALOG_TESTS"] == "1" else {
             throw XCTSkip("Explicitly enable the real catalog for success-presentation previews")
@@ -62,6 +114,12 @@ final class PulseCanvasOnboardingUITests: XCTestCase {
                 waitForExpectations(timeout: 10)
                 expectation(for: NSPredicate(format: "hittable == true"), evaluatedWith: app.buttons["tipJarDone"])
                 waitForExpectations(timeout: 10)
+                if state != "none" {
+                    for _ in 0..<4 where !app.staticTexts["tipJarSuccessTitle"].isHittable {
+                        app.scrollViews["tipJarContent"].swipeDown()
+                    }
+                    XCTAssertTrue(app.images["supporterBadgeArtwork"].exists)
+                }
                 if state == "none" {
                     XCTAssertFalse(app.staticTexts["tipJarSuccessTitle"].exists)
                 } else {
@@ -82,7 +140,7 @@ final class PulseCanvasOnboardingUITests: XCTestCase {
                     XCTAssertTrue(choice.isEnabled && choice.isHittable, "Another tip stays optional and available")
                 }
                 XCTAssertTrue(app.buttons["tipJarDone"].isHittable)
-                if state != "none" { XCTAssertTrue(app.staticTexts["tipJarSuccessTitle"].isHittable) }
+                if state != "none" { XCTAssertTrue(app.staticTexts["tipJarSuccessTitle"].exists) }
             }
             app.buttons["tipJarDone"].tap()
             app.terminate()

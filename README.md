@@ -200,10 +200,3 @@ TestFlight target; no production Vision Pro App Store release has been submitted
 The latest [community-library audit](docs/LIBRARY_REFRESH.md) accounts for every
 upstream preset and preserves all completed owner reviews. Collection, category
 and folder filters live in Library; the top preset strip stays flat.
-
-## Apple TV development
-
-A native tvOS target brings the Metal visualizers, favorites, visual controls and
-server-driven Radio to a full-screen, remote-friendly player. See
-[Apple TV setup and current limits](docs/APPLE_TV.md). TestFlight delivery is
-recorded separately from the Mac release; no Mac App Review submission is replaced.

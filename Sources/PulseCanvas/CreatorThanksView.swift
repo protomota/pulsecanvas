@@ -33,6 +33,9 @@ struct CreatorThanksView: View {
                         .font(.system(size: 25, weight: .semibold, design: .rounded))
                 }
             }
+            #if STORE_BUILD
+            SupporterAcknowledgement()
+            #endif
             Button("Welcome to PulseCanvas Studio", systemImage: "sparkles") {
                 done()
                 NotificationCenter.default.post(name: .pulseCanvasOnboarding, object: nil)
@@ -52,12 +55,12 @@ struct CreatorThanksView: View {
                 }.buttonStyle(StudioButtonStyle(treatment: .primary))
                 #if STORE_BUILD
                 PulseCanvasTipButton(onTipCompleted: { engagement.recordClick(.tip) }) {
-                    action("Tip the Developer", detail: "Optional one-time App Store purchase", icon: "heart.circle", kind: .tip)
+                    action("Support the developer", detail: "Optional one-time App Store purchase", icon: "heart.circle", kind: .tip)
                 }.buttonStyle(StudioButtonStyle())
                 #else
                 if offersWebsiteTip {
                     Button { visit(.tip, url: PulseCanvasCommunity.tips) } label: {
-                        action("Tip the Developer", detail: "Opens Buy Me a Coffee in your browser", icon: "heart.circle", kind: .tip)
+                        action("Support the developer", detail: "Opens Buy Me a Coffee in your browser", icon: "heart.circle", kind: .tip)
                     }.buttonStyle(StudioButtonStyle())
                 }
                 #endif

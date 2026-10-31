@@ -63,12 +63,7 @@ private struct VisionAnalysis: @unchecked Sendable { let value: SoundtrackAnalyz
         }
     }
     private var audioLoopCount: Int {
-        #if os(tvOS)
-        // Radio advances tracks at the end; the Vision Pro loop preference must not block it.
-        return 0
-        #else
         return project.loopPlayback ? -1 : 0
-        #endif
     }
 
     init(directory: URL? = nil, library: ProjectMPresets? = nil) {
@@ -175,7 +170,7 @@ private struct VisionAnalysis: @unchecked Sendable { let value: SoundtrackAnalyz
         guard !loading, let player else { return }
         if player.isPlaying { player.pause() } else {
             do {
-                #if os(visionOS) || os(tvOS)
+                #if os(visionOS)
                 try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default)
                 try AVAudioSession.sharedInstance().setActive(true)
                 #endif

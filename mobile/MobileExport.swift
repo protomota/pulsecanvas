@@ -120,13 +120,16 @@ struct MobileAbout: View {
                 }.accessibilityIdentifier("settingsWelcomePulseCanvas")
             }
             Section("Support PulseCanvas") {
+                #if STORE_BUILD
+                SupporterAcknowledgement()
+                #endif
                 Button("Rate on the App Store", systemImage: "heart.circle") { engagement.recordClick(.review); openURL(PulseCanvasCommunity.review) }
                 #if STORE_BUILD
                 PulseCanvasTipButton(onTipCompleted: { engagement.recordClick(.tip) }) {
-                    Label("Tip the Developer", systemImage: "cup.and.saucer")
+                    Label("Support the developer", systemImage: "cup.and.saucer")
                 }.accessibilityIdentifier("settingsTipPulseCanvas")
                 #else
-                if engagement.offersWebsiteTip { Button("Tip the Developer", systemImage: "cup.and.saucer") { engagement.recordClick(.tip); openURL(PulseCanvasCommunity.tips) } }
+                if engagement.offersWebsiteTip { Button("Support the developer", systemImage: "cup.and.saucer") { engagement.recordClick(.tip); openURL(PulseCanvasCommunity.tips) } }
                 #endif
                 ShareLink(item: PulseCanvasCommunity.website) { Label("Share PulseCanvas", systemImage: "square.and.arrow.up") }
                 Button("Send feedback", systemImage: "bubble.left.and.bubble.right") { engagement.recordClick(.feedback); openURL(PulseCanvasCommunity.feedback) }

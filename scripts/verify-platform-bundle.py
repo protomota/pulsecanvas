@@ -1,14 +1,13 @@
 #!/usr/bin/env python3
-"""Verify actual flat tvOS/visionOS native-only distribution bundles."""
+"""Verify actual flat visionOS native-only distribution bundles."""
 import argparse,hashlib,json,plistlib,re,subprocess
 from pathlib import Path
-p=argparse.ArgumentParser(description=__doc__);p.add_argument('platform',choices=['tv','vision']);p.add_argument('app',type=Path);args=p.parse_args()
+p=argparse.ArgumentParser(description=__doc__);p.add_argument('platform',choices=['vision']);p.add_argument('app',type=Path);args=p.parse_args()
 root=Path(__file__).resolve().parents[1];app=args.app;info=plistlib.loads((app/'Info.plist').read_bytes())
 assert info['CFBundleIdentifier']=='com.protomota.pulsecanvas'
-assert info['UIDeviceFamily']==([3] if args.platform=='tv' else [7])
-config=(root/('tvOS' if args.platform=='tv' else 'visionOS')/'Release.xcconfig').read_text()
-if args.platform=='vision': config=(root/'Version.xcconfig').read_text()+'\n'+config
-def setting(name):
+assert info['UIDeviceFamily']==[7]
+config=(root/'Version.xcconfig').read_text()+'\n'+(root/'visionOS/Release.xcconfig').read_text()
+def setting(name: str) -> str:
  match=re.search(r'^'+re.escape(name)+r'\s*=\s*(\S+)',config,re.MULTILINE)
  assert match, name
  return match.group(1)

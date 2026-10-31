@@ -1,7 +1,7 @@
 # PulseCanvas onboarding
 
 The first launch opens five onboarding pages in the main app surface on macOS,
-iPhone/iPad (including Duo), tvOS, and visionOS. It never opens a sheet or popup.
+iPhone/iPad (including Duo), and visionOS. It never opens a sheet or popup.
 Completing or skipping saves `PulseCanvas.onboarding.completed.v1` locally.
 Settings includes “Welcome to PulseCanvas Studio”, matching Jotley’s
 “Welcome to Jotley” label. Mac Help also retains a convenient entry point. Replay preserves the externally
@@ -9,15 +9,14 @@ owned project/editor models. The direct Mac edition uses the same shared view.
 
 1. Welcome: included music and Radio; how music drives visuals.
 2. Visualizers: library, categories, hearts, palettes, motion and Chaos.
-3. Studio: soundtrack, scene assignments and bars; TV instead teaches Radio.
+3. Studio: soundtrack, scene assignments and bars.
 4. Play and share: full-screen viewing and platform-specific export instructions;
-   TV teaches remote controls and Vision teaches immersion.
+   Vision teaches immersion.
 5. Optional support: Buy Me a Coffee and App Store rating, with a separate finish
    button. Support actions never complete or gate onboarding.
 
 Coffee actions go directly to https://buymeacoffee.com/protomotalab. The existing
-App Store storefront policy is preserved. TV presents a QR code for the selected
-support destination. Other platforms open the destination in their browser.
+App Store storefront policy is preserved. Support destinations open in the browser.
 
 ## Design and artwork
 

@@ -212,7 +212,6 @@ struct VisionCommonSettings {
     }
 }
 
-#if !os(tvOS)
 extension UTType {
     static let pulseVision = UTType(exportedAs: "com.protomota.pulsecanvas.vision-project", conformingTo: .json)
     static let pulseCanvas = UTType(exportedAs: "com.protomota.pulsecanvas.project", conformingTo: .json)
@@ -230,5 +229,3 @@ struct VisionProjectDocument: FileDocument {
         FileWrapper(regularFileWithContents: data)
     }
 }
-
-#endif

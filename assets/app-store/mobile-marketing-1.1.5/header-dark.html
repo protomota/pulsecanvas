@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>PulseCanvas header</title>
+<style>
+:root{--accent:#7f3fe0;--ink:#17121f}
+*{box-sizing:border-box}html,body{margin:0}
+.stage{position:relative;width:3840px;height:1646px;overflow:hidden;background:radial-gradient(ellipse at 50% 50%,#1d1233 0%,#110a1f 55%,#07050c 100%);font-family:"Avenir Next",Avenir,-apple-system,sans-serif;-webkit-font-smoothing:antialiased;color:#fff}
+svg.bg{position:absolute;inset:0;width:100%;height:100%}
+.glow{position:absolute;left:50%;top:50%;width:1900px;height:860px;margin:-430px 0 0 -950px;border-radius:50%;background:#0c0716;filter:blur(90px);opacity:.88}
+/* The lockup stays inside the centred 1646×660 crop the App Store shows on iPhone. */
+.lockup{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:52px;z-index:3}
+.brand{display:flex;align-items:center;gap:52px}
+.brand img{width:280px;height:280px;border-radius:64px;box-shadow:0 0 0 2px #ffffff22,0 0 90px #8b4dff66}
+.name{display:flex;flex-direction:column;line-height:.94}
+.name b{font-size:184px;font-weight:700;letter-spacing:-6px}
+.name span{font-size:118px;font-weight:600;letter-spacing:-3px;color:#c9a2ff}
+.line{display:flex;align-items:center;gap:30px;padding:28px 52px;border-radius:90px;background:#ffffff12;box-shadow:0 0 0 2px #ffffff24,0 24px 60px #00000066;backdrop-filter:blur(20px)}
+.eq{display:flex;align-items:center;gap:9px;height:64px;flex:none}
+.eq i{width:12px;border-radius:6px;background:linear-gradient(#e08cff,#8b4dff)}
+.text{font-size:60px;font-weight:600;letter-spacing:-.8px;white-space:nowrap}
+.text b{color:#d7b4ff}
+</style></head><body>
+<div class="stage">
+ <svg class="bg" id="bg" viewBox="0 0 3840 1646"></svg>
+ <div class="glow"></div>
+ <div class="lockup">
+  <div class="brand"><img src="sources/icon.png" alt=""><div class="name"><b>PulseCanvas</b><span>Studio</span></div></div>
+  <div class="line"><span class="eq" id="eq"></span><span class="text"><b>300+ visualizers</b> that move to your music.</span></div>
+ </div>
+</div>
+<script>
+// Every motion is periodic in T, so the exported video loops seamlessly.
+const T=Number(new URLSearchParams(location.search).get('loop')||12), W=3840, H=1646, TAU=Math.PI*2;
+const bg=document.getElementById('bg'), eq=document.getElementById('eq');
+// The app icon's glowing violets and magentas on its near-black ground.
+const colors=['#8b4dff','#c44dff','#5b4bff','#e15bd8','#7a3fe8','#a855f7'];
+// An octagon tunnel, the app icon's shape, flying outward. Rings advance a whole number of
+// spacings per loop and colours repeat every six rings, so frame T matches frame 0.
+const N=12, COUNT=26, G=0.16, R0=150;
+const ribbons=[{y:.88,a:.10,amp:90,len:1,sp:1,c:'#5b4bff'},{y:.92,a:.10,amp:70,len:1.4,sp:-1,c:'#c44dff'},{y:.96,a:.12,amp:55,len:.8,sp:2,c:'#8b4dff'},
+               {y:.10,a:.06,amp:70,len:1.2,sp:-1,c:'#8b4dff',top:1}];
+for(let i=0;i<11;i++){eq.appendChild(document.createElement('i'))}
+function oct(r,rot,sq){return [...Array(8)].map((_,k)=>{const a=rot+Math.PI/8+k*Math.PI/4;return (W/2+r*Math.cos(a)).toFixed(1)+','+(H/2+r*Math.sin(a)*sq).toFixed(1)}).join(' ')}
+function ribbon(l,t){const ph=t/T*TAU*l.sp;const edge=l.top?0:H;let d=`M0 ${edge} `;for(let x=0;x<=W;x+=32){const y=H*l.y+l.amp*Math.sin(x/W*TAU*l.len+ph)+l.amp*.35*Math.sin(x/W*TAU*3*l.len-ph);d+=`L${x} ${y.toFixed(1)} `}return `<path d="${d}L${W} ${edge} Z" fill="${l.c}" fill-opacity="${l.a}"/>`}
+window.render=function(t){
+ const p=t/T*TAU, f=(t/T*N)%1, shift=Math.floor(t/T*N);
+ let rings='';
+ for(let j=COUNT-1;j>=0;j--){
+   const pos=j+f, r=R0*Math.exp(G*pos)*(1+.03*Math.sin(p*4+pos*.9));
+   const id=((j-shift)%6+6)%6, c=colors[id];
+   const rot=pos*0.13+0.22*Math.sin(p*2+pos*.35);            // a gentle twist that travels down the tunnel
+   const fadeIn=Math.min(1,pos/2.2), fadeOut=Math.max(0,Math.min(1,(COUNT-pos)/3));
+   const a=(.85*fadeIn*fadeOut).toFixed(3), w=(3+r*.022).toFixed(1);
+   const pts=oct(r,rot,.58);
+   rings+=`<polygon points="${pts}" fill="none" stroke="${c}" stroke-width="${(w*5).toFixed(1)}" stroke-opacity="${(a*.14).toFixed(3)}" stroke-linejoin="round"/><polygon points="${pts}" fill="none" stroke="${c}" stroke-width="${w}" stroke-opacity="${a}" stroke-linejoin="round"/>`;
+ }
+ bg.innerHTML=rings+ribbons.map(l=>ribbon(l,t)).join('');
+ [...eq.children].forEach((b,i)=>{const v=.5+.5*Math.sin(p*(4+i%5)+i*1.3)*Math.cos(p*3+i*.7);b.style.height=(14+50*Math.abs(v)).toFixed(1)+'px'});
+};
+render(Number(new URLSearchParams(location.search).get('t')||0));
+</script></body></html>

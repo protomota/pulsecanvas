@@ -34,6 +34,9 @@ struct VisionInfoView: View {
             Button("Welcome to PulseCanvas Studio", systemImage: "sparkles") {
                 replayOnboarding()
             }.accessibilityIdentifier("settingsWelcomePulseCanvas")
+            #if STORE_BUILD
+            SupporterAcknowledgement()
+            #endif
             Text("Free software.\nSupported by people.").font(.largeTitle.bold())
             Text("PulseCanvas Studio is free, with every feature included. Your ratings, sharing and feedback help more people discover the app and help us keep building.")
                 .font(.body).foregroundStyle(.secondary)
@@ -43,12 +46,12 @@ struct VisionInfoView: View {
                 }.buttonStyle(.plain).accessibilityIdentifier("visionSupportReview")
                 #if STORE_BUILD
                 PulseCanvasTipButton(onTipCompleted: { engagement.recordClick(.tip); didReset = false }) {
-                    row("Tip the Developer", detail: "Optional one-time App Store purchase", icon: "heart.circle", action: .tip)
+                    row("Support the developer", detail: "Optional one-time App Store purchase", icon: "heart.circle", action: .tip)
                 }.buttonStyle(.plain).accessibilityIdentifier("visionSupportTip")
                 #else
                 if engagement.offersWebsiteTip {
                     Button { visit(.tip, url: PulseCanvasCommunity.tips) } label: {
-                        row("Tip the Developer", detail: "Support development on Buy Me a Coffee", icon: "heart.circle", action: .tip)
+                        row("Support the developer", detail: "Support development on Buy Me a Coffee", icon: "heart.circle", action: .tip)
                     }.buttonStyle(.plain).accessibilityIdentifier("visionSupportTip")
                 }
                 #endif

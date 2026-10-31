@@ -4,9 +4,6 @@ import StoreKit
 import AppKit
 #else
 import UIKit
-#if os(tvOS)
-import CoreImage.CIFilterBuiltins
-#endif
 #endif
 
 extension Notification.Name {
@@ -105,10 +102,7 @@ struct PulseCanvasOnboardingView: View {
         self.finish = finish
         _step = State(initialValue: min(4, max(0, initialStep)))
     }
-    #if os(tvOS)
-    @State private var supportURL: URL?
-    #endif
-    #if STORE_BUILD && !os(tvOS)
+    #if STORE_BUILD
     @State private var showingNativeTips = false
     #endif
     @StateObject private var engagement = CreatorEngagement()
@@ -124,11 +118,7 @@ struct PulseCanvasOnboardingView: View {
     private let background = Color(red: 50.0 / 255, green: 44.0 / 255, blue: 55.0 / 255)
     private let ink = Color.white
     private var names: [String] {
-        #if os(tvOS)
-        ["Welcome", "Visualizers", "Radio", "Viewing", "Support"]
-        #else
         ["Welcome", "Visualizers", "Studio", "Play & share", "Support"]
-        #endif
     }
     private let assets = ["welcome", "visuals", "studio", "share", "support"]
     #if os(iOS)
@@ -136,25 +126,14 @@ struct PulseCanvasOnboardingView: View {
     #else
     private let locksTextPositions = false
     #endif
-    #if os(tvOS)
-    private let isTV = true
-    #else
-    private let isTV = false
-    #endif
     private func title(for step: Int) -> String {
         switch step {
         case 0: return "Your music.\nYour visual world."
         case 1: return "Find a look.\nMake it yours."
         case 2:
-            #if os(tvOS)
-            return "Press play.\nSet the room in motion."
-            #else
             return "Give your song\na visual story."
-            #endif
         case 3:
-            #if os(tvOS)
-            return "Less on screen.\nMore to get lost in."
-            #elseif os(visionOS)
+            #if os(visionOS)
             return "Make room\nfor your music."
             #else
             return "From your canvas\nto any screen."
@@ -167,15 +146,9 @@ struct PulseCanvasOnboardingView: View {
         case 0: return "Turn sound into moving art with PulseCanvas Studio. A few basics, then the canvas is yours."
         case 1: return "Explore the visualizer library, save your favorites, and shape the colors and motion to suit your music."
         case 2:
-            #if os(tvOS)
-            return "Open Music & Radio to choose a station. PulseCanvas pairs the music with a changing sequence of visuals."
-            #else
             return "Choose music or import a soundtrack. Studio finds the beat so your scenes can change with the song."
-            #endif
         case 3:
-            #if os(tvOS)
-            return "Choose Hide controls for an uninterrupted view. Use the remote to bring playback and visual controls back."
-            #elseif os(visionOS)
+            #if os(visionOS)
             return "Open the immersive screen to surround yourself with the visuals, or export your Studio project as an MP4."
             #else
             return "Enjoy your visuals full screen, or export an MP4 with your soundtrack, ready to save and share."
@@ -190,18 +163,10 @@ struct PulseCanvasOnboardingView: View {
         case 1: return [("square.grid.2x2", "Explore the library", "Browse categories and heart the looks you love."),
                         ("slider.horizontal.3", "Shape your style", "Adjust palettes, motion, and Chaos for a different feel.")]
         case 2:
-            #if os(tvOS)
-            return [("radio", "Choose your station", "Find music in Music & Radio, then press Play."),
-                    ("shuffle", "Try another visual", "Use Randomize to change the look while the song continues.")]
-            #else
             return [("rectangle.stack", "Build scenes in Studio", "Choose a visualizer and a bar length for each scene."),
                     ("shuffle", "Try a new sequence", "Randomize the timeline, then fine-tune your favorite moments.")]
-            #endif
         case 3:
-            #if os(tvOS)
-            return [("playpause", "Keep the remote close", "Play/Pause controls the music. Back reveals or hides controls."),
-                    ("heart", "Keep your favorites", "Heart a visualizer to find it again in the library.")]
-            #elseif os(visionOS)
+            #if os(visionOS)
             return [("vision.pro", "Open the immersive screen", "Choose Hide room for full immersion before entering."),
                     ("film", "Save your creation", "Export MP4 renders the Studio timeline with your soundtrack.")]
             #elseif os(macOS)
@@ -235,12 +200,11 @@ struct PulseCanvasOnboardingView: View {
                 }.id(step)
                 footer(wide: wide, short: short).zIndex(2)
             }
-            .padding(.horizontal, isTV ? 85 : (wide ? 48 : 24))
-            .padding(.top, isTV ? 46 : 16)
-            .padding(.bottom, isTV ? 40 : 18)
+            .padding(.horizontal, wide ? 48 : 24)
+            .padding(.top, 16)
+            .padding(.bottom, 18)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(background.ignoresSafeArea())
-            #if !os(tvOS)
             .contentShape(Rectangle())
             // A recognized drag takes precedence over button taps so swiping
             // across Continue cannot also activate it. Ordinary taps still work.
@@ -264,19 +228,26 @@ struct PulseCanvasOnboardingView: View {
                 changeStep(step + direction)
             })
             #endif
-            #endif
         }
         .dynamicTypeSize(.xSmall ... .xxxLarge)
         .foregroundStyle(ink).tint(accent).preferredColorScheme(.dark).environment(\.colorScheme, .dark)
         .task { await engagement.observeStorefront() }
-        #if STORE_BUILD && !os(tvOS)
+        #if STORE_BUILD
         // Present outside the fitted lesson content so its scale and clipping
         // cannot affect the sheet after an iPhone rotation.
+        #if os(iOS)
+        .fullScreenCover(isPresented: $showingNativeTips) {
+            TipJarView(appName: "PulseCanvas", productPrefix: "com.protomota.pulsecanvas.tip",
+                       privacyURL: URL(string: "https://pulsecanvas.si/privacy/")!,
+                       onTipCompleted: { engagement.recordClick(.tip) })
+        }
+        #else
         .sheet(isPresented: $showingNativeTips) {
             TipJarView(appName: "PulseCanvas", productPrefix: "com.protomota.pulsecanvas.tip",
                        privacyURL: URL(string: "https://pulsecanvas.si/privacy/")!,
                        onTipCompleted: { engagement.recordClick(.tip) })
         }
+        #endif
         #endif
         #if DEBUG
         .task(id: step) {
@@ -289,18 +260,15 @@ struct PulseCanvasOnboardingView: View {
             try? String(step).write(to: file, atomically: true, encoding: .utf8)
         }
         #endif
-        #if os(tvOS)
-        .onExitCommand { if step > 0 { changeStep(step - 1) } else { finish() } }
-        #endif
     }
     @ViewBuilder private func page(wide: Bool, size: CGSize, compact: Bool, largeTablet: Bool) -> some View {
         if wide {
-            HStack(alignment: locksTextPositions && !largeTablet ? .top : .center, spacing: compact ? 28 : (isTV ? 75 : 54)) {
+            HStack(alignment: locksTextPositions && !largeTablet ? .top : .center, spacing: compact ? 28 : 54) {
                 illustration
-                    .frame(width: min(size.width * 0.44, isTV || largeTablet ? 620 : 510),
-                           height: min(size.height * (compact ? 0.75 : 0.94), isTV || largeTablet ? 620 : 510))
-                copy(wide: true, compact: compact, largeTablet: largeTablet).frame(maxWidth: isTV ? 660 : (largeTablet ? 600 : 490))
-            }.frame(maxWidth: isTV ? 1450 : (largeTablet ? 1280 : 1120))
+                    .frame(width: min(size.width * 0.44, largeTablet ? 620 : 510),
+                           height: min(size.height * (compact ? 0.75 : 0.94), largeTablet ? 620 : 510))
+                copy(wide: true, compact: compact, largeTablet: largeTablet).frame(maxWidth: largeTablet ? 600 : 490)
+            }.frame(maxWidth: largeTablet ? 1280 : 1120)
                 .accessibilityElement(children: .contain)
                 .accessibilityIdentifier("onboardingContent")
         } else {
@@ -312,46 +280,29 @@ struct PulseCanvasOnboardingView: View {
         }
     }
     private var startTitle: String {
-        #if os(tvOS)
-        "Start listening"
-        #else
         "Start creating"
-        #endif
     }
     private func header(wide: Bool) -> some View {
         HStack(spacing: 10) {
             if let logo = onboardingImage(named: "logo") {
                 logo.resizable().interpolation(.high).scaledToFit()
-                    .frame(width: isTV ? 58 : 36, height: isTV ? 58 : 36)
-                    .clipShape(RoundedRectangle(cornerRadius: isTV ? 12 : 8)).accessibilityHidden(true)
+                    .frame(width: 36, height: 36)
+                    .clipShape(RoundedRectangle(cornerRadius: 8)).accessibilityHidden(true)
             }
             VStack(alignment: .leading, spacing: 1) {
-                Text("PulseCanvas").font(.system(size: isTV ? 28 : 19, weight: .semibold, design: .rounded)).lineLimit(1).minimumScaleFactor(0.8)
+                Text("PulseCanvas").font(.system(size: 19, weight: .semibold, design: .rounded)).lineLimit(1).minimumScaleFactor(0.8)
                 Text("Studio").font(.caption).foregroundStyle(ink.opacity(0.92))
             }
             Spacer()
             Button("Skip onboarding", action: finish).lineLimit(1).minimumScaleFactor(0.8).buttonStyle(OnboardingButtonStyle(primary: false, compact: true))
                 .accessibilityIdentifier("onboardingSkip")
-        }.frame(minHeight: isTV ? 70 : 48)
+        }.frame(minHeight: 48)
     }
     private var illustration: some View {
         Group {
-            #if os(tvOS)
-            if step == 4, let url = supportURL, let qr = qrImage(for: url) {
-                VStack(spacing: 20) {
-                    Image(uiImage: qr).resizable().interpolation(.none).scaledToFit()
-                        .padding(24).background(.white, in: RoundedRectangle(cornerRadius: 24))
-                    Text("Scan with your phone").font(.title3)
-                    Text(url.host ?? "pulsecanvas.si").font(.callout).foregroundStyle(.secondary)
-                }.padding(60)
-            } else if let image = onboardingImage(named: assets[step]) {
-                image.resizable().interpolation(.high).scaledToFit()
-            }
-            #else
             if let image = onboardingImage(named: assets[step]) {
                 image.resizable().interpolation(.high).scaledToFit()
             }
-            #endif
         }
         .accessibilityHidden(true)
     }
@@ -367,14 +318,14 @@ struct PulseCanvasOnboardingView: View {
         #endif
     }
     private func copy(wide: Bool, compact: Bool, largeTablet: Bool) -> some View {
-        VStack(alignment: .leading, spacing: compact ? 12 : (isTV ? 26 : 20)) {
+        VStack(alignment: .leading, spacing: compact ? 12 : 20) {
             copySection { index in
-                Text(title(for: index)).font(.system(size: isTV ? (compact ? 46 : 54) : (largeTablet ? tabletTitleSize : min(titleSize, wide ? 52 : 38) * (compact ? 0.88 : 1)), weight: .bold, design: .rounded))
+                Text(title(for: index)).font(.system(size: largeTablet ? tabletTitleSize : min(titleSize, wide ? 52 : 38) * (compact ? 0.88 : 1), weight: .bold, design: .rounded))
                     .tracking(-1.2).fixedSize(horizontal: false, vertical: true)
                     .accessibilityIdentifier("onboardingTitle").accessibilityAddTraits(.isHeader)
             }
             copySection { index in
-                Text(subtitle(for: index)).font(isTV ? .system(size: compact ? 24 : 28) : (largeTablet ? .system(size: tabletBodySize) : (compact ? .callout : .body))).foregroundStyle(ink.opacity(0.92))
+                Text(subtitle(for: index)).font(largeTablet ? .system(size: tabletBodySize) : (compact ? .callout : .body)).foregroundStyle(ink.opacity(0.92))
                     .fixedSize(horizontal: false, vertical: true).lineSpacing(3)
                     .accessibilityIdentifier("onboardingSubtitle")
             }
@@ -419,7 +370,7 @@ struct PulseCanvasOnboardingView: View {
     @ViewBuilder private func details(for step: Int, compact: Bool) -> some View {
         if step == 4 { support() }
         else {
-            VStack(alignment: .leading, spacing: compact ? 12 : (isTV ? 24 : 18)) {
+            VStack(alignment: .leading, spacing: compact ? 12 : 18) {
                 ForEach(lessons(for: step), id: \.0) { lesson in
                     lessonRow(lesson, compact: compact)
                 }
@@ -428,35 +379,24 @@ struct PulseCanvasOnboardingView: View {
     }
     private func lessonRow(_ lesson: (String, String, String), compact: Bool, largeTablet: Bool = false) -> some View {
         HStack(alignment: .onboardingLessonTitle, spacing: 14) {
-            Image(systemName: lesson.0).font(.system(size: isTV ? 30 : (largeTablet ? 28 : 22))).foregroundStyle(accent)
-                .frame(width: isTV || largeTablet ? 40 : 28).accessibilityHidden(true)
+            Image(systemName: lesson.0).font(.system(size: largeTablet ? 28 : 22)).foregroundStyle(accent)
+                .frame(width: largeTablet ? 40 : 28).accessibilityHidden(true)
             VStack(alignment: .leading, spacing: 5) {
-                Text(lesson.1).font(isTV ? .system(size: compact ? 23 : 26, weight: .semibold) : (largeTablet ? .system(size: tabletLessonTitleSize, weight: .semibold) : (compact ? .subheadline.weight(.semibold) : .headline)))
+                Text(lesson.1).font(largeTablet ? .system(size: tabletLessonTitleSize, weight: .semibold) : (compact ? .subheadline.weight(.semibold) : .headline))
                     .alignmentGuide(.onboardingLessonTitle) { $0[VerticalAlignment.center] }
-                Text(lesson.2).font(isTV ? .system(size: compact ? 20 : 22) : (largeTablet ? .system(size: tabletDetailSize) : (compact ? .caption : .subheadline))).foregroundStyle(ink.opacity(0.92))
+                Text(lesson.2).font(largeTablet ? .system(size: tabletDetailSize) : (compact ? .caption : .subheadline)).foregroundStyle(ink.opacity(0.92))
                     .fixedSize(horizontal: false, vertical: true)
             }
         }.accessibilityElement(children: .combine)
     }
     private func support(largeTablet: Bool = false) -> some View {
         VStack(alignment: .leading, spacing: 12) {
-            #if os(tvOS)
-            if engagement.offersWebsiteTip {
-                Button { supportURL = PulseCanvasCommunity.tips } label: {
-                    Label("Buy Me a Coffee", systemImage: "cup.and.saucer").frame(maxWidth: .infinity)
-                }.buttonStyle(OnboardingButtonStyle(primary: false)).accessibilityIdentifier("onboardingCoffee")
-            }
-            Button { supportURL = PulseCanvasCommunity.review } label: {
-                Label("Rate on the App Store", systemImage: "star").frame(maxWidth: .infinity)
-            }.buttonStyle(OnboardingButtonStyle(primary: false)).accessibilityIdentifier("onboardingRate")
-            Text("Choose an option, then scan the code with your phone.").font(.system(size: 20)).foregroundStyle(.secondary)
-            #else
             #if STORE_BUILD
             Button { showingNativeTips = true } label: {
-                Label("Tip the Developer", systemImage: "cup.and.saucer").frame(maxWidth: .infinity)
+                Label("Support the developer", systemImage: "cup.and.saucer").frame(maxWidth: .infinity)
             }.buttonStyle(OnboardingButtonStyle(primary: false, fontSize: largeTablet ? tabletLessonTitleSize : nil))
                 .accessibilityIdentifier("onboardingCoffee")
-                .accessibilityHint("Choose an optional one-time tip through the App Store")
+                .accessibilityHint("Make an optional one-time contribution through the App Store")
             #else
             if engagement.offersWebsiteTip {
                 Button {
@@ -471,29 +411,10 @@ struct PulseCanvasOnboardingView: View {
                 engagement.recordClick(.review); openURL(PulseCanvasCommunity.review)
             } label: { Label("Rate on the App Store", systemImage: "star").frame(maxWidth: .infinity) }
                 .buttonStyle(OnboardingButtonStyle(primary: false, fontSize: largeTablet ? tabletLessonTitleSize : nil)).accessibilityIdentifier("onboardingRate")
-            #endif
-            Text("Always optional. Find onboarding and support again in \(supportLocation).")
-                .font(isTV ? .system(size: 20) : (largeTablet ? .system(size: tabletNoteSize) : .footnote)).foregroundStyle(ink.opacity(0.92))
+            Text("Always optional. Find onboarding and support again in Settings.")
+                .font(largeTablet ? .system(size: tabletNoteSize) : .footnote).foregroundStyle(ink.opacity(0.92))
                 .fixedSize(horizontal: false, vertical: true)
         }
-    }
-    #if os(tvOS)
-    private func qrImage(for url: URL) -> UIImage? {
-        let filter = CIFilter.qrCodeGenerator()
-        filter.message = Data(url.absoluteString.utf8)
-        guard let output = filter.outputImage,
-              let cg = CIContext().createCGImage(output.transformed(by: CGAffineTransform(scaleX: 10, y: 10)), from: output.extent.applying(CGAffineTransform(scaleX: 10, y: 10))) else { return nil }
-        return UIImage(cgImage: cg)
-    }
-    #endif
-    private var supportLocation: String {
-        #if os(macOS)
-        return "Settings"
-        #elseif os(tvOS)
-        return "Settings"
-        #else
-        return "Settings"
-        #endif
     }
     @ViewBuilder private func footer(wide: Bool, short: Bool) -> some View {
         if short {
@@ -502,9 +423,9 @@ struct PulseCanvasOnboardingView: View {
                 navigation.frame(maxWidth: 360)
             }.frame(maxWidth: .infinity).padding(.top, 10)
         } else {
-            VStack(spacing: isTV ? 24 : 18) {
+            VStack(spacing: 18) {
                 progress(compact: false)
-                navigation.frame(maxWidth: isTV ? 560 : 420)
+                navigation.frame(maxWidth: 420)
             }.frame(maxWidth: .infinity).padding(.top, 14)
         }
     }
@@ -516,13 +437,12 @@ struct PulseCanvasOnboardingView: View {
                         .frame(width: index == step ? 26 : 7, height: 6)
                 }
             }
-            Text("\(step + 1) of 5 · \(names[step])").font(isTV ? .callout : .caption)
+            Text("\(step + 1) of 5 · \(names[step])").font(.caption)
                 .foregroundStyle(ink.opacity(0.92)).padding(.leading, 7)
         }
         .accessibilityElement(children: .ignore)
         .accessibilityLabel("Step \(step + 1) of 5, \(names[step])")
         .accessibilityIdentifier("onboardingProgress")
-        #if !os(tvOS)
         .accessibilityHint("Adjust to move between onboarding pages")
         .accessibilityAdjustableAction { direction in
             switch direction {
@@ -531,7 +451,6 @@ struct PulseCanvasOnboardingView: View {
             @unknown default: break
             }
         }
-        #endif
     }
     private var navigation: some View {
         HStack(spacing: 12) {
@@ -553,9 +472,6 @@ struct PulseCanvasOnboardingView: View {
     private func changeStep(_ value: Int) {
         let next = min(names.count - 1, max(0, value))
         guard next != step else { return }
-        #if os(tvOS)
-        supportURL = nil
-        #endif
         withAnimation(reduceMotion ? nil : .easeInOut(duration: 0.18)) { step = next }
     }
 }
@@ -640,22 +556,14 @@ private struct OnboardingButtonStyle: ButtonStyle {
     var compact = false
     var fontSize: CGFloat? = nil
     @Environment(\.isEnabled) private var enabled
-    @Environment(\.isFocused) private var focused
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            #if os(tvOS)
-            .font(.system(size: compact ? 24 : 26, weight: .semibold))
-            #else
             .font(fontSize.map { .system(size: $0, weight: .semibold) } ?? (compact ? .subheadline.weight(.medium) : .headline))
-            #endif
             .padding(.horizontal, compact ? 16 : 22).padding(.vertical, compact ? 12 : 17)
             .foregroundStyle(primary ? Color(red: 0.16, green: 0.12, blue: 0.20) : .white)
             .background(primary ? Color(red: 0.95, green: 0.68, blue: 0.55) : .white.opacity(configuration.isPressed ? 0.12 : 0.065), in: Capsule())
             .overlay(Capsule().strokeBorder(.white.opacity(primary ? 0 : 0.12), lineWidth: 1))
             .opacity(enabled ? (configuration.isPressed ? 0.8 : 1) : 0.4)
-            #if os(tvOS)
-            .brightness(focused ? 0.10 : 0)
-            #endif
     }
 }
 
