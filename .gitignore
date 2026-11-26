@@ -1,0 +1,21 @@
+.DS_Store
+.build/
+build/
+work/
+.swiftpm/
+*.metallib
+*.air
+*.caf
+*.mov
+*.mp4
+
+__pycache__/
+*.py[cod]
+
+# Keep separate managed agent checkouts out of app source commits.
+.claude/worktrees/
+
+# Archived screenshot renders and native capture inputs stay outside source commits.
+assets/app-store/mobile-marketing-1.1.5/sources/
+assets/app-store/mobile-marketing-1.1.5/release/
+assets/app-store/mobile-marketing-1.1.5/*.jpg

@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PulseCanvas Studio — iPhone and iPad App Store screenshots</title>
+<style>
+*{box-sizing:border-box}html,body{margin:0}
+body{background:#e8e5ec;font-family:"Avenir Next",Avenir,-apple-system,sans-serif;-webkit-font-smoothing:antialiased;color:#17121f}
+.overview{display:flex;flex-wrap:wrap;gap:28px;padding:32px;width:max-content;max-width:calc(6 * (var(--tw) + 28px) + 64px)}
+.thumb{width:var(--tw);height:var(--th);overflow:hidden;border-radius:24px;box-shadow:0 1px 4px #0002}
+.single .overview{display:block;padding:0}.single .thumb{width:var(--W);height:var(--H);border-radius:0;box-shadow:none}.single .slide{transform:none}
+
+/* Canvas: iPhone 6.9" 1320×2868, iPad 13" 2064×2752 */
+body.iphone{--W:1320px;--H:2868px;--s:1;--tw:330px;--th:717px}
+body.ipad{--W:2752px;--H:2064px;--s:1.15;--tw:688px;--th:516px}
+.slide{position:relative;isolation:isolate;width:var(--W);height:var(--H);overflow:hidden;transform:scale(.25);transform-origin:top left;
+  background:linear-gradient(180deg,#fdfcfe 0%,#f8f5fb 55%,#f1ecf6 100%)}
+.glow{position:absolute;z-index:0;border-radius:50%;filter:blur(160px);opacity:.42;background:var(--accent)}
+.octagon{position:absolute;z-index:0;fill:none;stroke:var(--accent);opacity:.10}
+
+/* Copy block, mirrors the Mac slides: brand row, headline, subtitle, value stat */
+.copy{position:absolute;z-index:5;left:calc(100px * var(--s));right:calc(100px * var(--s));top:calc(150px * var(--s))}
+.brand{display:flex;align-items:center;gap:calc(20px * var(--s));font-size:calc(50px * var(--s));font-weight:600;color:#4a4257;letter-spacing:-.5px}
+.brand img{width:calc(84px * var(--s));height:calc(84px * var(--s));border-radius:calc(20px * var(--s))}
+h1{margin:calc(44px * var(--s)) 0 0;font-size:calc(136px * var(--s));line-height:1.06;letter-spacing:calc(-4.5px * var(--s));font-weight:700}
+h1 em{font-style:normal;color:var(--accent)}
+.sub{margin:calc(34px * var(--s)) 0 0;font-size:calc(62px * var(--s));line-height:1.22;font-weight:500;color:#4f4759;letter-spacing:-.5px;max-width:calc(1120px * var(--s))}
+.value{position:absolute;z-index:8;padding:calc(34px * var(--s)) calc(48px * var(--s)) calc(30px * var(--s));border-radius:calc(48px * var(--s));background:#fff;color:var(--accent);
+  box-shadow:0 40px 90px #2a1a4a33,0 8px 22px #1c123022,0 0 0 2px #efe9f6}
+.value strong{display:block;font-size:calc(150px * var(--s));line-height:.92;letter-spacing:calc(-5px * var(--s));font-weight:700}
+.value span{display:block;margin-top:calc(8px * var(--s));font-size:calc(44px * var(--s));font-weight:600;color:#4f4759}
+
+/* Device frames */
+.device{position:absolute;z-index:2;background:linear-gradient(120deg,#f4f3f5,#a3a1a7 22%,#f2f0f3 40%,#c9c7cc 80%,#85828a);box-shadow:0 70px 140px #2a1a4a33,0 14px 34px #1c123026,0 0 0 4px #ddd9e2}
+.device .screen{position:relative;overflow:hidden;background:#0b0b0c;border:solid #0b0b0c}
+.device .screen img{display:block;width:100%;height:auto}
+.phone{width:1000px;padding:16px;border-radius:160px}
+.phone .screen{border-width:12px;border-radius:146px}
+.tablet{width:2000px;padding:20px;border-radius:110px}
+.tablet .screen{border-width:28px;border-radius:92px}
+.ipad .copy{top:110px;left:140px;right:140px}.ipad h1{margin-top:36px}.ipad h1 br{display:none}.ipad .sub{max-width:none;margin-top:26px}.ipad .chips{margin-top:40px}
+
+/* Callouts: magnified crops of the real capture */
+.callout{position:absolute;z-index:6;overflow:hidden;background-repeat:no-repeat;background-color:#1f1924;border:5px solid #fff;border-radius:calc(48px * var(--s));
+  box-shadow:0 44px 100px #2a1a4a40,0 10px 26px #1c12302b}
+.chips{display:flex;flex-wrap:wrap;gap:calc(22px * var(--s));margin-top:calc(54px * var(--s))}
+.chip{display:inline-flex;align-items:center;border-radius:999px;padding:calc(22px * var(--s)) calc(34px * var(--s));font-size:calc(44px * var(--s));font-weight:600;letter-spacing:-.4px;
+  background:#fff;color:#17121f;box-shadow:0 14px 34px #2a1a4a1c,0 0 0 2px #ebe4f3}
+.chip.p{background:var(--accent);color:#fff;box-shadow:0 18px 40px color-mix(in srgb,var(--accent) 35%,transparent)}
+.floating{position:absolute;z-index:7}
+.review .overview{display:grid;grid-template-columns:repeat(3,var(--tw))}
+</style></head><body><main class="overview" id="overview"></main>
+<script src="callouts.js"></script>
+<script>
+const q=new URLSearchParams(location.search);
+const device=q.get('device')==='ipad'?'ipad':'iphone';
+document.body.classList.add(device);
+if(q.has('review'))document.body.classList.add('review');
+const P=device==='iphone';
+const src=n=>`sources/${device}-${n}.png`;
+const icon='<div class="brand"><img src="sources/icon.png" alt="">PulseCanvas Studio</div>';
+const value=(a,b,style)=>`<div class="value" style="${style}"><strong>${a}</strong><span>${b}</span></div>`;
+const frame=(img,style,cls)=>`<div class="device ${cls||(P?'phone':'tablet')}" style="${style}"><div class="screen"><img src="${src(img)}" alt=""></div></div>`;
+// Placement of the portrait device. iPhone bleeds off the bottom like the Jotley set.
+const dev=P?'left:160px;top:1130px':'left:376px;top:640px';
+// callout(img, x, y, w, h, crop-left, crop-top, zoom): crop region is in source-image pixels.
+const W=P?1320:2752;
+function callout(img,x,y,w,h,cx,cy,zoom){const sw=W*zoom;return `<div class="callout" style="left:${x}px;top:${y}px;width:${w}px;height:${h}px;background-image:url(${src(img)});background-size:${sw}px auto;background-position:${-cx*zoom}px ${-cy*zoom}px"></div>`}
+function oct(x,y,r,sw){const p=[...Array(8)].map((_,i)=>{const a=Math.PI/8+i*Math.PI/4;return (x+r*Math.cos(a)).toFixed(0)+','+(y+r*Math.sin(a)).toFixed(0)}).join(' ');return `<svg class="octagon" width="100%" height="100%" style="inset:0;position:absolute"><polygon points="${p}" stroke-width="${sw}"/></svg>`}
+const C=Object.fromEntries(Object.entries((window.CALLOUTS||{})[device]||{}).map(([k,v])=>[k,v.map(a=>callout(...a)).join('')]));
+const slides=[
+ {id:'music',accent:'#0b8f80',body:()=>`
+  <div class="glow" style="left:-25%;top:42%;width:85%;height:40%"></div>${oct(P?660:1376,P?1900:1450,P?820:1050,8)}
+  <div class="copy">${icon}<h1>Your music. <br>A <em>new world.</em></h1><p class="sub">Music-reactive tunnels, liquid, particles and kinetic worlds.</p></div>
+  ${value('300+','Metal visualizers',P?'left:70px;top:1640px;transform:rotate(-5deg)':'left:150px;top:1450px;transform:rotate(-5deg)')}
+  ${frame('fullscreen',dev)}`},
+ {id:'studio',accent:'#3a5bd0',body:()=>`
+  <div class="glow" style="right:-25%;top:45%;width:85%;height:40%"></div>${oct(P?660:1376,P?1900:1450,P?820:1050,8)}
+  <div class="copy">${icon}<h1>Build a visual <em>journey.</em></h1><p class="sub">Beat-aligned scenes. Individual bar lengths. Your creative mix.</p></div>
+  ${frame('studio',dev)}${C.studio||''}`},
+ {id:'style',accent:'#7f3fe0',body:()=>`
+  <div class="glow" style="left:-25%;top:45%;width:85%;height:40%"></div>${oct(P?660:1376,P?1900:1450,P?820:1050,8)}
+  <div class="copy">${icon}<h1>Shape every <em>look.</em></h1><p class="sub">Chaos, motion, zoom, brightness and depth. All at your fingertips.</p></div>
+  ${frame('style',dev)}${C.style||''}`},
+ {id:'radio',accent:'#d85a35',body:()=>`
+  <div class="glow" style="right:-25%;top:45%;width:85%;height:40%"></div>${oct(P?660:1376,P?1900:1450,P?820:1050,8)}
+  <div class="copy">${icon}<h1>Tune in to <em>Radio.</em></h1><p class="sub">Stations paired with moving visuals. Heart the songs you love.</p></div>
+  ${frame('radio',dev)}${C.radio||''}`},
+ {id:'export',accent:'#b8690c',body:()=>`
+  <div class="glow" style="left:-25%;top:45%;width:85%;height:40%"></div>${oct(P?660:1376,P?1900:1450,P?820:1050,8)}
+  <div class="copy">${icon}<h1>From your ${P?'phone':'iPad'} <br>to <em>their feed.</em></h1><p class="sub">Save an MP4 with your music. Wide, phone or square.</p></div>
+  ${value('4K60','Maximum MP4 output',P?'right:70px;top:2380px;transform:rotate(4deg)':'right:150px;top:1600px;transform:rotate(4deg)')}
+  ${frame('export',dev)}${C.export||''}`},
+ {id:'free',accent:'#a43cd6',body:()=>`
+  <div class="glow" style="right:-25%;top:45%;width:85%;height:40%"></div>${oct(P?660:1376,P?1900:1450,P?820:1050,8)}
+  <div class="copy">${icon}<h1>Completely <em>free.</em></h1>
+   <div class="chips"><span class="chip p">No subscriptions</span><span class="chip">No ads</span><span class="chip">No account</span><span class="chip">No tracking</span></div></div>
+  ${frame('library',dev)}${C.free||''}`},
+];
+const main=document.getElementById('overview');
+slides.forEach(s=>{const t=document.createElement('div');t.className='thumb';t.innerHTML=`<section class="slide ${s.id}" style="--accent:${s.accent}">${s.body()}</section>`;main.append(t)});
+const n=Number(q.get('slide'));
+if(n>=1&&n<=slides.length){document.body.classList.add('single');[...main.children].forEach((e,i)=>{if(i!==n-1)e.remove()})}
+</script></body></html>

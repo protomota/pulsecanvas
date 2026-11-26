@@ -1,0 +1,2132 @@
+{
+  "schemaVersion": 1,
+  "scannedFiles": 7838,
+  "method": "Case-insensitive notice/credit/license/URL keyword scan of every file; candidate lines are evidence, not license classifications. Complete original bytes, including unmatched comments, are preserved and verified by the preset manifest.",
+  "pattern": "copyright|\\blicen[cs]e\\b|\\bpermission\\b|\\battribution\\b|\\bauthor\\b|\\bcreator\\b|\\bcredits?\\b|all rights reserved|public domain|\\b(?:MIT|BSD|LGPL|GPL|SPDX|CC-BY)\\b|creative commons|redistribut|commercial|https?://|www\\.|©|created by|written by",
+  "filesWithCandidates": 141,
+  "presets": [
+    {
+      "path": "Dancer/Comet Mirror/EVET - Zion Matrix.milk",
+      "sha256": "a25473a70394a1668357b0fbeed387cc43a63e77453af68077f9387360aac2fa",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 478,
+          "text": "warp_89=`written by martin"
+        }
+      ]
+    },
+    {
+      "path": "Dancer/Glowsticks Mirror/206.milk",
+      "sha256": "57bfaac0d3d3b29dcefbf7e62375647a95683b2bd36e3e499ff2a606327e08ce",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 484,
+          "text": "per_frame_10=//This preset was originally made for my skin - \"Kieslowski - Red\". Do a search for it at www.1001winampskins.com"
+        }
+      ]
+    },
+    {
+      "path": "Dancer/Lasers/Blendin to myself AdamFX Twist 2 martin - glassball dance with AdamFX g.milk",
+      "sha256": "710bed283c5d5b528e42ed030a30828bdb3c8f66385e07153945ba4deb9ff6a4",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 362,
+          "text": "warp_26=`  //Mult. mit n steuert \"Breitenwuchs\""
+        }
+      ]
+    },
+    {
+      "path": "Dancer/Lasers/Isosceles mashup16.milk",
+      "sha256": "83066cc55401b2e2daeaf05d652ae2029f3f14d48400a2e817de210e0c258716",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 170,
+          "text": "shape_0_per_frame20=r2 = 0; g2 = 0; b2= .3; //## rot mit ampl. mod !"
+        },
+        {
+          "line": 414,
+          "text": "warp_30=`  //Mult. mit n steuert \"Breitenwuchs\""
+        },
+        {
+          "line": 484,
+          "text": "comp_54=`written by martin"
+        }
+      ]
+    },
+    {
+      "path": "Fractal/Mandelbox/3D function draw template [flexi's learning by doing session 01].milk",
+      "sha256": "3c7a4a686cea217e361504cc4c05be68777f998d703e900866a8b77a3b285b98",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 536,
+          "text": "comp_66=`//Written by martin"
+        }
+      ]
+    },
+    {
+      "path": "Fractal/Mandelbox/3D function draw template [flexi's learning by doing session 02].milk",
+      "sha256": "b2c57bc75ffc158caaa816c01694217bebb91caf57b3dc737b3ecba750dc8291",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 536,
+          "text": "comp_66=`//Written by martin"
+        }
+      ]
+    },
+    {
+      "path": "Fractal/Mandelbox/3D function draw template [flexi's learning by doing session 03].milk",
+      "sha256": "dabc74b84caccafcb1f2db2f799b5ff19b577291d365a587305c7f9d49d8b7ad",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 550,
+          "text": "comp_66=`//Written by martin"
+        }
+      ]
+    },
+    {
+      "path": "Fractal/Mandelbox/3D function draw template [flexi's learning by doing session 04].milk",
+      "sha256": "f5d51ac52b3d9e07366a729b3042d31d682495f792bdc47d740e9f8b3d36f374",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 550,
+          "text": "comp_66=`//Written by martin"
+        }
+      ]
+    },
+    {
+      "path": "Fractal/Mandelbox/3D function draw template [flexi's learning by doing session 05].milk",
+      "sha256": "138a83b9c2ec8aded64f7e75155a9e1b7975bc75532a396ff1ea2328b88310a8",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 550,
+          "text": "comp_66=`//Written by martin"
+        }
+      ]
+    },
+    {
+      "path": "Fractal/Mandelbox/martin - castle in the air.milk",
+      "sha256": "8841ac6355ff2d2c3846316892b41c8386f89ce674e0195004bae269694fbe6e",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 525,
+          "text": "comp_78=`//Written by martin"
+        }
+      ]
+    },
+    {
+      "path": "Fractal/Mandelbox/martin - mandelbox explorer - high speed demo version (LamersAss Remix)(1).milk",
+      "sha256": "4b830f72514c785594bcf279265d27ea5ba49a2ce6bf3156a3647a036db1c3fa",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 629,
+          "text": "comp_69=`//Written by martin"
+        }
+      ]
+    },
+    {
+      "path": "Fractal/Mandelbox/martin - mandelbox explorer - high speed demo version (LamersAss Remix).milk",
+      "sha256": "b89e791fe064ec304b3ca8b750c0870e3baa2ace14575846b57137e105d9c5e5",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 569,
+          "text": "comp_69=`//Written by martin"
+        }
+      ]
+    },
+    {
+      "path": "Fractal/Nested Circle/EVET - Zorn Church.milk",
+      "sha256": "bb28b7f517fefb7145615ffddc098e94f7249f60591340ce74fa34eba20f5e26",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 370,
+          "text": "warp_23=`float2 uv3 = uv2; //Krausen nur mit uv"
+        }
+      ]
+    },
+    {
+      "path": "Fractal/Nested Square/Dbleja - Escape (Blue Mix).milk",
+      "sha256": "dbc1fa79d71ed39659a5ddfa9c05ce5aa9131a72f9c9ea9e9fc2c6822b8a7c21",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 70,
+          "text": "per_frame_10=//This preset was originally made for my skin - \"Kieslowski - Blue\". Do a search for it at www.1001winampskins.com"
+        }
+      ]
+    },
+    {
+      "path": "Fractal/Nested Square/Dbleja - Escape (Red Mix).milk",
+      "sha256": "fa85cd9e2d62fb11fea993ccc00fd933e3571a3eba2f710a6c5fd63459b12bbe",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 70,
+          "text": "per_frame_10=//This preset was originally made for my skin - \"Kieslowski - Red\". Do a search for it at www.1001winampskins.com"
+        }
+      ]
+    },
+    {
+      "path": "Fractal/Nested Square/Dbleja - Escape (White Mix).milk",
+      "sha256": "cb282daca9cc1032ea8d03280116450454489478c2fca8e565e9aa068b859956",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 75,
+          "text": "per_frame_12=//This preset was made for Dbleja's skin - Kieslowski: White (do a search for it at www.1001winampskins.com"
+        }
+      ]
+    },
+    {
+      "path": "Fractal/Nested Square/MilkTop HDFX Presets  Ft Aderrasi,AdamFX,RovaStar,ShadowHarlequin,Martin n Flexi - BitStorm AftermathFX D.milk",
+      "sha256": "33f13df56d863f17ad3caf03ec43245ea4aaeaac2e3e62187dac786d023c80c1",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 510,
+          "text": "warp_30=`  //Mult. mit n steuert \"Breitenwuchs\""
+        }
+      ]
+    },
+    {
+      "path": "Fractal/Nested Square/suksma - Dbleja - Escape (Blue Mix) - fuck everything and everyone then eat it.milk",
+      "sha256": "dee4d8a9d2298e5ddcb6656ac675b0a36ded14062abfd004619635fe8b3f610d",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 232,
+          "text": "per_frame_10=//This preset was originally made for my skin - \"Kieslowski - Blue\". Do a search for it at www.1001winampskins.com"
+        }
+      ]
+    },
+    {
+      "path": "Fractal/Nested Square/suksma - Dbleja - Escape (Blue Mix) - k me as an xmas grift nz.milk",
+      "sha256": "c76c5b02445640d12d59e49288a9c691519ab24b8e0eab55a3d94d36a8746cae",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 232,
+          "text": "per_frame_10=//This preset was originally made for my skin - \"Kieslowski - Blue\". Do a search for it at www.1001winampskins.com"
+        }
+      ]
+    },
+    {
+      "path": "Fractal/Nested Square/suksma - Dbleja - Escape (Blue Mix) - k me as an xmas grift.milk",
+      "sha256": "df1f707bc79fb40b9c02fc31604698e258fa587f1699fbce9c1d2b581fda9b21",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 232,
+          "text": "per_frame_10=//This preset was originally made for my skin - \"Kieslowski - Blue\". Do a search for it at www.1001winampskins.com"
+        }
+      ]
+    },
+    {
+      "path": "Fractal/Nested Square/suksma - Dbleja - Escape (Blue Mix) - why don't you people fucking k me, god damn it.milk",
+      "sha256": "98d7dc908e728a6633c3484a32a1062a981d8f270ce2bf397c5589d639982712",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 232,
+          "text": "per_frame_10=//This preset was originally made for my skin - \"Kieslowski - Blue\". Do a search for it at www.1001winampskins.com"
+        }
+      ]
+    },
+    {
+      "path": "Geometric/Cathedral/xtramartin (90).milk",
+      "sha256": "40c04cbc6068c909a6e6c7b6d077fdf80650e47cecd74d2801d071ee947a158b",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 456,
+          "text": "comp_94=`written by martin"
+        }
+      ]
+    },
+    {
+      "path": "Geometric/Cathedral/xtramartin (95).milk",
+      "sha256": "41ed13f010d011b56eeda36e0f3887ae8e19607d3fc734641a6c81c645459d36",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 456,
+          "text": "comp_94=`written by martin"
+        }
+      ]
+    },
+    {
+      "path": "Geometric/Cathedral/xtramartin (97).milk",
+      "sha256": "797355706972ac99b2b0a1086a1494fa782d736760a52e415558b64e43bdc703",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 598,
+          "text": "comp_94=`written by martin"
+        }
+      ]
+    },
+    {
+      "path": "Geometric/Cathedral/xtramartin (99).milk",
+      "sha256": "ca05c3d12cacc446e2771640ccfeaebf0aa26230ea122435abe6fe002e652d1a",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 518,
+          "text": "comp_94=`written by martin"
+        }
+      ]
+    },
+    {
+      "path": "Geometric/City/martin - city lights.milk",
+      "sha256": "4fbc0750baa2a0d1c6706a9412945306e4238601f67bd9a2c3095eb55b219d29",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 589,
+          "text": "comp_65=`written by martin"
+        }
+      ]
+    },
+    {
+      "path": "Geometric/Gears/martin - open machinery hazard.milk",
+      "sha256": "a1961129c1b75ad71c951487661c811829ff80793e168cb89ee29fa86d7eeefd",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 170,
+          "text": "shape_0_per_frame20=r2 = 0; g2 = 0; b2= .3; //## rot mit ampl. mod !"
+        },
+        {
+          "line": 497,
+          "text": "comp_54=`written by martin"
+        }
+      ]
+    },
+    {
+      "path": "Geometric/Landscape/martin - night in the forest.milk",
+      "sha256": "7c203d04ade3e66fb08a3fa0aed01a5177ed94ecdb3fe1ff532973ba2798df80",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 394,
+          "text": "warp_28=`  //Mult. mit n steuert \"Breitenwuchs\""
+        }
+      ]
+    },
+    {
+      "path": "Geometric/Landscape/martin - on silent paths roam3-.milk",
+      "sha256": "0f5444d9d693581e9c0015f5aade4b3fbdf23f679b708a7e0806b0bf146b931e",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 357,
+          "text": "warp_30=`  //Mult. mit n steuert \"Breitenwuchs\""
+        }
+      ]
+    },
+    {
+      "path": "Geometric/Landscape/martin - on silent paths.milk",
+      "sha256": "b28038732cdc63cf9aca1a7a717170f5cc8ad6b511f06934925bedd17d2ff062",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 357,
+          "text": "warp_30=`  //Mult. mit n steuert \"Breitenwuchs\""
+        }
+      ]
+    },
+    {
+      "path": "Geometric/Stripes/Dbleja - Horizontology (Blue Mix).milk",
+      "sha256": "bce19b803eaec274c68cced8b7085a1284cad47179a834f608d8449fa0902275",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 82,
+          "text": "per_frame_22=//This preset was originally made for my skin - \"Kieslowski - Blue\". Do a search for it at www.1001winampskins.com"
+        }
+      ]
+    },
+    {
+      "path": "Geometric/Stripes/Dbleja - Horizontology (Red Mix).milk",
+      "sha256": "f99bd54d189a949f5b7a29a0e4e6bee41f0f8f03146a71ef3d7b8b2687c849c4",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 82,
+          "text": "per_frame_22=//This preset was originally made for my skin - \"Kieslowski - Red\". Do a search for it at www.1001winampskins.com"
+        }
+      ]
+    },
+    {
+      "path": "Geometric/Stripes/Dbleja - Horizontology (White Mix).milk",
+      "sha256": "4757d91a700fbb57956c06db2353ef5ef22243fe5d8e00dfd6d8b65c531d13ba",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 93,
+          "text": "per_frame_30=//This preset was originally made for my skin - \"Kieslowski - White\". Do a search for it at www.1001winampskins.com"
+        }
+      ]
+    },
+    {
+      "path": "Geometric/Tunnel Spheres/martin - tunnel race [meta mash].milk",
+      "sha256": "92f2fe30edf8748e3cba1aaae5f65fa7bd6f35110fade34c1023b4b48fb2546b",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 436,
+          "text": "warp_28=`  //Mult. mit n steuert \"Breitenwuchs\""
+        }
+      ]
+    },
+    {
+      "path": "Geometric/Tunnel Spheres/xtramartin (451).milk",
+      "sha256": "2c169240d2f8d82c6b875c6c2bbbc7b3895c253c9aa4a84850c25d667275b55d",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 427,
+          "text": "warp_26=`  //Mult. mit n steuert \"Breitenwuchs\""
+        }
+      ]
+    },
+    {
+      "path": "Geometric/Tunnel Spheres/xtramartin (452).milk",
+      "sha256": "ec48f3e52d8d9c9d08683a2a7f589b19fe110edde20df0ab1f929e0475c95beb",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 427,
+          "text": "warp_26=`  //Mult. mit n steuert \"Breitenwuchs\""
+        }
+      ]
+    },
+    {
+      "path": "Geometric/Tunnel Spheres/xtramartin (931).milk",
+      "sha256": "38f0c0c30e3bbea0e227b809f03f3b71cab9f56c01687b304b91b670dc9acb6b",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 436,
+          "text": "warp_28=`  //Mult. mit n steuert \"Breitenwuchs\""
+        }
+      ]
+    },
+    {
+      "path": "Geometric/Wire Flower/rce-ordinary - microscopic things (crosslinking mix) - splice nz+2.milk",
+      "sha256": "728ed554ef663d0fe2211e138b1cc1ad5150048b15a7009e9b35da1aa642213b",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 308,
+          "text": "per_frame_31=//This preset was originally made for my skin - \"Kieslowski - Blue\". Do a search for it at www.1001winampskins.com"
+        }
+      ]
+    },
+    {
+      "path": "Geometric/Wire Grid/boobs - tithypno.milk",
+      "sha256": "07dffa334fbedd13bb5986d79336f8078937c9e3a9d01b09325a44f8418abd9b",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 233,
+          "text": "per_pixel_4=// http://en.wikipedia.org/wiki/Sigmoid_function"
+        }
+      ]
+    },
+    {
+      "path": "Geometric/Wire Grid/idiot - Back in the game.milk",
+      "sha256": "abc65cf56e5dec573612419c6914c2d65dd4c371f802668921730fcd6db7ea9d",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 209,
+          "text": "per_frame_2=//Author - idiot <ryan@vague.us>"
+        }
+      ]
+    },
+    {
+      "path": "Geometric/Wire Grid/suksma - rapture garden make out pumps.milk",
+      "sha256": "a17b55692454d449b5150f78a490375d770c8914f6f27add7bf2d907b929dc2a",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 236,
+          "text": "per_frame_14=//This preset was originally made for my skin - \"Kieslowski - Blue\". Do a search for it at www.1001winampskins.com"
+        }
+      ]
+    },
+    {
+      "path": "Geometric/Wire Trace/136.milk",
+      "sha256": "fb554e69006ab906105774c522c1de7f7db2a82875a476ed4fccc7fc3b8ea080",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 453,
+          "text": "per_frame_17=//This preset was originally made for my skin - \"Kieslowski - Blue\". Do a search for it at www.1001winampskins.com"
+        }
+      ]
+    },
+    {
+      "path": "Hypnotic/Polar Static/martin - massif central [laser blasting].milk",
+      "sha256": "746253f6f94a6aa391f26627e538f040958521263de00970d4dd241af302cc04",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 444,
+          "text": "comp_114=`//Written by martin"
+        }
+      ]
+    },
+    {
+      "path": "Hypnotic/Polar Static/xtramartin (1).milk",
+      "sha256": "dca0c8232225d069afdb88255cb8a737bcc8d22cce4af4182bd2dbf84b958730",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 522,
+          "text": "comp_65=`//Written by martin"
+        }
+      ]
+    },
+    {
+      "path": "Particles/Points/martin - polar lights.milk",
+      "sha256": "0eb7a114e9ea1957b8fd73d1ed4e4fb692ba8c9ff8714925f00bd79c70da4e64",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 377,
+          "text": "comp_30=`written by martin"
+        }
+      ]
+    },
+    {
+      "path": "Particles/Swarm/martin - autumn leaves.milk",
+      "sha256": "101f20603f8ab78a2ece9186b6d0e8567fae7cd63934062673a251b083e4761e",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 376,
+          "text": "comp_43=`written by martin"
+        }
+      ]
+    },
+    {
+      "path": "Reaction/Growth/$$$ Royal - Mashup (324).milk",
+      "sha256": "70c428f595882862b346f55bb7b6cf342ce30e1f7e1ffe9d58299cbc80051f78",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 317,
+          "text": "comp_58=`//Written by martin"
+        }
+      ]
+    },
+    {
+      "path": "Reaction/Liquid Blobby/martin + stahlregen - martin in da mash 11.milk",
+      "sha256": "4a5978c9a8e909317119e58d1463435491375930c7ff39492a70cb0840b17da6",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 337,
+          "text": "warp_23=`float2 uv3 = uv2; //Krausen nur mit uv"
+        }
+      ]
+    },
+    {
+      "path": "Reaction/Liquid Closeup/333.milk",
+      "sha256": "cf6eaa394f71ba294393d3b1989e325f4a80bff9cabda60f587b8b015aefe8a7",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 235,
+          "text": "per_frame_17=//This preset was originally made for my skin - \"Kieslowski - White\". Do a search for it at www.1001winampskins.com"
+        }
+      ]
+    },
+    {
+      "path": "Reaction/Liquid Closeup/Dbleja - Hovering Over Mars nz+.milk",
+      "sha256": "54ba3a90230d229817e9f806a9534e47fa354569710e92930f2ae95a5c9fea43",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 262,
+          "text": "per_frame_40=//This preset was originally made for my skin - \"Kieslowski - Red\". Do a search for it at www.1001winampskins.com"
+        }
+      ]
+    },
+    {
+      "path": "Reaction/Liquid Closeup/Dbleja - Hovering Over Mars.milk",
+      "sha256": "f3178ba1c3a9b5fd0981122cc50e98ee83d7ba06aff526fe60dfd9614d6be1bd",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 76,
+          "text": "per_frame_16=//This preset was originally made for my skin - \"Kieslowski - Red\". Do a search for it at www.1001winampskins.com"
+        }
+      ]
+    },
+    {
+      "path": "Reaction/Liquid Closeup/Dbleja - Hovering Over Neptune.milk",
+      "sha256": "b9d6ffc4eb41ecdfe9e22d9656c5374234255e10d6c446bf474f1f02b33574aa",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 74,
+          "text": "per_frame_14=//This preset was originally made for my skin - \"Kieslowski - Blue\". Do a search for it at www.1001winampskins.com"
+        }
+      ]
+    },
+    {
+      "path": "Reaction/Liquid Closeup/Dbleja - Hovering Over Pluto.milk",
+      "sha256": "8e8405f42966355abb4a1b8131eccdacc1b4345fbe4818f61ea4ceb063b54c6b",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 77,
+          "text": "per_frame_14=//This preset was originally made for my skin - \"Kieslowski - White\". Do a search for it at www.1001winampskins.com"
+        }
+      ]
+    },
+    {
+      "path": "Reaction/Liquid Closeup/Dbleja - Inside The Tree (Blue Mix).milk",
+      "sha256": "e3b4652f66eae6eb67c22b87e6bd755c12c11570777122b23267b452ef5879e0",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 77,
+          "text": "per_frame_17=//This preset was originally made for my skin - \"Kieslowski - Blue\". Do a search for it at www.1001winampskins.com"
+        }
+      ]
+    },
+    {
+      "path": "Reaction/Liquid Closeup/Dbleja - Inside The Tree (Red Mix).milk",
+      "sha256": "6ea90b24ba606ff824dc499d2624bbeb6a66d659adb14bf26d47ed9a83a1b8ea",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 78,
+          "text": "per_frame_18=//This preset was originally made for my skin - \"Kieslowski - Red\". Do a search for it at www.1001winampskins.com"
+        }
+      ]
+    },
+    {
+      "path": "Reaction/Liquid Closeup/Dbleja - Inside The Tree (White Mix).milk",
+      "sha256": "4740e468e8f9cb86040822661f1d2a80e53b7ce3d414a4829e15e8f58546714f",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 80,
+          "text": "per_frame_17=//This preset was originally made for my skin - \"Kieslowski - White\". Do a search for it at www.1001winampskins.com"
+        }
+      ]
+    },
+    {
+      "path": "Reaction/Liquid Closeup/rotated via caged cats.milk",
+      "sha256": "f1d99fdffddbc19b66dceafc73839be7eb206e2269821c0e5404720bce90203c",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 269,
+          "text": "per_frame_41=//This preset was originally made for my skin - \"Kieslowski - Blue\". Do a search for it at www.1001winampskins.com"
+        }
+      ]
+    },
+    {
+      "path": "Reaction/Liquid Closeup/suksma - my throat be a wellspring of blood - re-forfestation.milk",
+      "sha256": "17218446e1b720bcc48188de1a3c47b540f52e77f81f3eb896297fb4d7a63be3",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 329,
+          "text": "warp_28=`  //Mult. mit n steuert \"Breitenwuchs\""
+        }
+      ]
+    },
+    {
+      "path": "Reaction/Viscera/EVET - The Beast of Eden.milk",
+      "sha256": "2673f009ca4cfc52ce76b390714d9701d60a20b4878fa380e6b145cbfa3ef7eb",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 485,
+          "text": "comp_102=`written by martin"
+        }
+      ]
+    },
+    {
+      "path": "Sparkle/Mass Stars/suksma - listen check - skinless - trample the weak, hurdle the dead - surfeiting the quidgelette.milk",
+      "sha256": "474436197ab94e1564d23fdd4a835ba296830b344e9783ecb7f4ae26fcb34bc3",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 338,
+          "text": "per_frame_14=//This preset was originally made for my skin - \"Kieslowski - Blue\". Do a search for it at www.1001winampskins.com"
+        }
+      ]
+    },
+    {
+      "path": "Sparkle/Mass Stars/suksma - listen check - skinless - trample the weak, hurdle the dead.milk",
+      "sha256": "b3d4956f7083a4848b2d3af7aa1e11f7e1d4ade312b7a29ae3c15eb9d3040df2",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 338,
+          "text": "per_frame_14=//This preset was originally made for my skin - \"Kieslowski - Blue\". Do a search for it at www.1001winampskins.com"
+        }
+      ]
+    },
+    {
+      "path": "Supernova/Burst/$$$ Royal - Mashup (377).milk",
+      "sha256": "91d5b37a54d070815e77191cf02ab31760da9ddc0a0d114e0f7385d59dfdae23",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 343,
+          "text": "comp_58=`//Written by martin"
+        }
+      ]
+    },
+    {
+      "path": "Supernova/Burst/$$$ Royal - Mashup (395).milk",
+      "sha256": "1197c33d8c73a0a6573619dd336a8bec20e3b89f667c50663d06fcd9e3ff01fa",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 317,
+          "text": "comp_58=`//Written by martin"
+        }
+      ]
+    },
+    {
+      "path": "Supernova/Burst/$$$ Royal - Mashup (444).milk",
+      "sha256": "d7ba09e73f8c94e411b729391444c467b9b3e06071be3f8a7f2a9a63f24de1f2",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 317,
+          "text": "comp_58=`//Written by martin"
+        }
+      ]
+    },
+    {
+      "path": "Supernova/Radiate/EVET - Hologram Liquorice.milk",
+      "sha256": "169d5e864c2f59b3f7e2905b401dc0426130d7150fd071dbcdf9f46f7517a7e4",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 408,
+          "text": "warp_28=`  //Mult. mit n steuert \"Breitenwuchs\""
+        }
+      ]
+    },
+    {
+      "path": "Supernova/Radiate/LuxXx - the lottery is for morons I.milk",
+      "sha256": "4f5601e0b4b08803eeb1a136a5d050b51d9dbd48e781d117244dee9e154aeaee",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 416,
+          "text": "warp_28=`  //Mult. mit n steuert \"Breitenwuchs\""
+        }
+      ]
+    },
+    {
+      "path": "Supernova/Radiate/Martin - QBikal - Surface Turbulence IIyyyy hakanh mash-up k (flexi well)5.milk",
+      "sha256": "cdab8c5cd44bd3fa8b7247e851ca47ea68e7b2df2117426688118853626579ab",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 563,
+          "text": "comp_114=`//Written by martin"
+        }
+      ]
+    },
+    {
+      "path": "Waveform/Wire Rising/318.milk",
+      "sha256": "32ca1172293ff3801b62192900c38f6d804e34c8b94213b69d8ed72ce56e90b8",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 263,
+          "text": "per_frame_16=//This preset was originally made for my skin - \"Kieslowski - Red\". Do a search for it at www.1001winampskins.com"
+        }
+      ]
+    },
+    {
+      "path": "Waveform/Wire Rising/372.milk",
+      "sha256": "4f42d21f8df60c83a4f09e322167d3fbd21a80bdb04b811aad09d00024ddfe96",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 391,
+          "text": "per_frame_16=//This preset was originally made for my skin - \"Kieslowski - Red\". Do a search for it at www.1001winampskins.com"
+        }
+      ]
+    },
+    {
+      "path": "Waveform/Wire Spirograph/Fumbling_Foo & Cope, Flexi, Martin, Orb - Star Forge v8 hue shifter.milk",
+      "sha256": "9922cc5f9b6ea587000623c95d5005f628bae6c50f79e5c8c7ae201e1f92752d",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 508,
+          "text": "per_frame_144=//obwohl das der gefuehlte Takt ist - >Problem mit Phasenkorrektur !"
+        },
+        {
+          "line": 515,
+          "text": "per_frame_151=//Problem: Fats Domino (1992) hat 55BPM -> Problem mit 110"
+        },
+        {
+          "line": 517,
+          "text": "per_frame_153=//Problem: U96 - Love religion (1995) beginnt mit BPM < 20"
+        }
+      ]
+    },
+    {
+      "path": "Waveform/Wire Spirograph/Fumbling_Foo & Flexi, Martin, Orb - Acid Mandala v1a.milk",
+      "sha256": "5197876e4fd17a1b2c90ec9c7498ca15497e504081689ef8707630155b5ea938",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 514,
+          "text": "per_frame_151=//obwohl das der gefuehlte Takt ist - >Problem mit Phasenkorrektur !"
+        },
+        {
+          "line": 521,
+          "text": "per_frame_158=//Problem: Fats Domino (1992) hat 55BPM -> Problem mit 110"
+        },
+        {
+          "line": 523,
+          "text": "per_frame_160=//Problem: U96 - Love religion (1995) beginnt mit BPM < 20"
+        }
+      ]
+    },
+    {
+      "path": "Waveform/Wire Spirograph/Fumbling_Foo & Flexi, Martin, Orb - Acid Mandala v1b.milk",
+      "sha256": "fb872ccd8bc74a25761c8c3c73db55bdd75171fe5a3b763896e7694dde03291f",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 514,
+          "text": "per_frame_151=//obwohl das der gefuehlte Takt ist - >Problem mit Phasenkorrektur !"
+        },
+        {
+          "line": 521,
+          "text": "per_frame_158=//Problem: Fats Domino (1992) hat 55BPM -> Problem mit 110"
+        },
+        {
+          "line": 523,
+          "text": "per_frame_160=//Problem: U96 - Love religion (1995) beginnt mit BPM < 20"
+        }
+      ]
+    },
+    {
+      "path": "Waveform/Wire Spirograph/Fumbling_Foo & Flexi, Martin, Orb - Acid Mandala v1c.milk",
+      "sha256": "163034eb002666dfd1966444dedd1a47853131e915a5cb2745bd09ff52a4e230",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 514,
+          "text": "per_frame_151=//obwohl das der gefuehlte Takt ist - >Problem mit Phasenkorrektur !"
+        },
+        {
+          "line": 521,
+          "text": "per_frame_158=//Problem: Fats Domino (1992) hat 55BPM -> Problem mit 110"
+        },
+        {
+          "line": 523,
+          "text": "per_frame_160=//Problem: U96 - Love religion (1995) beginnt mit BPM < 20"
+        }
+      ]
+    },
+    {
+      "path": "Waveform/Wire Spirograph/Fumbling_Foo & Flexi, Martin, Orb - Acid Mandala.milk",
+      "sha256": "838b0409c77d8e1b8abe3663d2dd5ab30f1d043f9e676ce0571e73b0cbf94d28",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 514,
+          "text": "per_frame_151=//obwohl das der gefuehlte Takt ist - >Problem mit Phasenkorrektur !"
+        },
+        {
+          "line": 521,
+          "text": "per_frame_158=//Problem: Fats Domino (1992) hat 55BPM -> Problem mit 110"
+        },
+        {
+          "line": 523,
+          "text": "per_frame_160=//Problem: U96 - Love religion (1995) beginnt mit BPM < 20"
+        }
+      ]
+    },
+    {
+      "path": "Waveform/Wire Spirograph/Fumbling_Foo & Flexi, Martin, Orb - Star Forge v10.milk",
+      "sha256": "6b74944b53a30d93a27665f3abe10417ce32e7c51b0b4242303b1a0acf83c1fb",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 508,
+          "text": "per_frame_144=//obwohl das der gefuehlte Takt ist - >Problem mit Phasenkorrektur !"
+        },
+        {
+          "line": 515,
+          "text": "per_frame_151=//Problem: Fats Domino (1992) hat 55BPM -> Problem mit 110"
+        },
+        {
+          "line": 517,
+          "text": "per_frame_153=//Problem: U96 - Love religion (1995) beginnt mit BPM < 20"
+        }
+      ]
+    },
+    {
+      "path": "Waveform/Wire Spirograph/Fumbling_Foo & Flexi, Martin, Orb - Star Forge v10a.milk",
+      "sha256": "e12b460a09557051330aefd53bba5162c0b0ff030553b1b1bb3784a143ac6dc3",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 509,
+          "text": "per_frame_145=//obwohl das der gefuehlte Takt ist - >Problem mit Phasenkorrektur !"
+        },
+        {
+          "line": 516,
+          "text": "per_frame_152=//Problem: Fats Domino (1992) hat 55BPM -> Problem mit 110"
+        },
+        {
+          "line": 518,
+          "text": "per_frame_154=//Problem: U96 - Love religion (1995) beginnt mit BPM < 20"
+        }
+      ]
+    },
+    {
+      "path": "Waveform/Wire Spirograph/Fumbling_Foo & Flexi, Martin, Orb - Star Forge v11.milk",
+      "sha256": "9bc262d26d6b6340f9551ef4f848285f7e0a52ceca8306797e12bcbb7bbc642f",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 512,
+          "text": "per_frame_149=//obwohl das der gefuehlte Takt ist - >Problem mit Phasenkorrektur !"
+        },
+        {
+          "line": 519,
+          "text": "per_frame_156=//Problem: Fats Domino (1992) hat 55BPM -> Problem mit 110"
+        },
+        {
+          "line": 521,
+          "text": "per_frame_158=//Problem: U96 - Love religion (1995) beginnt mit BPM < 20"
+        }
+      ]
+    },
+    {
+      "path": "Waveform/Wire Spirograph/Fumbling_Foo & Flexi, Martin, Orb - Star Forge v11a.milk",
+      "sha256": "439b23348f16abfe3e5e872b6117983dda254d5874473b84d788eda819e239eb",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 512,
+          "text": "per_frame_149=//obwohl das der gefuehlte Takt ist - >Problem mit Phasenkorrektur !"
+        },
+        {
+          "line": 519,
+          "text": "per_frame_156=//Problem: Fats Domino (1992) hat 55BPM -> Problem mit 110"
+        },
+        {
+          "line": 521,
+          "text": "per_frame_158=//Problem: U96 - Love religion (1995) beginnt mit BPM < 20"
+        }
+      ]
+    },
+    {
+      "path": "Waveform/Wire Spirograph/Fumbling_Foo & Flexi, Martin, Orb - Star Forge v11b.milk",
+      "sha256": "5cb4337748fd7654d322493b123b13205d69014000b431b3bf822f19fce4be00",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 512,
+          "text": "per_frame_149=//obwohl das der gefuehlte Takt ist - >Problem mit Phasenkorrektur !"
+        },
+        {
+          "line": 519,
+          "text": "per_frame_156=//Problem: Fats Domino (1992) hat 55BPM -> Problem mit 110"
+        },
+        {
+          "line": 521,
+          "text": "per_frame_158=//Problem: U96 - Love religion (1995) beginnt mit BPM < 20"
+        }
+      ]
+    },
+    {
+      "path": "Waveform/Wire Spirograph/Fumbling_Foo & Flexi, Martin, Orb - Star Forge v11c.milk",
+      "sha256": "3bc7ba882305de1fb5cb09a232cbafc7506f43b38735aaab3977d615e9e5cb88",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 512,
+          "text": "per_frame_149=//obwohl das der gefuehlte Takt ist - >Problem mit Phasenkorrektur !"
+        },
+        {
+          "line": 519,
+          "text": "per_frame_156=//Problem: Fats Domino (1992) hat 55BPM -> Problem mit 110"
+        },
+        {
+          "line": 521,
+          "text": "per_frame_158=//Problem: U96 - Love religion (1995) beginnt mit BPM < 20"
+        }
+      ]
+    },
+    {
+      "path": "Waveform/Wire Spirograph/Fumbling_Foo & Flexi, Martin, Orb - Star Forge v12.milk",
+      "sha256": "468332f59554f3ca4cb57e7f5b793948986c9b516d333e89294dd8c6562b6612",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 514,
+          "text": "per_frame_151=//obwohl das der gefuehlte Takt ist - >Problem mit Phasenkorrektur !"
+        },
+        {
+          "line": 521,
+          "text": "per_frame_158=//Problem: Fats Domino (1992) hat 55BPM -> Problem mit 110"
+        },
+        {
+          "line": 523,
+          "text": "per_frame_160=//Problem: U96 - Love religion (1995) beginnt mit BPM < 20"
+        }
+      ]
+    },
+    {
+      "path": "Waveform/Wire Spirograph/Fumbling_Foo & Flexi, Martin, Orb - Star Forge v12a.milk",
+      "sha256": "a977ec6d3726789ad1982a7ad2c12a68743fdd34918beac8fc84d89d6efc5cad",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 514,
+          "text": "per_frame_151=//obwohl das der gefuehlte Takt ist - >Problem mit Phasenkorrektur !"
+        },
+        {
+          "line": 521,
+          "text": "per_frame_158=//Problem: Fats Domino (1992) hat 55BPM -> Problem mit 110"
+        },
+        {
+          "line": 523,
+          "text": "per_frame_160=//Problem: U96 - Love religion (1995) beginnt mit BPM < 20"
+        }
+      ]
+    },
+    {
+      "path": "Waveform/Wire Spirograph/Fumbling_Foo & Flexi, Martin, Orb - Star Forge v12b.milk",
+      "sha256": "f543e84596cc57521bed3cfc6e9e23ef1584c5014e2ddd979eb1950f806b5b4f",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 514,
+          "text": "per_frame_151=//obwohl das der gefuehlte Takt ist - >Problem mit Phasenkorrektur !"
+        },
+        {
+          "line": 521,
+          "text": "per_frame_158=//Problem: Fats Domino (1992) hat 55BPM -> Problem mit 110"
+        },
+        {
+          "line": 523,
+          "text": "per_frame_160=//Problem: U96 - Love religion (1995) beginnt mit BPM < 20"
+        }
+      ]
+    },
+    {
+      "path": "Waveform/Wire Spirograph/Fumbling_Foo & Flexi, Martin, Orb - Star Forge v13.milk",
+      "sha256": "92c444093a555b8db343cb333d059afab8523bc346062e2ea4fd0a07fa12230e",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 514,
+          "text": "per_frame_151=//obwohl das der gefuehlte Takt ist - >Problem mit Phasenkorrektur !"
+        },
+        {
+          "line": 521,
+          "text": "per_frame_158=//Problem: Fats Domino (1992) hat 55BPM -> Problem mit 110"
+        },
+        {
+          "line": 523,
+          "text": "per_frame_160=//Problem: U96 - Love religion (1995) beginnt mit BPM < 20"
+        }
+      ]
+    },
+    {
+      "path": "Waveform/Wire Spirograph/Fumbling_Foo & Flexi, Martin, Orb - Star Forge v13a.milk",
+      "sha256": "9dcf212c44c673698d889f679feae23d4460d2482fdd8ba5f70efbd7e0f594d4",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 561,
+          "text": "per_frame_152=//obwohl das der gefuehlte Takt ist - >Problem mit Phasenkorrektur !"
+        },
+        {
+          "line": 568,
+          "text": "per_frame_159=//Problem: Fats Domino (1992) hat 55BPM -> Problem mit 110"
+        },
+        {
+          "line": 570,
+          "text": "per_frame_161=//Problem: U96 - Love religion (1995) beginnt mit BPM < 20"
+        }
+      ]
+    },
+    {
+      "path": "Waveform/Wire Spirograph/Fumbling_Foo & Flexi, Martin, Orb - Star Forge v13b.milk",
+      "sha256": "ad91feb7516c33c514520ea892009b28cd0b628e94eeba5a3b736f4723aee9b5",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 561,
+          "text": "per_frame_152=//obwohl das der gefuehlte Takt ist - >Problem mit Phasenkorrektur !"
+        },
+        {
+          "line": 568,
+          "text": "per_frame_159=//Problem: Fats Domino (1992) hat 55BPM -> Problem mit 110"
+        },
+        {
+          "line": 570,
+          "text": "per_frame_161=//Problem: U96 - Love religion (1995) beginnt mit BPM < 20"
+        }
+      ]
+    },
+    {
+      "path": "Waveform/Wire Spirograph/Fumbling_Foo & Flexi, Martin, Orb - Star Forge v13c.milk",
+      "sha256": "623907f576abdd1b314a2cb43ca41c1e8ad2558ee70c17bcab9e2ae6456580af",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 561,
+          "text": "per_frame_152=//obwohl das der gefuehlte Takt ist - >Problem mit Phasenkorrektur !"
+        },
+        {
+          "line": 568,
+          "text": "per_frame_159=//Problem: Fats Domino (1992) hat 55BPM -> Problem mit 110"
+        },
+        {
+          "line": 570,
+          "text": "per_frame_161=//Problem: U96 - Love religion (1995) beginnt mit BPM < 20"
+        }
+      ]
+    },
+    {
+      "path": "Waveform/Wire Spirograph/Fumbling_Foo & Flexi, Martin, Orb - Star Forge v14.milk",
+      "sha256": "b9296ec83a25a7f4fe3af34db2e0496ccdfda884979890341481502aa4e27f0a",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 562,
+          "text": "per_frame_153=//obwohl das der gefuehlte Takt ist - >Problem mit Phasenkorrektur !"
+        },
+        {
+          "line": 569,
+          "text": "per_frame_160=//Problem: Fats Domino (1992) hat 55BPM -> Problem mit 110"
+        },
+        {
+          "line": 571,
+          "text": "per_frame_162=//Problem: U96 - Love religion (1995) beginnt mit BPM < 20"
+        }
+      ]
+    },
+    {
+      "path": "Waveform/Wire Spirograph/Fumbling_Foo & Flexi, Martin, Orb - Star Forge v14a.milk",
+      "sha256": "68ded75cdddf3cab580e88992ea8f5800696d68b0993bc6ec52eb6a82b525a86",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 562,
+          "text": "per_frame_153=//obwohl das der gefuehlte Takt ist - >Problem mit Phasenkorrektur !"
+        },
+        {
+          "line": 569,
+          "text": "per_frame_160=//Problem: Fats Domino (1992) hat 55BPM -> Problem mit 110"
+        },
+        {
+          "line": 571,
+          "text": "per_frame_162=//Problem: U96 - Love religion (1995) beginnt mit BPM < 20"
+        }
+      ]
+    },
+    {
+      "path": "Waveform/Wire Spirograph/Fumbling_Foo & Flexi, Martin, Orb - Star Forge v14c.milk",
+      "sha256": "16a6fc9df81ceeddd24daba560e23796059879c0fb8e7c9cb4f22de5d2d251c7",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 562,
+          "text": "per_frame_153=//obwohl das der gefuehlte Takt ist - >Problem mit Phasenkorrektur !"
+        },
+        {
+          "line": 569,
+          "text": "per_frame_160=//Problem: Fats Domino (1992) hat 55BPM -> Problem mit 110"
+        },
+        {
+          "line": 571,
+          "text": "per_frame_162=//Problem: U96 - Love religion (1995) beginnt mit BPM < 20"
+        }
+      ]
+    },
+    {
+      "path": "Waveform/Wire Spirograph/Fumbling_Foo & Flexi, Martin, Orb - Star Forge v14d.milk",
+      "sha256": "d0e46b38ee77dc97b348d0208a398b32499ce97c49b3fa125b2d37476539ef60",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 562,
+          "text": "per_frame_153=//obwohl das der gefuehlte Takt ist - >Problem mit Phasenkorrektur !"
+        },
+        {
+          "line": 569,
+          "text": "per_frame_160=//Problem: Fats Domino (1992) hat 55BPM -> Problem mit 110"
+        },
+        {
+          "line": 571,
+          "text": "per_frame_162=//Problem: U96 - Love religion (1995) beginnt mit BPM < 20"
+        }
+      ]
+    },
+    {
+      "path": "Waveform/Wire Spirograph/Fumbling_Foo & Flexi, Martin, Orb - Star Forge v3.milk",
+      "sha256": "40eb33e8ee26e3ddc0a863c92822957860c05f3e9eb25c46fab73a1cec816be6",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 474,
+          "text": "per_frame_141=//obwohl das der gefuehlte Takt ist - >Problem mit Phasenkorrektur !"
+        },
+        {
+          "line": 481,
+          "text": "per_frame_148=//Problem: Fats Domino (1992) hat 55BPM -> Problem mit 110"
+        },
+        {
+          "line": 483,
+          "text": "per_frame_150=//Problem: U96 - Love religion (1995) beginnt mit BPM < 20"
+        }
+      ]
+    },
+    {
+      "path": "Waveform/Wire Spirograph/Fumbling_Foo & Flexi, Martin, Orb - Star Forge v4.milk",
+      "sha256": "9e3ee955edf7782102c732c229fe64ea02ed2aee27dabfb1ce7572c1826a60f8",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 497,
+          "text": "per_frame_141=//obwohl das der gefuehlte Takt ist - >Problem mit Phasenkorrektur !"
+        },
+        {
+          "line": 504,
+          "text": "per_frame_148=//Problem: Fats Domino (1992) hat 55BPM -> Problem mit 110"
+        },
+        {
+          "line": 506,
+          "text": "per_frame_150=//Problem: U96 - Love religion (1995) beginnt mit BPM < 20"
+        }
+      ]
+    },
+    {
+      "path": "Waveform/Wire Spirograph/Fumbling_Foo & Flexi, Martin, Orb - Star Forge v5 shader updated.milk",
+      "sha256": "4988690ed8986d2c54d5e630412260fce1844d6459260fe3019fc38c21c808a1",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 496,
+          "text": "per_frame_143=//obwohl das der gefuehlte Takt ist - >Problem mit Phasenkorrektur !"
+        },
+        {
+          "line": 503,
+          "text": "per_frame_150=//Problem: Fats Domino (1992) hat 55BPM -> Problem mit 110"
+        },
+        {
+          "line": 505,
+          "text": "per_frame_152=//Problem: U96 - Love religion (1995) beginnt mit BPM < 20"
+        }
+      ]
+    },
+    {
+      "path": "Waveform/Wire Spirograph/Fumbling_Foo & Flexi, Martin, Orb - Star Forge v5.milk",
+      "sha256": "8d5a733c1b45cd4bddc5385799c95430a491f9e2eea8bf15ce20d21ed107d0e3",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 496,
+          "text": "per_frame_143=//obwohl das der gefuehlte Takt ist - >Problem mit Phasenkorrektur !"
+        },
+        {
+          "line": 503,
+          "text": "per_frame_150=//Problem: Fats Domino (1992) hat 55BPM -> Problem mit 110"
+        },
+        {
+          "line": 505,
+          "text": "per_frame_152=//Problem: U96 - Love religion (1995) beginnt mit BPM < 20"
+        }
+      ]
+    },
+    {
+      "path": "Waveform/Wire Spirograph/Fumbling_Foo & Flexi, Martin, Orb - Star Forge v5a.milk",
+      "sha256": "1ef5db7ad2d1798fa7715436aa31c0ce81dbbeba229e633c8e664b67cdcfb9f9",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 496,
+          "text": "per_frame_143=//obwohl das der gefuehlte Takt ist - >Problem mit Phasenkorrektur !"
+        },
+        {
+          "line": 503,
+          "text": "per_frame_150=//Problem: Fats Domino (1992) hat 55BPM -> Problem mit 110"
+        },
+        {
+          "line": 505,
+          "text": "per_frame_152=//Problem: U96 - Love religion (1995) beginnt mit BPM < 20"
+        }
+      ]
+    },
+    {
+      "path": "Waveform/Wire Spirograph/Fumbling_Foo & Flexi, Martin, Orb - Star Forge v5b.milk",
+      "sha256": "ed5a18e8f5322d0c6b95e2a3393c0538d894bee5c32864776156596fbc4612dc",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 497,
+          "text": "per_frame_144=//obwohl das der gefuehlte Takt ist - >Problem mit Phasenkorrektur !"
+        },
+        {
+          "line": 504,
+          "text": "per_frame_151=//Problem: Fats Domino (1992) hat 55BPM -> Problem mit 110"
+        },
+        {
+          "line": 506,
+          "text": "per_frame_153=//Problem: U96 - Love religion (1995) beginnt mit BPM < 20"
+        }
+      ]
+    },
+    {
+      "path": "Waveform/Wire Spirograph/Fumbling_Foo & Flexi, Martin, Orb - Star Forge v6 adagio v2.milk",
+      "sha256": "b4469eb74e7b51a0b21008c6ff43f531de80cec65d0a1ca7eeae982caf13be40",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 497,
+          "text": "per_frame_144=//obwohl das der gefuehlte Takt ist - >Problem mit Phasenkorrektur !"
+        },
+        {
+          "line": 504,
+          "text": "per_frame_151=//Problem: Fats Domino (1992) hat 55BPM -> Problem mit 110"
+        },
+        {
+          "line": 506,
+          "text": "per_frame_153=//Problem: U96 - Love religion (1995) beginnt mit BPM < 20"
+        }
+      ]
+    },
+    {
+      "path": "Waveform/Wire Spirograph/Fumbling_Foo & Flexi, Martin, Orb - Star Forge v6 tamed.milk",
+      "sha256": "eb4caa4030b74135f796177aa8d3de54ca042ecdc076a6ecbddbca6f189474c5",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 498,
+          "text": "per_frame_144=//obwohl das der gefuehlte Takt ist - >Problem mit Phasenkorrektur !"
+        },
+        {
+          "line": 505,
+          "text": "per_frame_151=//Problem: Fats Domino (1992) hat 55BPM -> Problem mit 110"
+        },
+        {
+          "line": 507,
+          "text": "per_frame_153=//Problem: U96 - Love religion (1995) beginnt mit BPM < 20"
+        }
+      ]
+    },
+    {
+      "path": "Waveform/Wire Spirograph/Fumbling_Foo & Flexi, Martin, Orb - Star Forge v6.milk",
+      "sha256": "9e0b0fe7083ac0584c326fc3e9014566d8a5da961ec046c79abd26e8aedb9c78",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 497,
+          "text": "per_frame_144=//obwohl das der gefuehlte Takt ist - >Problem mit Phasenkorrektur !"
+        },
+        {
+          "line": 504,
+          "text": "per_frame_151=//Problem: Fats Domino (1992) hat 55BPM -> Problem mit 110"
+        },
+        {
+          "line": 506,
+          "text": "per_frame_153=//Problem: U96 - Love religion (1995) beginnt mit BPM < 20"
+        }
+      ]
+    },
+    {
+      "path": "Waveform/Wire Spirograph/Fumbling_Foo & Flexi, Martin, Orb - Star Forge v6a.milk",
+      "sha256": "3b593db0ca072b4f8ebfed1d5a1c68f66a5fd9baac05287b9eb09608e5c1dc37",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 497,
+          "text": "per_frame_144=//obwohl das der gefuehlte Takt ist - >Problem mit Phasenkorrektur !"
+        },
+        {
+          "line": 504,
+          "text": "per_frame_151=//Problem: Fats Domino (1992) hat 55BPM -> Problem mit 110"
+        },
+        {
+          "line": 506,
+          "text": "per_frame_153=//Problem: U96 - Love religion (1995) beginnt mit BPM < 20"
+        }
+      ]
+    },
+    {
+      "path": "Waveform/Wire Spirograph/Fumbling_Foo & Flexi, Martin, Orb - Star Forge v7.milk",
+      "sha256": "5817ae2106d40ffc351955a77fed3a53cf053d64043d881a6a94cc63752712b3",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 497,
+          "text": "per_frame_144=//obwohl das der gefuehlte Takt ist - >Problem mit Phasenkorrektur !"
+        },
+        {
+          "line": 504,
+          "text": "per_frame_151=//Problem: Fats Domino (1992) hat 55BPM -> Problem mit 110"
+        },
+        {
+          "line": 506,
+          "text": "per_frame_153=//Problem: U96 - Love religion (1995) beginnt mit BPM < 20"
+        }
+      ]
+    },
+    {
+      "path": "Waveform/Wire Spirograph/Fumbling_Foo & Flexi, Martin, Orb - Star Forge v7a.milk",
+      "sha256": "0bb615dfd0cfb988900441189d6fdb68ab5df8b6f0ccb0115c95f1cd600644a0",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 497,
+          "text": "per_frame_144=//obwohl das der gefuehlte Takt ist - >Problem mit Phasenkorrektur !"
+        },
+        {
+          "line": 504,
+          "text": "per_frame_151=//Problem: Fats Domino (1992) hat 55BPM -> Problem mit 110"
+        },
+        {
+          "line": 506,
+          "text": "per_frame_153=//Problem: U96 - Love religion (1995) beginnt mit BPM < 20"
+        }
+      ]
+    },
+    {
+      "path": "Waveform/Wire Spirograph/Fumbling_Foo & Flexi, Martin, Orb - Star Forge v8.milk",
+      "sha256": "a58b1102e38b4fe290e05ba87ba6ef952fe03ef7fecb5380704de7b0b31fde62",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 508,
+          "text": "per_frame_144=//obwohl das der gefuehlte Takt ist - >Problem mit Phasenkorrektur !"
+        },
+        {
+          "line": 515,
+          "text": "per_frame_151=//Problem: Fats Domino (1992) hat 55BPM -> Problem mit 110"
+        },
+        {
+          "line": 517,
+          "text": "per_frame_153=//Problem: U96 - Love religion (1995) beginnt mit BPM < 20"
+        }
+      ]
+    },
+    {
+      "path": "Waveform/Wire Spirograph/Fumbling_Foo & Flexi, Martin, Orb - Star Forge v8a.milk",
+      "sha256": "e69e6018e3fc6cdb8583cfc89daf2cfda905fc0c76bca4bc9abc712405a2998c",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 508,
+          "text": "per_frame_144=//obwohl das der gefuehlte Takt ist - >Problem mit Phasenkorrektur !"
+        },
+        {
+          "line": 515,
+          "text": "per_frame_151=//Problem: Fats Domino (1992) hat 55BPM -> Problem mit 110"
+        },
+        {
+          "line": 517,
+          "text": "per_frame_153=//Problem: U96 - Love religion (1995) beginnt mit BPM < 20"
+        }
+      ]
+    },
+    {
+      "path": "Waveform/Wire Spirograph/Fumbling_Foo & Flexi, Martin, Orb - Star Forge v8b.milk",
+      "sha256": "98b4f3b51e2f311a5fcd192e93c291fdeffdca80b5889b12fe3b6b1bebe02f14",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 508,
+          "text": "per_frame_144=//obwohl das der gefuehlte Takt ist - >Problem mit Phasenkorrektur !"
+        },
+        {
+          "line": 515,
+          "text": "per_frame_151=//Problem: Fats Domino (1992) hat 55BPM -> Problem mit 110"
+        },
+        {
+          "line": 517,
+          "text": "per_frame_153=//Problem: U96 - Love religion (1995) beginnt mit BPM < 20"
+        }
+      ]
+    },
+    {
+      "path": "Waveform/Wire Spirograph/Fumbling_Foo & Flexi, Martin, Orb - Star Forge v8c.milk",
+      "sha256": "8be586911b752107e9f31971d1f893c906b1e8631eb654994ee914e31d19efba",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 508,
+          "text": "per_frame_144=//obwohl das der gefuehlte Takt ist - >Problem mit Phasenkorrektur !"
+        },
+        {
+          "line": 515,
+          "text": "per_frame_151=//Problem: Fats Domino (1992) hat 55BPM -> Problem mit 110"
+        },
+        {
+          "line": 517,
+          "text": "per_frame_153=//Problem: U96 - Love religion (1995) beginnt mit BPM < 20"
+        }
+      ]
+    },
+    {
+      "path": "Waveform/Wire Spirograph/Fumbling_Foo & Flexi, Martin, Orb - Star Forge v9.milk",
+      "sha256": "29ffee51562b6777b3723407db94e7801dd8686f113f77ed93a63bf38b2e7991",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 508,
+          "text": "per_frame_144=//obwohl das der gefuehlte Takt ist - >Problem mit Phasenkorrektur !"
+        },
+        {
+          "line": 515,
+          "text": "per_frame_151=//Problem: Fats Domino (1992) hat 55BPM -> Problem mit 110"
+        },
+        {
+          "line": 517,
+          "text": "per_frame_153=//Problem: U96 - Love religion (1995) beginnt mit BPM < 20"
+        }
+      ]
+    },
+    {
+      "path": "Waveform/Wire Spirograph/Fumbling_Foo & Flexi, Martin, Orb, Unchained - Acid Mandala v3.milk",
+      "sha256": "12b9b050d51a28b266049f58da3494b086103174e7a34d3ddb8e372fe0cbe2ff",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 467,
+          "text": "per_frame_160=//obwohl das der gefuehlte Takt ist - >Problem mit Phasenkorrektur !"
+        },
+        {
+          "line": 474,
+          "text": "per_frame_167=//Problem: Fats Domino (1992) hat 55BPM -> Problem mit 110"
+        },
+        {
+          "line": 476,
+          "text": "per_frame_169=//Problem: U96 - Love religion (1995) beginnt mit BPM < 20"
+        }
+      ]
+    },
+    {
+      "path": "Waveform/Wire Spirograph/Fumbling_Foo & Flexi, Martin, Orb, Unchained - Acid Mandala v3a.milk",
+      "sha256": "c1870d133a826a10f182f75931ca56148d79ab7fa3c68cb9d6b568cbc0addb77",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 467,
+          "text": "per_frame_160=//obwohl das der gefuehlte Takt ist - >Problem mit Phasenkorrektur !"
+        },
+        {
+          "line": 474,
+          "text": "per_frame_167=//Problem: Fats Domino (1992) hat 55BPM -> Problem mit 110"
+        },
+        {
+          "line": 476,
+          "text": "per_frame_169=//Problem: U96 - Love religion (1995) beginnt mit BPM < 20"
+        }
+      ]
+    },
+    {
+      "path": "Waveform/Wire Spirograph/Fumbling_Foo & Flexi, Martin, Orb, Unchained - Acid Mandala v3b.milk",
+      "sha256": "2d59dd69a7513078a024f30b47255df90c6cd3583f4389a6e5e2132d1016cf93",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 468,
+          "text": "per_frame_160=//obwohl das der gefuehlte Takt ist - >Problem mit Phasenkorrektur !"
+        },
+        {
+          "line": 475,
+          "text": "per_frame_167=//Problem: Fats Domino (1992) hat 55BPM -> Problem mit 110"
+        },
+        {
+          "line": 477,
+          "text": "per_frame_169=//Problem: U96 - Love religion (1995) beginnt mit BPM < 20"
+        }
+      ]
+    },
+    {
+      "path": "Waveform/Wire Spirograph/Fumbling_Foo & Flexi, Martin, Orb, Unchained - Acid Mandala v3c.milk",
+      "sha256": "7c285c8a320da94f9f9ed34240cff1a9e8faf725b9b61e2dd66a3b66d5077658",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 468,
+          "text": "per_frame_160=//obwohl das der gefuehlte Takt ist - >Problem mit Phasenkorrektur !"
+        },
+        {
+          "line": 475,
+          "text": "per_frame_167=//Problem: Fats Domino (1992) hat 55BPM -> Problem mit 110"
+        },
+        {
+          "line": 477,
+          "text": "per_frame_169=//Problem: U96 - Love religion (1995) beginnt mit BPM < 20"
+        }
+      ]
+    },
+    {
+      "path": "Waveform/Wire Spirograph/Fumbling_Foo & Flexi, Martin, Orb, Unchained - Acid Mandala v3d.milk",
+      "sha256": "91a82a277389b632500ed44c0d4638913427cd56e6791b9166277af7c1b9918e",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 468,
+          "text": "per_frame_160=//obwohl das der gefuehlte Takt ist - >Problem mit Phasenkorrektur !"
+        },
+        {
+          "line": 475,
+          "text": "per_frame_167=//Problem: Fats Domino (1992) hat 55BPM -> Problem mit 110"
+        },
+        {
+          "line": 477,
+          "text": "per_frame_169=//Problem: U96 - Love religion (1995) beginnt mit BPM < 20"
+        }
+      ]
+    },
+    {
+      "path": "Waveform/Wire Spirograph/Fumbling_Foo & Flexi, Martin, Orb, Unchained - Acid Mandala v3e.milk",
+      "sha256": "c6914c47c74a71f21981827e0ad1ab617224c16614b4d6fc8e81784b8a0f1d42",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 475,
+          "text": "per_frame_166=//obwohl das der gefuehlte Takt ist - >Problem mit Phasenkorrektur !"
+        },
+        {
+          "line": 482,
+          "text": "per_frame_173=//Problem: Fats Domino (1992) hat 55BPM -> Problem mit 110"
+        },
+        {
+          "line": 484,
+          "text": "per_frame_175=//Problem: U96 - Love religion (1995) beginnt mit BPM < 20"
+        }
+      ]
+    },
+    {
+      "path": "Waveform/Wire Spirograph/Fumbling_Foo & Flexi, Martin, Orb, Unchained - Acid Mandala v4.milk",
+      "sha256": "b217041195e4399dc465b67d63e06203f7c57707e3fcab45dbfb8f19b5f06dbf",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 470,
+          "text": "per_frame_161=//obwohl das der gefuehlte Takt ist - >Problem mit Phasenkorrektur !"
+        },
+        {
+          "line": 477,
+          "text": "per_frame_168=//Problem: Fats Domino (1992) hat 55BPM -> Problem mit 110"
+        },
+        {
+          "line": 479,
+          "text": "per_frame_170=//Problem: U96 - Love religion (1995) beginnt mit BPM < 20"
+        }
+      ]
+    },
+    {
+      "path": "Waveform/Wire Spirograph/Fumbling_Foo & Flexi, Martin, Orb, Unchained - Acid Mandala v4a.milk",
+      "sha256": "4fd7ffbb0cb8471a130f1ba52aada7ef16a0c59fd0eab26d2b4eaf344e9ecb3b",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 470,
+          "text": "per_frame_161=//obwohl das der gefuehlte Takt ist - >Problem mit Phasenkorrektur !"
+        },
+        {
+          "line": 477,
+          "text": "per_frame_168=//Problem: Fats Domino (1992) hat 55BPM -> Problem mit 110"
+        },
+        {
+          "line": 479,
+          "text": "per_frame_170=//Problem: U96 - Love religion (1995) beginnt mit BPM < 20"
+        }
+      ]
+    },
+    {
+      "path": "Waveform/Wire Spirograph/Fumbling_Foo & Flexi, Martin, Orb, Unchained - Acid Mandala v4b.milk",
+      "sha256": "f49bee9113883a91057dec1367dae8c787d1aeab185cece8d9fa2e340cf80e86",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 472,
+          "text": "per_frame_163=//obwohl das der gefuehlte Takt ist - >Problem mit Phasenkorrektur !"
+        },
+        {
+          "line": 479,
+          "text": "per_frame_170=//Problem: Fats Domino (1992) hat 55BPM -> Problem mit 110"
+        },
+        {
+          "line": 481,
+          "text": "per_frame_172=//Problem: U96 - Love religion (1995) beginnt mit BPM < 20"
+        }
+      ]
+    },
+    {
+      "path": "Waveform/Wire Spirograph/Fumbling_Foo & Flexi, Martin, Orb, Unchained - Acid Mandala v4c.milk",
+      "sha256": "36a249ba3e1d1b5e7a647e2a31b845cb71a863a956a935c4acdb0ea5e1b552d6",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 472,
+          "text": "per_frame_163=//obwohl das der gefuehlte Takt ist - >Problem mit Phasenkorrektur !"
+        },
+        {
+          "line": 479,
+          "text": "per_frame_170=//Problem: Fats Domino (1992) hat 55BPM -> Problem mit 110"
+        },
+        {
+          "line": 481,
+          "text": "per_frame_172=//Problem: U96 - Love religion (1995) beginnt mit BPM < 20"
+        }
+      ]
+    },
+    {
+      "path": "Waveform/Wire Spirograph/Fumbling_Foo & Flexi, Martin, Orb, Unchained - Acid Mandala v4d.milk",
+      "sha256": "1e9f8826a646f760460d5cc5a2d74aee55fb1a0e861f9225ba2bf3cb36002081",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 472,
+          "text": "per_frame_163=//obwohl das der gefuehlte Takt ist - >Problem mit Phasenkorrektur !"
+        },
+        {
+          "line": 479,
+          "text": "per_frame_170=//Problem: Fats Domino (1992) hat 55BPM -> Problem mit 110"
+        },
+        {
+          "line": 481,
+          "text": "per_frame_172=//Problem: U96 - Love religion (1995) beginnt mit BPM < 20"
+        }
+      ]
+    },
+    {
+      "path": "Waveform/Wire Spirograph/Fumbling_Foo & Flexi, Martin, Orb, Unchained - Acid Mandala v4e.milk",
+      "sha256": "4c3df5187916f99ccf19240b3786aff99d7ed1951f5e00d8e7d2fa2fb6620170",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 472,
+          "text": "per_frame_163=//obwohl das der gefuehlte Takt ist - >Problem mit Phasenkorrektur !"
+        },
+        {
+          "line": 479,
+          "text": "per_frame_170=//Problem: Fats Domino (1992) hat 55BPM -> Problem mit 110"
+        },
+        {
+          "line": 481,
+          "text": "per_frame_172=//Problem: U96 - Love religion (1995) beginnt mit BPM < 20"
+        }
+      ]
+    },
+    {
+      "path": "Waveform/Wire Spirograph/Fumbling_Foo & Flexi, Martin, Orb, Unchained - Acid Mandala v4f.milk",
+      "sha256": "4790064d81d164ae5e97200761584fa645055f9123d7a552eb0bd67d00001a7d",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 472,
+          "text": "per_frame_163=//obwohl das der gefuehlte Takt ist - >Problem mit Phasenkorrektur !"
+        },
+        {
+          "line": 479,
+          "text": "per_frame_170=//Problem: Fats Domino (1992) hat 55BPM -> Problem mit 110"
+        },
+        {
+          "line": 481,
+          "text": "per_frame_172=//Problem: U96 - Love religion (1995) beginnt mit BPM < 20"
+        }
+      ]
+    },
+    {
+      "path": "Waveform/Wire Spirograph/Fumbling_Foo & Flexi, Martin, Orb, Unchained - Acid Mandala v4g.milk",
+      "sha256": "b4035acaee00cf2b3df85d6f3dc80338bc186956b689fc3b2138574eacffcae9",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 472,
+          "text": "per_frame_163=//obwohl das der gefuehlte Takt ist - >Problem mit Phasenkorrektur !"
+        },
+        {
+          "line": 479,
+          "text": "per_frame_170=//Problem: Fats Domino (1992) hat 55BPM -> Problem mit 110"
+        },
+        {
+          "line": 481,
+          "text": "per_frame_172=//Problem: U96 - Love religion (1995) beginnt mit BPM < 20"
+        }
+      ]
+    },
+    {
+      "path": "Waveform/Wire Spirograph/Fumbling_Foo & Flexi, Martin, Orb, Unchained - Acid Mandala v5.milk",
+      "sha256": "987032b7dbd9837324fb766417aa46e3ece2c2b9ac666febdd1a7d0d65615cb4",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 472,
+          "text": "per_frame_163=//obwohl das der gefuehlte Takt ist - >Problem mit Phasenkorrektur !"
+        },
+        {
+          "line": 479,
+          "text": "per_frame_170=//Problem: Fats Domino (1992) hat 55BPM -> Problem mit 110"
+        },
+        {
+          "line": 481,
+          "text": "per_frame_172=//Problem: U96 - Love religion (1995) beginnt mit BPM < 20"
+        }
+      ]
+    },
+    {
+      "path": "Waveform/Wire Spirograph/Fumbling_Foo & Flexi, Martin, Orb, Unchained - Acid Mandala v5a.milk",
+      "sha256": "ce55879798daa2900f6f3f9c37b5d2ad749d98f809708e4ce645724e7104fd4b",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 472,
+          "text": "per_frame_163=//obwohl das der gefuehlte Takt ist - >Problem mit Phasenkorrektur !"
+        },
+        {
+          "line": 479,
+          "text": "per_frame_170=//Problem: Fats Domino (1992) hat 55BPM -> Problem mit 110"
+        },
+        {
+          "line": 481,
+          "text": "per_frame_172=//Problem: U96 - Love religion (1995) beginnt mit BPM < 20"
+        }
+      ]
+    },
+    {
+      "path": "Waveform/Wire Spirograph/Fumbling_Foo & Flexi, Martin, Orb, Unchained - Acid Mandala v5b.milk",
+      "sha256": "66ce0a8499106c9b0c84591c622b2c317cbc46a811a0071a9b095f161aab2b83",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 472,
+          "text": "per_frame_163=//obwohl das der gefuehlte Takt ist - >Problem mit Phasenkorrektur !"
+        },
+        {
+          "line": 479,
+          "text": "per_frame_170=//Problem: Fats Domino (1992) hat 55BPM -> Problem mit 110"
+        },
+        {
+          "line": 481,
+          "text": "per_frame_172=//Problem: U96 - Love religion (1995) beginnt mit BPM < 20"
+        }
+      ]
+    },
+    {
+      "path": "Waveform/Wire Spirograph/Fumbling_Foo + Flexi, Martin, Orb - Star Forge v4a.milk",
+      "sha256": "b19bf65935388f1cff641f9c049371f90b7845c03efeeb5481bb7e76ca41f581",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 493,
+          "text": "per_frame_141=//obwohl das der gefuehlte Takt ist - >Problem mit Phasenkorrektur !"
+        },
+        {
+          "line": 500,
+          "text": "per_frame_148=//Problem: Fats Domino (1992) hat 55BPM -> Problem mit 110"
+        },
+        {
+          "line": 502,
+          "text": "per_frame_150=//Problem: U96 - Love religion (1995) beginnt mit BPM < 20"
+        }
+      ]
+    },
+    {
+      "path": "Waveform/Wire Spirograph/Fumbling_Foo - Star Forge v7 (HAKAN mash-up) [[Martin's new theme]].milk",
+      "sha256": "b476270cf02ef1c6e94bd44418f66a933b7e96f1a2dc626b1484ed88fa93ab8e",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 497,
+          "text": "per_frame_144=//obwohl das der gefuehlte Takt ist - >Problem mit Phasenkorrektur !"
+        },
+        {
+          "line": 504,
+          "text": "per_frame_151=//Problem: Fats Domino (1992) hat 55BPM -> Problem mit 110"
+        },
+        {
+          "line": 506,
+          "text": "per_frame_153=//Problem: U96 - Love religion (1995) beginnt mit BPM < 20"
+        }
+      ]
+    },
+    {
+      "path": "Waveform/Wire Spirograph/Fumbling_Foo - Star Forge v7 (HAKAN mash-up) [[pixel theme]] 0-5.milk",
+      "sha256": "91db0d6e5a2f93409cf5e52891f7dad845ac0509bf6b71d61f987372e8e3d886",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 497,
+          "text": "per_frame_144=//obwohl das der gefuehlte Takt ist - >Problem mit Phasenkorrektur !"
+        },
+        {
+          "line": 504,
+          "text": "per_frame_151=//Problem: Fats Domino (1992) hat 55BPM -> Problem mit 110"
+        },
+        {
+          "line": 506,
+          "text": "per_frame_153=//Problem: U96 - Love religion (1995) beginnt mit BPM < 20"
+        }
+      ]
+    },
+    {
+      "path": "Waveform/Wire Spirograph/Fumbling_Foo - Star Forge v7 (HAKAN mash-up) [[pixel theme]] 0-6 v2 {more static}.milk",
+      "sha256": "4cbb822eba39ad4f3a04589ad5479112b94420972b03282f1a83758041ac0642",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 497,
+          "text": "per_frame_144=//obwohl das der gefuehlte Takt ist - >Problem mit Phasenkorrektur !"
+        },
+        {
+          "line": 504,
+          "text": "per_frame_151=//Problem: Fats Domino (1992) hat 55BPM -> Problem mit 110"
+        },
+        {
+          "line": 506,
+          "text": "per_frame_153=//Problem: U96 - Love religion (1995) beginnt mit BPM < 20"
+        }
+      ]
+    },
+    {
+      "path": "Waveform/Wire Spirograph/Fumbling_Foo - Star Forge v7 (HAKAN mash-up) [[pixel theme]] 0-8 v1.milk",
+      "sha256": "05ad8b9fefb8e63e8c6106214c24d452bd356cfe974d223cd5fb9a29dc3d80e6",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 497,
+          "text": "per_frame_144=//obwohl das der gefuehlte Takt ist - >Problem mit Phasenkorrektur !"
+        },
+        {
+          "line": 504,
+          "text": "per_frame_151=//Problem: Fats Domino (1992) hat 55BPM -> Problem mit 110"
+        },
+        {
+          "line": 506,
+          "text": "per_frame_153=//Problem: U96 - Love religion (1995) beginnt mit BPM < 20"
+        }
+      ]
+    },
+    {
+      "path": "Waveform/Wire Spirograph/Fumbling_Foo - Star Forge v7 (HAKAN mash-up) [[pixel theme]] 0-8 v2.milk",
+      "sha256": "94d6c47c543a6efa6e54c87250075935f125b470bf45acb96e29281971bdf72c",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 497,
+          "text": "per_frame_144=//obwohl das der gefuehlte Takt ist - >Problem mit Phasenkorrektur !"
+        },
+        {
+          "line": 504,
+          "text": "per_frame_151=//Problem: Fats Domino (1992) hat 55BPM -> Problem mit 110"
+        },
+        {
+          "line": 506,
+          "text": "per_frame_153=//Problem: U96 - Love religion (1995) beginnt mit BPM < 20"
+        }
+      ]
+    },
+    {
+      "path": "Waveform/Wire Spirograph/Fumbling_Foo, Martin, Orb, Flexi - Star Forge v7 (HAKAN mash-up) 2-55 [mixwithv6v1bass] remade7d 1.milk",
+      "sha256": "646f3c6b7124bae5951acbde1b8e24a7f2d6be4ec8d938717c567e1436aad966",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 497,
+          "text": "per_frame_144=//obwohl das der gefuehlte Takt ist - >Problem mit Phasenkorrektur !"
+        },
+        {
+          "line": 504,
+          "text": "per_frame_151=//Problem: Fats Domino (1992) hat 55BPM -> Problem mit 110"
+        },
+        {
+          "line": 506,
+          "text": "per_frame_153=//Problem: U96 - Love religion (1995) beginnt mit BPM < 20"
+        }
+      ]
+    },
+    {
+      "path": "Waveform/Wire Spirograph/Fumbling_Foo, Martin, Orb, Flexi - Star Forge v7 (HAKAN mash-up) 2-55 [mixwithv6v1bass] remade7d 4.milk",
+      "sha256": "c99d81b5399e885156176fb2fa7eb56e477633e25c93fb7cee00e27c2a899b67",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 497,
+          "text": "per_frame_144=//obwohl das der gefuehlte Takt ist - >Problem mit Phasenkorrektur !"
+        },
+        {
+          "line": 504,
+          "text": "per_frame_151=//Problem: Fats Domino (1992) hat 55BPM -> Problem mit 110"
+        },
+        {
+          "line": 506,
+          "text": "per_frame_153=//Problem: U96 - Love religion (1995) beginnt mit BPM < 20"
+        }
+      ]
+    },
+    {
+      "path": "Waveform/Wire Spirograph/Fumbling_Foo, Martin, Orb, Flexi - Star Forge v7 (HAKAN mash-up) 2-55 [mixwithv6v1bass] remade7d [[pixel theme]] 0-1 v1.milk",
+      "sha256": "968e232a92a6cf89d69902603895f6ffdfe72f40281be54631b0af2215ad7314",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 497,
+          "text": "per_frame_144=//obwohl das der gefuehlte Takt ist - >Problem mit Phasenkorrektur !"
+        },
+        {
+          "line": 504,
+          "text": "per_frame_151=//Problem: Fats Domino (1992) hat 55BPM -> Problem mit 110"
+        },
+        {
+          "line": 506,
+          "text": "per_frame_153=//Problem: U96 - Love religion (1995) beginnt mit BPM < 20"
+        }
+      ]
+    },
+    {
+      "path": "Waveform/Wire Spirograph/Fumbling_Foo, Martin, Orb, Flexi - Star Forge v7 (HAKAN mash-up) 2-55 [mixwithv6v1bass] remade7d [[pixel theme]] 0-2 {damaged publication}.milk",
+      "sha256": "ccfbb2b67dd6510842d4edb6176f109c7eea6123243d083378626679c759bdee",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 497,
+          "text": "per_frame_144=//obwohl das der gefuehlte Takt ist - >Problem mit Phasenkorrektur !"
+        },
+        {
+          "line": 504,
+          "text": "per_frame_151=//Problem: Fats Domino (1992) hat 55BPM -> Problem mit 110"
+        },
+        {
+          "line": 506,
+          "text": "per_frame_153=//Problem: U96 - Love religion (1995) beginnt mit BPM < 20"
+        }
+      ]
+    },
+    {
+      "path": "Waveform/Wire Spirograph/Fumbling_Foo, Martin, Orb, Flexi - Star Forge v7 (HAKAN mash-up) 2-55 [mixwithv6v1bass] remade7d [[pixel theme]] 0-3.milk",
+      "sha256": "a16e1dcd481eb4a0dce0b426cd969068dfe9a962c1cb1a2fd9d0e72c22ee682d",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 497,
+          "text": "per_frame_144=//obwohl das der gefuehlte Takt ist - >Problem mit Phasenkorrektur !"
+        },
+        {
+          "line": 504,
+          "text": "per_frame_151=//Problem: Fats Domino (1992) hat 55BPM -> Problem mit 110"
+        },
+        {
+          "line": 506,
+          "text": "per_frame_153=//Problem: U96 - Love religion (1995) beginnt mit BPM < 20"
+        }
+      ]
+    },
+    {
+      "path": "Waveform/Wire Spirograph/Fumbling_Foo, Martin, Orb, Flexi - Star Forge v7 (HAKAN mash-up) 2-55 [mixwithv6v1bass] remade7d [[pixel theme]] 0-4 v1 {storm of pixels}.milk",
+      "sha256": "19997c598fea2d5cbeed705cd1e4bc7e0d39f0d6dfef5d117ed623b099dead46",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 497,
+          "text": "per_frame_144=//obwohl das der gefuehlte Takt ist - >Problem mit Phasenkorrektur !"
+        },
+        {
+          "line": 504,
+          "text": "per_frame_151=//Problem: Fats Domino (1992) hat 55BPM -> Problem mit 110"
+        },
+        {
+          "line": 506,
+          "text": "per_frame_153=//Problem: U96 - Love religion (1995) beginnt mit BPM < 20"
+        }
+      ]
+    },
+    {
+      "path": "Waveform/Wire Spirograph/Fumbling_Foo, Martin, Orb, Flexi - Star Forge v7 (HAKAN mash-up) 2-55 [mixwithv6v1bass] remade7d [[pixel theme]] 0-7 v1 {more active}.milk",
+      "sha256": "3373439c10b2524fe2eff811ba457a64d3b3e222c514915bfa5a5b5749627da0",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 497,
+          "text": "per_frame_144=//obwohl das der gefuehlte Takt ist - >Problem mit Phasenkorrektur !"
+        },
+        {
+          "line": 504,
+          "text": "per_frame_151=//Problem: Fats Domino (1992) hat 55BPM -> Problem mit 110"
+        },
+        {
+          "line": 506,
+          "text": "per_frame_153=//Problem: U96 - Love religion (1995) beginnt mit BPM < 20"
+        }
+      ]
+    },
+    {
+      "path": "Waveform/Wire Spirograph/Fumbling_Foo, Martin, Orb, Flexi - Star Forge v7 (HAKAN mash-up) 2-55 [mixwithv6v1bass] remade7d [[pixel theme]] 0-7 v2 {more active}.milk",
+      "sha256": "eb2727a32b16feff5d11f170e0ba759496c840eb84bc7abce2773ebaee987dde",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 497,
+          "text": "per_frame_144=//obwohl das der gefuehlte Takt ist - >Problem mit Phasenkorrektur !"
+        },
+        {
+          "line": 504,
+          "text": "per_frame_151=//Problem: Fats Domino (1992) hat 55BPM -> Problem mit 110"
+        },
+        {
+          "line": 506,
+          "text": "per_frame_153=//Problem: U96 - Love religion (1995) beginnt mit BPM < 20"
+        }
+      ]
+    },
+    {
+      "path": "Waveform/Wire Tangle/EVET - 3D Gravity Waves.milk",
+      "sha256": "92c15c7ee7f94270be48dd5c6a0f926047f91a5e4731c9e4dc0de111566ac989",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 388,
+          "text": "warp_89=`written by martin"
+        }
+      ]
+    },
+    {
+      "path": "Waveform/Wire Tangle/EVET - 3D Neutrinos.milk",
+      "sha256": "08f03f30fc2473c90acc923ac30d1ecf4d3404cfdb468cc9a1c6419e677030ae",
+      "decoding": "utf-8",
+      "candidateLines": [
+        {
+          "line": 388,
+          "text": "warp_89=`written by martin"
+        }
+      ]
+    }
+  ]
+}

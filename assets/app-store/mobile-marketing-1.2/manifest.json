@@ -1,0 +1,173 @@
+{
+  "appVersion": "1.2",
+  "appBuild": "10",
+  "renderedAt": "2026-10-22T23:10:22.126Z",
+  "sources": [
+    {
+      "file": "iphone-studio.png",
+      "sha256": "bcd9464ac807c05b3792bd43c1962113ce0544900709f9937c7b4dfc14ff00e4"
+    },
+    {
+      "file": "iphone-fullscreen.png",
+      "sha256": "68ca166590708d56fe2efaabd4a1ea50ea3bd28870420aa8113174e86687f999"
+    },
+    {
+      "file": "iphone-style.png",
+      "sha256": "362360f99bb581f64afc9479588eb5ddbbf12f4f0792f7a94a76ae60d3483bd0"
+    },
+    {
+      "file": "iphone-radio.png",
+      "sha256": "8860cc56663c2b3e7dcd426bbeebd0a0e9e8e2f3898f6aa750b712af05e4d55f"
+    },
+    {
+      "file": "iphone-library.png",
+      "sha256": "fbdb32046a561ea71d084c1cfb7f6228d5684ffe567adb06ca37b6233850cf4e"
+    },
+    {
+      "file": "iphone-export.png",
+      "sha256": "550bc4f0e2292b46495e9b5db3101aa3b9b056ed20e9fa2c97d7e11ef6a0a294"
+    },
+    {
+      "file": "iphone-callout-studio.png",
+      "sha256": "f843653f0c037efeeef07b00e4c7c5f6e3dd59eb6c34765dedab480fc84c7181"
+    },
+    {
+      "file": "iphone-callout-style.png",
+      "sha256": "6e505c907d93ab08ea121aa6535e13f6f2f08480dfe7b367aaf5851f7de4076d"
+    },
+    {
+      "file": "iphone-callout-radio.png",
+      "sha256": "b9f94072120e7df30af2f9bdefbba8fa22721cf1905ff8841f51610bac2a9eff"
+    },
+    {
+      "file": "iphone-callout-export.png",
+      "sha256": "f2d46c0c8f32c344a26eb236c967bed79cbd1268aea4a02f443bef44728a93be"
+    },
+    {
+      "file": "ipad-studio.png",
+      "sha256": "deeee92c6f1b50cca5f01d387e89a011e59794f87e5eeef091b957cf59e37ca2"
+    },
+    {
+      "file": "ipad-fullscreen.png",
+      "sha256": "fc921dae0c9cc7f6ab9507625baf55c07b846089d4953950faf136c3c9f10650"
+    },
+    {
+      "file": "ipad-style.png",
+      "sha256": "7fe18d52e0513d721bb8e23f98de48f5d262190eaaddf778f7dc1026b3cec481"
+    },
+    {
+      "file": "ipad-radio.png",
+      "sha256": "65d3a792a1266f5566379d22e1d9fbb274bd37e7308ee6894fa7d2922f142182"
+    },
+    {
+      "file": "ipad-library.png",
+      "sha256": "837b21856b4d7435904d02b1f38a4db931b14b469ac71f0c8a3964ff6de4fc58"
+    },
+    {
+      "file": "ipad-export.png",
+      "sha256": "63c077d1a7b96c625b2607611f864c8e7ad0e5f246222aa3f7aa08689ef606d6"
+    },
+    {
+      "file": "ipad-callout-studio.png",
+      "sha256": "fdceb8728928583e060b53f3d1e01a7d25cab4f7c4c2720a7d718f41c38ec9cc"
+    },
+    {
+      "file": "ipad-callout-style.png",
+      "sha256": "f3e6d38366a45b5b89387bb49dfd87f870f2a0674116f9862efefb680cbc6b5d"
+    },
+    {
+      "file": "ipad-callout-radio.png",
+      "sha256": "55f3c180f34c4770aa91cf60163fd03c790470985fd23bd3d3a3150fb890ca75"
+    },
+    {
+      "file": "ipad-callout-export.png",
+      "sha256": "aaa786f757957f2f82bd3e341d4660ad657c3897d34894dc45e29de3a5090194"
+    }
+  ],
+  "slides": [
+    {
+      "file": "iphone-01-music.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 1646304,
+      "sha256": "06d9818b56ad74e3abc9f38e24d35cf79940c30137cf225e91078657a815632f"
+    },
+    {
+      "file": "iphone-02-studio.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 1025196,
+      "sha256": "4e0e8e64b5bf3d61adba36a25b7f6b24ba4282f0c62217024f8d88c426bb95ca"
+    },
+    {
+      "file": "iphone-03-style.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 489797,
+      "sha256": "82fea9acbe9d3f2d8364e654675ee63c930643356bbd1d2a7ff61809c448d85b"
+    },
+    {
+      "file": "iphone-04-radio.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 665096,
+      "sha256": "7ba739547f7b253fa018eca738ea4076f533232e05c8e2cbca8265108dbb4491"
+    },
+    {
+      "file": "iphone-05-export.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 524796,
+      "sha256": "5a76b1748df57e72852ef3f47bbcbbb57ee0df35c816d9cb8b0ad533133c74c3"
+    },
+    {
+      "file": "iphone-06-free.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 494932,
+      "sha256": "bfe795ddc3547cccd0560c4c52bf9807d441e922c81a71941cdf52564d2b7e45"
+    },
+    {
+      "file": "ipad-01-music.png",
+      "width": 2752,
+      "height": 2064,
+      "bytes": 2547752,
+      "sha256": "2a2a1c4a607d091562b8ccde91815cebbec27a3c4322d2114688fff9d3b81ea4"
+    },
+    {
+      "file": "ipad-02-studio.png",
+      "width": 2752,
+      "height": 2064,
+      "bytes": 1534443,
+      "sha256": "eddb32876d0cf3d55ed997bcd992caab785feecc645c53fad48b50292cb8e8eb"
+    },
+    {
+      "file": "ipad-03-style.png",
+      "width": 2752,
+      "height": 2064,
+      "bytes": 899523,
+      "sha256": "bea06aefa28b84f1dc8552c767d78f98791b28dea3b19ff404d2e086e04bbcd5"
+    },
+    {
+      "file": "ipad-04-radio.png",
+      "width": 2752,
+      "height": 2064,
+      "bytes": 1367606,
+      "sha256": "82a5769e6675dd8018fc42db22e3b9f66ffa4042e3a5a034cac58bcc6a62525a"
+    },
+    {
+      "file": "ipad-05-export.png",
+      "width": 2752,
+      "height": 2064,
+      "bytes": 1080884,
+      "sha256": "b3aedd943938e7706a1fb193cca733c2357e09e7f1c3870ea22a08b6847f8717"
+    },
+    {
+      "file": "ipad-06-free.png",
+      "width": 2752,
+      "height": 2064,
+      "bytes": 1023249,
+      "sha256": "7dcc4f71410beb79a9f6be7349e32d809df6da5262e8084c0b727755ec269d1a"
+    }
+  ]
+}

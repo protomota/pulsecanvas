@@ -1,0 +1,57 @@
+{
+  "renderedAt": "2026-10-23T11:22:11.428Z",
+  "captures": [
+    {
+      "file": "iphone-studio.png",
+      "sha256": "7f3dbb76e9b9bc63fc5f8fc46a26e9aa9311738a5eea48665d3ed33fde7b4582"
+    },
+    {
+      "file": "ipad-studio.png",
+      "sha256": "c4e144881cc335fe73af545566fddf068b5c1452f76e1d8d28e311ce89b4ad9c"
+    },
+    {
+      "file": "mac-studio.png",
+      "sha256": "bc4d01f58ec42fa916aa997917ec856345d46209e0ec60fd59af217b5accc588"
+    },
+    {
+      "file": "vision-studio.png",
+      "sha256": "c7559647abae74b802d489eff2807fecb8b4e085d9b541785fd1bb4dbbc29053"
+    },
+    {
+      "file": "duo-closed-studio.png",
+      "sha256": "2292e30b6b1d062b585f66f8d7111955c1b5027092dad16b1a69aaa2447cc34d"
+    }
+  ],
+  "slides": [
+    {
+      "file": "iphone-all-devices.png",
+      "width": 1320,
+      "height": 2868,
+      "sha256": "8197de4bbafe37ccd839e5979a6a10cd4cab19b0f8191678fcde334f9882fe1e"
+    },
+    {
+      "file": "ipad-all-devices.png",
+      "width": 2752,
+      "height": 2064,
+      "sha256": "bf662f43450ed25a4ecfd51b08c937b813b0ec97b33ab22d7df968a3f4ae46f7"
+    },
+    {
+      "file": "duo-all-devices.png",
+      "width": 2853,
+      "height": 2007,
+      "sha256": "b85a9ad86fae2627cf15061a04623df7646a9b8de4eada5e91d2fd3408446852"
+    },
+    {
+      "file": "mac-all-devices.png",
+      "width": 2880,
+      "height": 1800,
+      "sha256": "b4fe88667583dd6aac67b23ffd120ff44df4575912a0813b4b36d5f5e025b88f"
+    },
+    {
+      "file": "vision-all-devices.png",
+      "width": 3840,
+      "height": 2160,
+      "sha256": "6fb9dbe95272c6924fc4f0ac834628c11d12091879cbeb25f1441ebdcd0b9cc7"
+    }
+  ]
+}

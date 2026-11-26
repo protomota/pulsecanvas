@@ -1,0 +1,108 @@
+{
+  "appVersion": "1.2",
+  "appBuild": "10",
+  "renderedAt": "2026-10-23T11:22:00.343Z",
+  "renderer": "Playwright Chromium, real simulator captures",
+  "sources": [
+    {
+      "file": "duo-inner-fullscreen.png",
+      "sha256": "2bded814411e60c6bb3827e26571b2601d382e3c12ba87d08a3cfe0b8390ced7"
+    },
+    {
+      "file": "duo-inner-studio.png",
+      "sha256": "8087ed0c74a7cbed484e995abbbec9af4b7f186844c4d0360241e0ff4c135436"
+    },
+    {
+      "file": "duo-inner-style.png",
+      "sha256": "403f58c6d57bbd7422b660ad5123ebfa973c899bca57a5bacbc44ee6c57a3273"
+    },
+    {
+      "file": "duo-inner-radio.png",
+      "sha256": "b6933ddebf3873d1ecf7cc8a0f7c16922f26bf3c7e5061ece6c41bb52d4e8e7b"
+    },
+    {
+      "file": "duo-inner-export.png",
+      "sha256": "b15eb5b2829fcdb768bcf3b0fff1fb2b2dd9f776bb348aa53be640c19619d80c"
+    },
+    {
+      "file": "duo-inner-library.png",
+      "sha256": "05420b7df9866204b30b8c98fc796abd803fc6c6c7a6076d9bea98aa63c14fbe"
+    },
+    {
+      "file": "duo-closed-hero.png",
+      "sha256": "5aea4f944678d322906e23ffdc110fe7943ef061c9a239160cc85e6107bdd0a3"
+    },
+    {
+      "file": "duo-inner-callout-studio.png",
+      "sha256": "43724a81e790678cad33595581a84719a306bd35b43b3a703ca04f87464cc19f"
+    },
+    {
+      "file": "duo-inner-callout-style.png",
+      "sha256": "3a87f49e0d039ad61347874ffcb5fa23d275b754a1bdf008703119195a4711a8"
+    },
+    {
+      "file": "duo-inner-callout-radio.png",
+      "sha256": "6a064c73cd3e67b0b049ffb28acbdce4cdf473afa4808ce49cbb8373a7861062"
+    },
+    {
+      "file": "duo-inner-callout-export.png",
+      "sha256": "781c218992e5dc193ebd4f95eb8b666d4d6ae61ff761f0b8723696d38f2a459f"
+    }
+  ],
+  "slides": [
+    {
+      "file": "duo-01-music.png",
+      "width": 2853,
+      "height": 2007,
+      "bytes": 2698797,
+      "sha256": "d8023b3249d7ba313113d2e1d7403ac08a6d5dc0d9450d83021153365ddfe743",
+      "copyBottom": 481.828125,
+      "title": "Your music. A new world."
+    },
+    {
+      "file": "duo-02-studio.png",
+      "width": 2853,
+      "height": 2007,
+      "bytes": 1376392,
+      "sha256": "cef3994ca8036bba1d041ae7468b47c505a76781c397f2fcc823f130579d3a6f",
+      "copyBottom": 481.828125,
+      "title": "Build a visual journey."
+    },
+    {
+      "file": "duo-03-style.png",
+      "width": 2853,
+      "height": 2007,
+      "bytes": 799995,
+      "sha256": "77eb45b634237a8cd05c9cb148cc5666d603924d831817d0a7623bc01028ec4a",
+      "copyBottom": 481.828125,
+      "title": "Shape every look."
+    },
+    {
+      "file": "duo-04-radio.png",
+      "width": 2853,
+      "height": 2007,
+      "bytes": 1482592,
+      "sha256": "31500b9923f26e60f15162e5a18ff90d34a729dbe0d89cf4d290a00e8f6bcb2f",
+      "copyBottom": 481.828125,
+      "title": "Tune in to Radio."
+    },
+    {
+      "file": "duo-05-export.png",
+      "width": 2853,
+      "height": 2007,
+      "bytes": 888096,
+      "sha256": "89930a82294ef890a9864bfe578d6ad08aff957937aa112d3a7b98e28c30dc4a",
+      "copyBottom": 481.828125,
+      "title": "From your phone to their feed."
+    },
+    {
+      "file": "duo-06-free.png",
+      "width": 2853,
+      "height": 2007,
+      "bytes": 2169798,
+      "sha256": "8416d3656230a4ab985bc7e5e204fad9ea42c3db58992d6ca890d784cceeaefd",
+      "copyBottom": 1594.921875,
+      "title": "Completelyfree."
+    }
+  ]
+}

@@ -1,0 +1,82 @@
+{
+  "build": "1.0.3 (13)",
+  "edition": "Mac App Store \u2014 native Metal only",
+  "activeNativeVisualizers": 240,
+  "dimensions": [
+    1440,
+    900
+  ],
+  "layout": "layouts.html",
+  "rendering": "Chrome browser screenshot of deterministic HTML/CSS; actual app captures uniformly reduced to 1080x675, with no screenshot retouching, added visual effects, fake UI or upscaling. Marketing artwork is limited to typography, app icon and a CSS background outside the app capture.",
+  "appleScreenshotSpecifications": "https://developer.apple.com/help/app-store-connect/reference/app-information/screenshot-specifications/",
+  "slides": [
+    {
+      "file": "01-music-in-motion.jpg",
+      "anchor": "music",
+      "sha256": "51bb0056f4e9ca9da0ae85382aab2fd26f0655fd3458ba53ae551bbf19a1f479",
+      "bytes": 126639,
+      "source": "../native-1.0.3-13/01-led-corridor.jpg",
+      "sourceSHA256": "f9c1e1ec11b0890d985fe1768f97d1951b078dbac3dd96c95d29086578dad837",
+      "imageInfo": {
+        "width": 1440,
+        "height": 900,
+        "components": 3
+      },
+      "appleAssetURL": "https://appstoreconnect.apple.com/apps/6821642700/distribution/asset-library/assets/44000019-69a0-81cc-8012-6e24cf30acca"
+    },
+    {
+      "file": "02-build-your-studio.jpg",
+      "anchor": "studio",
+      "sha256": "8e3ff1493fc24abff1fe877e836ebfc8ca8917342495729a431cfa4e0a6fa69b",
+      "bytes": 108579,
+      "source": "../native-1.0.3-13/03-studio.jpg",
+      "sourceSHA256": "7cffa9830b825835bc0c74a6e829dbceb29d82ae35a22e220e51cefd1e7cdceb",
+      "imageInfo": {
+        "width": 1440,
+        "height": 900,
+        "components": 3
+      },
+      "appleAssetURL": "https://appstoreconnect.apple.com/apps/6821642700/distribution/asset-library/assets/64400019-69a0-81cc-802c-31878bc9b2c7"
+    },
+    {
+      "file": "03-create-and-export.jpg",
+      "anchor": "export",
+      "sha256": "2b2eb12d7f2e8e7d9d4b61f0e9c1825120bef5e6dcbe55ae7132a39395838f26",
+      "bytes": 98844,
+      "source": "../native-1.0.3-13/02-molten-glass.jpg",
+      "sourceSHA256": "69ca6b05bb542330b4c2651e87467685e14d7d2447a087cf6032883d570d3448",
+      "imageInfo": {
+        "width": 1440,
+        "height": 900,
+        "components": 3
+      },
+      "appleAssetURL": "https://appstoreconnect.apple.com/apps/6821642700/distribution/asset-library/assets/08400019-69a0-81cc-8001-a3c3a8f1c62a"
+    }
+  ],
+  "uploadStatus": "Owner approved withdrawal and resubmission. All seven screenshots are saved on macOS version 1.0.3 in the verified order below. Same build 1.0.3 (13) resubmitted successfully; Apple showed 1 Item Submitted and Waiting for Review.",
+  "verifiedAt": "2026-10-13T21:34:53.305841+00:00",
+  "proof": [
+    "app-store-listing-submitted.jpg",
+    "app-store-submission-confirmed.jpg",
+    "app-store-asset-library.jpg"
+  ],
+  "listingOrder": [
+    "01-music-in-motion.jpg",
+    "02-build-your-studio.jpg",
+    "03-create-and-export.jpg",
+    "01-led-corridor.jpg",
+    "02-molten-glass.jpg",
+    "03-studio.jpg",
+    "05-aurora-fold.jpg"
+  ],
+  "submissionURL": "https://appstoreconnect.apple.com/apps/6821642700/distribution/reviewsubmissions/details/5944228d-078f-4759-8545-91a187802b05",
+  "buildID": "314e2cee-23d7-4bd1-b057-fef9c842381a",
+  "buildUnchanged": true,
+  "checksPassed": [
+    "Three opaque RGB JPEG masters, each 1440x900",
+    "All four actual native source screenshot hashes unchanged",
+    "Seven screenshot names and order verified after listing reload",
+    "Same build 1.0.3 (13) verified before and after resubmission",
+    "Apple confirmed 1 Item Submitted and Waiting for Review"
+  ]
+}

@@ -1,0 +1,8 @@
+PASS bundled soundtrack: 238-second MP3 loads paused, decodes PCM, resolves portable project references and respects removal
+PASS playback updates: renderer clock continues without editor/preset invalidations
+PASS Studio audio: repeated section loops with full-track Loop off/on, fractional boundaries, PCM analysis, independent pause, normal resume and stale callback invalidation
+PASS Studio card selection: paused preview stays paused, running playback switches and loops the chosen card, same-card selection stays playing, PCM/bounds and stale callbacks verified
+PASS Studio replay: rolls restart paused/playing sections from their exact start, preserve Loop and invalidate stale completion callbacks
+PASS presentation audio: resumes full soundtrack beyond section, retains Loop, stops at end and restarts
+PASS Loop: on by default, end stop when disabled, repeat with PCM analysis, pause, disable, clear
+PASS soundtrack: load, paused analysis, real FFT, playback, pause, seek, resume, clear

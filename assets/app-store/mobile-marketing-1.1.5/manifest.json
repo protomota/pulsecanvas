@@ -1,0 +1,86 @@
+[
+  {
+    "file": "ipad-01-music.png",
+    "width": 2752,
+    "height": 2064,
+    "mode": "RGB",
+    "sha256": "3b7a234d9aec4d02aa0d630f729fb054359f301b1cbf021f4709983a3f0d7de5"
+  },
+  {
+    "file": "ipad-02-studio.png",
+    "width": 2752,
+    "height": 2064,
+    "mode": "RGB",
+    "sha256": "1ba29c33b89f279e78b7dac8d39fa64474c0ff73bf8292f786d6a83c41978e73"
+  },
+  {
+    "file": "ipad-03-style.png",
+    "width": 2752,
+    "height": 2064,
+    "mode": "RGB",
+    "sha256": "1e6a39a41d16fc8d1bba94f5b2c38dfe5c38377657dc065416008eff42912fd7"
+  },
+  {
+    "file": "ipad-04-radio.png",
+    "width": 2752,
+    "height": 2064,
+    "mode": "RGB",
+    "sha256": "e8025d5ac854e1b1fa5cfc6aa965f078e4888405f0cf1a4ff739226dda808aea"
+  },
+  {
+    "file": "ipad-05-export.png",
+    "width": 2752,
+    "height": 2064,
+    "mode": "RGB",
+    "sha256": "14c4e4d3e245bdbf38100efc2891b62754ecf44fa3e1826de48b37ecdf8fa929"
+  },
+  {
+    "file": "ipad-06-free.png",
+    "width": 2752,
+    "height": 2064,
+    "mode": "RGB",
+    "sha256": "80bef0eebbbd57f676d91a99007c6144bcafdea2b0237ab705859bd2bf418f54"
+  },
+  {
+    "file": "iphone-01-music.png",
+    "width": 1320,
+    "height": 2868,
+    "mode": "RGB",
+    "sha256": "34bd9cf2236a1b8c8d41222dd85bc3c8e2f1c096759a9c106eeabe5149b253af"
+  },
+  {
+    "file": "iphone-02-studio.png",
+    "width": 1320,
+    "height": 2868,
+    "mode": "RGB",
+    "sha256": "f83a4faa5cdca3770727ce4081adf4eb2e8096c1cd34d07f68b2f2995c846b6c"
+  },
+  {
+    "file": "iphone-03-style.png",
+    "width": 1320,
+    "height": 2868,
+    "mode": "RGB",
+    "sha256": "54b9083a3672522f91cd1a5e4cfae11b8ef1c2516ffd4c11dc4351c533718ea4"
+  },
+  {
+    "file": "iphone-04-radio.png",
+    "width": 1320,
+    "height": 2868,
+    "mode": "RGB",
+    "sha256": "07d371d3f0936c8d430ba46d325b428214c0a65f749226df174ab606d36c70ef"
+  },
+  {
+    "file": "iphone-05-export.png",
+    "width": 1320,
+    "height": 2868,
+    "mode": "RGB",
+    "sha256": "f636799c20bb21457ea1b74b061c0f990d7aab5ae3c4fc14fe232a090a5387ee"
+  },
+  {
+    "file": "iphone-06-free.png",
+    "width": 1320,
+    "height": 2868,
+    "mode": "RGB",
+    "sha256": "fadc21361f3d4ee30bb70e3f5b1a322aa009df2d4763d7ba9e49135e44276a3e"
+  }
+]

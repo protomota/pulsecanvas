@@ -1,0 +1,31 @@
+{
+  "checked": 9783,
+  "gpuRenderChecked": 8790,
+  "familySkippedAfterConfirmation": 993,
+  "userReportedRemovals": 44,
+  "retained": 7839,
+  "removed": 1944,
+  "nativeVisualizers": 31,
+  "maximumFramesPerPreset": 90,
+  "minimumVisualCheckSeconds": 2,
+  "earlyExitForSlowEffects": true,
+  "familyExcluded": 1700,
+  "resolution": [
+    256,
+    144
+  ],
+  "minimumVisibleFraction": 0.01,
+  "minimumMotion": 5e-05,
+  "maximumFrameMilliseconds": 33,
+  "individualRechecks": 417,
+  "removedByReason": {
+    "Transition-only family does not provide a standalone visualization": 4,
+    "High-instance custom-shape family exceeds interactive playback budget": 1697,
+    "No visible motion": 26,
+    "Blank or almost invisible output": 130,
+    "Reported unsuitable by the user": 21,
+    "Repeated user-reported defects in the Core Mirror family": 60,
+    "Sustained solid white output": 4,
+    "Sustained frame time exceeds 33 ms at audit resolution": 2
+  }
+}

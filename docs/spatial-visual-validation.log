@@ -1,0 +1,13 @@
+Aurora Fold: 960x540, 20 completed GPU frames, mean 1.7136454582214355 ms/frame
+Pearl Terrain: 960x540, 20 completed GPU frames, mean 1.9203007221221924 ms/frame
+Octagon Vault: 960x540, 20 completed GPU frames, mean 0.5823493003845215 ms/frame
+PASS: Liquid detail changes GPU pixels (mean 31.317787422839505); dark cavities and bright reflections both cover visible areas
+Mercury Fold: 960x540, 20 completed GPU frames, mean 5.485349893569946 ms/frame
+Voltage Weave: 960x540, 20 completed GPU frames, mean 2.2810518741607666 ms/frame
+Ink Cyclone: 960x540, 20 completed GPU frames, mean 2.3548007011413574 ms/frame
+Prism Rain: 960x540, 20 completed GPU frames, mean 3.2925546169281006 ms/frame
+Monolith Rush: 960x540, 20 completed GPU frames, mean 2.5408029556274414 ms/frame
+PASS: Halo count changes GPU geometry, mean 38.089837480709875, visible pixels one/twelve 42237/341885
+Halo Engine: 960x540, 20 completed GPU frames, mean 5.781853199005127 ms/frame
+Tidal Glass: 960x540, 20 completed GPU frames, mean 1.86845064163208 ms/frame
+PASS: all 10 spatial designs are visually distinct using identical palette/settings; GPU captures saved for inspection

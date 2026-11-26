@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>PulseCanvas search results</title>
+<style>
+:root{--accent:#7f3fe0;--ink:#17121f;--muted:#4f4759}
+*{box-sizing:border-box}html,body{margin:0}
+.stage{position:relative;width:3840px;height:2560px;overflow:hidden;background:linear-gradient(160deg,#fdfcfe 0%,#f7f3fb 55%,#efe8f7 100%);font-family:"Avenir Next",Avenir,-apple-system,sans-serif;-webkit-font-smoothing:antialiased;color:var(--ink)}
+svg.bg{position:absolute;inset:0;width:100%;height:100%}
+.glow{position:absolute;border-radius:50%;filter:blur(220px);opacity:.5}
+.copy{position:absolute;left:250px;top:280px;width:1620px;z-index:3}
+.brand{display:flex;align-items:center;gap:40px;margin-bottom:120px}
+.brand img{width:190px;height:190px;border-radius:44px;box-shadow:0 20px 40px #2a1a4a33}
+.brand span{font-size:118px;font-weight:600;letter-spacing:-2px;color:#3b3346}
+h1{margin:0;font-size:226px;line-height:1.04;letter-spacing:-8px;font-weight:700;white-space:nowrap}
+h1 em{font-style:normal;color:var(--accent)}
+.sub{margin-top:80px;font-size:94px;line-height:1.2;letter-spacing:-2px;font-weight:600}
+.sub b{color:var(--accent)}
+.perks{margin-top:100px;display:flex;flex-direction:column;gap:40px}
+.perk{display:flex;align-items:center;gap:40px;font-size:84px;font-weight:700;letter-spacing:-1.5px}
+.perk i{flex:none;width:124px;height:124px;border-radius:38px;background:var(--c);display:grid;place-items:center;box-shadow:0 18px 40px color-mix(in srgb,var(--c) 40%,transparent)}
+.perk i svg{width:72px;height:72px}
+.perk small{font-size:68px;font-weight:500;color:var(--muted);margin-left:6px;letter-spacing:-1px}
+.label{position:absolute;z-index:4;font-size:96px;font-weight:700;letter-spacing:-3px}
+.phone{position:absolute;z-index:3;padding:16px;background:linear-gradient(120deg,#f4f3f5,#a3a1a7 22%,#f2f0f3 40%,#c9c7cc 80%,#85828a);border-radius:150px;box-shadow:0 70px 140px #2a1a4a38,0 14px 34px #1c123026,0 0 0 4px #ddd9e2}
+.phone .screen{border:12px solid #0b0b0c;border-radius:136px;overflow:hidden;background:#0b0b0c}
+.phone img{display:block;width:100%}
+</style></head><body>
+<div class="stage">
+ <svg class="bg" id="bg" viewBox="0 0 3840 2560" preserveAspectRatio="none"></svg>
+ <div class="glow" style="right:-200px;top:280px;width:1900px;height:1900px;background:#d9c6ff"></div>
+ <div class="glow" style="left:1700px;top:1600px;width:1000px;height:900px;background:#bfe9e2"></div>
+ <div class="copy">
+  <div class="brand"><img src="sources/icon.png" alt=""><span>PulseCanvas Studio</span></div>
+  <h1>Your music.<br><em>A new world.</em></h1>
+  <div class="sub"><b>300+ visualizers</b> that move<br>to your music.</div>
+  <div class="perks">
+   <div class="perk" style="--c:#3a5bd0"><i><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M8 5v14M16 5v14"/></svg></i>Studio<small>beat-aligned scenes</small></div>
+   <div class="perk" style="--c:#d85a35"><i><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2"/><path d="M16.2 7.8a6 6 0 0 1 0 8.4M7.8 16.2a6 6 0 0 1 0-8.4M19 5a10 10 0 0 1 0 14M5 19A10 10 0 0 1 5 5"/></svg></i>Radio<small>stations with visuals</small></div>
+   <div class="perk" style="--c:#b8690c"><i><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="14" height="12" rx="2"/><path d="m16 10 6-3v10l-6-3"/></svg></i>Export<small>MP4 up to 4K</small></div>
+   <div class="perk" style="--c:#7f3fe0"><i><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12v8H4v-8M2 7h20v5H2zM12 22V7M12 7H7.5a2.5 2.5 0 1 1 0-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 1 0 0-5C13 2 12 7 12 7z"/></svg></i>Free<small>no subscription, no ads</small></div>
+  </div>
+ </div>
+ <div class="label" style="left:1960px;top:300px">Full-screen visuals</div>
+ <div class="phone" style="left:1940px;top:470px;width:960px"><div class="screen"><img src="sources/iphone-fullscreen-clean.png" alt=""></div></div>
+ <div class="label" style="left:2950px;top:760px">Radio</div>
+ <div class="phone" style="left:2930px;top:930px;width:760px"><div class="screen"><img src="sources/iphone-radio.png" alt=""></div></div>
+</div>
+<script>
+// Soft ribbons in the slide accent colours along the bottom edge.
+const W=3840,H=2560,svg=document.getElementById('bg');
+const layers=[{y:.82,a:.10,amp:120,len:1,ph:0,c:'#0b8f80'},{y:.87,a:.10,amp:90,len:1.4,ph:1.8,c:'#3a5bd0'},{y:.92,a:.12,amp:70,len:.8,ph:3.1,c:'#7f3fe0'}];
+svg.innerHTML=layers.map(l=>{let d=`M0 ${H} `;for(let x=0;x<=W;x+=32){const y=H*l.y+l.amp*Math.sin(x/W*Math.PI*2*l.len+l.ph)+l.amp*.35*Math.sin(x/W*Math.PI*6*l.len-l.ph);d+=`L${x} ${y.toFixed(1)} `}return `<path d="${d}L${W} ${H} Z" fill="${l.c}" fill-opacity="${l.a}"/>`}).join('');
+</script></body></html>

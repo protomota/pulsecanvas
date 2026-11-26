@@ -1,0 +1,7 @@
+PASS: no fabricated rhythm over sustained melody; sparse drive 0.25406623, dense drive 0.5894651, quiet release 0.06712637; every kick within 70 ms
+PASS: all seven off-grid treble attacks flash at 24 fps
+PASS: all seven off-grid treble attacks flash at 30 fps
+PASS: all seven off-grid treble attacks flash at 60 fps
+PASS: bass-only PCM triggers no white flashes
+PASS: 120 BPM detected, four-bar sections aligned to source beats, deterministic boundaries [0.0, 8.102, 16.102, 24.102, 25.0]
+PASS: 1–8 and 12 bar cadence preserves full-song coverage and requested beat-aligned spacing

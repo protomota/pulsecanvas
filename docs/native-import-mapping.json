@@ -1,0 +1,505 @@
+{
+  "note": "Explicit mapping between unpublished development catalogs; no user projects or preferences were rewritten. Shared 0-99 IDs retain the worktree implementation.",
+  "effects": [
+    {
+      "name": "Chromatic Speedway",
+      "mainDevelopmentIdentity": "native:100",
+      "combinedIdentity": "native:200"
+    },
+    {
+      "name": "Iridescent Raceway",
+      "mainDevelopmentIdentity": "native:101",
+      "combinedIdentity": "native:201"
+    },
+    {
+      "name": "Cobalt Catapult",
+      "mainDevelopmentIdentity": "native:102",
+      "combinedIdentity": "native:202"
+    },
+    {
+      "name": "Tangerine Rocket",
+      "mainDevelopmentIdentity": "native:103",
+      "combinedIdentity": "native:203"
+    },
+    {
+      "name": "Prismatic Overdrive",
+      "mainDevelopmentIdentity": "native:104",
+      "combinedIdentity": "native:204"
+    },
+    {
+      "name": "Scarlet Slipstream",
+      "mainDevelopmentIdentity": "native:105",
+      "combinedIdentity": "native:205"
+    },
+    {
+      "name": "Laser Autobahn",
+      "mainDevelopmentIdentity": "native:106",
+      "combinedIdentity": "native:206"
+    },
+    {
+      "name": "Rainbow Riptide",
+      "mainDevelopmentIdentity": "native:107",
+      "combinedIdentity": "native:207"
+    },
+    {
+      "name": "Electric Switchback",
+      "mainDevelopmentIdentity": "native:108",
+      "combinedIdentity": "native:208"
+    },
+    {
+      "name": "Disco Transit",
+      "mainDevelopmentIdentity": "native:109",
+      "combinedIdentity": "native:209"
+    },
+    {
+      "name": "Velvet Samba",
+      "mainDevelopmentIdentity": "native:110",
+      "combinedIdentity": "native:210"
+    },
+    {
+      "name": "Neon Caper",
+      "mainDevelopmentIdentity": "native:111",
+      "combinedIdentity": "native:211"
+    },
+    {
+      "name": "Carnival Pulse",
+      "mainDevelopmentIdentity": "native:112",
+      "combinedIdentity": "native:212"
+    },
+    {
+      "name": "Ribbon Rumba",
+      "mainDevelopmentIdentity": "native:113",
+      "combinedIdentity": "native:213"
+    },
+    {
+      "name": "Elastic Jive",
+      "mainDevelopmentIdentity": "native:114",
+      "combinedIdentity": "native:214"
+    },
+    {
+      "name": "Liquid Tango",
+      "mainDevelopmentIdentity": "native:115",
+      "combinedIdentity": "native:215"
+    },
+    {
+      "name": "Prism Pirouette",
+      "mainDevelopmentIdentity": "native:116",
+      "combinedIdentity": "native:216"
+    },
+    {
+      "name": "Orbit Salsa",
+      "mainDevelopmentIdentity": "native:117",
+      "combinedIdentity": "native:217"
+    },
+    {
+      "name": "Molten Mambo",
+      "mainDevelopmentIdentity": "native:118",
+      "combinedIdentity": "native:218"
+    },
+    {
+      "name": "Vivid Foxtrot",
+      "mainDevelopmentIdentity": "native:119",
+      "combinedIdentity": "native:219"
+    },
+    {
+      "name": "Fuchsia Flyway",
+      "mainDevelopmentIdentity": "native:120",
+      "combinedIdentity": "native:220"
+    },
+    {
+      "name": "Amber Aqueduct",
+      "mainDevelopmentIdentity": "native:121",
+      "combinedIdentity": "native:221"
+    },
+    {
+      "name": "Photon Overpass",
+      "mainDevelopmentIdentity": "native:122",
+      "combinedIdentity": "native:222"
+    },
+    {
+      "name": "Indigo Escalator",
+      "mainDevelopmentIdentity": "native:123",
+      "combinedIdentity": "native:223"
+    },
+    {
+      "name": "Solar Slalom",
+      "mainDevelopmentIdentity": "native:124",
+      "combinedIdentity": "native:224"
+    },
+    {
+      "name": "Glacial Sprint",
+      "mainDevelopmentIdentity": "native:125",
+      "combinedIdentity": "native:225"
+    },
+    {
+      "name": "Velour Velocity",
+      "mainDevelopmentIdentity": "native:126",
+      "combinedIdentity": "native:226"
+    },
+    {
+      "name": "Plasma Rally",
+      "mainDevelopmentIdentity": "native:127",
+      "combinedIdentity": "native:227"
+    },
+    {
+      "name": "Crystal Causeway",
+      "mainDevelopmentIdentity": "native:128",
+      "combinedIdentity": "native:228"
+    },
+    {
+      "name": "Luminous Lift",
+      "mainDevelopmentIdentity": "native:129",
+      "combinedIdentity": "native:229"
+    },
+    {
+      "name": "Arc Jetstream",
+      "mainDevelopmentIdentity": "native:130",
+      "combinedIdentity": "native:230"
+    },
+    {
+      "name": "Ruby Rollway",
+      "mainDevelopmentIdentity": "native:131",
+      "combinedIdentity": "native:231"
+    },
+    {
+      "name": "Neon Regatta",
+      "mainDevelopmentIdentity": "native:132",
+      "combinedIdentity": "native:232"
+    },
+    {
+      "name": "Radiant Runway",
+      "mainDevelopmentIdentity": "native:133",
+      "combinedIdentity": "native:233"
+    },
+    {
+      "name": "Electric Viaduct",
+      "mainDevelopmentIdentity": "native:134",
+      "combinedIdentity": "native:234"
+    },
+    {
+      "name": "Orbit Express",
+      "mainDevelopmentIdentity": "native:135",
+      "combinedIdentity": "native:235"
+    },
+    {
+      "name": "Molten Highway",
+      "mainDevelopmentIdentity": "native:136",
+      "combinedIdentity": "native:236"
+    },
+    {
+      "name": "Violet Flight",
+      "mainDevelopmentIdentity": "native:137",
+      "combinedIdentity": "native:237"
+    },
+    {
+      "name": "Emerald Launch",
+      "mainDevelopmentIdentity": "native:138",
+      "combinedIdentity": "native:238"
+    },
+    {
+      "name": "Coral Driftway",
+      "mainDevelopmentIdentity": "native:139",
+      "combinedIdentity": "native:239"
+    },
+    {
+      "name": "Azure Ascent",
+      "mainDevelopmentIdentity": "native:140",
+      "combinedIdentity": "native:240"
+    },
+    {
+      "name": "Festival Cruise",
+      "mainDevelopmentIdentity": "native:141",
+      "combinedIdentity": "native:241"
+    },
+    {
+      "name": "Quantum Sled",
+      "mainDevelopmentIdentity": "native:142",
+      "combinedIdentity": "native:242"
+    },
+    {
+      "name": "Citrus Surge",
+      "mainDevelopmentIdentity": "native:143",
+      "combinedIdentity": "native:243"
+    },
+    {
+      "name": "Starlight Pursuit",
+      "mainDevelopmentIdentity": "native:144",
+      "combinedIdentity": "native:244"
+    },
+    {
+      "name": "Saffron Spindle",
+      "mainDevelopmentIdentity": "native:145",
+      "combinedIdentity": "native:245"
+    },
+    {
+      "name": "Opaline Iris",
+      "mainDevelopmentIdentity": "native:146",
+      "combinedIdentity": "native:246"
+    },
+    {
+      "name": "Electric Helicoid",
+      "mainDevelopmentIdentity": "native:147",
+      "combinedIdentity": "native:247"
+    },
+    {
+      "name": "Ultramarine Arcade",
+      "mainDevelopmentIdentity": "native:148",
+      "combinedIdentity": "native:248"
+    },
+    {
+      "name": "Fuchsia Furnace",
+      "mainDevelopmentIdentity": "native:149",
+      "combinedIdentity": "native:249"
+    },
+    {
+      "name": "Amber Aperture",
+      "mainDevelopmentIdentity": "native:150",
+      "combinedIdentity": "native:250"
+    },
+    {
+      "name": "Aurora Corkscrew",
+      "mainDevelopmentIdentity": "native:151",
+      "combinedIdentity": "native:251"
+    },
+    {
+      "name": "Prism Portals",
+      "mainDevelopmentIdentity": "native:152",
+      "combinedIdentity": "native:252"
+    },
+    {
+      "name": "Magenta Conduit",
+      "mainDevelopmentIdentity": "native:153",
+      "combinedIdentity": "native:253"
+    },
+    {
+      "name": "Verdant Spiral",
+      "mainDevelopmentIdentity": "native:154",
+      "combinedIdentity": "native:254"
+    },
+    {
+      "name": "Sapphire Cascade",
+      "mainDevelopmentIdentity": "native:155",
+      "combinedIdentity": "native:255"
+    },
+    {
+      "name": "Garnet Gallery",
+      "mainDevelopmentIdentity": "native:156",
+      "combinedIdentity": "native:256"
+    },
+    {
+      "name": "Luminous Nautilus",
+      "mainDevelopmentIdentity": "native:157",
+      "combinedIdentity": "native:257"
+    },
+    {
+      "name": "Indigo Infinity",
+      "mainDevelopmentIdentity": "native:158",
+      "combinedIdentity": "native:258"
+    },
+    {
+      "name": "Golden Gyre",
+      "mainDevelopmentIdentity": "native:159",
+      "combinedIdentity": "native:259"
+    },
+    {
+      "name": "Fluid Odyssey",
+      "mainDevelopmentIdentity": "native:160",
+      "combinedIdentity": "native:260"
+    },
+    {
+      "name": "Photon Petals",
+      "mainDevelopmentIdentity": "native:161",
+      "combinedIdentity": "native:261"
+    },
+    {
+      "name": "Neon Needle",
+      "mainDevelopmentIdentity": "native:162",
+      "combinedIdentity": "native:262"
+    },
+    {
+      "name": "Astral Torque",
+      "mainDevelopmentIdentity": "native:163",
+      "combinedIdentity": "native:263"
+    },
+    {
+      "name": "Chrome Comet",
+      "mainDevelopmentIdentity": "native:164",
+      "combinedIdentity": "native:264"
+    },
+    {
+      "name": "Candy Cathedral",
+      "mainDevelopmentIdentity": "native:165",
+      "combinedIdentity": "native:265"
+    },
+    {
+      "name": "Scarlet Siphon",
+      "mainDevelopmentIdentity": "native:166",
+      "combinedIdentity": "native:266"
+    },
+    {
+      "name": "Emerald Echo",
+      "mainDevelopmentIdentity": "native:167",
+      "combinedIdentity": "native:267"
+    },
+    {
+      "name": "Arctic Raceway",
+      "mainDevelopmentIdentity": "native:168",
+      "combinedIdentity": "native:268"
+    },
+    {
+      "name": "Plasma Passage",
+      "mainDevelopmentIdentity": "native:169",
+      "combinedIdentity": "native:269"
+    },
+    {
+      "name": "Violet Velocity",
+      "mainDevelopmentIdentity": "native:170",
+      "combinedIdentity": "native:270"
+    },
+    {
+      "name": "Tangerine Turbine",
+      "mainDevelopmentIdentity": "native:171",
+      "combinedIdentity": "native:271"
+    },
+    {
+      "name": "Cerulean Shell",
+      "mainDevelopmentIdentity": "native:172",
+      "combinedIdentity": "native:272"
+    },
+    {
+      "name": "Disco Helix",
+      "mainDevelopmentIdentity": "native:173",
+      "combinedIdentity": "native:273"
+    },
+    {
+      "name": "Iridescent Descent",
+      "mainDevelopmentIdentity": "native:174",
+      "combinedIdentity": "native:274"
+    },
+    {
+      "name": "Solar Serpent",
+      "mainDevelopmentIdentity": "native:175",
+      "combinedIdentity": "native:275"
+    },
+    {
+      "name": "Rainbow Reactor",
+      "mainDevelopmentIdentity": "native:176",
+      "combinedIdentity": "native:276"
+    },
+    {
+      "name": "Velvet Wormhole",
+      "mainDevelopmentIdentity": "native:177",
+      "combinedIdentity": "native:277"
+    },
+    {
+      "name": "Crystal Carousel",
+      "mainDevelopmentIdentity": "native:178",
+      "combinedIdentity": "native:278"
+    },
+    {
+      "name": "Neon Maelstrom",
+      "mainDevelopmentIdentity": "native:179",
+      "combinedIdentity": "native:279"
+    },
+    {
+      "name": "Radiant Rondo",
+      "mainDevelopmentIdentity": "native:180",
+      "combinedIdentity": "native:280"
+    },
+    {
+      "name": "Fuchsia Fandango",
+      "mainDevelopmentIdentity": "native:181",
+      "combinedIdentity": "native:281"
+    },
+    {
+      "name": "Satin Shuffle",
+      "mainDevelopmentIdentity": "native:182",
+      "combinedIdentity": "native:282"
+    },
+    {
+      "name": "Chromatic Charleston",
+      "mainDevelopmentIdentity": "native:183",
+      "combinedIdentity": "native:283"
+    },
+    {
+      "name": "Prismatic Polka",
+      "mainDevelopmentIdentity": "native:184",
+      "combinedIdentity": "native:284"
+    },
+    {
+      "name": "Neon Bolero",
+      "mainDevelopmentIdentity": "native:185",
+      "combinedIdentity": "native:285"
+    },
+    {
+      "name": "Pearlescent Swing",
+      "mainDevelopmentIdentity": "native:186",
+      "combinedIdentity": "native:286"
+    },
+    {
+      "name": "Solar Sway",
+      "mainDevelopmentIdentity": "native:187",
+      "combinedIdentity": "native:287"
+    },
+    {
+      "name": "Liquid Limbo",
+      "mainDevelopmentIdentity": "native:188",
+      "combinedIdentity": "native:288"
+    },
+    {
+      "name": "Violet Vogue",
+      "mainDevelopmentIdentity": "native:189",
+      "combinedIdentity": "native:289"
+    },
+    {
+      "name": "Disco Ripple",
+      "mainDevelopmentIdentity": "native:190",
+      "combinedIdentity": "native:290"
+    },
+    {
+      "name": "Gilded Groove",
+      "mainDevelopmentIdentity": "native:191",
+      "combinedIdentity": "native:291"
+    },
+    {
+      "name": "Aurora Waltz",
+      "mainDevelopmentIdentity": "native:192",
+      "combinedIdentity": "native:292"
+    },
+    {
+      "name": "Elastic Anthem",
+      "mainDevelopmentIdentity": "native:193",
+      "combinedIdentity": "native:293"
+    },
+    {
+      "name": "Crimson Cadence",
+      "mainDevelopmentIdentity": "native:194",
+      "combinedIdentity": "native:294"
+    },
+    {
+      "name": "Sapphire Stomp",
+      "mainDevelopmentIdentity": "native:195",
+      "combinedIdentity": "native:295"
+    },
+    {
+      "name": "Coral Crescendo",
+      "mainDevelopmentIdentity": "native:196",
+      "combinedIdentity": "native:296"
+    },
+    {
+      "name": "Electric Encore",
+      "mainDevelopmentIdentity": "native:197",
+      "combinedIdentity": "native:297"
+    },
+    {
+      "name": "Luminous Lockstep",
+      "mainDevelopmentIdentity": "native:198",
+      "combinedIdentity": "native:298"
+    },
+    {
+      "name": "Festival Finale",
+      "mainDevelopmentIdentity": "native:199",
+      "combinedIdentity": "native:299"
+    }
+  ]
+}
