@@ -8,8 +8,8 @@ struct MobileSupportLinks: View {
     @Environment(\.openURL) private var openURL
     var body: some View {
         Group {
-            Button { visit(.review, url: PulseCanvasCommunity.feedback) } label: {
-                row("Share Your Experience", systemImage: "star")
+            Button { visit(.review, url: PulseCanvasCommunity.review) } label: {
+                row("Rate on the App Store", systemImage: "star")
             }.accessibilityIdentifier("settingsRatePulseCanvas")
             ShareLink(item: PulseCanvasCommunity.website) { row("Share PulseCanvas", systemImage: "square.and.arrow.up") }
                 .simultaneousGesture(TapGesture().onEnded { engagement.recordClick(.share) })
@@ -21,7 +21,7 @@ struct MobileSupportLinks: View {
                 .accessibilityIdentifier("settingsAtomApps")
             Button { visit(.support, url: PulseCanvasCommunity.support) } label: {
                 VStack(alignment: .leading, spacing: 2) {
-                    Label("Technical Support", systemImage: "headphones")
+                    Label("Get support", systemImage: "headphones")
                     Text("We read every note")
                         .font(.footnote).foregroundStyle(.secondary)
                 }.frame(maxWidth: .infinity, minHeight: 44, alignment: .leading).contentShape(Rectangle())
@@ -91,7 +91,7 @@ struct MobileSupportCard: View {
             ScrollView {
                 VStack(spacing: 8) {
                     Button { visit(.review, url: PulseCanvasCommunity.review) } label: {
-                        action("Rate PulseCanvas", subtitle: "A quick rating helps more people find it", icon: "star", kind: .review)
+                        action("Rate on the App Store", subtitle: "A quick rating helps more people find it", icon: "star", kind: .review)
                     }.buttonStyle(.plain).accessibilityIdentifier("supportReview")
                     Button { visit(.feedback, url: PulseCanvasCommunity.feedback) } label: {
                         action("Send Feedback", subtitle: "Help shape what comes next", icon: "bubble.left.and.bubble.right", kind: .feedback)
@@ -102,7 +102,7 @@ struct MobileSupportCard: View {
                         .simultaneousGesture(TapGesture().onEnded { engagement.recordClick(.share) })
                         .accessibilityIdentifier("supportShare")
                     Button { visit(.support, url: PulseCanvasCommunity.support) } label: {
-                        action("Send Feedback", subtitle: "We read every note", icon: "headphones", kind: .support)
+                        action("Get support", subtitle: "We read every note", icon: "headphones", kind: .support)
                     }.buttonStyle(.plain).accessibilityIdentifier("supportTicket")
                     Button { visit(.apps, url: PulseCanvasCommunity.apps) } label: {
                         action("More Free Apps from Project ATOM", subtitle: "Every one is a Project ATOM project", icon: "square.grid.2x2", kind: .apps)

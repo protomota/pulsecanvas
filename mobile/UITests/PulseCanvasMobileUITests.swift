@@ -365,6 +365,34 @@ final class PulseCanvasMobileUITests: XCTestCase {
         }
     }
 
+    /// Settings shows the About credit, Rate on the App Store and Get support, with screenshots of each part.
+    @MainActor func testSettingsShowsRatingSupportAndCredit() {
+        let app = XCUIApplication()
+        app.launchArguments = ["-PCMobileQA"]
+        app.launch()
+        let actions = app.buttons["Project actions"]
+        XCTAssertTrue(actions.waitForExistence(timeout: 60))
+        actions.tap()
+        app.buttons["Settings"].tap()
+        XCTAssertTrue(app.staticTexts["A Project ATOM project"].waitForExistence(timeout: 10))
+        attachSettings(app, name: "Settings about")
+        let rate = app.buttons["settingsRatePulseCanvas"]
+        for _ in 0..<12 where !rate.isHittable { app.swipeUp(velocity: .slow) }
+        XCTAssertTrue(rate.isHittable)
+        XCTAssertTrue(rate.label.contains("Rate on the App Store"))
+        let support = app.buttons["settingsTechnicalSupport"]
+        for _ in 0..<4 where !support.isHittable { app.swipeUp(velocity: .slow) }
+        XCTAssertTrue(support.label.contains("Get support"))
+        attachSettings(app, name: "Settings support")
+    }
+
+    @MainActor private func attachSettings(_ app: XCUIApplication, name: String) {
+        let shot = XCTAttachment(screenshot: app.screenshot())
+        shot.name = name
+        shot.lifetime = .keepAlways
+        add(shot)
+    }
+
     @MainActor func testLibraryOnlyBrowsingAndSettingsAlwaysRestartOnboarding() {
         verifyLibraryAndOnboardingReplay(landscape: true)
     }

@@ -89,7 +89,7 @@ final class CreatorEngagement: ObservableObject {
         clickedActions = []
     }
 
-    /// Ask Apple once, after five actions, unless Share Your Experience was clicked. Callers also
+    /// Ask Apple once, after five actions, unless Rate on the App Store was clicked. Callers also
     /// require a production App Store install, so direct downloads and TestFlight never ask.
     var reviewDue: Bool {
         storedCount >= Self.milestone && !preferences.bool(forKey: Self.reviewKey) && !hasClicked(.review)

@@ -58,7 +58,7 @@ struct VisionInfoView: View {
                 replayOnboarding()
             }.accessibilityIdentifier("settingsWelcomePulseCanvas")
             Link(destination: PulseCanvasCommunity.support) {
-                Label("Get App Help", systemImage: "questionmark.circle")
+                Label("Get support", systemImage: "questionmark.circle")
             }
             Text("Free software.\nSupported by people.").font(.largeTitle.bold())
             Text("PulseCanvas Studio is free, with every feature included. Your ratings, sharing and feedback help more people discover the app and help us keep building.")
@@ -90,7 +90,7 @@ struct VisionInfoView: View {
     private var legal: some View {
         VStack(alignment: .leading, spacing: 20) {
             Text("A Project ATOM project").foregroundStyle(.secondary)
-            Link("Source code on GitHub", destination: URL(string: "https://github.com/protomota/pulsecanvas")!)
+            Link("Source code on GitHub", destination: URL(string: "https://github.com/projectatomai/pulsecanvas")!)
             Text(Bundle.main.url(forResource: "PulseCanvas-LICENSE", withExtension: "txt", subdirectory: "Legal")
                 .flatMap { try? String(contentsOf: $0, encoding: .utf8) } ?? "License unavailable")
                 .font(.body).textSelection(.enabled)

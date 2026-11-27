@@ -36,7 +36,7 @@ struct CreatorThanksView: View {
                 VStack(alignment: .leading, spacing: 20) {
                     VStack(spacing: 10) {
                         Button { visit(.review, url: PulseCanvasCommunity.review) } label: {
-                            action("Rate PulseCanvas", detail: "A quick rating helps more people find it", icon: "star", kind: .review)
+                            action("Rate on the App Store", detail: "A quick rating helps more people find it", icon: "star", kind: .review)
                         }.buttonStyle(StudioButtonStyle()).accessibilityIdentifier("supportReview")
                         Button { visit(.feedback, url: PulseCanvasCommunity.feedback) } label: {
                             action("Send Feedback", detail: "Help shape what comes next", icon: "bubble.left.and.bubble.right", kind: .feedback)
@@ -49,7 +49,7 @@ struct CreatorThanksView: View {
                         }.buttonStyle(StudioButtonStyle()).background(CommunityShareAnchor(view: shareAnchor))
                             .accessibilityIdentifier("supportShare")
                         Button { visit(.support, url: PulseCanvasCommunity.support) } label: {
-                            action("Send Feedback", detail: "We read every note", icon: "headphones", kind: .support)
+                            action("Get support", detail: "We read every note", icon: "headphones", kind: .support)
                         }.buttonStyle(StudioButtonStyle()).accessibilityIdentifier("supportTicket")
                         Button { visit(.apps, url: PulseCanvasCommunity.apps) } label: {
                             action("More Free Apps from Project ATOM", detail: "Every one is a Project ATOM project", icon: "square.grid.2x2", kind: .apps)
@@ -162,8 +162,8 @@ struct PulseCanvasSupportLinks: View {
     var body: some View {
         Button {
             engagement.recordClick(.review)
-            openURL(PulseCanvasCommunity.feedback)
-        } label: { Label("Share Your Experience", systemImage: "star") }
+            openURL(PulseCanvasCommunity.review)
+        } label: { Label("Rate on the App Store", systemImage: "star") }
             .accessibilityIdentifier("settingsRatePulseCanvas")
         Button { showingSupport = true } label: { Label("Rate, share, or send feedback", systemImage: "heart") }
             .accessibilityIdentifier("settingsSupportPulseCanvasCard")
@@ -172,7 +172,7 @@ struct PulseCanvasSupportLinks: View {
             }
         Button { engagement.recordClick(.support); openURL(PulseCanvasCommunity.support) } label: {
             VStack(alignment: .leading, spacing: 2) {
-                Label("Technical Support", systemImage: "headphones")
+                Label("Get support", systemImage: "headphones")
                 Text("We read every note")
                     .font(.callout).foregroundStyle(.secondary).padding(.leading, 28)
             }

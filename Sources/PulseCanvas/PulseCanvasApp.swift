@@ -123,7 +123,7 @@ struct PulseCanvasApp: App {
         #endif
         .commands {
             CommandGroup(after: .help) {
-                Button("Get App Help") { NSWorkspace.shared.open(PulseCanvasCommunity.support) }
+                Button("Get support") { NSWorkspace.shared.open(PulseCanvasCommunity.support) }
             }
             CommandGroup(after: .appInfo) {
                 Button("Welcome to PulseCanvas Studio") {
@@ -376,12 +376,12 @@ struct CreatorView: View {
                 }
                 Button {
                     engagement.recordClick(.review)
-                    NSWorkspace.shared.open(PulseCanvasCommunity.feedback)
+                    NSWorkspace.shared.open(PulseCanvasCommunity.review)
                 } label: {
-                    Label("Share Your Experience", systemImage: "star")
+                    Label("Rate on the App Store", systemImage: "star")
                         .frame(maxWidth: .infinity, alignment: .leading)
                 }.buttonStyle(StudioButtonStyle(treatment: .primary))
-                Button("Get App Help") { NSWorkspace.shared.open(PulseCanvasCommunity.support) }
+                Button("Get support") { NSWorkspace.shared.open(PulseCanvasCommunity.support) }
                     .buttonStyle(StudioButtonStyle())
                 Button("More Information & Support") { showCommunityInHelp = true }
                     .buttonStyle(StudioButtonStyle())

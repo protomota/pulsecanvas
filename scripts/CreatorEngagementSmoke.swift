@@ -47,7 +47,7 @@ import Foundation
         preferences.set(true, forKey: "PulseCanvas.engagement.firstVideoSaved.v1")
         precondition(E(preferences: preferences).completedActions == 1)
 
-        // Share Your Experience or an earlier build's request means Apple is never asked.
+        // Rate on the App Store or an earlier build's request means Apple is never asked.
         fresh()
         state = E(preferences: preferences)
         state.recordClick(.review)
