@@ -1,7 +1,7 @@
 import SwiftUI
 import UIKit
 
-/// iPhone and iPad Settings rows, matching every Protomota app.
+/// iPhone and iPad Settings rows, matching every one of our apps.
 struct MobileSupportLinks: View {
     @ObservedObject var engagement: CreatorEngagement
     @State private var showingSupport = false
@@ -17,8 +17,8 @@ struct MobileSupportLinks: View {
             Button { visit(.feedback, url: PulseCanvasCommunity.feedback) } label: {
                 row("Send Feedback", systemImage: "bubble.left.and.bubble.right")
             }.accessibilityIdentifier("settingsFeedbackPulseCanvas")
-            Button { visit(.apps, url: PulseCanvasCommunity.apps) } label: { row("More Free Apps by Protomota", systemImage: "arrow.up.right") }
-                .accessibilityIdentifier("settingsProtomotaApps")
+            Button { visit(.apps, url: PulseCanvasCommunity.apps) } label: { row("More Free Apps from Project ATOM", systemImage: "arrow.up.right") }
+                .accessibilityIdentifier("settingsAtomApps")
             Button { visit(.support, url: PulseCanvasCommunity.support) } label: {
                 VStack(alignment: .leading, spacing: 2) {
                     Label("Technical Support", systemImage: "headphones")
@@ -102,10 +102,10 @@ struct MobileSupportCard: View {
                         .simultaneousGesture(TapGesture().onEnded { engagement.recordClick(.share) })
                         .accessibilityIdentifier("supportShare")
                     Button { visit(.support, url: PulseCanvasCommunity.support) } label: {
-                        action("Open a Support Ticket", subtitle: "Free help from a real person", icon: "headphones", kind: .support)
+                        action("Get Help in Our Discord", subtitle: "Free help from a real person", icon: "headphones", kind: .support)
                     }.buttonStyle(.plain).accessibilityIdentifier("supportTicket")
                     Button { visit(.apps, url: PulseCanvasCommunity.apps) } label: {
-                        action("More Free Apps by Protomota", subtitle: "Explore more free apps from our studio", icon: "square.grid.2x2", kind: .apps)
+                        action("More Free Apps from Project ATOM", subtitle: "Every one is a Project ATOM project", icon: "square.grid.2x2", kind: .apps)
                     }.buttonStyle(.plain).accessibilityIdentifier("supportApps")
                 }
                 .padding(.horizontal, 20).padding(.bottom, 12)

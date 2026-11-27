@@ -29,7 +29,7 @@
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.video</string>
 	<key>NSHumanReadableCopyright</key>
-	<string>Copyright © 2026 Protomota, LLC</string>
+	<string>A Project ATOM project</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>CFBundleDocumentTypes</key>

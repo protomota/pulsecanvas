@@ -111,7 +111,7 @@ struct MobileAbout: View {
             Section {
                 Text("PulseCanvas Studio").font(.title2.bold())
                 Text("Music into moving visuals. Free to use, with no account or subscription.")
-                Text("© 2026 Protomota, LLC").foregroundStyle(.secondary)
+                Text("A Project ATOM project").foregroundStyle(.secondary)
             }
             Section("Onboarding") {
                 Button("Welcome to PulseCanvas Studio", systemImage: "sparkles") {

@@ -488,7 +488,7 @@ final class PulseCanvasVisionUITests: XCTestCase {
             appStoreCaptureMark("vision-support"); Thread.sleep(forTimeInterval: 25)
         }
         app.buttons["Legal & Credits"].tap()
-        XCTAssertTrue(app.staticTexts["Copyright © 2026 Protomota, LLC"].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.staticTexts["A Project ATOM project"].waitForExistence(timeout: 10))
         XCTAssertTrue(app.links["Source code on GitHub"].exists)
         app.buttons["closeVisionInfoButton"].tap()
         XCTAssertTrue(app.buttons["playPauseButton"].waitForExistence(timeout: 10))

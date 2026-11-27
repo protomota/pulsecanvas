@@ -114,9 +114,9 @@ import Foundation
         precondition(E.reminderInterval == 7 * day && E.milestone == 5 && E.cardActions.count == 5)
 
         precondition(E.cardActions == [.review, .feedback, .share, .support, .apps])
-        precondition(PulseCanvasCommunity.feedback.absoluteString == "https://protomota.com/apps?app=pulsecanvas#feedback")
-        precondition(PulseCanvasCommunity.support.absoluteString == "https://protomota.com/support?app=pulsecanvas")
-        precondition(PulseCanvasCommunity.apps.absoluteString == "https://protomota.com/apps")
+        precondition(PulseCanvasCommunity.feedback.absoluteString == "https://projectatom.ai/apps?app=pulsecanvas#feedback")
+        precondition(PulseCanvasCommunity.support.absoluteString == "https://discord.gg/FMfeU8cypS")
+        precondition(PulseCanvasCommunity.apps.absoluteString == "https://projectatom.ai/apps")
         fresh()
         print("PASS creator engagement: milestone 5, Later returns weekly, Don't show again is permanent, stops after all five boxes, no tips, one native review at 5")
     }

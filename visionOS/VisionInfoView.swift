@@ -75,7 +75,7 @@ struct VisionInfoView: View {
                     row("Send Feedback", detail: "Your ideas help shape what comes next", icon: "bubble.left.and.bubble.right", action: .feedback)
                 }.buttonStyle(.plain).accessibilityIdentifier("visionSupportFeedback")
                 Button { visit(.apps, url: PulseCanvasCommunity.apps) } label: {
-                    row("More Free Apps by Protomota", detail: "Explore more free apps from our studio", icon: "square.grid.2x2", action: .apps)
+                    row("More Free Apps from Project ATOM", detail: "Every one is a Project ATOM project", icon: "square.grid.2x2", action: .apps)
                 }.buttonStyle(.plain).accessibilityIdentifier("visionSupportApps")
             }
             Text("All features stay free, with no account or subscription.").font(.callout).foregroundStyle(.secondary)
@@ -89,7 +89,7 @@ struct VisionInfoView: View {
 
     private var legal: some View {
         VStack(alignment: .leading, spacing: 20) {
-            Text("Copyright © 2026 Protomota, LLC").foregroundStyle(.secondary)
+            Text("A Project ATOM project").foregroundStyle(.secondary)
             Link("Source code on GitHub", destination: URL(string: "https://github.com/protomota/pulsecanvas")!)
             Text(Bundle.main.url(forResource: "PulseCanvas-LICENSE", withExtension: "txt", subdirectory: "Legal")
                 .flatMap { try? String(contentsOf: $0, encoding: .utf8) } ?? "License unavailable")

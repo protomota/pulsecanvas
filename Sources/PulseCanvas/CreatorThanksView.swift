@@ -59,10 +59,10 @@ struct CreatorThanksView: View {
                         }.buttonStyle(StudioButtonStyle()).background(CommunityShareAnchor(view: shareAnchor))
                             .accessibilityIdentifier("supportShare")
                         Button { visit(.support, url: PulseCanvasCommunity.support) } label: {
-                            action("Open a Support Ticket", detail: "Free help from a real person", icon: "headphones", kind: .support)
+                            action("Get Help in Our Discord", detail: "Free help from a real person", icon: "headphones", kind: .support)
                         }.buttonStyle(StudioButtonStyle()).accessibilityIdentifier("supportTicket")
                         Button { visit(.apps, url: PulseCanvasCommunity.apps) } label: {
-                            action("More Free Apps by Protomota", detail: "Explore more free apps from our studio", icon: "square.grid.2x2", kind: .apps)
+                            action("More Free Apps from Project ATOM", detail: "Every one is a Project ATOM project", icon: "square.grid.2x2", kind: .apps)
                         }.buttonStyle(StudioButtonStyle()).accessibilityIdentifier("supportApps")
                     }
                     VStack(alignment: .leading, spacing: 8) {
@@ -178,7 +178,7 @@ private struct CommunityShareAnchor: NSViewRepresentable {
     }
 }
 
-/// Mac Settings rows, matching every Protomota app.
+/// Mac Settings rows, matching every one of our apps.
 struct PulseCanvasSupportLinks: View {
     @ObservedObject var engagement: CreatorEngagement
     @State private var showingSupport = false
@@ -202,7 +202,7 @@ struct PulseCanvasSupportLinks: View {
             }
         }.accessibilityIdentifier("settingsTechnicalSupport")
         Link(destination: PulseCanvasCommunity.apps) {
-            Label("More Free Apps by Protomota", systemImage: "arrow.up.right")
-        }.accessibilityIdentifier("settingsProtomotaApps")
+            Label("More Free Apps from Project ATOM", systemImage: "arrow.up.right")
+        }.accessibilityIdentifier("settingsAtomApps")
     }
 }
