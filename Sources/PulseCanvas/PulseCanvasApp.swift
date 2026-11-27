@@ -300,7 +300,7 @@ struct CreatorView: View {
             guard !Task.isCancelled, isIdleForPrompt else { return }
             switch engagement.claimPrompt(isIdle: true) {
             case .review: requestReview()
-            case .support: showSupportCard = true
+            case .support: break // no automatic support card (Brad 2026-11-27); it lives in Settings
             case nil: break
             }
         }
