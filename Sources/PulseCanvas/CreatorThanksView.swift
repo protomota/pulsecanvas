@@ -204,5 +204,7 @@ struct PulseCanvasSupportLinks: View {
         Link(destination: PulseCanvasCommunity.apps) {
             Label("More Free Apps from Project ATOM", systemImage: "arrow.up.right")
         }.accessibilityIdentifier("settingsAtomApps")
+        Text("A Project ATOM project").font(.callout).foregroundStyle(.secondary)
+            .accessibilityIdentifier("settingsAtomCredit")
     }
 }
