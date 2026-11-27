@@ -59,7 +59,7 @@ struct CreatorThanksView: View {
                         }.buttonStyle(StudioButtonStyle()).background(CommunityShareAnchor(view: shareAnchor))
                             .accessibilityIdentifier("supportShare")
                         Button { visit(.support, url: PulseCanvasCommunity.support) } label: {
-                            action("Get Help in Our Discord", detail: "Free help from a real person", icon: "headphones", kind: .support)
+                            action("Send Feedback", detail: "We read every note", icon: "headphones", kind: .support)
                         }.buttonStyle(StudioButtonStyle()).accessibilityIdentifier("supportTicket")
                         Button { visit(.apps, url: PulseCanvasCommunity.apps) } label: {
                             action("More Free Apps from Project ATOM", detail: "Every one is a Project ATOM project", icon: "square.grid.2x2", kind: .apps)
@@ -197,7 +197,7 @@ struct PulseCanvasSupportLinks: View {
         Button { engagement.recordClick(.support); openURL(PulseCanvasCommunity.support) } label: {
             VStack(alignment: .leading, spacing: 2) {
                 Label("Technical Support", systemImage: "headphones")
-                Text("Free help from a real person")
+                Text("We read every note")
                     .font(.callout).foregroundStyle(.secondary).padding(.leading, 28)
             }
         }.accessibilityIdentifier("settingsTechnicalSupport")

@@ -155,7 +155,7 @@ final class CreatorEngagement: ObservableObject {
 
 enum PulseCanvasCommunity {
     static let website = URL(string: "https://pulsecanvas.ai/")!
-    static let support = URL(string: "https://discord.gg/FMfeU8cypS")!
+    static let support = URL(string: "https://projectatom.ai/apps?app=pulsecanvas#feedback")!
     static let feedback = URL(string: "https://projectatom.ai/apps?app=pulsecanvas#feedback")!
     static let review = URL(string: "https://apps.apple.com/app/id6821642700?action=write-review")!
     static let apps = URL(string: "https://projectatom.ai/apps")!

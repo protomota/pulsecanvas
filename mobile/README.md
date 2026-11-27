@@ -23,7 +23,7 @@ Radio, favorite-settings and video-export models used by the Mac app.
   cancellation and a Files destination picker. There is no embedded movie player.
 - The native effect catalog and original app icon are reused. The target is
   `STORE_BUILD`; external engines, preset packs and updater frameworks are absent.
-- About & Support retains Protomota, LLC credits, licensing, source and support
+- About & Support shows the Project ATOM credit, licensing, source and support
   links. StoreKit controls automatic review prompt presentation; only a completed
   Files save advances the second-video review milestone.
 

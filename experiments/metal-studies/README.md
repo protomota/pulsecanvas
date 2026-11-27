@@ -46,7 +46,7 @@ Backlit Rift is a separate volumetric smoke study. Metal ray-marches a
 procedural density field, estimates light absorption at each sample, and
 composites a copper filament behind the moving foreground smoke. Claude Fable
 5.2 High directed the composition from
-[Brad's storm-cloud reference](https://x.com/4KAestheticHQ/status/2124757450666774961).
+[Our storm-cloud reference](https://x.com/4KAestheticHQ/status/2124757450666774961).
 
 The preview flies straight through a repeating three-dimensional cloud
 corridor over eight seconds. The camera advances one full depth period at

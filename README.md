@@ -168,9 +168,9 @@ PulseCanvas's original application code, native shaders, build scripts and docum
 
 Third-party code, dependencies and assets keep their own terms. The MIT license on PulseCanvas code does not relicense them or establish permission to redistribute them.
 
-## Made by Protomota. Supported by people.
+## A Project ATOM project. Supported by people.
 
-If PulseCanvas helps you make something you love, share the project, [send feedback](https://protomota.com/apps?app=pulsecanvas#feedback), or leave a rating. Your feedback helps Protomota keep building. Every feature and export stays free.
+If PulseCanvas helps you make something you love, share the project, [send feedback](https://projectatom.ai/apps?app=pulsecanvas#feedback), or leave a rating. Your feedback helps Protomota keep building. Every feature and export stays free.
 
 [Website](https://pulsecanvas.ai/) · [Support](https://pulsecanvas.ai/support/) · [MIT license](LICENSE)
 
@@ -208,10 +208,10 @@ and folder filters live in Library; the top preset strip stays flat.
 ---
 
 <p align="center">
-  <a href="https://protomota.com"><img src="docs/readme/protomota-logo.png" width="40" height="40" alt="Protomota"></a>
+  <a href="https://projectatom.ai/"><img src="docs/readme/atom-credit.png" width="92" height="40" alt="Project ATOM"></a>
 </p>
 
-<p align="center"><strong>Made by <a href="https://protomota.com">Protomota</a>.</strong> Free apps, open source under MIT.</p>
+<p align="center"><strong>A <a href="https://projectatom.ai/">Project ATOM</a> project.</strong> Free apps, open source under MIT.</p>
 
 <p align="center">
   <a href="https://opentalon.ai">OpenTalon</a> ·
@@ -225,4 +225,4 @@ and folder filters live in Library; the top preset strip stays flat.
   <a href="https://bucksley.ai">Bucksley</a>
 </p>
 
-<p align="center"><a href="https://lab.protomota.com">Join the Lab</a> · <a href="https://newsletter.protomota.com">Newsletter</a> · <a href="https://protomota.com/open-source">Open source at Protomota</a></p>
+<p align="center"><a href="https://projectatom.ai/apps">All our apps</a> · <a href="https://projectatom.ai/">Project ATOM</a></p>

@@ -115,7 +115,7 @@ import Foundation
 
         precondition(E.cardActions == [.review, .feedback, .share, .support, .apps])
         precondition(PulseCanvasCommunity.feedback.absoluteString == "https://projectatom.ai/apps?app=pulsecanvas#feedback")
-        precondition(PulseCanvasCommunity.support.absoluteString == "https://discord.gg/FMfeU8cypS")
+        precondition(PulseCanvasCommunity.support.absoluteString == "https://projectatom.ai/apps?app=pulsecanvas#feedback")
         precondition(PulseCanvasCommunity.apps.absoluteString == "https://projectatom.ai/apps")
         fresh()
         print("PASS creator engagement: milestone 5, Later returns weekly, Don't show again is permanent, stops after all five boxes, no tips, one native review at 5")
