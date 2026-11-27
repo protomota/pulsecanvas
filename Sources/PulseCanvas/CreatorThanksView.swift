@@ -1,12 +1,9 @@
 import AppKit
 import SwiftUI
 
-/// Free ways to help PulseCanvas grow: rate, share, send feedback. Opens automatically on
-/// direct-download Macs and from Settings or Help everywhere.
+/// Free ways to help PulseCanvas grow: rate, share, send feedback. Opens only from Settings or Help.
 struct CreatorThanksView: View {
     @ObservedObject var engagement: CreatorEngagement
-    /// True when the reminder opened on its own after a saved video or Radio session.
-    var isAutomatic = false
     /// Where the dismiss button returns the person.
     var returnsToSettings = false
     let done: () -> Void
@@ -15,10 +12,6 @@ struct CreatorThanksView: View {
     @State private var didReset = false
     private let peach = Color(red: 0.95, green: 0.68, blue: 0.55)
     private let background = Color(red: 0.115, green: 0.095, blue: 0.14)
-    private var eyebrow: LocalizedStringKey {
-        guard isAutomatic else { return "RATINGS & SUPPORT" }
-        return engagement.lastMilestone == .radio ? "THANKS FOR LISTENING" : "YOUR VIDEO, SAVED"
-    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -27,20 +20,17 @@ struct CreatorThanksView: View {
                     .resizable().interpolation(.high).frame(width: 66, height: 66)
                     .accessibilityHidden(true)
                 VStack(alignment: .leading, spacing: 7) {
-                    Text(eyebrow)
+                    Text("RATINGS & SUPPORT")
                         .font(.system(size: 12, weight: .bold)).tracking(1.4).foregroundStyle(peach)
                     Text("Free software.\nSupported by people.")
                         .font(.system(size: 28, weight: .semibold, design: .rounded))
                         .fixedSize(horizontal: false, vertical: true)
                 }
                 Spacer(minLength: 0)
-                // The automatic card dismisses only with Later or Don't show again.
-                if !isAutomatic {
-                    Button(action: done) { Image(systemName: "xmark") }
-                        .buttonStyle(StudioButtonStyle(treatment: .quiet, circular: true))
-                        .accessibilityLabel("Close support message")
-                        .accessibilityIdentifier("supportClose")
-                }
+                Button(action: done) { Image(systemName: "xmark") }
+                    .buttonStyle(StudioButtonStyle(treatment: .quiet, circular: true))
+                    .accessibilityLabel("Close support message")
+                    .accessibilityIdentifier("supportClose")
             }.padding(.bottom, 22)
             ScrollView {
                 VStack(alignment: .leading, spacing: 20) {
@@ -81,24 +71,11 @@ struct CreatorThanksView: View {
                 Text("Every feature stays free. No account, no subscription.")
                     .fixedSize(horizontal: false, vertical: true)
                     .font(.system(size: 12)).foregroundStyle(.secondary)
-                // Don't show again sits far left, away from the Later pill on the right.
                 HStack(spacing: 18) {
-                    if isAutomatic {
-                        Button("Don’t show again") {
-                            engagement.dismissSupportReminderForever()
-                            done()
-                        }
-                        .buttonStyle(.plain)
-                        .font(.system(size: 12.5, weight: .medium))
-                        .foregroundStyle(Color.white.opacity(0.72))
-                        .accessibilityHint("Stops this message from opening on its own. Settings still opens it.")
-                        .accessibilityIdentifier("supportDontShowAgain")
-                    }
                     Spacer(minLength: 0)
                     Button(action: done) {
-                        Text(isAutomatic ? "Later" : (returnsToSettings ? "Back to Settings" : "Back to Studio"))
+                        Text(returnsToSettings ? "Back to Settings" : "Back to Studio")
                             .font(.system(size: 14, weight: .semibold))
-                            .frame(minWidth: isAutomatic ? 150 : nil)
                     }
                     .buttonStyle(StudioButtonStyle(treatment: .primary))
                     .keyboardShortcut(.cancelAction)
@@ -119,9 +96,8 @@ struct CreatorThanksView: View {
     }
 
     private func visit(_ kind: CreatorEngagement.Action, url: URL) {
-        let finished = engagement.recordClick(kind); didReset = false
+        engagement.recordClick(kind); didReset = false
         openURL(url)
-        if finished, isAutomatic { done() }
     }
 
     private func action(_ title: LocalizedStringKey, detail: LocalizedStringKey, icon: String,

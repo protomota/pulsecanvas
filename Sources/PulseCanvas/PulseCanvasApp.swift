@@ -233,7 +233,6 @@ struct CreatorView: View {
     @State private var showProjectSettings = false
     @State private var showRadio = false
     @State private var showMusicPicker = false
-    @State private var showSupportCard = false
     @ObservedObject private var engagement = CreatorEngagement.shared
     @Environment(\.requestReview) private var requestReview
     private let accent = Color(red: 0.95, green: 0.68, blue: 0.55)
@@ -288,30 +287,16 @@ struct CreatorView: View {
         .task(id: promptKey) {
             guard isIdleForPrompt, engagement.mayPrompt else { return }
             // Let the saved-video confirmation settle; leaving Radio or exporting cancels the wait.
+            // Only Apple's rating sheet opens on its own; the support card lives in Settings and Help.
             do { try await Task.sleep(for: engagement.promptDelay) } catch { return }
-            // Another sheet or an inactive app must not consume a reminder.
-            while engagement.usesCustomReminders && !presentation.canPresentEditorSheet {
-                guard !Task.isCancelled, isIdleForPrompt, engagement.mayPrompt else { return }
-                do { try await Task.sleep(for: .seconds(1)) } catch { return }
-            }
-            if !engagement.usesCustomReminders {
-                guard await CreatorEngagement.isProductionAppStoreInstall() else { return }
-            }
+            guard await CreatorEngagement.isProductionAppStoreInstall() else { return }
             guard !Task.isCancelled, isIdleForPrompt else { return }
-            switch engagement.claimPrompt(isIdle: true) {
-            case .review: requestReview()
-            case .support: break // no automatic support card (Brad 2026-11-27); it lives in Settings
-            case nil: break
-            }
-        }
-        .sheet(isPresented: $showSupportCard) {
-            CreatorThanksView(engagement: engagement, isAutomatic: true) { showSupportCard = false }
-                .dismissOnOutsideClick { showSupportCard = false }
+            if engagement.claimPrompt(isIdle: true) == .review { requestReview() }
         }
     }
 
     private var isIdleForPrompt: Bool {
-        !exporter.isExporting && !radio.isActive && !presentation.isPresented && !showSupportCard
+        !exporter.isExporting && !radio.isActive && !presentation.isPresented
             && !showVisualizerBrowser && !showProjectSettings && !showHelp && !showRadio && !showMusicPicker
     }
 

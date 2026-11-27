@@ -1,7 +1,7 @@
 import AppKit
 import SwiftUI
 
-/// Test-only: renders the real Mac Settings support rows and the reminder card offscreen
+/// Test-only: renders the real Mac Settings support rows and the support card offscreen
 /// (no screen capture or UI automation) so proof PNGs can be made with the Mac locked.
 @main
 struct SupportProofRender {
@@ -13,7 +13,7 @@ struct SupportProofRender {
         // The card shows the app icon; a bare executable has none, so use the generated one.
         if let icon = NSImage(contentsOfFile: ".build/AppIcon.iconset/icon_512x512@2x.png") { NSApp.applicationIconImage = icon }
         let preferences = UserDefaults(suiteName: "PulseCanvas.supportProof.\(UUID().uuidString)")!
-        let engagement = CreatorEngagement(preferences: preferences, usesCustomReminders: true)
+        let engagement = CreatorEngagement(preferences: preferences)
         engagement.recordClick(.review)
         engagement.recordClick(.feedback)
 
@@ -27,8 +27,8 @@ struct SupportProofRender {
         }.formStyle(.grouped).frame(width: 560, height: 520)
         try render(settings, to: output.appendingPathComponent("mac-settings-support.png"))
 
-        let card = CreatorThanksView(engagement: engagement, isAutomatic: true) {}
-        try render(card, to: output.appendingPathComponent("mac-reminder-card.png"))
+        let card = CreatorThanksView(engagement: engagement, returnsToSettings: true) {}
+        try render(card, to: output.appendingPathComponent("mac-support-card.png"))
     }
 
     @MainActor static func render<Content: View>(_ view: Content, to url: URL) throws {

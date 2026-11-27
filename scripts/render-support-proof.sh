@@ -1,5 +1,5 @@
 #!/bin/bash
-# Test-only: render the Mac Settings support rows and reminder card to PNGs offscreen.
+# Test-only: render the Mac Settings support rows and Settings support card to PNGs offscreen.
 #   scripts/render-support-proof.sh OUTPUT_DIR
 set -euo pipefail
 cd "$(dirname "$0")/.."
