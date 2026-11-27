@@ -35,7 +35,7 @@ Current builds do not link the engine or bundle external presets/textures/recove
 Historical notices/manifests are retained separately and are not current app resources.
 Engine-source/rebuild archives for historical distributions remain preserved in the checkout;
 they are not dependencies of this original-Metal snapshot and are not included here.
-The application code is open source under the MIT license. Read LICENSE and docs/licensing.md.
+The application code is open source and public domain (Unlicense). Read LICENSE and docs/licensing.md.
 Only the current native checks in docs/ORIGINAL-VISUALS-EXPANSION.md apply to this edition.
 Legacy external-engine and removed-geometry test scripts are historical and are not run.
 ''')

@@ -33,11 +33,11 @@ resolve it. Existing engine-source/rebuild/signing work is retained as engineeri
 evidence. It does not establish Apple-store compatibility or authorize submission
 or a distribution-channel change.
 
-PulseCanvas's first-party source code is governed by the MIT License in the root LICENSE. Commercial use, resale and forks are allowed; using the official application to make commercial videos remains permitted. Dependencies, preset authors' works, textures, and music retain their own licenses, including commercial permissions and required LGPL modification/relinking rights. Preserve author names, catalog original titles, and all upstream notices. No presets have been removed for licensing as part of this preparation. Earlier MIT-licensed releases retain their original terms; this change is not retroactive.
+PulseCanvas's first-party source code is dedicated to the public domain under The Unlicense in the root LICENSE. Commercial use, resale and forks are allowed; using the official application to make commercial videos remains permitted. Dependencies, preset authors' works, textures, and music retain their own licenses, including commercial permissions and required LGPL modification/relinking rights. Preserve author names, catalog original titles, and all upstream notices. No presets have been removed for licensing as part of this preparation. Earlier MIT-licensed releases retain their original terms; this change is not retroactive.
 
 | Component | Evidence / terms | Release status |
 |---|---|---|
-| PulseCanvas first-party code, native shaders and build scripts | Root LICENSE, MIT License | Include exact notice; official-app video production allowed |
+| PulseCanvas first-party code, native shaders and build scripts | Root LICENSE, The Unlicense (public domain) | Include exact notice; official-app video production allowed |
 | Native shader resources / geometry | AIR source modules and geometry verification notes; Brad says he created the shaders | Creator attestation recorded; no separate shader license requested |
 | ProjectM 4.2.0 source snapshot | `third_party/projectm-source.tar.gz`, upstream commit 349b7cc2db312d47cef6be24c6856ced6643a385; LGPL 2.1 or later | Source, notices, rebuild/relink route and distribution terms required |
 | projectm-eval / hlslparser | Embedded source LICENSE files, MIT | Included in generated Legal resources |
@@ -51,7 +51,7 @@ Suno terms checked 2026-10-11 (effective 2026-09-03) permit commercial exploitat
 
 ## LGPL engineering and distribution
 
-The app dynamically opens `Contents/Frameworks/libprojectM.dylib`. PulseCanvas code is open source (MIT) and can be rebuilt subject to the root LICENSE, which explicitly preserves required LGPL modification/relinking rights for the customer's own use, including commercial own use. The matching engine source includes its vendor code and build configuration; prepare it with `scripts/package-store-source.sh`. Provide the archive alongside the app download/listing source page, with no authentication/paywall. Keep that exact archive per release rather than only pointing to a moving upstream branch.
+The app dynamically opens `Contents/Frameworks/libprojectM.dylib`. PulseCanvas code is open source and public domain (Unlicense) and can be rebuilt subject to the root LICENSE, which explicitly preserves required LGPL modification/relinking rights for the customer's own use, including commercial own use. The matching engine source includes its vendor code and build configuration; prepare it with `scripts/package-store-source.sh`. Provide the archive alongside the app download/listing source page, with no authentication/paywall. Keep that exact archive per release rather than only pointing to a moving upstream branch.
 
 LGPL 2.1 sections 4 and 6 require the applicable notices/license and an allowed route to modify/relink the library; section 6 also requires terms allowing modification for the customer's own use and reverse engineering for debugging those modifications. Complete application source and library source/build scripts are the proposed section 6(a) route. The scripts compile the engine as a shared library, build the MIT app and sign a local test copy. The root LICENSE preserves those required rights and adds no restriction on them. The repository contains rebuildable AIR IR; recipients need the compatible Apple build tools. Validate the source package from a fresh checkout before claiming completeness.
 

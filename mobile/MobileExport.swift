@@ -133,7 +133,7 @@ struct MobileAbout: View {
                 MobileSupportLinks(engagement: editor.engagement)
             }
             Section("Legal & Credits") {
-                Text("First-party source is open source under the MIT license. Third-party assets keep their separate terms. Native Metal effects only; no projectM engine or external preset pack is included.")
+                Text("First-party source is open source and public domain (Unlicense). Third-party assets keep their separate terms. Native Metal effects only; no projectM engine or external preset pack is included.")
                 Link("Source code on GitHub", destination: URL(string: "https://github.com/projectatomai/pulsecanvas")!)
                 Link("Privacy policy", destination: URL(string: "https://pulsecanvas.ai/privacy/")!)
                 if let url = Bundle.main.url(forResource: "PulseCanvas-LICENSE", withExtension: "txt", subdirectory: "Legal"), let license = try? String(contentsOf: url, encoding: .utf8) {

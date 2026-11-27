@@ -8,7 +8,7 @@
 
 **Turn a soundtrack into moving art. Made on your Mac.**
 
-Free app · Open source (MIT) · Two Mac editions · Beat-aligned scenes · Up to 4K at 60 fps
+Free app · Open source, public domain (Unlicense) · Two Mac editions · Beat-aligned scenes · Up to 4K at 60 fps
 
 [Explore the visuals](#find-your-signature-look) · [Meet Studio](#give-your-song-a-visual-story) · [Make a video](#from-beat-to-video) · [Build the app](#build-it-on-your-mac)
 
@@ -119,7 +119,7 @@ Visit **[pulsecanvas.ai](https://pulsecanvas.ai/)** for the project website, or 
 
 Both editions support Studio, native visual settings and video export. Native projects can move between editions; full-library projects require the direct edition. Preferences for the full preset library remain separate so the Metal edition does not overwrite them.
 
-The app is free, and its source is open under the MIT license; see [Licensing and credits](#licensing-and-credits) for the separate application, engine, and asset terms. The projectM licensing warning applies to the full-library edition; the Store package excludes that engine and its presets/textures. This exclusion does not establish rights clearance for assets in the direct edition.
+The app is free, and its source is open and in the public domain (Unlicense); see [Licensing and credits](#licensing-and-credits) for the separate application, engine, and asset terms. The projectM licensing warning applies to the full-library edition; the Store package excludes that engine and its presets/textures. This exclusion does not establish rights clearance for assets in the direct edition.
 
 ## Build it on your Mac
 
@@ -164,21 +164,21 @@ The [user guide](docs/USER_GUIDE.md#checks) lists the wider rendering, playback,
 
 Use the official PulseCanvas app for personal projects or paid creative work. Every feature and export is free. Your video output is yours; music, presets, textures and other material still need their own applicable permissions.
 
-PulseCanvas's original application code, native shaders, build scripts and documentation are open source under the [MIT license](LICENSE). Use them, change them, ship them, sell them.
+PulseCanvas's original application code, native shaders, build scripts and documentation are open source and in the public domain under [The Unlicense](LICENSE). Use them, change them, ship them, sell them.
 
-Third-party code, dependencies and assets keep their own terms. The MIT license on PulseCanvas code does not relicense them or establish permission to redistribute them.
+Third-party code, dependencies and assets keep their own terms. The Unlicense on PulseCanvas code does not relicense them or establish permission to redistribute them.
 
 ## A Project ATOM project. Supported by people.
 
 If PulseCanvas helps you make something you love, share the project, [send feedback](https://projectatom.ai/apps?app=pulsecanvas#feedback), or leave a rating. Your feedback helps Protomota keep building. Every feature and export stays free.
 
-[Website](https://pulsecanvas.ai/) · [Support](https://pulsecanvas.ai/support/) · [MIT license](LICENSE)
+[Website](https://pulsecanvas.ai/) · [Support](https://pulsecanvas.ai/support/) · [public domain (Unlicense)](LICENSE)
 
 ## Licensing and credits
 
 | Material | License or provenance |
 | --- | --- |
-| **Original application code, native shaders, build scripts and documentation** | [MIT license](LICENSE), with required third-party rights preserved. |
+| **Original application code, native shaders, build scripts and documentation** | [public domain (Unlicense)](LICENSE), with required third-party rights preserved. |
 | **App branding, icon, screenshots and campaign artwork** | Brand assets are distinct from the effect library. [README artwork sources](assets/readme/README.md) distinguish conceptual artwork from real app captures. The application license grants no trademark rights or endorsement. |
 | **projectM engine — Creators edition** | Its own LGPL terms, notices, corresponding source and rebuild/relink instructions in [third_party/PROJECTM.md](third_party/PROJECTM.md). |
 | **Imported presets and textures — Creators edition** | Their original notices and separate [provenance record](Sources/PulseCanvas/Resources/ProjectM/Provenance.md); individual permissions remain unresolved. |
@@ -211,7 +211,7 @@ and folder filters live in Library; the top preset strip stays flat.
   <a href="https://projectatom.ai/"><img src="docs/readme/atom-credit.png" width="92" height="40" alt="Project ATOM"></a>
 </p>
 
-<p align="center"><strong>A <a href="https://projectatom.ai/">Project ATOM</a> project.</strong> Free apps, open source under MIT.</p>
+<p align="center"><strong>A <a href="https://projectatom.ai/">Project ATOM</a> project.</strong> Free apps, open source and public domain (Unlicense).</p>
 
 <p align="center">
   <a href="https://opentalon.ai">OpenTalon</a> ·

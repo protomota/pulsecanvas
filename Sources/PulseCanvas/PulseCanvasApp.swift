@@ -17,7 +17,7 @@ struct LegalCreditsView: View {
             VStack(alignment: .leading, spacing: 16) {
                 Text("Legal & Credits").font(.title2).accessibilityAddTraits(.isHeader)
                 Text("Application").font(.headline)
-                Text("PulseCanvas first-party code is open source under the MIT license. Third-party components and assets have separate terms.")
+                Text("PulseCanvas first-party code is open source and public domain (Unlicense). Third-party components and assets have separate terms.")
                 #if STORE_BUILD
                 Text("Metal edition").font(.headline)
                 Text("This App Store edition includes \(NativeEffects.activeIDs.count) Metal visualizers. The projectM engine, OpenGL presets, and texture pack are not included.")

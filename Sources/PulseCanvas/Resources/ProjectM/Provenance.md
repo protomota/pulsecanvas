@@ -66,7 +66,7 @@ does not settle either asset pack's permissions.
 
 ## Application and engine — independent terms
 
-Current first-party code uses the root MIT license. That license
+Current first-party code uses the root Unlicense (public domain). That license
 does not relicense third-party materials. projectM 4.2.0 remains LGPL 2.1 or later;
 its vendor components retain their own notices. Matching engine source and
 rebuild/relink scripts are retained. See `third_party/PROJECTM.md` and
